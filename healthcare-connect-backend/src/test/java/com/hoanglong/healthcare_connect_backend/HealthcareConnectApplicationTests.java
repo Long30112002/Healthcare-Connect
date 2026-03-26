@@ -1,10 +1,11 @@
-package com.hoanglong.ealthcare_connect;
+package com.hoanglong.healthcare_connect_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EalthcareConnectApplicationTests {
+class HealthcareConnectApplicationTests
+{
 
 	@Test
 	void contextLoads() {
