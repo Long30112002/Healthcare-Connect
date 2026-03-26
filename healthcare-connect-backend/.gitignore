@@ -42,3 +42,4 @@ Thumbs.db
 # --- OTHERS ---
 .pnpm-debug.log*
 node_modules/
+NhatKyThucHien.txt

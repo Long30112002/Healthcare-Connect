@@ -1,7 +1,10 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
+import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
+import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,10 +16,10 @@ public class RegisterUserUseCase {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User execute(UserRegistrationRequest request) {
+    public UserResponse execute(UserRegistrationRequest request) {
         // 1. Kiểm tra email trùng
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email đã được sử dụng!");
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         // 2. Mã hóa mật khẩu và lưu
@@ -28,6 +31,15 @@ public class RegisterUserUseCase {
                 .phone(request.getPhone())
                 .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole())
+                .phone(savedUser.getPhone())
+                .createdAt(savedUser.getCreatedAt())
+                .build();
     }
 }

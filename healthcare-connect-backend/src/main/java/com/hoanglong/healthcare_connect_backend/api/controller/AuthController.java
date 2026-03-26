@@ -1,19 +1,63 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
+import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.*;
+import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterUserUseCase;
+import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public String register(@RequestBody UserRegistrationRequest request) {
-        registerUserUseCase.execute(request);
-        return "Đăng ký thành công!";
+    public ApiResponse<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
+        UserResponse response = registerUserUseCase.execute(request);
+        return ApiResponse.<UserResponse>builder()
+                .status("success")
+                .code(201)
+                .message("Đăng ký thành công!")
+                .data(response)
+                .build();
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
+        var result = authenticationService.authenticate(request);
+
+        return ApiResponse.<LoginResponse>builder()
+                .status("success")
+                .code(200)
+                .message("Đăng nhập thành công!")
+                .data(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+                .status("success")
+                .code(200)
+                .message("Đăng xuất thành công!")
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) {
+        var result = authenticationService.introspect(request);
+        return ApiResponse.<IntrospectResponse>builder()
+                .status("success")
+                .code(200)
+                .data(result)
+                .build();
     }
 }
