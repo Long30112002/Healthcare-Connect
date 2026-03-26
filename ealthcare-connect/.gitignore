@@ -1,0 +1,44 @@
+# --- JAVA & BUILD ---
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+bin/
+build/
+
+# --- CONFIG & SECRETS  ---
+.env
+*.env
+application-local.properties
+application-dev.properties
+config/local.properties
+
+# --- IDEs ---
+.idea
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+.apt_generated
+.sts4-cache
+.springBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# --- LOGS & SYSTEM ---
+*.log
+logs/
+.DS_Store
+Thumbs.db
+
+# --- OTHERS ---
+.pnpm-debug.log*
+node_modules/
