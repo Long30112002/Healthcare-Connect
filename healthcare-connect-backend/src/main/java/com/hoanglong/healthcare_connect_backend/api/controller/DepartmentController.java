@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DepartmentService;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
@@ -17,7 +18,7 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @PostMapping
-    public ApiResponse<DepartmentResponse> create(@RequestBody Department request) {
+    public ApiResponse<DepartmentResponse> create(@RequestBody DepartmentRequest request) {
         return ApiResponse.<DepartmentResponse>builder()
                 .status("success")
                 .code(200)

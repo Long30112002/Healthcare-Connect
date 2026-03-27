@@ -2,25 +2,24 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.repository.UserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class VerifyUserUseCase {
-    private final UserRepository userRepository;
+    private final JpaUserRepository jpaUserRepository;
 
     public ApiResponse<String> execute(String code) {
         // 1. Kiểm tra mã hết hạn trước (Dùng Query cũ để lấy thời gian hết hạn)
-        var userOptional = userRepository.findByVerificationCode(code);
+        var userOptional = jpaUserRepository.findByVerificationCode(code);
 
         // 2. Xử lý IDEMPOTENCY (Quan trọng)
         if (userOptional.isEmpty()) {
@@ -46,7 +45,7 @@ public class VerifyUserUseCase {
         }
 
         // 4. Kích hoạt bằng @Modifying để tối ưu hiệu năng
-        userRepository.verifyUserByCode(code);
+        jpaUserRepository.verifyUserByCode(code);
 
         log.info("Tài khoản {} đã xác thực thành công qua mã {}", user.getEmail(), code);
 

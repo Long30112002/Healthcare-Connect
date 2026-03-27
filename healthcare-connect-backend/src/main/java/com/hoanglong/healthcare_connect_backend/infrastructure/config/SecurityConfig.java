@@ -21,49 +21,44 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // Giúp Long dùng được @PreAuthorize("hasRole('ADMIN')") ở Controller
 public class SecurityConfig {
+
     @Value("${jwt.signerKey}")
     private String signerKey;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable); // Tắt CSRF trước
+        http.csrf(AbstractHttpConfigurer::disable);
 
-        http.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST,
-                                "/api/auth/login",
-                                "/api/auth/register",
-                                "/api/auth/introspect",
-                                "/api/auth/logout")
-                        .permitAll() // Cho phép đi qua không cần token
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/auth/verify")
-                        .permitAll()
-                        .anyRequest().authenticated()); // Các cái khác mới cần
+        http.authorizeHttpRequests(request -> request
+                // 1. Các API xác thực (Login/Register) - Luôn luôn mở
+                .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
+
+                // 2. CẤU HÌNH CHO DEPARTMENTS & SPECIALTIES
+                // Cho phép xem (GET) tự do - Viết cụ thể URL
+                .requestMatchers(HttpMethod.GET, "/api/departments", "/api/departments/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/specialties", "/api/specialties/**").permitAll()
+
+                // Chỉ ADMIN mới được tác động (POST/PUT/DELETE)
+                .requestMatchers("/api/departments/**", "/api/specialties/**").hasRole("ADMIN")
+
+                // 3. Tất cả các API còn lại phải ĐĂNG NHẬP
+                .anyRequest().authenticated()
+        );
 
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
-                // Đảm bảo EntryPoint này được gọi khi JWT sai/thiếu ở các API CẦN AUTHENTICATED
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
-        //        http.exceptionHandling(exception ->
-//                exception.authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-//        );
-
-//        http.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
-
+    // Các Bean jwtDecoder và jwtAuthenticationConverter giữ nguyên như code của bạn là chuẩn rồi!
     @Bean
     JwtDecoder jwtDecoder() {
         SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS256");
@@ -75,12 +70,16 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        // Đổi từ "scope" sang "role"
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Thêm ROLE_ để khớp với hasRole("ADMIN")
         grantedAuthoritiesConverter.setAuthoritiesClaimName("role");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

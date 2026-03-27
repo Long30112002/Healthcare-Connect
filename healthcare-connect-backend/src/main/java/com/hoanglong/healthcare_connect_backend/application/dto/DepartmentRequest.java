@@ -1,19 +1,20 @@
 package com.hoanglong.healthcare_connect_backend.application.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DepartmentResponse {
-    UUID id;
+public class DepartmentRequest {
+    @NotBlank(message = "NAME_INVALID")
     String name;
+    @NotBlank(message = "CODE_REQUIRED")
+    @Pattern(regexp = "^[A-Z0-9_]+$", message = "CODE_INVALID_FORMAT") // Chỉ cho phép chữ hoa, số, gạch dưới
     String code;
     String description;
 }

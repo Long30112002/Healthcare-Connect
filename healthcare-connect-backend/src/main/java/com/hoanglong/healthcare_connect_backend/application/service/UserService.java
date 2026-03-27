@@ -1,35 +1,39 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class UserService extends BaseService<User, UserResponse, String> {
+public class UserService extends BaseService<User, UserRegistrationRequest, UserResponse, String> {
 
-    private final UserRepository userRepository;
+    private final JpaUserRepository jpaUserRepository;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(JpaUserRepository jpaUserRepository, UserMapper userMapper) {
         super(ErrorCode.USER_NOT_FOUND, ErrorCode.USER_EXISTED);
-        this.userRepository = userRepository;
+        this.jpaUserRepository = jpaUserRepository;
         this.userMapper = userMapper;
     }
 
     // Bắt buộc Override các "đầu nối" cho BaseService
-    @Override protected JpaRepository<User, String> getRepository() { return userRepository; }
+    @Override protected JpaRepository<User, String> getRepository() { return jpaUserRepository; }
     @Override protected BaseMapper<User, UserResponse> getMapper() { return userMapper; }
+
+    @Override
+    protected User mapToEntity(UserRegistrationRequest request) {
+        // Nếu đã có RegisterUserUseCase thì có thể để trống hoặc
+        // dùng Mapper để chuyển đổi ở đây
+        return userMapper.toEntity(request);
+    }
 
     // Các hàm CRUD như getById, getAll, delete... giờ ĐÃ CÓ SẴN, không cần viết gì thêm!
 
@@ -38,7 +42,7 @@ public class UserService extends BaseService<User, UserResponse, String> {
         String email = context.getAuthentication().getName();
 
         // Tận dụng chính cái 'notFoundCode' đã nạp vào từ constructor nếu muốn dùng chung
-        return userRepository.findByEmail(email)
+        return jpaUserRepository.findByEmail(email)
                 .map(userMapper::toResponse)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }

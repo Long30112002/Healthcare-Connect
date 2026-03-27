@@ -7,13 +7,14 @@ import lombok.experimental.FieldDefaults;
 import java.util.UUID;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DepartmentResponse {
+public class SpecialtyResponse {
     UUID id;
-    String name;
     String code;
+    String name;
     String description;
+    DepartmentResponse department; // Trả về cả thông tin Khoa
 }
