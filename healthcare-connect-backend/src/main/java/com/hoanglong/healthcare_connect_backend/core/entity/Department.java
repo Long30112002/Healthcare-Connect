@@ -1,11 +1,10 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "departments")
@@ -16,7 +15,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Department {
     @Id
-    String id; // "K01", "K02" hoặc dùng UUID
+    @GeneratedValue(strategy = GenerationType.UUID) // Hibernate sẽ tự hiểu và phối hợp với Postgres
+    private UUID id; // "K01", "K02" hoặc dùng UUID
 
     @Column(unique = true, nullable = false)
     String name;

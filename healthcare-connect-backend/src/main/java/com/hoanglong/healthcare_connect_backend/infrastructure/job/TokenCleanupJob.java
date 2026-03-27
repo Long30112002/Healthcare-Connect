@@ -7,22 +7,24 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class TokenCleanupJob {
+public class TokenCleanupJob
+{
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
-    // Chạy vào lúc 1 giờ sáng mỗi ngày
+    // Chạy vào lúc 1 giờ sáng (0 giây, 0 phút, 1 giờ, mỗi ngày, mỗi tháng, mỗi năm)
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void cleanupExpiredTokens() {
         log.info("Bắt đầu dọn dẹp Token đã hết hạn...");
 
-        // Xóa tất cả token có expiryTime nhỏ hơn thời điểm hiện tại
-        invalidatedTokenRepository.deleteAllByExpiryTimeBefore(new Date());
+        // Dùng LocalDateTime.now() cho đồng bộ với Entity
+        invalidatedTokenRepository.deleteAllByExpiryTimeBefore(LocalDateTime.now());
 
         log.info("Dọn dẹp hoàn tất!");
     }

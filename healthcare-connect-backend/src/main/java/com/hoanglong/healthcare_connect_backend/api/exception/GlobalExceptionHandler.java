@@ -32,6 +32,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handlingRuntimeException(Exception exception) {
+        // In lỗi ra Console để Long dễ debug
+        exception.printStackTrace();
+
+        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .status("error")
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(value = AppException.class)
     public ResponseEntity<ApiResponse<Object>> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();

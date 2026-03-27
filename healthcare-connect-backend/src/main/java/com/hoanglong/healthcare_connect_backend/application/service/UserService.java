@@ -16,27 +16,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService extends BaseService<User, UserResponse, String> {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
+        super(ErrorCode.USER_NOT_FOUND, ErrorCode.USER_EXISTED);
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
     // Bắt buộc Override các "đầu nối" cho BaseService
     @Override protected JpaRepository<User, String> getRepository() { return userRepository; }
     @Override protected BaseMapper<User, UserResponse> getMapper() { return userMapper; }
-    @Override protected ErrorCode getNotFoundErrorCode() { return ErrorCode.USER_NOT_FOUND; }
-    @Override protected ErrorCode getAlreadyExistsErrorCode() { return ErrorCode.USER_EXISTED; }
 
-    // Hàm getAll() giờ đã có sẵn từ BaseService, Long không cần viết lại!
+    // Các hàm CRUD như getById, getAll, delete... giờ ĐÃ CÓ SẴN, không cần viết gì thêm!
 
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
 
-        User user = userRepository.findByEmail(email)
+        // Tận dụng chính cái 'notFoundCode' đã nạp vào từ constructor nếu muốn dùng chung
+        return userRepository.findByEmail(email)
+                .map(userMapper::toResponse)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        return userMapper.toResponse(user);
     }
 }

@@ -12,7 +12,6 @@ import java.util.List;
 public abstract class BaseService<E, R, ID> {
 //    E (Entity): Đại diện cho bất kỳ Entity nào (User, Specialty, Appointment...).
 //    R (Response): Đại diện cho DTO trả về tương ứng.
-
     protected abstract JpaRepository<E, ID> getRepository();
     protected abstract BaseMapper<E, R> getMapper();
 
