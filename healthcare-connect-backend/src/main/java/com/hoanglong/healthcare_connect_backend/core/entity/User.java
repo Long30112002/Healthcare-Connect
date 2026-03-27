@@ -28,6 +28,13 @@ public class User {
 
     private LocalDateTime createdAt;
 
+    private String verificationCode;
+
+    private LocalDateTime verificationExpiry;
+
+    @Column(name = "is_enabled")
+    private Boolean enabled = false;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

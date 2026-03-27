@@ -8,6 +8,7 @@ import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.InvalidatedTokenRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.UserRepository;
+import com.hoanglong.healthcare_connect_backend.shared.annotation.Throttling;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -38,23 +39,56 @@ public class AuthenticationService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
+    @Throttling(limit = 5, duration = 60) // 1 phút chỉ được sai pass 5 lần
     public LoginResponse authenticate(LoginRequest request) {
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        // 1. Tìm user (Nếu không thấy thì trả về null chứ không ném lỗi ngay)
+        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
-        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
+        // 2. KIỂM TRA TỔNG HỢP:
+        if (user == null ||
+                !passwordEncoder.matches(request.getPassword(), user.getPassword()) ||
+                !Boolean.TRUE.equals(user.getEnabled())) {
 
-        if (!authenticated) {
-            log.warn("Đăng nhập thất bại cho email: {}", request.getEmail());
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            log.warn("Đăng nhập thất bại (Sai mail/pass/chưa verify) cho email: {}", request.getEmail());
+
+            // LUÔN ném ra duy nhất 1 mã lỗi chung cho mọi trường hợp
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        // TẠO CẢ 2 TOKEN Ở ĐÂY
-        var accessToken = generateToken(user, 1);  // Hạn 1 giờ
-        var refreshToken = generateToken(user, 720); // Hạn 30 ngày (30 * 24 = 720 giờ)
+        // 3. Nếu lọt xuống đây nghĩa là MỌI THỨ ĐỀU ĐÚNG -> Tạo Token
+        var accessToken = generateToken(user, 1);
+        var refreshToken = generateToken(user, 720);
 
         return userMapper.toLoginResponse(user, accessToken, refreshToken);
     }
+
+//    public AuthenticationResponse login(LoginRequest request) {
+//        // 1. Tìm user theo email
+//        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
+//
+//        // 2. Kiểm tra tổng hợp (Dùng toán tử lười || để bảo mật)
+//        // Nếu user null, hoặc pass không khớp, hoặc chưa enabled -> Đều là lỗi "Invalid Credentials"
+//        if (user == null ||
+//                !passwordEncoder.matches(request.getPassword(), user.getPassword()) ||
+//                !Boolean.TRUE.equals(user.getEnabled())) {
+//
+//            // Luôn ném ra 1 lỗi duy nhất: "Email hoặc mật khẩu không chính xác"
+//            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+//        }
+//
+//        // 3. Nếu mọi thứ OK -> Tạo Token
+//        String token = generateToken(user, 24);
+//
+//        return AuthenticationResponse.builder()
+//                .token(token)
+//                .authenticated(true)
+//                .user(UserResponse.builder()
+//                        .email(user.getEmail())
+//                        .fullName(user.getFullName())
+//                        .role(user.getRole())
+//                        .build())
+//                .build();
+//    }
 
     private String generateToken(User user, int durationHours) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
@@ -154,4 +188,5 @@ public class AuthenticationService {
         } catch (AppException e) {
             log.warn("Token đã hết hạn hoặc không hợp lệ, không cần logout nữa.");
         }
-    }}
+    }
+}

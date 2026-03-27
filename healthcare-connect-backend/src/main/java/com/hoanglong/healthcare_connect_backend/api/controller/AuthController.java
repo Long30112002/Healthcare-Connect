@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.*;
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
+import com.hoanglong.healthcare_connect_backend.application.service.VerifyUserUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterUserUseCase;
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
@@ -17,28 +18,27 @@ import java.text.ParseException;
 public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
     private final AuthenticationService authenticationService;
+    private final VerifyUserUseCase verifyUserUseCase;
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
-        UserResponse response = registerUserUseCase.execute(request);
-        return ApiResponse.<UserResponse>builder()
-                .status("success")
-                .code(201)
-                .message("Đăng ký thành công!")
-                .data(response)
-                .build();
+    public ApiResponse<UserResponse> register(@RequestBody @Valid UserRegistrationRequest request) {
+        return registerUserUseCase.execute(request);
     }
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
         var result = authenticationService.authenticate(request);
-
         return ApiResponse.<LoginResponse>builder()
                 .status("success")
                 .code(200)
                 .message("Đăng nhập thành công!")
                 .data(result)
                 .build();
+    }
+
+    @GetMapping("/verify")
+    public ApiResponse<String> verify(@RequestParam("code") String code) {
+        return verifyUserUseCase.execute(code);
     }
 
     @PostMapping("/logout")

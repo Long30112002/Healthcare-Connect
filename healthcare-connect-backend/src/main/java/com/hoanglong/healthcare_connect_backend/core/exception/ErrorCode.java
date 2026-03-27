@@ -17,6 +17,8 @@ public enum ErrorCode {
     TOKEN_CREATION_FAILED(400, "Tạo token thất bại!", HttpStatus.BAD_REQUEST),
     DEPARTMENT_NOT_FOUND(404, "Khoa không tồn tại trong hệ thống!", HttpStatus.NOT_FOUND),
     DEPARTMENT_EXISTED(400, "Tên khoa hoặc mã khoa đã tồn tại!", HttpStatus.BAD_REQUEST),
+    INVALID_CREDENTIALS(1005, "Thông tin không chính xác, hãy kiểm tra lại", HttpStatus.UNAUTHORIZED),
+    TOO_MANY_REQUESTS(1010, "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát.", HttpStatus.TOO_MANY_REQUESTS),
     DATA_CONSTRAINT_VIOLATION(409, "Dữ liệu đang được ràng buộc, không thể thực hiện hành động này!", HttpStatus.CONFLICT),
     DATA_NOT_FOUND(404, "Dữ liệu không tồn tại trong hệ thống", HttpStatus.NOT_FOUND);
 

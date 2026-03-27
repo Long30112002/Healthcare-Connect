@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .container { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #007bff; color: white; padding: 20px; text-align: center; }
+        .body { padding: 20px; }
+        .footer { background-color: #f4f4f4; padding: 10px; text-align: center; font-size: 12px; color: #777; }
+        .btn { display: inline-block; padding: 10px 20px; color: white; background-color: #28a745; text-decoration: none; border-radius: 5px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Healthcare Connect</h1>
+    </div>
+    <div class="body">
+        <h2 th:text="'Chào ' + ${name} + '!'"></h2>
+        <p th:text="${message}"></p>
+        <a th:if="${url}" th:href="${url}" class="btn">Xác thực tài khoản</a>
+    </div>
+    <div class="footer">
+        <p>&copy; 2026 Healthcare Connect System. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
