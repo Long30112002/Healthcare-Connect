@@ -6,8 +6,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.InvalidatedToken;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.InvalidatedTokenRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.security.repository.InvalidatedTokenRepository;
 import com.hoanglong.healthcare_connect_backend.shared.annotation.Throttling;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -30,7 +30,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final JpaUserRepository jpaUserRepository;
+    private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
@@ -42,7 +42,7 @@ public class AuthenticationService {
     @Throttling(limit = 5, duration = 60) // 1 phút chỉ được sai pass 5 lần
     public LoginResponse authenticate(LoginRequest request) {
         // 1. Tìm user (Nếu không thấy thì trả về null chứ không ném lỗi ngay)
-        var user = jpaUserRepository.findByEmail(request.getEmail()).orElse(null);
+        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         // 2. KIỂM TRA TỔNG HỢP:
         if (user == null ||
@@ -94,7 +94,8 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+//                .subject(user.getEmail())
+                .subject(user.getId().toString())
                 .issuer("healthcare-connect-backend.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(

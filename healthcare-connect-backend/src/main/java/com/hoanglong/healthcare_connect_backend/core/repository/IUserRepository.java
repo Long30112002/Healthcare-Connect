@@ -4,11 +4,14 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface IUserRepository {
-//    Optional<User> findByEmail(String email);
-//    Optional<User> findByVerificationCode(String code);
-//    int verifyUser(String code);
-//    void deleteUnverifiedUsers(LocalDateTime threshold);
     User save(User user);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByVerificationCode(String code);
+    int verifyUserByCode(String code);
+    void deleteUnverifiedUsers(LocalDateTime threshold);
+
+    Optional<User> findById(UUID userId);
 }

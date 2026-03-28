@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
-    private Long id;
+    private UUID id;
     private String fullName;
     private String email;
     private UserRole role;

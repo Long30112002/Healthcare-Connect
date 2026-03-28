@@ -1,19 +1,21 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE users (
-                       id BIGSERIAL PRIMARY KEY,
+                       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                        full_name VARCHAR(255) NOT NULL,
                        email VARCHAR(255) UNIQUE NOT NULL,
                        password VARCHAR(255) NOT NULL,
-                       role VARCHAR(50) NOT NULL, -- PATIENT, DOCTOR, ADMIN
+                       role VARCHAR(50) NOT NULL,
                        phone VARCHAR(20),
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE appointments (
-                              id BIGSERIAL PRIMARY KEY,
-                              patient_id BIGINT REFERENCES users(id),
-                              doctor_id BIGINT REFERENCES users(id),
+                              id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Đổi sang UUID ở đây
+                              patient_id UUID REFERENCES users(id),          -- Kiểu dữ liệu phải khớp là UUID
+                              doctor_id UUID REFERENCES users(id),           -- Kiểu dữ liệu phải khớp là UUID
                               appointment_date TIMESTAMP NOT NULL,
                               status VARCHAR(50) DEFAULT 'PENDING',
                               symptoms TEXT,

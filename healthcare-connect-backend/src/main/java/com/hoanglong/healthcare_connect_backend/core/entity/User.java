@@ -2,38 +2,42 @@ package com.hoanglong.healthcare_connect_backend.core.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    UUID id;
 
     @Column(nullable = false)
-    private String fullName;
+    String fullName;
 
     @Column(unique = true, nullable = false)
-    private String email;
+    String email;
 
     @Column(nullable = false)
-    private String password;
+    String password;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    UserRole role;
 
-    private String phone;
+    String phone;
 
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
-    private String verificationCode;
+    String verificationCode;
 
-    private LocalDateTime verificationExpiry;
+    LocalDateTime verificationExpiry;
 
     @Column(name = "is_enabled")
-    private Boolean enabled = false;
+    Boolean enabled = false;
 
     @PrePersist
     protected void onCreate() {

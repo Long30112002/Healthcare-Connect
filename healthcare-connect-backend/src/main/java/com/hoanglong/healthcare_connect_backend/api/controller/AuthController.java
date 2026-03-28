@@ -3,7 +3,7 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.*;
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
-import com.hoanglong.healthcare_connect_backend.application.service.VerifyUserUseCase;
+import com.hoanglong.healthcare_connect_backend.application.usecase.VerifyUserUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterUserUseCase;
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;

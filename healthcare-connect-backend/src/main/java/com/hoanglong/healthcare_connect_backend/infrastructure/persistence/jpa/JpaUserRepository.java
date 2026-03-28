@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface JpaUserRepository extends JpaRepository<User, String> {
+public interface JpaUserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     void deleteByEnabledFalseAndCreatedAtBefore(LocalDateTime threshold);

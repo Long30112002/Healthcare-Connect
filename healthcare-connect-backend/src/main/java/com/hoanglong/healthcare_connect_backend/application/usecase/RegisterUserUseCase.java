@@ -6,7 +6,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.annotation.Throttling;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Transactional
 @Slf4j // Thêm để log quá trình gửi mail
 public class RegisterUserUseCase {
-    private final JpaUserRepository userRepository;
+    private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
 

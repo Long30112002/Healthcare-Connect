@@ -6,13 +6,13 @@ import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.J
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class SpecialtyRepositoryImpl implements ISpecialtyRepository
-{
+public class SpecialtyRepositoryImpl implements ISpecialtyRepository {
     private final JpaSpecialtyRepository jpaRepository;
 
     @Override
@@ -26,7 +26,17 @@ public class SpecialtyRepositoryImpl implements ISpecialtyRepository
     }
 
     @Override
+    public List<Specialty> findAll() {
+        return jpaRepository.findAll();
+    }
+
+    @Override
     public boolean existsByName(String name) {
         return jpaRepository.existsByName(name);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaRepository.deleteById(id);
     }
 }

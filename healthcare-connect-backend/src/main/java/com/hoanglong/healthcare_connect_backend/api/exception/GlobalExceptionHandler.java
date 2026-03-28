@@ -61,15 +61,16 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handlingAccessDeniedException(AccessDeniedException exception) {
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED; // Hoặc tạo thêm ErrorCode.FORBIDDEN (403)
+        ErrorCode errorCode = ErrorCode.FORBIDDEN; // Dùng Enum
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
                         .status("error")
-                        .code(403)
-                        .message("Bạn không có quyền thực hiện hành động này!")
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
                         .build()
         );
     }

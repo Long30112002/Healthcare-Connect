@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Connect Email</title>
+    <title>Healthcare Connect – Doctor Application Status</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             border-radius: 24px;
             box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
         .header {
             background: linear-gradient(135deg, #007bff, #00a1ff);
@@ -56,11 +55,31 @@
         .message {
             font-size: 16px;
             color: #334e68;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
+        }
+        .rejection-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 15px;
+            color: #2d3748;
+        }
+        .rejection-box strong {
+            color: #c53030;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .rejection-box span {
+            font-weight: 500;
         }
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #28a745, #1e7e34);
+            background: linear-gradient(135deg, #007bff, #00a1ff);
             color: white;
             text-decoration: none;
             padding: 12px 28px;
@@ -69,10 +88,10 @@
             border-radius: 40px;
             transition: all 0.2s ease;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin: 8px 0 12px;
+            margin: 16px 0 12px;
         }
         .btn:hover {
-            background: linear-gradient(135deg, #1e7e34, #146b2e);
+            background: linear-gradient(135deg, #0066cc, #0088e6);
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
@@ -115,15 +134,28 @@
         <p>Your trusted health partner</p>
     </div>
     <div class="body">
-        <div class="greeting" th:text="'Chào ' + ${name} + '!'"></div>
-        <div class="message" th:text="${message}"></div>
-        <div th:if="${url}">
-            <a th:href="${url}" class="btn">Xác thực tài khoản</a>
+        <div class="greeting" th:text="'Chào ' + ${doctorName} + ','"></div>
+        <div class="message">
+            Chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn chưa được phê duyệt.
+        </div>
+        <div class="rejection-box">
+            <strong>Lý do:</strong>
+            <span th:text="${reason}"></span>
+        </div>
+        <div class="message">
+            Bạn có thể cập nhật lại thông tin và gửi lại yêu cầu sau.
+        </div>
+        <div>
+            <a th:href="${updateProfileLink}" class="btn">Cập nhật hồ sơ</a>
+        </div>
+        <div class="message" style="margin-top: 24px;">
+            Trân trọng,<br>
+            Healthcare Connect Team
         </div>
     </div>
     <div class="footer">
         <p>&copy; 2026 Healthcare Connect System. All rights reserved.</p>
-        <p>If you did not request this, please ignore this email.</p>
+        <p>If you have any questions, please contact our support team.</p>
         <p>Need help? <a href="#">Contact support</a></p>
     </div>
 </div>

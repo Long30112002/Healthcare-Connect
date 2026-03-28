@@ -5,6 +5,7 @@ import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
+import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaDepartmentRepository;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DepartmentMapper;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
@@ -16,19 +17,19 @@ import java.util.UUID;
 @Service
 public class DepartmentService extends BaseService<Department, DepartmentRequest, DepartmentResponse, UUID> {
 
-    private final JpaDepartmentRepository jpaDepartmentRepository;
+    private final IDepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
+    private final JpaDepartmentRepository jpaDepartmentRepository;
 
-    public DepartmentService(JpaDepartmentRepository jpaDepartmentRepository, DepartmentMapper departmentMapper) {
+    public DepartmentService(IDepartmentRepository departmentRepository, DepartmentMapper departmentMapper, JpaDepartmentRepository jpaDepartmentRepository) {
         super(ErrorCode.DEPARTMENT_NOT_FOUND, ErrorCode.DEPARTMENT_EXISTED);
-        this.jpaDepartmentRepository = jpaDepartmentRepository;
+        this.departmentRepository = departmentRepository;
         this.departmentMapper = departmentMapper;
+        this.jpaDepartmentRepository = jpaDepartmentRepository;
     }
 
     @Override
-    protected JpaRepository<Department, UUID> getRepository() {
-        return jpaDepartmentRepository;
-    }
+    protected JpaRepository<Department, UUID> getRepository() { return jpaDepartmentRepository; }
 
     @Override
     protected BaseMapper<Department, DepartmentResponse> getMapper() {
@@ -52,21 +53,21 @@ public class DepartmentService extends BaseService<Department, DepartmentRequest
         Department entity = mapToEntity(request);
 
         // 2. Kiểm tra trùng mã (Nếu cần)
-        if (jpaDepartmentRepository.existsByCode(entity.getCode())) {
+        if (departmentRepository.existsByCode(entity.getCode())) {
             throw new AppException(ErrorCode.DEPARTMENT_EXISTED);
         }
 
-        return departmentMapper.toResponse(jpaDepartmentRepository.save(entity));
+        return departmentMapper.toResponse(departmentRepository.save(entity));
     }
 
     public DepartmentResponse update(UUID id, DepartmentRequest request) {
-        Department department = jpaDepartmentRepository.findById(id)
+        Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
         department.setName(request.getName());
         department.setCode(request.getCode().toUpperCase()); // Cập nhật cả code
         department.setDescription(request.getDescription());
 
-        return departmentMapper.toResponse(jpaDepartmentRepository.save(department));
+        return departmentMapper.toResponse(departmentRepository.save(department));
     }
 }

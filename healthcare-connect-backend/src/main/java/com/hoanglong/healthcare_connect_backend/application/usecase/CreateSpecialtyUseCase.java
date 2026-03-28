@@ -44,4 +44,5 @@ public class CreateSpecialtyUseCase {
 
         // 6. Trả về Response (Lúc này specialty đã có department bên trong)
         return specialtyMapper.toResponse(specialty);
-    }}
+    }
+}

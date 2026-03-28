@@ -8,7 +8,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import com.hoanglong.healthcare_connect_backend.core.entity.Specialty;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaDepartmentRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.ISpecialtyRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaSpecialtyRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -17,29 +18,32 @@ import java.util.UUID;
 
 @Service
 public class SpecialtyService extends BaseService<Specialty, SpecialtyRequest, SpecialtyResponse, UUID> {
-    private final JpaSpecialtyRepository jpaSpecialtyRepository;
+    private final ISpecialtyRepository specialtyRepository;
     private final SpecialtyMapper specialtyMapper;
-    private final JpaDepartmentRepository jpaDepartmentRepository;
+    private final IDepartmentRepository departmentRepository;
+    private final JpaSpecialtyRepository jpaSpecialtyJpaRepository;
 
     public SpecialtyService(
-            JpaSpecialtyRepository jpaSpecialtyRepository,
+            ISpecialtyRepository specialtyRepository,
             SpecialtyMapper specialtyMapper,
-            JpaDepartmentRepository jpaDepartmentRepository
+            IDepartmentRepository departmentRepository,
+            JpaSpecialtyRepository jpaSpecialtyJpaRepository
     ) {
         // Nạp mã lỗi riêng cho Specialty vào BaseService
         super(ErrorCode.SPECIALTY_NOT_FOUND, ErrorCode.SPECIALTY_EXISTED);
-        this.jpaSpecialtyRepository = jpaSpecialtyRepository;
+        this.specialtyRepository = specialtyRepository;
         this.specialtyMapper = specialtyMapper;
-        this.jpaDepartmentRepository = jpaDepartmentRepository;
+        this.departmentRepository = departmentRepository;
+        this.jpaSpecialtyJpaRepository = jpaSpecialtyJpaRepository;
     }
 
-    @Override protected JpaRepository<Specialty, UUID> getRepository() { return jpaSpecialtyRepository; }
+    @Override protected JpaRepository<Specialty, UUID> getRepository() { return jpaSpecialtyJpaRepository; }
     @Override protected BaseMapper<Specialty, SpecialtyResponse> getMapper() { return specialtyMapper; }
 
     @Override
     protected Specialty mapToEntity(SpecialtyRequest request) {
         // 1. Tìm Khoa để lấy mã tiền tố
-        Department dept = jpaDepartmentRepository.findById(request.getDepartmentId())
+        Department dept = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
         // 2. Sinh mã tự động: [Mã Khoa] + [_] + [5 ký tự ngẫu nhiên]

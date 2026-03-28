@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.job;
 
-import com.hoanglong.healthcare_connect_backend.core.repository.InvalidatedTokenRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.security.repository.InvalidatedTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Component
 @RequiredArgsConstructor

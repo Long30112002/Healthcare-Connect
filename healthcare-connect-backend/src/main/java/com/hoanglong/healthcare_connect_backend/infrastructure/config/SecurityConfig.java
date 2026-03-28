@@ -21,7 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Giúp Long dùng được @PreAuthorize("hasRole('ADMIN')") ở Controller
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
@@ -31,20 +31,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
+        // Trong filterChain của SecurityConfig.java
         http.authorizeHttpRequests(request -> request
-                // 1. Các API xác thực (Login/Register) - Luôn luôn mở
+                // 1. Public APIs (Mở hoàn toàn)
                 .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/departments/**", "/api/specialties/**").permitAll()
 
-                // 2. CẤU HÌNH CHO DEPARTMENTS & SPECIALTIES
-                // Cho phép xem (GET) tự do - Viết cụ thể URL
-                .requestMatchers(HttpMethod.GET, "/api/departments", "/api/departments/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/specialties", "/api/specialties/**").permitAll()
+                // 2. DOCTOR APIs Yêu cầu Role PATIENT hoặc mới đăng ký)
+                // Lưu ý: User mới tạo mặc định là PATIENT nên cho phép họ nộp đơn
+                .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
 
-                // Chỉ ADMIN mới được tác động (POST/PUT/DELETE)
-                .requestMatchers("/api/departments/**", "/api/specialties/**").hasRole("ADMIN")
+                // 3. ADMIN APIs (Chỉ Admin mới được vào các link này)
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/departments/**").hasRole("ADMIN")
 
-                // 3. Tất cả các API còn lại phải ĐĂNG NHẬP
+                // 4. Tất cả các API còn lại (như xem hồ sơ cá nhân, đổi pass...)
                 .anyRequest().authenticated()
         );
 
@@ -58,6 +60,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     // Các Bean jwtDecoder và jwtAuthenticationConverter giữ nguyên như code của bạn là chuẩn rồi!
     @Bean
     JwtDecoder jwtDecoder() {
