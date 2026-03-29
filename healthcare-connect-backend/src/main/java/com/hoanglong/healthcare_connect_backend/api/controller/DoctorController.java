@@ -7,10 +7,8 @@ import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterDoct
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -20,13 +18,12 @@ import java.util.UUID;
 public class DoctorController {
     private final RegisterDoctorProfileUseCase registerDoctorProfileUseCase;
 
-    @PostMapping("/apply")
-    public ApiResponse<DoctorResponse> apply(@RequestBody @Valid DoctorProfileRequest request) {
+    @PostMapping(value = "/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<DoctorResponse> apply(@ModelAttribute @Valid DoctorProfileRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
         return ApiResponse.<DoctorResponse>builder()
                 .status("success")
-                .code(201)
-                .message("Gửi hồ sơ đăng ký bác sĩ thành công! Vui lòng chờ Admin phê duyệt.")
+                .message("Hồ sơ đã được gửi kèm CV!")
                 .data(registerDoctorProfileUseCase.execute(userId, request))
                 .build();
     }

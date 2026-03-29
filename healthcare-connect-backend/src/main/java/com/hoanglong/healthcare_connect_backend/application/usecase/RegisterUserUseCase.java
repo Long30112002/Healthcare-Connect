@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
@@ -27,6 +28,7 @@ public class RegisterUserUseCase {
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final UserMapper userMapper;
 
     @Transactional
     @Throttling(limit = 3, duration = 300) // 5 phút chỉ được đăng ký 3 lần
@@ -35,20 +37,19 @@ public class RegisterUserUseCase {
 
         // CHỈ XỬ LÝ LƯU NẾU CHƯA CÓ
         if (existingUser.isEmpty()) {
-            User user = User.builder()
-                    .fullName(request.getFullName())
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .role(UserRole.PATIENT)
-                    .enabled(false)
-                    .verificationCode(UUID.randomUUID().toString())
-                    .verificationExpiry(LocalDateTime.now().plusHours(24))
-                    .build();
+            // Dùng Mapper để chuyển hết dữ liệu từ Request sang User
+            User user = userMapper.toUser(request);
+
+            // Sau đó mới ghi đè các trường cần xử lý logic riêng
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(UserRole.PATIENT);
+            user.setEnabled(false);
+            user.setVerificationCode(UUID.randomUUID().toString());
+            user.setVerificationExpiry(LocalDateTime.now().plusHours(24));
 
             userRepository.save(user);
             sendVerificationEmail(user);
         }
-        // Nếu có rồi thì "im lặng" bỏ qua, không làm gì cả
 
         // TRẢ VỀ CHUNG 1 THÔNG BÁO CHO CẢ 2 TRƯỜNG HỢP
         return ApiResponse.<UserResponse>builder()

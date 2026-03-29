@@ -6,6 +6,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentRespon
 import com.hoanglong.healthcare_connect_backend.application.service.DepartmentService;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<String> delete(@PathVariable UUID id) {
         departmentService.delete(id); // Gọi hàm của BaseService
         return ApiResponse.<String>builder()

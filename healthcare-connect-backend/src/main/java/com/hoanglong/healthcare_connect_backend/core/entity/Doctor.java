@@ -5,16 +5,16 @@ import com.hoanglong.healthcare_connect_backend.core.constant.RejectionReason;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder
+@NoArgsConstructor @AllArgsConstructor
 @Table(name = "doctors")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Doctor {
@@ -23,10 +23,10 @@ public class Doctor {
     UUID id;
 
     @Column(unique = true, nullable = false)
-    String doctorCode; // Mã số bác sĩ (Dùng để hiển thị/tra cứu)
+    String doctorCode;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     User user;
 
     @ManyToOne
@@ -37,16 +37,31 @@ public class Doctor {
     @JoinColumn(name = "department_id")
     Department department;
 
-    String degree; // Học vị
-    String experience; // Mô tả kinh nghiệm
-    BigDecimal consultationFee; // Phí khám
+    String degree;
+
+    @Column(name = "experience_years")
+    Integer experienceYears;
+
+    @Column(columnDefinition = "TEXT")
+    String biography;
+
+    @Column(name = "cv_url")
+    String cvUrl;
+
+    BigDecimal consultationFee;
 
     @Enumerated(EnumType.STRING)
-    DoctorStatus status; // PENDING, APPROVED, REJECTED
+    DoctorStatus status;
 
-    @Enumerated(EnumType.STRING) // Lưu dưới dạng chữ (VD: 'INVALID_DEGREE')
+    @Enumerated(EnumType.STRING)
     RejectionReason rejectionReason;
 
-    // Nếu chọn "Lý do khác", có thể thêm cột này để ghi chú thêm (Optional)
-    private String rejectionNote;
+    String rejectionNote;
+
+    // Bổ sung thêm để quản lý thời gian
+    @CreationTimestamp
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    LocalDateTime updatedAt;
 }
