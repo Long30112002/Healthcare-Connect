@@ -11,10 +11,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Specialty;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.ISpecialtyRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +26,7 @@ public class RegisterDoctorProfileUseCase {
     private final IUserRepository userRepository;
     private final ISpecialtyRepository specialtyRepository;
     private final IDepartmentRepository departmentRepository;
+    private final IHospitalRepository hospitalRepository; // 1. THÊM REPOSITORY NÀY
     private final DoctorMapper doctorMapper;
     private final CloudinaryService cloudinaryService;
 
@@ -38,12 +36,26 @@ public class RegisterDoctorProfileUseCase {
         String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
 
         // 2. Tìm hoặc tạo mới Profile
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         Doctor doctor = doctorRepository.findByUserId(userId).orElse(new Doctor());
 
-        // 3. Map dữ liệu
-        doctor.setUser(userRepository.findById(userId).orElseThrow());
-        doctor.setDepartment(departmentRepository.findById(request.getDepartmentId()).orElseThrow());
-        doctor.setSpecialty(specialtyRepository.findById(request.getSpecialtyId()).orElseThrow());
+        // 3. Tìm các thực thể liên quan
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+        Specialty specialty = specialtyRepository.findById(request.getSpecialtyId())
+                .orElseThrow(() -> new RuntimeException("Specialty not found"));
+
+        // 2. LẤY HOSPITAL TỪ DATABASE
+        var hospital = hospitalRepository.findById(request.getHospitalId())
+                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+
+        // 4. Map dữ liệu vào Entity
+        doctor.setUser(user);
+        doctor.setDepartment(department);
+        doctor.setSpecialty(specialty);
+        doctor.setHospital(hospital); // 3. GÁN VÀO ĐÂY THÌ MAPPER MỚI CÓ TÊN ĐỂ LẤY
 
         doctor.setDegree(request.getDegree());
         doctor.setExperienceYears(request.getExperienceYears());
@@ -55,7 +67,7 @@ public class RegisterDoctorProfileUseCase {
             doctor.setDoctorCode(generateDoctorCode());
         }
 
-        // 4. Lưu và Map sang Response
+        // 5. Lưu và Map sang Response
         return doctorMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
 

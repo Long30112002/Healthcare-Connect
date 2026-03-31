@@ -31,7 +31,7 @@ public class AdminController {
         approveDoctorUseCase.execute(doctorId);
 
         return ApiResponse.<String>builder()
-                .data("Phê duyệt bác sĩ thành công. User đã được cấp quyền DOCTOR.")
+                .data("Xác thực hồ sơ thành công.")
                 .build();
     }
 

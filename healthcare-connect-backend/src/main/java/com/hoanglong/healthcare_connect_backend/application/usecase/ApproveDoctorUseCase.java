@@ -9,7 +9,10 @@ import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,39 +28,57 @@ public class ApproveDoctorUseCase {
     private final MailService emailService;
 
     @Transactional
+    // Đảm bảo chỉ Admin hoặc Manager mới được vào đây
+    @PreAuthorize("hasRole('ADMIN') or hasRole('HOSPITAL_MANAGER')")
     public void execute(UUID doctorId) {
-        // 1. Tìm hồ sơ bác sĩ
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new AppException(ErrorCode.DATA_NOT_FOUND));
 
-        // 2. Chỉ duyệt hồ sơ PENDING
-        if (doctor.getStatus() != DoctorStatus.PENDING) {
-            throw new AppException(ErrorCode.DATA_CONSTRAINT_VIOLATION);
+        // Lấy thông tin người dùng hiện tại từ SecurityContext
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isManager = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_HOSPITAL_MANAGER"));
+
+        // LUỒNG 1: ADMIN DUYỆT (Bước 1: Verify giấy tờ)
+        if (isAdmin && doctor.getStatus() == DoctorStatus.PENDING) {
+            doctor.setStatus(DoctorStatus.VERIFIED);
+            // Có thể gửi mail báo: "Hồ sơ của bạn đã được Admin xác thực, chờ bệnh viện tiếp nhận"
         }
 
-        // 3. Cập nhật trạng thái Doctor
-        doctor.setStatus(DoctorStatus.APPROVED);
+        // LUỒNG 2: MANAGER DUYỆT (Bước 2: Approve vào làm - Chốt Role)
+        else if (isManager && doctor.getStatus() == DoctorStatus.VERIFIED) {
+            // Kiểm tra bảo mật: Manager này có quản lý bệnh viện mà bác sĩ đăng ký không?
+            UUID currentManagerId = SecurityUtils.getCurrentUserId();
+            if (!doctor.getHospital().getManager().getId().equals(currentManagerId)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+
+            doctor.setStatus(DoctorStatus.APPROVED);
+
+            // Chỉ khi Manager chốt thì mới nâng cấp Role
+            User user = doctor.getUser();
+            user.setRole(UserRole.DOCTOR);
+            userRepository.save(user);
+
+            // Gửi mail chúc mừng chính thức
+            sendCongratsEmail(user);
+        } else {
+            // Nếu sai thứ tự duyệt (Manager duyệt khi chưa có Verify) thì báo lỗi
+            throw new AppException(ErrorCode.INVALID_APPROVE_STEP);
+        }
+
         doctorRepository.save(doctor);
+    }
 
-        // 4. Nâng cấp Role cho User
-        User user = doctor.getUser();
-        if (user == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-        user.setRole(UserRole.DOCTOR);
-        userRepository.save(user);
-
-        // 5. Chuẩn bị dữ liệu gửi Mail chúc mừng
+    private void sendCongratsEmail(User user) {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put("doctorName", user.getFullName());
-        // Bạn có thể thêm link dẫn tới trang quản lý lịch khám chẳng hạn
         templateModel.put("dashboardLink", "https://healthcareconnect.com/doctor/dashboard");
 
-        // 6. Gọi hàm sendEmail
         emailService.sendEmail(
                 user.getEmail(),
-                "Chúc mừng! Hồ sơ bác sĩ của bạn đã được phê duyệt",
-                "doctor-approval-template", // Tên file HTML trong folder templates
+                "Chúc mừng! Bạn đã chính thức trở thành Bác sĩ trên hệ thống",
+                "doctor-approval-template",
                 templateModel
         );
     }

@@ -58,10 +58,13 @@ public class Doctor {
 
     String rejectionNote;
 
-    // Bổ sung thêm để quản lý thời gian
     @CreationTimestamp
     LocalDateTime createdAt;
 
     @UpdateTimestamp
     LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    Hospital hospital;
 }
