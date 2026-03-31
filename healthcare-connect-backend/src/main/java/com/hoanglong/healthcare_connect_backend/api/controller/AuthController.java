@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.*;
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
+import com.hoanglong.healthcare_connect_backend.application.usecase.ForgotPasswordUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.VerifyUserUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterUserUseCase;
 import com.nimbusds.jose.JOSEException;
@@ -19,6 +20,7 @@ public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
     private final AuthenticationService authenticationService;
     private final VerifyUserUseCase verifyUserUseCase;
+    private final ForgotPasswordUseCase forgotPasswordUseCase;
 
     @PostMapping("/register")
     public ApiResponse<UserResponse> register(@RequestBody @Valid UserRegistrationRequest request) {
@@ -48,6 +50,22 @@ public class AuthController {
                 .status("success")
                 .code(200)
                 .message("Đăng xuất thành công!")
+                .build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<String> forgotPassword(@RequestParam String email) {
+        forgotPasswordUseCase.execute(email);
+        return ApiResponse.<String>builder()
+                .message("Yêu cầu đã được gửi. Vui lòng kiểm tra email của bạn.")
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<String> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authenticationService.resetOrSetupPassword(request);
+        return ApiResponse.<String>builder()
+                .message("Mật khẩu đã được cập nhật thành công.")
                 .build();
     }
 

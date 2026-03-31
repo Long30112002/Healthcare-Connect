@@ -118,7 +118,7 @@
         <div class="greeting" th:text="'Chào ' + ${name} + '!'"></div>
         <div class="message" th:text="${message}"></div>
         <div th:if="${url}">
-            <a th:href="${url}" class="btn">Xác thực tài khoản</a>
+            <a th:href="${url}" class="btn" th:text="${btnText != null ? btnText : 'Xác thực tài khoản'}"></a>
         </div>
     </div>
     <div class="footer">

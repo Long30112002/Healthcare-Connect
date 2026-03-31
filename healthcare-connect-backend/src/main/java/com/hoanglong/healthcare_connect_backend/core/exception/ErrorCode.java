@@ -18,6 +18,8 @@ public enum ErrorCode {
     TOO_MANY_REQUESTS(1010, "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát.", HttpStatus.TOO_MANY_REQUESTS),
     UNAUTHENTICATED(1011, "Không xác thực được dữ liệu.", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(1012, "Token không hợp lệ.", HttpStatus.UNAUTHORIZED),
+    INVALID_VERIFICATION_CODE(1012, "Mã xác minh không hợp lệ.", HttpStatus.UNAUTHORIZED),
+    VERIFICATION_CODE_EXPIRED(1012, "Mã xác minh đã hế hạn.", HttpStatus.UNAUTHORIZED),
 
 
     // =============================================================================
@@ -46,6 +48,15 @@ public enum ErrorCode {
     // =============================================================================
     DATA_NOT_FOUND(4001, "Dữ liệu không tồn tại trong hệ thống", HttpStatus.NOT_FOUND),
     DATA_CONSTRAINT_VIOLATION(4002, "Dữ liệu đang được ràng buộc, không thể thực hiện hành động này!", HttpStatus.CONFLICT),
+
+    // =============================================================================
+    // 5xxx: NGHIỆP VỤ Y TẾ (HEALTHCARE BUSINESS LOGIC)
+    // =============================================================================
+    HOSPITAL_NOT_FOUND(5001, "Không tìm thấy bệnh viện tương ứng!", HttpStatus.NOT_FOUND),
+    DOCTOR_PROFILE_EXISTED(5002, "Người dùng này đã có hồ sơ bác sĩ trên hệ thống!", HttpStatus.BAD_REQUEST),
+    INVALID_APPROVE_STEP(5003, "Quy trình duyệt không đúng thứ tự (Cần Admin Verify trước)!", HttpStatus.BAD_REQUEST),
+    ALREADY_APPROVED(5004, "Hồ sơ này đã được duyệt trước đó!", HttpStatus.BAD_REQUEST),
+    NOT_HOSPITAL_MANAGER(5005, "Bạn không phải quản lý của bệnh viện này!", HttpStatus.FORBIDDEN),
     ;
 
     private final int code;

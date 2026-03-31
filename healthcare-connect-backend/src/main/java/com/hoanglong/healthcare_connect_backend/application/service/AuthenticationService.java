@@ -19,9 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
@@ -61,34 +63,6 @@ public class AuthenticationService {
 
         return userMapper.toLoginResponse(user, accessToken, refreshToken);
     }
-
-//    public AuthenticationResponse login(LoginRequest request) {
-//        // 1. Tìm user theo email
-//        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
-//
-//        // 2. Kiểm tra tổng hợp (Dùng toán tử lười || để bảo mật)
-//        // Nếu user null, hoặc pass không khớp, hoặc chưa enabled -> Đều là lỗi "Invalid Credentials"
-//        if (user == null ||
-//                !passwordEncoder.matches(request.getPassword(), user.getPassword()) ||
-//                !Boolean.TRUE.equals(user.getEnabled())) {
-//
-//            // Luôn ném ra 1 lỗi duy nhất: "Email hoặc mật khẩu không chính xác"
-//            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
-//        }
-//
-//        // 3. Nếu mọi thứ OK -> Tạo Token
-//        String token = generateToken(user, 24);
-//
-//        return AuthenticationResponse.builder()
-//                .token(token)
-//                .authenticated(true)
-//                .user(UserResponse.builder()
-//                        .email(user.getEmail())
-//                        .fullName(user.getFullName())
-//                        .role(user.getRole())
-//                        .build())
-//                .build();
-//    }
 
     private String generateToken(User user, int durationHours) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
@@ -147,7 +121,7 @@ public class AuthenticationService {
     }
 
     // 1. Hàm verifyToken: Kiểm tra chữ ký và hạn dùng của Token
-    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    public SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
 
@@ -190,4 +164,59 @@ public class AuthenticationService {
             log.warn("Token đã hết hạn hoặc không hợp lệ, không cần logout nữa.");
         }
     }
+
+    @Transactional
+    public void resetOrSetupPassword(ResetPasswordRequest request) {
+        // 1. Tìm User qua Code
+        User user = userRepository.findByVerificationCode(request.getCode())
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_VERIFICATION_CODE));
+
+        // 2. Kiểm tra hạn dùng
+        if (user.getVerificationExpiry().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.VERIFICATION_CODE_EXPIRED);
+        }
+
+        // 3. Cập nhật mật khẩu mới
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        // 4. Kích hoạt user
+        user.setEnabled(true);
+
+        // 5. Vô hiệu hóa code sau khi dùng
+        user.setVerificationCode(null);
+        user.setVerificationExpiry(null);
+
+        userRepository.save(user);
+        log.info("User {} đã cập nhật mật khẩu thành công qua luồng xác thực code.", user.getEmail());
+    }
+
+
+//    public AuthenticationResponse login(LoginRequest request) {
+//        // 1. Tìm user theo email
+//        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
+//
+//        // 2. Kiểm tra tổng hợp (Dùng toán tử lười || để bảo mật)
+//        // Nếu user null, hoặc pass không khớp, hoặc chưa enabled -> Đều là lỗi "Invalid Credentials"
+//        if (user == null ||
+//                !passwordEncoder.matches(request.getPassword(), user.getPassword()) ||
+//                !Boolean.TRUE.equals(user.getEnabled())) {
+//
+//            // Luôn ném ra 1 lỗi duy nhất: "Email hoặc mật khẩu không chính xác"
+//            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+//        }
+//
+//        // 3. Nếu mọi thứ OK -> Tạo Token
+//        String token = generateToken(user, 24);
+//
+//        return AuthenticationResponse.builder()
+//                .token(token)
+//                .authenticated(true)
+//                .user(UserResponse.builder()
+//                        .email(user.getEmail())
+//                        .fullName(user.getFullName())
+//                        .role(user.getRole())
+//                        .build())
+//                .build();
+//    }
+
 }

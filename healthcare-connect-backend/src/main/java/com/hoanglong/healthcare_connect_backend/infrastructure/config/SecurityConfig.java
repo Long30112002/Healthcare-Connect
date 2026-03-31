@@ -1,14 +1,20 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.config;
 
+import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
+import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -23,9 +29,13 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
     @Value("${jwt.signerKey}")
     private String signerKey;
+
+    @Autowired
+    @Lazy
+    private AuthenticationService authenticationService;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -61,19 +71,29 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Các Bean jwtDecoder và jwtAuthenticationConverter giữ nguyên như code của bạn là chuẩn rồi!
     @Bean
     JwtDecoder jwtDecoder() {
         SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS256");
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
+        NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
+
+        nimbusJwtDecoder.setJwtValidator(token -> {
+            try {
+                authenticationService.verifyToken(token.getTokenValue());
+                return OAuth2TokenValidatorResult.success();
+            } catch (Exception e) {
+                return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", e.getMessage(), null));
+            }
+        });
+
+        return nimbusJwtDecoder;
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Thêm ROLE_ để khớp với hasRole("ADMIN")
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
         grantedAuthoritiesConverter.setAuthoritiesClaimName("role");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
