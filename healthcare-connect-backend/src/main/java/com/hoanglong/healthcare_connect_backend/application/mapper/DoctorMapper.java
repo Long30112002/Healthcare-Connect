@@ -15,8 +15,8 @@ public interface DoctorMapper {
     @Mapping(source = "user.phone", target = "phone")
     @Mapping(source = "specialty.name", target = "specialtyName")
     @Mapping(source = "department.name", target = "departmentName")
+    @Mapping(source = "hospital.name", target = "hospitalName")
     DoctorResponse toDoctorResponse(Doctor doctor);
 
-    // Nếu Long cần map một danh sách bác sĩ
     List<DoctorResponse> toDoctorResponseList(List<Doctor> doctors);
 }

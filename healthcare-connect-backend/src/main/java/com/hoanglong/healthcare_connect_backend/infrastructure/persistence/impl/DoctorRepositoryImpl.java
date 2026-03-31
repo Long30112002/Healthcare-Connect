@@ -1,17 +1,16 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.impl;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaDoctorRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class DoctorRepositoryImpl implements IDoctorRepository
@@ -42,5 +41,10 @@ public class DoctorRepositoryImpl implements IDoctorRepository
     @Override
     public Optional<Doctor> findByUserId(UUID userId) {
         return jpaDoctorRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<Doctor> findAllByHospitalId(UUID hospitalId) {
+        return jpaDoctorRepository.findAllByHospitalId(hospitalId);
     }
 }

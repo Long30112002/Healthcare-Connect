@@ -27,8 +27,8 @@ import java.util.UUID;
 public class RegisterUserUseCase {
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MailService mailService;
     private final UserMapper userMapper;
+    private final MailService mailService;
 
     @Transactional
     @Throttling(limit = 3, duration = 300) // 5 phút chỉ được đăng ký 3 lần
@@ -48,7 +48,7 @@ public class RegisterUserUseCase {
             user.setVerificationExpiry(LocalDateTime.now().plusHours(24));
 
             userRepository.save(user);
-            sendVerificationEmail(user);
+            mailService.sendVerificationEmail(user);
         }
 
         // TRẢ VỀ CHUNG 1 THÔNG BÁO CHO CẢ 2 TRƯỜNG HỢP
@@ -60,56 +60,5 @@ public class RegisterUserUseCase {
                         .email(request.getEmail()) // Chỉ trả về email để xác nhận
                         .build())
                 .build();
-    }
-
-    private void sendVerificationEmail(User user) {
-        try {
-            // Lấy mã trực tiếp từ entity User đã được gán lúc Register
-            String verificationCode = user.getVerificationCode();
-
-            // Nếu code bị null (do logic register chưa gán), phải log lỗi ngay
-            if (verificationCode == null) {
-                log.error("Không tìm thấy mã xác thực cho user: {}", user.getEmail());
-                return;
-            }
-
-            String verifyUrl = "http://localhost:8080/api/auth/verify?code=" + verificationCode;
-
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("name", user.getFullName());
-            variables.put("message", "Cảm ơn bạn đã đăng ký. Vui lòng bấm vào nút bên dưới để kích hoạt tài khoản của bạn. Link có hiệu lực trong 24 giờ.");
-            variables.put("url", verifyUrl);
-
-            mailService.sendEmail(
-                    user.getEmail(),
-                    "Xác thực tài khoản Healthcare Connect",
-                    "email-template",
-                    variables
-            );
-            log.info("Đã gửi mail xác thực tới: {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Lỗi gửi mail xác thực: {}", e.getMessage());
-        }
-    }
-
-    private void sendWelcomeEmail(User user) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("name", user.getFullName());
-
-        // Tùy biến lời chào theo Role
-        String message = user.getRole() == UserRole.DOCTOR
-                ? "Chào mừng Bác sĩ gia nhập hệ thống. Vui lòng kiểm tra lịch trình làm việc tại trang quản trị."
-                : "Chào mừng bạn đến với Healthcare Connect. Bạn có thể bắt đầu đặt lịch khám ngay bây giờ.";
-
-        variables.put("message", message);
-        variables.put("url", "https://healthcare-connect.com/login"); // Link trang web của bạn
-
-        // Gọi mailService (đã có @Async nên không lo làm chậm luồng register)
-        mailService.sendEmail(
-                user.getEmail(),
-                "Chào mừng bạn đến với Healthcare Connect",
-                "email-template", // Tên file HTML trong folder templates
-                variables
-        );
     }
 }

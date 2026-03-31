@@ -31,4 +31,7 @@ public class DoctorProfileRequest {
 
     @NotNull(message = "Vui lòng đính kèm file CV (PDF)")
     MultipartFile cvFile;
+
+    @NotNull(message = "Vui lòng chọn bệnh viện")
+    UUID hospitalId;
 }

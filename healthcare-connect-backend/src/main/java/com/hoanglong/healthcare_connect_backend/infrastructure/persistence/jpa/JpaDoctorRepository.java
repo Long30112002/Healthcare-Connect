@@ -13,5 +13,5 @@ public interface JpaDoctorRepository extends JpaRepository<Doctor, UUID>
     boolean existsByUserId(UUID userId);
     List<Doctor> findAllByStatus(DoctorStatus status);
     Optional<Doctor> findByUserId(UUID userId);
-    
+    List<Doctor> findAllByHospitalId(UUID hospitalId);
 }
