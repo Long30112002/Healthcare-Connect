@@ -18,7 +18,7 @@ public class SpecialtyRequest {
     String name;
     String description;
     @NotNull(message = "CATEGORY_INVALID")
-    private MedicalCategory category;
+    MedicalCategory category;
     @NotNull(message = "DEPARTMENT_ID_REQUIRED")
     UUID departmentId; // Chỉ cần gửi cái ID của Khoa
 }

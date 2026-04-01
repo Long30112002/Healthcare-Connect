@@ -1,13 +1,16 @@
 package com.hoanglong.healthcare_connect_backend.application.dto;
 
 import com.hoanglong.healthcare_connect_backend.shared.util.ThrottlableRequest;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest implements ThrottlableRequest
 {
-    private String email;
-    private String password;
+    String email;
+    String password;
 
     @Override
     public String getThrottleKey() {

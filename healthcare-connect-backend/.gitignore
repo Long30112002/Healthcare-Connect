@@ -7,6 +7,9 @@ target/
 bin/
 build/
 
+# k6 Reports
+*.html
+
 # --- CONFIG & SECRETS  ---
 .env
 *.env

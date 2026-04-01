@@ -1,9 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -12,19 +10,21 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class DoctorResponse {
-    private UUID id;
-    private String doctorCode;
-    private String fullName;
-    private String email;
-    private String phone;
-    private String degree;
-    private Integer experienceYears;
-    private String biography;
-    private String cvUrl;
-    private BigDecimal consultationFee;
-    private String status;
-    private String specialtyName;
-    private String departmentName;
-    private String hospitalName;
+    UUID id;
+    String doctorCode;
+    String fullName;
+    String email;
+    String phone;
+    String degree;
+    Integer experienceYears;
+    String biography;
+    String cvUrl;
+    BigDecimal consultationFee;
+    String status;
+    String specialtyName;
+    String departmentName;
+    String hospitalName;
 }

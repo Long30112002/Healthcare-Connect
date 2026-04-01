@@ -19,5 +19,5 @@ public class HospitalRequest {
     String imageUrl;
     @Email(message = "Email không hợp lệ")
     @NotBlank(message = "Email quản lý không được để trống")
-    private String managerEmail;
+    String managerEmail;
 }

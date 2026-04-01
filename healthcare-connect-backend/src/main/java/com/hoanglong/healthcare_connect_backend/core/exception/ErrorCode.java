@@ -57,6 +57,15 @@ public enum ErrorCode {
     INVALID_APPROVE_STEP(5003, "Quy trình duyệt không đúng thứ tự (Cần Admin Verify trước)!", HttpStatus.BAD_REQUEST),
     ALREADY_APPROVED(5004, "Hồ sơ này đã được duyệt trước đó!", HttpStatus.BAD_REQUEST),
     NOT_HOSPITAL_MANAGER(5005, "Bạn không phải quản lý của bệnh viện này!", HttpStatus.FORBIDDEN),
+
+    // =============================================================================
+    // 6xxx: ĐẶT LỊCH & THANH TOÁN (BOOKING & PAYMENT)
+    // =============================================================================
+    SCHEDULE_NOT_FOUND(6001, "Không tìm thấy lịch khám này!", HttpStatus.NOT_FOUND),
+    SCHEDULE_NOT_AVAILABLE(6002, "Lịch khám hiện không sẵn sàng!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_FULL(6003, "Lịch khám đã đủ số lượng người đăng ký!", HttpStatus.BAD_REQUEST),
+    PATIENT_HAS_OVERLAP_APPOINTMENT(6004, "Bạn đã có một lịch khám khác trong cùng khung giờ này!", HttpStatus.CONFLICT),
+    APPOINTMENT_NOT_FOUND(6005, "Không tìm thấy thông tin cuộc hẹn!", HttpStatus.NOT_FOUND),
     ;
 
     private final int code;

@@ -1,18 +1,17 @@
 package com.hoanglong.healthcare_connect_backend.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginResponse {
-    private String accessToken;
-    private String refreshToken;
-    private boolean authenticated;
+    String accessToken;
+    String refreshToken;
+    boolean authenticated;
 }
