@@ -28,7 +28,6 @@ public class ApproveDoctorUseCase {
     private final MailService emailService;
 
     @Transactional
-    // Đảm bảo chỉ Admin hoặc Manager mới được vào đây
     @PreAuthorize("hasRole('ADMIN') or hasRole('HOSPITAL_MANAGER')")
     public void execute(UUID doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
@@ -42,12 +41,10 @@ public class ApproveDoctorUseCase {
         // LUỒNG 1: ADMIN DUYỆT (Bước 1: Verify giấy tờ)
         if (isAdmin && doctor.getStatus() == DoctorStatus.PENDING) {
             doctor.setStatus(DoctorStatus.VERIFIED);
-            // Có thể gửi mail báo: "Hồ sơ của bạn đã được Admin xác thực, chờ bệnh viện tiếp nhận"
         }
 
         // LUỒNG 2: MANAGER DUYỆT (Bước 2: Approve vào làm - Chốt Role)
         else if (isManager && doctor.getStatus() == DoctorStatus.VERIFIED) {
-            // Kiểm tra bảo mật: Manager này có quản lý bệnh viện mà bác sĩ đăng ký không?
             UUID currentManagerId = SecurityUtils.getCurrentUserId();
             if (!doctor.getHospital().getManager().getId().equals(currentManagerId)) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);

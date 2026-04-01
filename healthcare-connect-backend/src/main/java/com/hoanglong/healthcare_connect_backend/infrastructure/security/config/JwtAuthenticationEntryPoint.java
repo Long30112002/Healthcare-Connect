@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.config;
+package com.hoanglong.healthcare_connect_backend.infrastructure.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;

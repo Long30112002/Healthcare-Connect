@@ -2,10 +2,12 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -23,26 +25,30 @@ public class MailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
-    @Async
+    @Value("${spring.mail.username}")
+    private String mailFrom;
+
+//    @Async
     public void sendEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        log.info("==> Đang chuẩn bị gửi mail tới: {} với tiêu đề: '{}'", to, subject);
         try {
             Context context = new Context();
             context.setVariables(variables);
-
             String htmlContent = templateEngine.process(templateName, context);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-            helper.setFrom("no-reply@healthcareconnect.com");
+            helper.setFrom(mailFrom);
 
             mailSender.send(message);
-            log.info("Email gửi tới {} thành công!", to);
-        } catch (MessagingException e) {
-            log.error("Lỗi gửi mail: {}", e.getMessage());
+            log.info("==> [SUCCESS] Email gửi tới {} thành công!", to);
+        } catch (Exception e) {
+            log.error("==> [ERROR] Lỗi gửi mail: {}", e.getMessage());
+            // Ném lỗi ra ngoài để RabbitMQ biết mà Retry
+            throw new RuntimeException("Gửi mail thất bại, đang chờ Retry...", e);
         }
     }
 
@@ -138,5 +144,10 @@ public class MailService {
                 "email-template", // Tên file HTML trong folder templates
                 variables
         );
+    }
+
+    @PostConstruct
+    public void checkConfig() {
+        log.info("==> [CONFIG] Mail Service khởi tạo với email: {}", mailFrom);
     }
 }

@@ -1,7 +1,6 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.config;
+package com.hoanglong.healthcare_connect_backend.infrastructure.security.config;
 
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.security;
+package com.hoanglong.healthcare_connect_backend.infrastructure.security.aspect;
 
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;

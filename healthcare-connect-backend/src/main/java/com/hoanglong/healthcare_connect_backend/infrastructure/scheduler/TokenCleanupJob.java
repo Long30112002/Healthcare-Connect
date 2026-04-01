@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.job;
+package com.hoanglong.healthcare_connect_backend.infrastructure.scheduler;
 
 import com.hoanglong.healthcare_connect_backend.infrastructure.security.repository.InvalidatedTokenRepository;
 import lombok.RequiredArgsConstructor;

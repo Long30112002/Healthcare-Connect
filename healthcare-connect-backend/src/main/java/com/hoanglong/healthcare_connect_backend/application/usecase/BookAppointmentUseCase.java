@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
@@ -12,7 +13,9 @@ import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class BookAppointmentUseCase {
     private final IAppointmentRepository appointmentRepository;
     private final IUserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional
     public AppointmentResponse execute(UUID patientId, UUID scheduleId, String symptoms) {
@@ -71,6 +75,21 @@ public class BookAppointmentUseCase {
 
         scheduleRepository.save(schedule);
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // CHÈN LOGIC GỬI TIN NHẮN
+        NotificationMessage message = NotificationMessage.builder()
+                .recipientEmail(patient.getEmail())
+                .patientName(patient.getFullName())
+                .appointmentTime(schedule.getStartTime().toString())
+                .message("Lịch khám của bạn đã được hệ thống ghi nhận thành công!")
+                .build();
+
+        // Ném mẩu giấy vào bưu điện RabbitMQ
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_NAME,
+                RabbitMQConfig.ROUTING_KEY,
+                message
+        );
 
         // 6. Map sang Response
         return appointmentMapper.toResponse(savedAppointment);
