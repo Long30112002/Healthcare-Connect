@@ -16,31 +16,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-@Slf4j // Thêm để log quá trình gửi mail
+@Slf4j
 public class RegisterUserUseCase {
     private final IUserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
 
     @Transactional
-    @Throttling(limit = 3, duration = 300) // 5 phút chỉ được đăng ký 3 lần
+    @Throttling(limit = 3, duration = 70)
     public ApiResponse<UserResponse> execute(UserRegistrationRequest request) {
         var existingUser = userRepository.findByEmail(request.getEmail());
 
-        // CHỈ XỬ LÝ LƯU NẾU CHƯA CÓ
-        if (existingUser.isEmpty()) {
-            // Dùng Mapper để chuyển hết dữ liệu từ Request sang User
-            User user = userMapper.toUser(request);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (!user.getEnabled()) {
+                // Cập nhật mã mới nếu chưa kích hoạt
+                user.setVerificationCode(UUID.randomUUID().toString());
+                user.setVerificationExpiry(LocalDateTime.now().plusHours(24));
+                userRepository.save(user);
 
-            // Sau đó mới ghi đè các trường cần xử lý logic riêng
+                // Gọi MailService xử lý logic nội dung
+                mailService.sendVerificationEmail(user);
+            }
+        } else {
+            // Đăng ký mới
+            User user = userMapper.toUser(request);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setRole(UserRole.PATIENT);
             user.setEnabled(false);
@@ -48,16 +53,17 @@ public class RegisterUserUseCase {
             user.setVerificationExpiry(LocalDateTime.now().plusHours(24));
 
             userRepository.save(user);
+
+            // Gọi MailService xử lý logic nội dung
             mailService.sendVerificationEmail(user);
         }
 
-        // TRẢ VỀ CHUNG 1 THÔNG BÁO CHO CẢ 2 TRƯỜNG HỢP
         return ApiResponse.<UserResponse>builder()
                 .status("success")
                 .code(201)
                 .message("Yêu cầu đăng ký đã được ghi nhận. Hãy kiểm tra hòm thư.")
                 .data(UserResponse.builder()
-                        .email(request.getEmail()) // Chỉ trả về email để xác nhận
+                        .email(request.getEmail())
                         .build())
                 .build();
     }

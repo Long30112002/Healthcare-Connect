@@ -1,0 +1,74 @@
+package com.hoanglong.healthcare_connect_backend.application.usecase;
+
+import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.AcceptInvitationRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
+import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
+import com.hoanglong.healthcare_connect_backend.core.entity.User;
+import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
+import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
+import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AcceptHospitalInvitationUseCase {
+    private final IHospitalRepository hospitalRepository;
+    private final IUserRepository userRepository;
+    private final UserMapper userMapper;
+
+    @Transactional
+    public ApiResponse<UserResponse> execute(AcceptInvitationRequest request) {
+        // 1. Tìm bệnh viện
+        Hospital hospital = hospitalRepository.findById(request.getHospitalId())
+                .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
+
+        // 2. Kiểm tra Token
+        if (hospital.getInvitationToken() == null || !hospital.getInvitationToken().equals(request.getToken())) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if (hospital.getTokenExpiry().isBefore(LocalDateTime.now())) {
+            hospital.setStatus(HospitalStatus.EXPIRED);
+            hospitalRepository.save(hospital);
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }
+
+        // 3.Dùng ID thay Email để khớp với Token
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 4. Thực hiện nâng cấp Role và kích hoạt Bệnh viện
+        user.setRole(UserRole.HOSPITAL_MANAGER);
+        userRepository.save(user);
+
+        hospital.setManager(user);
+        hospital.setStatus(HospitalStatus.ACTIVE);
+        hospital.setInvitationToken(null);
+        hospital.setTokenExpiry(null); // Xóa luôn hạn dùng cho sạch DB
+        hospitalRepository.save(hospital);
+
+        log.info("User {} đã chấp nhận quản lý bệnh viện {}", user.getEmail(), hospital.getName());
+
+        return ApiResponse.<UserResponse>builder()
+                .status("success")
+                .code(200)
+                .message("Chúc mừng! Bạn đã trở thành Quản lý của " + hospital.getName())
+                .data(userMapper.toUserResponse(user))
+                .build();
+    }
+}

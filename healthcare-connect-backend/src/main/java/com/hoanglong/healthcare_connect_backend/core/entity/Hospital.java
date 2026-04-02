@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -28,8 +29,18 @@ public class Hospital {
 
     String imageUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    HospitalStatus status = HospitalStatus.PENDING_CONFIRMATION; // Mặc định là chờ
+
+    String invitationToken;
+    LocalDateTime tokenExpiry;
+
+    @Column(name = "temp_manager_email")
+    String tempManagerEmail;
+
     @OneToOne
-    @JoinColumn(name = "manager_id")
+    @JoinColumn(name = "manager_id", nullable = true)
     User manager;
 
     @CreationTimestamp

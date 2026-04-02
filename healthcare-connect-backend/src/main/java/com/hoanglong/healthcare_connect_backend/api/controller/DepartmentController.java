@@ -32,7 +32,7 @@ public class DepartmentController {
         return ApiResponse.<DepartmentResponse>builder()
                 .status("success")
                 .code(200)
-                .data(departmentService.getById(id)) // Đổi .result thành .data ở đây!
+                .data(departmentService.getById(id))
                 .build();
     }
 

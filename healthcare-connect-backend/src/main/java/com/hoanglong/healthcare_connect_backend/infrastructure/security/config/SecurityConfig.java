@@ -35,14 +35,13 @@ public class SecurityConfig {
     @Lazy
     private AuthenticationService authenticationService;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // Trong filterChain của SecurityConfig.java
         http.authorizeHttpRequests(request -> request
-                // 1. Public APIs (Mở hoàn toàn)
+                // 1. Public APIs
                 .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/departments/**", "/api/specialties/**").permitAll()

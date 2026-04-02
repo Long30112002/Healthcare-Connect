@@ -22,4 +22,13 @@ public class UserResponse {
     UserRole role;
     String phone;
     LocalDateTime createdAt;
+    PendingInvitationDTO pendingInvitation;
+
+    @Data
+    @Builder
+    public static class PendingInvitationDTO {
+        UUID hospitalId;
+        String hospitalName;
+        String token;
+    }
 }

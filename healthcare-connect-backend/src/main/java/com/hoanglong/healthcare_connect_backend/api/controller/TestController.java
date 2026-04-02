@@ -19,9 +19,8 @@ public class TestController {
     public String testSend() {
         NotificationMessage message = NotificationMessage.builder()
                 .recipientEmail("email-long@gmail.com")
-                .patientName("Hoàng Long")
-                .appointmentTime("20:00 - 02/04/2026")
-                .message("Hệ thống RabbitMQ chạy cực tốt!")
+                .subject("Hệ thống RabbitMQ chạy cực tốt!")
+                .templateName("Hoàng Long")
                 .build();
 
         // Bắn tin nhắn vào Exchange

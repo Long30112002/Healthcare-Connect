@@ -2,12 +2,16 @@ package com.hoanglong.healthcare_connect_backend.shared.util;
 
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Optional;
 import java.util.UUID;
 
 public class SecurityUtils {
 
-    // Không cho phép khởi tạo đối tượng bằng từ khóa new
     private SecurityUtils() {}
 
     public static UUID getCurrentUserId() {
@@ -19,11 +23,39 @@ public class SecurityUtils {
         }
 
         try {
-            // Lấy subject (là ID) từ Token
             return UUID.fromString(authentication.getName());
         } catch (IllegalArgumentException e) {
-            // Lỗi này xảy ra nếu subject trong Token không phải là định dạng UUID
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
     }
+
+    public static Optional<String> getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            return Optional.of(((UserDetails) principal).getUsername());
+        } else if (principal instanceof String) {
+            return Optional.of((String) principal);
+        }
+
+        return Optional.empty();
+    }
+
+    public static boolean hasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(a -> a.equals(role));
+    }
+
+
 }

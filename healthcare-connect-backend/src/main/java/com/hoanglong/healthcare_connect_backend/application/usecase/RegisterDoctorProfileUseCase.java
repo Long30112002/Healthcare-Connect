@@ -26,7 +26,7 @@ public class RegisterDoctorProfileUseCase {
     private final IUserRepository userRepository;
     private final ISpecialtyRepository specialtyRepository;
     private final IDepartmentRepository departmentRepository;
-    private final IHospitalRepository hospitalRepository; // 1. THÊM REPOSITORY NÀY
+    private final IHospitalRepository hospitalRepository;
     private final DoctorMapper doctorMapper;
     private final CloudinaryService cloudinaryService;
 
@@ -55,7 +55,7 @@ public class RegisterDoctorProfileUseCase {
         doctor.setUser(user);
         doctor.setDepartment(department);
         doctor.setSpecialty(specialty);
-        doctor.setHospital(hospital); // 3. GÁN VÀO ĐÂY THÌ MAPPER MỚI CÓ TÊN ĐỂ LẤY
+        doctor.setHospital(hospital);
 
         doctor.setDegree(request.getDegree());
         doctor.setExperienceYears(request.getExperienceYears());

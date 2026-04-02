@@ -1,7 +1,10 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.AcceptInvitationRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.RejectDoctorRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.usecase.AcceptHospitalInvitationUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveDoctorUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RejectDoctorUseCase;
 import jakarta.validation.Valid;
@@ -34,4 +37,5 @@ public class ManagerHosController
                 .message("Đã từ chối hồ sơ bác sĩ thành công.")
                 .build();
     }
+
 }

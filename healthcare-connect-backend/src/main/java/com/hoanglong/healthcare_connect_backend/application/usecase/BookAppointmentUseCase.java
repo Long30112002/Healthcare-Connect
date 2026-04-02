@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
+import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
@@ -13,51 +13,41 @@ import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookAppointmentUseCase {
-
-    private final IScheduleRepository scheduleRepository;
     private final IAppointmentRepository appointmentRepository;
+    private final IScheduleRepository scheduleRepository;
     private final IUserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
-    private final RabbitTemplate rabbitTemplate;
+    private final MailService mailService; // Tiêm MailService vào
 
     @Transactional
     public AppointmentResponse execute(UUID patientId, UUID scheduleId, String symptoms) {
-        // 1. Tìm và Khóa Slot (Pessimistic Lock)
-        Schedule schedule = scheduleRepository.findByIdWithLock(scheduleId)
-                .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_FOUND));
-
-        // 2. Kiểm tra tính hợp lệ của Slot
-        if (schedule.getStatus() != ScheduleStatus.AVAILABLE) {
-            throw new AppException(ErrorCode.SCHEDULE_NOT_AVAILABLE);
-        }
-
-        if (schedule.getCurrentBookings() >= schedule.getMaxPatients()) {
-            throw new AppException(ErrorCode.SCHEDULE_FULL);
-        }
-
-        List<AppointmentStatus> excludedStatuses = List.of(AppointmentStatus.CANCELLED);
-
-        if (appointmentRepository.existsByPatientOverlap(patientId, schedule.getDate(), schedule.getStartTime(), excludedStatuses)) {
-            throw new AppException(ErrorCode.PATIENT_HAS_OVERLAP_APPOINTMENT);
-        }
-
-        // 4. Tạo cuộc hẹn mới
+        // 1. Kiểm tra bệnh nhân
         User patient = userRepository.findById(patientId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // 2. Kiểm tra lịch trình (Schedule)
+        Schedule schedule = scheduleRepository.findByIdWithLock(scheduleId)
+                .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        // 3. Kiểm tra xem còn chỗ không
+        if (schedule.getStatus() == ScheduleStatus.FULL ||
+                schedule.getCurrentBookings() >= schedule.getMaxPatients()) {
+            throw new AppException(ErrorCode.SCHEDULE_FULL);
+        }
+
+        // 4. Tạo cuộc hẹn mới
         Appointment appointment = Appointment.builder()
                 .patient(patient)
                 .schedule(schedule)
@@ -76,22 +66,12 @@ public class BookAppointmentUseCase {
         scheduleRepository.save(schedule);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        // CHÈN LOGIC GỬI TIN NHẮN
-        NotificationMessage message = NotificationMessage.builder()
-                .recipientEmail(patient.getEmail())
-                .patientName(patient.getFullName())
-                .appointmentTime(schedule.getStartTime().toString())
-                .message("Lịch khám của bạn đã được hệ thống ghi nhận thành công!")
-                .build();
+        // 6. Gửi mail thông báo đặt lịch thành công
+        mailService.sendBookingEmail(patient, schedule);
 
-        // Ném mẩu giấy vào bưu điện RabbitMQ
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE_NAME,
-                RabbitMQConfig.ROUTING_KEY,
-                message
-        );
+        log.info("==> [BOOKING] Bệnh nhân {} đã đặt lịch thành công vào lúc {}",
+                patient.getEmail(), schedule.getStartTime());
 
-        // 6. Map sang Response
         return appointmentMapper.toResponse(savedAppointment);
     }
 }

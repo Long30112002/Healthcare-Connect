@@ -17,10 +17,11 @@ public enum ErrorCode {
     FORBIDDEN(1007, "Bạn không có quyền thực hiện hành động này!", HttpStatus.FORBIDDEN),
     TOO_MANY_REQUESTS(1010, "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát.", HttpStatus.TOO_MANY_REQUESTS),
     UNAUTHENTICATED(1011, "Không xác thực được dữ liệu.", HttpStatus.BAD_REQUEST),
-    INVALID_TOKEN(1012, "Token không hợp lệ.", HttpStatus.UNAUTHORIZED),
-    INVALID_VERIFICATION_CODE(1012, "Mã xác minh không hợp lệ.", HttpStatus.UNAUTHORIZED),
-    VERIFICATION_CODE_EXPIRED(1012, "Mã xác minh đã hế hạn.", HttpStatus.UNAUTHORIZED),
-
+    INVALID_TOKEN(1012, "Mã xác nhận không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_VERIFICATION_CODE(1013, "Mã xác minh không hợp lệ.", HttpStatus.UNAUTHORIZED),
+    VERIFICATION_CODE_EXPIRED(1014, "Mã xác minh đã hế hạn.", HttpStatus.UNAUTHORIZED),
+    INVALID_ROLE_FOR_MANAGER(1015, "Vai trò không hợp lệ.", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED(1016, "Lời mời đã hết hạn", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 2xxx: NGƯỜI DÙNG & VALIDATION (USER & VALIDATION)
@@ -57,6 +58,7 @@ public enum ErrorCode {
     INVALID_APPROVE_STEP(5003, "Quy trình duyệt không đúng thứ tự (Cần Admin Verify trước)!", HttpStatus.BAD_REQUEST),
     ALREADY_APPROVED(5004, "Hồ sơ này đã được duyệt trước đó!", HttpStatus.BAD_REQUEST),
     NOT_HOSPITAL_MANAGER(5005, "Bạn không phải quản lý của bệnh viện này!", HttpStatus.FORBIDDEN),
+    HOSPITAL_ALREADY_EXISTS(5006, "Bệnh viện này đã tồn tại!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 6xxx: ĐẶT LỊCH & THANH TOÁN (BOOKING & PAYMENT)

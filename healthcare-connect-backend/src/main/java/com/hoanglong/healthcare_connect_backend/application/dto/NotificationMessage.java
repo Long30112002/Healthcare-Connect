@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -12,7 +13,8 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NotificationMessage implements Serializable {
     String recipientEmail;
-    String patientName;
-    String appointmentTime;
-    String message;
+    String subject;
+    String templateName; // "email-template" hoặc template riêng cho từng loại
+    // Dùng Map để chứa bất kỳ thứ gì: name, url, message, time...
+    Map<String, Object> variables;
 }

@@ -3,9 +3,9 @@ import { check, sleep } from 'k6';
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
 export const options = {
-    // 100 Virtual Users cùng "dội bom"
+    // 100 Virtual Users
     vus: 100, 
-    // Chạy trong 10 giây để xem ai nhanh tay hơn
+    // Chạy trong 10 giây
     duration: '10s', 
 };
 
@@ -46,7 +46,7 @@ export default function (data) {
 
     const bookUrl = 'http://localhost:8080/api/appointments/book';
     const bookPayload = JSON.stringify({
-        scheduleId: 'd2630814-2559-4bf9-9489-7753acddbe3f',
+        scheduleId: '9a7f6dce-54af-4434-8336-cf8dd940b57e',
         symptoms: `Chiến thần tốc độ - User ${__VU}`
     });
 

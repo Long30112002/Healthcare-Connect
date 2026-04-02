@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class ForgotPasswordUseCase {
     private final IUserRepository userRepository;
-    private final MailService mailService;
+    private final MailService mailService; // Sử dụng MailService tập trung
 
     @Transactional
     public void execute(String email) {
@@ -26,16 +26,16 @@ public class ForgotPasswordUseCase {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // 2. Sinh mã reset password (UUID) và hạn dùng (thường ngắn hơn, 15-30 phút)
+        // 2. Sinh mã reset password (UUID) và hạn dùng (30 phút)
         String resetCode = UUID.randomUUID().toString();
         user.setVerificationCode(resetCode);
         user.setVerificationExpiry(LocalDateTime.now().plusMinutes(30));
 
         userRepository.save(user);
 
-        // 3. Gửi mail với type chuyên biệt
-        mailService.sendSecurityEmail(user, "FORGOT_PASSWORD");
+        // 3. Gọi Service gửi mail reset password
+        mailService.sendForgotPasswordEmail(user);
 
-        log.info("Đã tạo yêu cầu quên mật khẩu cho: {}", email);
+        log.info("==> [FORGOT PASSWORD] Đã tạo yêu cầu đặt lại mật khẩu cho: {}", email);
     }
 }

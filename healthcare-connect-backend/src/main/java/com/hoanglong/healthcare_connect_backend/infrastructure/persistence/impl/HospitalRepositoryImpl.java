@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.impl;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaHospitalRepository;
@@ -39,5 +40,10 @@ public class HospitalRepositoryImpl implements IHospitalRepository {
     @Override
     public List<Hospital> findAll() {
         return jpaHospitalRepository.findAll();
+    }
+
+    @Override
+    public Optional<Hospital> findByTempManagerEmailAndStatus (String email, HospitalStatus status) {
+        return jpaHospitalRepository.findByTempManagerEmailAndStatus (email, status);
     }
 }

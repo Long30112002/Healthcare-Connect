@@ -19,7 +19,7 @@ public interface HospitalMapper {
     @Mapping(target = "updatedAt", ignore = true)
     Hospital swallowRequestToHospital(HospitalRequest request); // Đổi tên cho rõ nghĩa hoặc để toHospital
 
-    @Mapping(source = "manager.fullName", target = "managerName")
+    @Mapping(source = "manager.fullName", target = "managerEmail")
     HospitalResponse toHospitalResponse(Hospital hospital);
 
     List<HospitalResponse> toHospitalResponseList(List<Hospital> hospitals);

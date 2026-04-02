@@ -17,7 +17,7 @@ public class HospitalResponse {
     String address;
     String description;
     String imageUrl;
-    String managerName; // Lấy từ User manager
+    String managerEmail;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }
