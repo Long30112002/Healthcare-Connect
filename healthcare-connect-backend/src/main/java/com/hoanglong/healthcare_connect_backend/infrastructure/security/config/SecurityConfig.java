@@ -57,9 +57,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/departments/**").hasRole("ADMIN")
 
-                // 4. Các API còn lại
+                // 4. SOCKET
+                .requestMatchers("/ws/**").permitAll()
+
+
+                // 5. Các API còn lại
                 .anyRequest().authenticated()
         );
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**"));
 
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt

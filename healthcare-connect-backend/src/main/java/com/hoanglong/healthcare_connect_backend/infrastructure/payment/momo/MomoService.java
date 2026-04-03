@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
+import com.hoanglong.healthcare_connect_backend.application.service.NotificationService;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
@@ -38,6 +39,7 @@ public class MomoService implements PaymentProvider
     private final IAppointmentRepository appointmentRepository;
     private final IPaymentRepository paymentRepository;
     private final MailService mailService;
+    private final NotificationService notificationService;
     private static final String REQUEST_TYPE = "payWithMethod";
 
     public String createPaymentRequest(Appointment appointment) {
@@ -183,7 +185,19 @@ public class MomoService implements PaymentProvider
 
         mailService.sendPaymentSuccessEmail(appointment);
 
-        log.info("==> [SUCCESS] Hoàn tất thanh toán cho đơn hàng: {}", appointment.getId());
+        // 4. Bắn tín hiệu realtime để front - end tự cập nhật
+        Map<String, Object> socketData = new HashMap<>();
+        socketData.put("appointmentId", appointment.getId());
+        socketData.put("status", "PAID");
+        socketData.put("message", "Thanh toán thành công!");
+
+        // Frontend sẽ lắng nghe tại topic: /topic/payment/{id}
+        notificationService.sendRealtimeNotification(
+                "/topic/payment/" + appointment.getId(),
+                socketData
+        );
+
+        log.info("==> [SUCCESS] Đã cập nhật và phát tín hiệu realtime cho đơn hàng: {}", appointment.getId());
     }
 
 }
