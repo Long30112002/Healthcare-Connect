@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,5 +45,10 @@ public class UserRepositoryImpl implements IUserRepository {
     @Override
     public Optional<User> findById(UUID userId) {
         return jpaUserRepository.findById(userId);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.findAll();
     }
 }

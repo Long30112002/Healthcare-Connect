@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.core.entity;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -15,24 +16,26 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    Doctor doctor;
 
-    private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    LocalDate date;
+    LocalTime startTime;
+    LocalTime endTime;
 
-    private int maxPatients; 
-    private int currentBookings;
+    int maxPatients;
+    int currentBookings;
 
     @Enumerated(EnumType.STRING)
-    private ScheduleStatus status;
+    ScheduleStatus status;
 
-    private double price;
+    double price;
 }

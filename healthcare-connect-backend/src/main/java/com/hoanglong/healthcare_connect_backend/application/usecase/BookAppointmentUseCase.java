@@ -47,12 +47,16 @@ public class BookAppointmentUseCase {
             throw new AppException(ErrorCode.SCHEDULE_FULL);
         }
 
+        if (appointmentRepository.existsByPatientIdAndScheduleIdAndStatus(patientId, scheduleId, AppointmentStatus.AWAITING_PAYMENT)) {
+            throw new AppException(ErrorCode.BOOKING_ALREADY_EXISTS);
+        }
+
         // 4. Tạo cuộc hẹn mới
         Appointment appointment = Appointment.builder()
                 .patient(patient)
                 .schedule(schedule)
                 .appointmentDate(LocalDateTime.now())
-                .status(AppointmentStatus.PENDING)
+                .status(AppointmentStatus.AWAITING_PAYMENT)
                 .symptoms(symptoms)
                 .isPaid(false)
                 .build();

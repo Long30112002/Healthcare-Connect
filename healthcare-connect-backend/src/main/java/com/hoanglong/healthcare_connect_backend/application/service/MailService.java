@@ -1,10 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
-import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
-import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
-import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
+import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.internet.MimeMessage;
@@ -12,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -152,11 +150,9 @@ public class MailService {
 
     // 7. NGHIỆP VỤ LỜI MỜI
     public void sendManagerInvitation(User user, Hospital hospital, String token) {
-        // 1. Xây dựng URL xác nhận
         String confirmationUrl = "http://localhost:3000/confirm-invitation?token=" + token
                 + "&hospitalId=" + hospital.getId();
 
-        // 2. Chuẩn bị các biến dữ liệu cho Template
         Map<String, Object> variables = new HashMap<>();
         variables.put("managerName", user.getFullName());
         variables.put("hospitalName", hospital.getName());
@@ -164,22 +160,30 @@ public class MailService {
         variables.put("confirmationUrl", confirmationUrl);
         variables.put("expiryHours", 24);
 
-        // 3. Đóng gói vào NotificationMessage
-        NotificationMessage message = NotificationMessage.builder()
-                .recipientEmail(user.getEmail())
-                .subject("[Healthcare Connect] Lời mời quản lý Bệnh viện " + hospital.getName())
-                .templateName("manager-invitation-template")
-                .variables(variables)
-                .build();
-
-        // 4. Đẩy vào hàng đợi RabbitMQ
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE_NAME,
-                RabbitMQConfig.ROUTING_KEY,
-                message
+        pushToQueue(
+                user.getEmail(),
+                "[Healthcare Connect] Lời mời quản lý Bệnh viện " + hospital.getName(),
+                "manager-invitation-template",
+                variables
         );
     }
 
+    // 8. NGHIỆP VỤ XÁC NHẬN THANH TOÁN
+    public void sendPaymentSuccessEmail(Appointment appointment) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("patientName", appointment.getPatient().getFullName());
+        variables.put("appointmentId", appointment.getId().toString().substring(0, 8));
+        variables.put("doctorName", appointment.getSchedule().getDoctor().getUser().getFullName());
+        variables.put("startTime", appointment.getSchedule().getStartTime());
+        variables.put("amount", appointment.getSchedule().getPrice());
+
+        pushToQueue(
+                appointment.getPatient().getEmail(),
+                "Xác nhận thanh toán thành công - Healthcare Connect",
+                "payment-success-template", // Tên file HTML bạn sẽ tạo
+                variables
+        );
+    }
     // --- HÀM GỬI MAIL VẬT LÝ ---
     public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
         try {

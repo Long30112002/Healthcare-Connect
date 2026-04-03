@@ -35,5 +35,15 @@ public class Appointment {
     @Column(columnDefinition = "TEXT")
     private String symptoms;
 
-    private boolean isPaid;
+    @Column(name = "is_rescheduled")
+    private boolean isRescheduled = false;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
+    @Column(name = "check_in_time")
+    private LocalDateTime checkInTime;
+
+    @Column(name = "is_paid")
+    private boolean isPaid = false;
 }

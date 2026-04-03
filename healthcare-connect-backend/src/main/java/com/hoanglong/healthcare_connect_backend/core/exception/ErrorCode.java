@@ -15,13 +15,13 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(1005, "Thông tin không chính xác, hãy kiểm tra lại", HttpStatus.UNAUTHORIZED),
     TOKEN_CREATION_FAILED(1006, "Tạo token thất bại!", HttpStatus.BAD_REQUEST),
     FORBIDDEN(1007, "Bạn không có quyền thực hiện hành động này!", HttpStatus.FORBIDDEN),
-    TOO_MANY_REQUESTS(1010, "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát.", HttpStatus.TOO_MANY_REQUESTS),
-    UNAUTHENTICATED(1011, "Không xác thực được dữ liệu.", HttpStatus.BAD_REQUEST),
-    INVALID_TOKEN(1012, "Mã xác nhận không hợp lệ", HttpStatus.BAD_REQUEST),
-    INVALID_VERIFICATION_CODE(1013, "Mã xác minh không hợp lệ.", HttpStatus.UNAUTHORIZED),
-    VERIFICATION_CODE_EXPIRED(1014, "Mã xác minh đã hế hạn.", HttpStatus.UNAUTHORIZED),
-    INVALID_ROLE_FOR_MANAGER(1015, "Vai trò không hợp lệ.", HttpStatus.UNAUTHORIZED),
-    TOKEN_EXPIRED(1016, "Lời mời đã hết hạn", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS(1010, "Bạn thao tác quá nhanh. Vui lòng thử lại sau giây lát!", HttpStatus.TOO_MANY_REQUESTS),
+    UNAUTHENTICATED(1011, "Không xác thực được dữ liệu!", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(1012, "Mã xác nhận không hợp lệ!", HttpStatus.BAD_REQUEST),
+    INVALID_VERIFICATION_CODE(1013, "Mã xác minh không hợp lệ!", HttpStatus.UNAUTHORIZED),
+    VERIFICATION_CODE_EXPIRED(1014, "Mã xác minh đã hế hạn!", HttpStatus.UNAUTHORIZED),
+    INVALID_ROLE_FOR_MANAGER(1015, "Vai trò không hợp lệ!", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED(1016, "Lời mời đã hết hạn!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 2xxx: NGƯỜI DÙNG & VALIDATION (USER & VALIDATION)
@@ -31,8 +31,12 @@ public enum ErrorCode {
     NAME_INVALID(2003, "Họ tên không được để trống!", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(2004, "Email không đúng định dạng!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(2005, "Mật khẩu phải có ít nhất 8 ký tự!", HttpStatus.BAD_REQUEST),
-    DEGREE_REQUIRED(2006, "Vui lòng nhập bằng cấp chuyên môn", HttpStatus.BAD_REQUEST),
-    FEE_REQUIRED(2007, "Phí khám không được để trống", HttpStatus.BAD_REQUEST),
+    DEGREE_REQUIRED(2006, "Vui lòng nhập bằng cấp chuyên môn!", HttpStatus.BAD_REQUEST),
+    FEE_REQUIRED(2007, "Phí khám không được để trống!", HttpStatus.BAD_REQUEST),
+    BOOKING_ALREADY_EXISTS(2008, "Lịch trình đã được đặt!", HttpStatus.BAD_REQUEST),
+    PAYMENT_ERROR(2009, "Thanh toán không thành công!", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_FOUND(2010, "Không tìm thấy đơn đặt hàng!", HttpStatus.BAD_REQUEST),
+    UPDATE_CONFIRM_ERROR(2011, "Cập nhật trạng thái xác nhận không thành công!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 3xxx: KHOA & CHUYÊN KHOA (DEPARTMENT & SPECIALTY)
@@ -42,12 +46,12 @@ public enum ErrorCode {
     SPECIALTY_NOT_FOUND(3003, "Không tìm thấy chuyên ngành!", HttpStatus.NOT_FOUND),
     SPECIALTY_EXISTED(3004, "Chuyên ngành đã tồn tại!", HttpStatus.BAD_REQUEST),
     SPECIALTY_CATEGORY_MISMATCH(3005, "Chuyên khoa không thuộc nhóm danh mục của Khoa này!", HttpStatus.BAD_REQUEST),
-    INVALID_SPECIALTY_CODE(3006, "Mã chuyên khoa không khớp với mã khoa", HttpStatus.BAD_REQUEST),
+    INVALID_SPECIALTY_CODE(3006, "Mã chuyên khoa không khớp với mã khoa!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 4xxx: DỮ LIỆU CHUNG (GENERAL DATA)
     // =============================================================================
-    DATA_NOT_FOUND(4001, "Dữ liệu không tồn tại trong hệ thống", HttpStatus.NOT_FOUND),
+    DATA_NOT_FOUND(4001, "Dữ liệu không tồn tại trong hệ thống!", HttpStatus.NOT_FOUND),
     DATA_CONSTRAINT_VIOLATION(4002, "Dữ liệu đang được ràng buộc, không thể thực hiện hành động này!", HttpStatus.CONFLICT),
 
     // =============================================================================

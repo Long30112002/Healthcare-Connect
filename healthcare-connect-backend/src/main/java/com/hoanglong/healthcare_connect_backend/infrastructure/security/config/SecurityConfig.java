@@ -44,17 +44,20 @@ public class SecurityConfig {
                 // 1. Public APIs
                 .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
+
+                // Cho phép MoMo gọi Callback và IPN không cần Token
+                .requestMatchers("/api/v1/payments/momo/**").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/departments/**", "/api/specialties/**").permitAll()
 
-                // 2. DOCTOR APIs Yêu cầu Role PATIENT hoặc mới đăng ký)
-                // Lưu ý: User mới tạo mặc định là PATIENT nên cho phép họ nộp đơn
+                // 2. DOCTOR APIs
                 .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
 
-                // 3. ADMIN APIs (Chỉ Admin mới được vào các link này)
+                // 3. ADMIN APIs
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/departments/**").hasRole("ADMIN")
 
-                // 4. Tất cả các API còn lại (như xem hồ sơ cá nhân, đổi pass...)
+                // 4. Các API còn lại
                 .anyRequest().authenticated()
         );
 
