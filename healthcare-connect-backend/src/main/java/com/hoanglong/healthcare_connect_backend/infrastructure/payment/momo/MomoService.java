@@ -8,7 +8,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.payment.PaymentProvider;
+import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,18 +53,21 @@ public class MomoService implements PaymentProvider
             String notifyUrl = momoConfig.getNotifyUrl();
 
             // XỬ LÝ AMOUNT: Ép double về long
-            String amount = String.valueOf((long) appointment.getSchedule().getPrice());
+//            String amount = String.valueOf((long) appointment.getSchedule().getPrice());
+            BigDecimal price = appointment.getSchedule().getPrice();
+            long amountLong = price.longValue();
+            String amountStr = String.valueOf(amountLong);
 
             // Tạo requestId và orderId
             String requestId = partnerCode + System.currentTimeMillis();
             String orderId = appointment.getId().toString() + "_" + System.currentTimeMillis();
-            String orderInfo = "Thanh Toan Lich Kham " + orderId.substring(0, 8);
+            String orderInfo = "Thanh toan lich hen " + appointment.getId().toString().substring(0, 8);
             String extraData = "";
 
             // 1. TẠO CHUỖI BĂM (RAW SIGNATURE)
             String rawSignature = String.format(
                     "accessKey=%s&amount=%s&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
-                    accessKey, amount, extraData, notifyUrl, orderId, orderInfo, partnerCode, returnUrl,
+                    accessKey, amountStr, extraData, notifyUrl, orderId, orderInfo, partnerCode, returnUrl,
                     requestId, REQUEST_TYPE);
 
             System.out.println("--- DEBUG RAW SIGNATURE ---");
@@ -77,7 +80,7 @@ public class MomoService implements PaymentProvider
             JSONObject requestBody = new JSONObject();
             requestBody.put("partnerCode", partnerCode);
             requestBody.put("requestId", requestId);
-            requestBody.put("amount", Long.parseLong(amount));
+            requestBody.put("amount", amountLong);
             requestBody.put("orderId", orderId);
             requestBody.put("orderInfo", orderInfo);
             requestBody.put("redirectUrl", returnUrl);
@@ -113,56 +116,129 @@ public class MomoService implements PaymentProvider
     }
 
     private String signHmacSHA256(String data, String key) throws Exception {
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        byte[] dataBytes = data.getBytes(StandardCharsets.UTF_8);
+
         Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "HmacSHA256");
         hmacSHA256.init(secretKeySpec);
-        byte[] hash = hmacSHA256.doFinal(data.getBytes(StandardCharsets.UTF_8));
+
+        byte[] hash = hmacSHA256.doFinal(dataBytes);
+
+        // Sử dụng Formatter để đảm bảo chuỗi Hex chuẩn xác
         StringBuilder hexString = new StringBuilder();
         for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
+            hexString.append(String.format("%02x", b));
         }
         return hexString.toString();
     }
 
     @Transactional
     public void processIPN(Map<String, String> params) {
+        log.info("==> [MOMO IPN] Start verify OrderId: {}", params.get("orderId"));
+
         String mSignature = params.get("signature");
 
-        String rawSignature = String.format(
-                "accessKey=%s&amount=%s&extraData=%s&message=%s&orderId=%s&orderInfo=%s&partnerCode=%s&requestId=%s&responseTime=%s&resultCode=%s",
-                momoConfig.getAccessKey(), params.get("amount"), params.get("extraData"),
-                params.get("message"), params.get("orderId"), params.get("orderInfo"),
-                momoConfig.getPartnerCode(), params.get("requestId"), params.get("responseTime"),
-                params.get("resultCode")
-        );
-        log.info("==> [DEBUG] Chuỗi Raw IPN hệ thống đang tính: {}", rawSignature);
         try {
+            // ===== 1. LẤY PARAMS =====
+            String accessKey = momoConfig.getAccessKey();
+            String amount = params.getOrDefault("amount", "");
+            String extraData = params.getOrDefault("extraData", "");
+            String message = params.getOrDefault("message", "");
+            String orderId = params.getOrDefault("orderId", "");
+            String orderInfo = params.getOrDefault("orderInfo", "");
+            String orderType = params.getOrDefault("orderType", "");
+            String partnerCode = params.getOrDefault("partnerCode", "");
+            String payType = params.getOrDefault("payType", "");
+            String requestId = params.getOrDefault("requestId", "");
+            String responseTime = params.getOrDefault("responseTime", "");
+            String resultCode = params.getOrDefault("resultCode", "");
+            String transId = params.getOrDefault("transId", "");
+
+            // ===== 2. BUILD RAW SIGNATURE =====
+            String rawSignature =
+                    "accessKey=" + accessKey +
+                            "&amount=" + amount +
+                            "&extraData=" + extraData +
+                            "&message=" + message +
+                            "&orderId=" + orderId +
+                            "&orderInfo=" + orderInfo +
+                            "&orderType=" + orderType +
+                            "&partnerCode=" + partnerCode +
+                            "&payType=" + payType +
+                            "&requestId=" + requestId +
+                            "&responseTime=" + responseTime +
+                            "&resultCode=" + resultCode +
+                            "&transId=" + transId;
+
+            log.info("==> [RAW] {}", rawSignature);
+
             String mySignature = signHmacSHA256(rawSignature, momoConfig.getSecretKey());
-            if (mySignature.equals(mSignature)) {
-                if ("0".equals(params.get("resultCode"))) {
-                    String rawOrderId = params.get("orderId");
-                    UUID appointmentId = UUID.fromString(rawOrderId.split("_")[0]);
 
-                    // Bước 1: Khóa dòng Appointment lại để xử lý độc quyền
-                    Appointment appointment = appointmentRepository.findByIdWithLock(appointmentId)
-                            .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+            log.info("==> [SIGNATURE] MoMo: {}", mSignature);
+            log.info("==> [SIGNATURE] Mine: {}", mySignature);
 
-                    // Bước 2: Kiểm tra nếu đã thanh toán rồi thì thoát
-                    if (appointment.isPaid()) {
-                        log.info("==> [SKIP] Lịch hẹn {} đã thanh toán trước đó.", appointmentId);
-                        return;
-                    }
-
-                    // Bước 3: Cập nhật trạng thái và lưu Payment
-                    updateAppointmentStatus(appointment, params);
-                }
-            } else {
-                log.error("==> [SECURITY ALERT] Chữ ký MoMo không hợp lệ!");
+            // ===== 3. VERIFY SIGNATURE =====
+            if (!mySignature.equalsIgnoreCase(mSignature)) {
+                log.error("==> [SECURITY] Invalid signature!");
+                throw new AppException(ErrorCode.PAYMENT_ERROR);
             }
+
+            // ===== 4. CHECK PARTNER =====
+            if (!momoConfig.getPartnerCode().equals(partnerCode)) {
+                log.error("==> [SECURITY] Invalid partnerCode!");
+                throw new AppException(ErrorCode.PAYMENT_ERROR);
+            }
+
+            // ===== 5. VALIDATE ORDER ID =====
+            if (orderId == null || !orderId.contains("_")) {
+                log.error("==> [SECURITY] Invalid orderId format!");
+                throw new AppException(ErrorCode.PAYMENT_ERROR);
+            }
+
+            UUID appointmentId = UUID.fromString(orderId.split("_")[0]);
+
+            // ===== 6. LOAD APPOINTMENT (LOCK) =====
+            Appointment appointment = appointmentRepository.findByIdWithLock(appointmentId)
+                    .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+
+            // ===== 7. CHECK AMOUNT =====
+            BigDecimal momoAmount = new BigDecimal(amount);
+            BigDecimal realAmount = appointment.getSchedule().getPrice();
+
+            if (momoAmount.compareTo(realAmount) != 0) {
+                log.error("==> [SECURITY] Amount mismatch! momo={}, system={}", momoAmount, realAmount);
+                throw new AppException(ErrorCode.PAYMENT_ERROR);
+            }
+
+            // ===== 8. CHECK DUPLICATE TRANSACTION =====
+            if (paymentRepository.existsByTransactionNo(transId)) {
+                log.warn("==> [DUPLICATE] Transaction already processed: {}", transId);
+                return;
+            }
+
+            // ===== 9. CHECK RESULT =====
+            if (!"0".equals(resultCode)) {
+                log.warn("==> [MOMO] Payment failed | orderId={} | resultCode={}", orderId, resultCode);
+                return;
+            }
+
+            // ===== 10. CHECK STATUS =====
+            if (appointment.isPaid()) {
+                log.warn("==> [SKIP] Already paid: {}", appointment.getId());
+                return;
+            }
+
+            // ===== 11. UPDATE DB =====
+            updateAppointmentStatus(appointment, params);
+
+            // ===== 12. AUDIT LOG =====
+            log.info("==> [SUCCESS] Payment success | orderId={} | transId={} | amount={}",
+                    orderId, transId, amount);
+
         } catch (Exception e) {
-            log.error("Lỗi xác thực IPN: {}", e.getMessage());
+            log.error("==> [ERROR] IPN processing failed: {}", e.getMessage());
+            throw new AppException(ErrorCode.PAYMENT_ERROR);
         }
     }
 
@@ -174,7 +250,7 @@ public class MomoService implements PaymentProvider
 
         // 2. Tạo bản ghi Payment theo Entity mới của Long
         Payment payment = Payment.builder()
-                .appointment(appointment) // Giả định Entity Payment có field Appointment appointment
+                .appointment(appointment)
                 .transactionNo(params.get("transId"))
                 .amount(new BigDecimal(params.get("amount")))
                 .paymentMethod("MOMO")
@@ -200,4 +276,140 @@ public class MomoService implements PaymentProvider
         log.info("==> [SUCCESS] Đã cập nhật và phát tín hiệu realtime cho đơn hàng: {}", appointment.getId());
     }
 
+    public JSONObject refundTransaction(Payment payment, long amount, String description) {
+        try {
+            String endpoint = "https://test-payment.momo.vn/v2/gateway/api/refund";
+            String partnerCode = momoConfig.getPartnerCode();
+            String accessKey = momoConfig.getAccessKey();
+            String secretKey = momoConfig.getSecretKey();
+
+            String requestId = partnerCode + System.currentTimeMillis();
+            // Dùng requestId làm orderId cho giao dịch hoàn tiền
+            String orderId = "RE_" + System.currentTimeMillis();
+            String transIdStr = payment.getTransactionNo();
+
+            // 1. TẠO CHUỖI RAW SIGNATURE
+            String rawSignature = String.format(
+                    "accessKey=%s&amount=%s&description=%s&orderId=%s&partnerCode=%s&requestId=%s&transId=%s",
+                    accessKey, amount, description, orderId, partnerCode, requestId, transIdStr
+            );
+
+            String signature = signHmacSHA256(rawSignature, secretKey);
+
+            // 2. TẠO JSON BODY
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("partnerCode", partnerCode);
+            requestBody.put("requestId", requestId);
+            requestBody.put("amount", amount); // Số tiền thực tế muốn hoàn (50% hoặc 100%)
+            requestBody.put("orderId", orderId);
+            requestBody.put("description", description);
+            requestBody.put("transId", Long.parseLong(transIdStr));
+            requestBody.put("signature", signature);
+            requestBody.put("lang", "vi");
+
+            // 3. GỬI REQUEST
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                HttpPost httpPost = new HttpPost(endpoint);
+                httpPost.setHeader("Content-Type", "application/json");
+                httpPost.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8));
+
+                try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+                    String result = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                    return new JSONObject(result);
+                }
+            }
+        } catch (Exception e) {
+            log.error("==> [MOMO REFUND ERROR] {}", e.getMessage());
+            return null;
+        }
+    }
 }
+
+//    @Transactional
+//    public void processIPN(Map<String, String> params) {
+//        log.info("==> [STEP 1] Nhận IPN Params: {}", params);
+//        // 1. Lấy chữ ký MoMo gửi sang
+//        String mSignature = params.get("signature");
+//
+//
+//        // Lấy dữ liệu và xử lý chuỗi rỗng để tránh lỗi băm
+//        String accessKey = momoConfig.getAccessKey();
+//        String amount = params.getOrDefault("amount", "");
+//        String extraData = params.getOrDefault("extraData", "");
+//        String message = params.getOrDefault("message", "");
+//        String orderId = params.getOrDefault("orderId", "");
+//        String orderInfo = params.getOrDefault("orderInfo", "");
+//        String partnerCode = params.getOrDefault("partnerCode", "");
+//        String requestId = params.getOrDefault("requestId", "");
+//        String responseTime = params.getOrDefault("responseTime", "");
+//        String resultCode = params.getOrDefault("resultCode", "");
+//        String transId = params.getOrDefault("transId", "");
+//
+//        // 2. Xây dựng chuỗi băm - Kiểm tra kỹ từng ký tự nối &
+//        String rawSignature = "accessKey=" + accessKey +
+//                "&amount=" + amount +
+//                "&extraData=" + extraData +
+//                "&message=" + message +
+//                "&orderId=" + orderId +
+//                "&orderInfo=" + orderInfo +
+//                "&partnerCode=" + partnerCode +
+//                "&requestId=" + requestId +
+//                "&responseTime=" + responseTime +
+//                "&resultCode=" + resultCode +
+//                "&transId=" + transId;
+//
+//        log.info("==> [STEP 2] Chuỗi Raw IPN (System): {}", rawSignature);
+//
+//        try {
+//            // 3. Kiểm tra Secret Key (Chỉ log 4 ký tự đầu/cuối để bảo mật)
+//            String sKey = momoConfig.getSecretKey();
+//            log.info("==> [STEP 3] Secret Key đang dùng: {}...{}", sKey.substring(0, 4), sKey.substring(sKey.length() - 4));
+//            String mySignature = signHmacSHA256(rawSignature, sKey);
+//
+//            log.info("==> [STEP 4] So sánh chữ ký:");
+//            log.info("    - MoMo gửi: {}", mSignature);
+//            log.info("    - Ta tính : {}", mySignature);
+//
+//            // 4. So sánh không phân biệt hoa thường
+//            if (mySignature.equalsIgnoreCase(mSignature)) {
+//                log.info("==> [SUCCESS] Chữ ký hợp lệ! Đang cập nhật trạng thái...");
+//
+//                if ("0".equals(params.get("resultCode"))) {
+//                    String rawOrderId = params.get("orderId");
+//                    UUID appointmentId = UUID.fromString(rawOrderId.split("_")[0]);
+//
+//                    Appointment appointment = appointmentRepository.findByIdWithLock(appointmentId)
+//                            .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+//
+//                    if (!appointment.isPaid()) {
+//                        updateAppointmentStatus(appointment, params);
+//                    }
+//                }
+//            } else {
+//                if (message.endsWith(".")) {
+//                    String altMessage = message.substring(0, message.length() - 1);
+//                    String altRaw = rawSignature.replace("message=" + message, "message=" + altMessage);
+//                    String altSign = signHmacSHA256(altRaw, sKey);
+//                    log.info("==> [DEBUG] Thử băm không dấu chấm: {}", altSign);
+//                    if (altSign.equalsIgnoreCase(mSignature)) {
+//                        log.info("==> [FOUND IT] Lỗi do dấu chấm ở message!");
+//                    }
+//                }
+//                log.error("==> [SECURITY ALERT] Chữ ký MoMo vẫn không khớp! Kiểm tra lại Secret Key hoặc encoding.");
+//            }
+//        } catch (Exception e) {
+//            log.error("==> [ERROR] Lỗi xử lý IPN: {}", e.getMessage());
+//        }
+//    }
+
+
+//    private void handleSuccessfulPayment(Map<String, String> params) {
+//        if ("0".equals(params.get("resultCode"))) {
+//            UUID appointmentId = UUID.fromString(params.get("orderId").split("_")[0]);
+//            appointmentRepository.findByIdWithLock(appointmentId).ifPresent(appointment -> {
+//                if (!appointment.isPaid()) {
+//                    updateAppointmentStatus(appointment, params);
+//                }
+//            });
+//        }
+//    }

@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.core.entity;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,36 +15,37 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
-    private User patient;
+    User patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
-    private Schedule schedule;
+    Schedule schedule;
 
-    private LocalDateTime appointmentDate;
+    LocalDateTime appointmentDate;
 
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+    AppointmentStatus status;
 
     @Column(columnDefinition = "TEXT")
-    private String symptoms;
+    String symptoms;
 
     @Column(name = "is_rescheduled")
-    private boolean isRescheduled = false;
+    boolean isRescheduled = false;
 
     @Column(name = "cancel_reason")
-    private String cancelReason;
+    String cancelReason;
 
     @Column(name = "check_in_time")
-    private LocalDateTime checkInTime;
+    LocalDateTime checkInTime;
 
     @Column(name = "is_paid")
-    private boolean isPaid = false;
+    boolean isPaid = false;
 }

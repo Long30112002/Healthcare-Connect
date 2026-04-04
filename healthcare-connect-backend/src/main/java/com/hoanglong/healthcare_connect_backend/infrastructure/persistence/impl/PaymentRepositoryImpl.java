@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,4 +20,13 @@ public class PaymentRepositoryImpl implements IPaymentRepository
         return jpaPaymentRepository.save(payment);
     }
 
+    @Override
+    public Optional<Payment> findByAppointmentId(UUID appointmentId) {
+        return jpaPaymentRepository.findByAppointmentId(appointmentId);
+    }
+
+    @Override
+    public boolean existsByTransactionNo(String transId) {
+        return jpaPaymentRepository.existsByTransactionNo(transId);
+    }
 }

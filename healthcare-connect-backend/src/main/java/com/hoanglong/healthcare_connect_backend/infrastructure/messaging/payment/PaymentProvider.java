@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.core.payment;
+package com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment;
 
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 

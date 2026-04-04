@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreatePaymentUseCase;
+import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class MomoController {
 
     private final CreatePaymentUseCase createPaymentUseCase;
-    private final MomoService momoService;
+    private final PaymentProvider paymentProvider;
 
     // 1. API CHÍNH: Người dùng nhấn nút "Thanh toán" ở Frontend sẽ gọi vào đây
     @PostMapping("/create-payment/{appointmentId}")
@@ -43,7 +44,7 @@ public class MomoController {
     @PostMapping(value = "/ipn", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> handleMomoIPN(@RequestBody Map<String, String> body) {
         log.info("==> [MOMO] Nhận thông báo IPN từ Server MoMo: {}", body);
-         momoService.processIPN(body);
+        paymentProvider.processIPN(body);
         return ResponseEntity.noContent().build();
     }
 }

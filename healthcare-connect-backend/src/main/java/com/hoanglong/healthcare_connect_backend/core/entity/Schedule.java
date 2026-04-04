@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -27,9 +29,9 @@ public class Schedule {
     @JoinColumn(name = "doctor_id", nullable = false)
     Doctor doctor;
 
-    LocalDate date;
-    LocalTime startTime;
-    LocalTime endTime;
+    LocalDateTime date;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
 
     int maxPatients;
     int currentBookings;
@@ -37,5 +39,6 @@ public class Schedule {
     @Enumerated(EnumType.STRING)
     ScheduleStatus status;
 
-    double price;
+    @Column(precision = 19, scale = 2)
+    BigDecimal price;
 }

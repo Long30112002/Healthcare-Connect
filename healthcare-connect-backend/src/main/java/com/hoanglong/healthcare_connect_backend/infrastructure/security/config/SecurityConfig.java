@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,35 +38,42 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
+        // 1. Vô hiệu hóa CSRF cho các API và WebSocket
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**", "/ws/**")
+                .disable()
+        );
 
-        // Trong filterChain của SecurityConfig.java
+        // 2. Cấu hình CORS
+        http.cors(Customizer.withDefaults());
+
         http.authorizeHttpRequests(request -> request
+                // Cho phép các request OPTIONS đi qua
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 // 1. Public APIs
-                .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/users").permitAll()
+                .requestMatchers("/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
 
-                // Cho phép MoMo gọi Callback và IPN không cần Token
+                // MoMo IPN & Callback
                 .requestMatchers("/api/v1/payments/momo/**").permitAll()
 
+                // Metadata công khai
                 .requestMatchers(HttpMethod.GET, "/api/departments/**", "/api/specialties/**").permitAll()
 
-                // 2. DOCTOR APIs
-                .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
+                // 2. SOCKET
+                .requestMatchers("/ws/**").permitAll()
 
-                // 3. ADMIN APIs
+                // 3. DOCTOR & ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/departments/**").hasRole("ADMIN")
 
-                // 4. SOCKET
-                .requestMatchers("/ws/**").permitAll()
-
-
-                // 5. Các API còn lại
+                // 4. Các API còn lại
                 .anyRequest().authenticated()
         );
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**"));
 
+        // Cấu hình Resource Server
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())

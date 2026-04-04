@@ -2,7 +2,7 @@
 //
 //import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 //import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
-////import com.hoanglong.healthcare_connect_backend.core.payment.PaymentProvider;
+////import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 //import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 //import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 //import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;

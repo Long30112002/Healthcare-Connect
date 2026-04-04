@@ -1,0 +1,2 @@
+ALTER TABLE schedules
+    ALTER COLUMN price TYPE DECIMAL(19, 2);

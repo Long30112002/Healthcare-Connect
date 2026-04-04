@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -17,9 +18,9 @@ public class AppointmentResponse {
     String patientName;
     String doctorName;
     String hospitalName;
-    LocalDate appointmentDate;
-    LocalTime startTime;
-    LocalTime endTime;
+    LocalDateTime appointmentDate;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
     String symptoms;
     String status;
     double price;

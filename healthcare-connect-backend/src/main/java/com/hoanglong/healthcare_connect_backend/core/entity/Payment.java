@@ -26,7 +26,6 @@ public class Payment {
     @JoinColumn(name = "appointment_id")
     Appointment appointment; // Liên kết với lịch khám
 
-    BigDecimal amount; // Số tiền 100% phí khám
     String paymentMethod; // "MOMO" hoặc "VNPAY"
     String transactionNo; // Mã giao dịch từ phía MoMo/VNPay trả về
 
@@ -36,5 +35,9 @@ public class Payment {
     @Builder.Default
     LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(precision = 19, scale = 2)
+    BigDecimal amount;
+
+    @Column(precision = 19, scale = 2)
     BigDecimal refundAmount;
 }

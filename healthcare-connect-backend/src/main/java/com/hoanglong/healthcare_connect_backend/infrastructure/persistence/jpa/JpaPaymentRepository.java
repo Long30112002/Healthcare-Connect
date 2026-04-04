@@ -10,4 +10,7 @@ import java.util.UUID;
 @Repository
 public interface JpaPaymentRepository extends JpaRepository<Payment, UUID>
 {
+    Optional<Payment> findByAppointmentId(UUID appointmentId);
+
+    boolean existsByTransactionNo(String transId);
 }

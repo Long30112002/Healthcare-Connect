@@ -37,6 +37,9 @@ public enum ErrorCode {
     PAYMENT_ERROR(2009, "Thanh toán không thành công!", HttpStatus.BAD_REQUEST),
     BOOKING_NOT_FOUND(2010, "Không tìm thấy đơn đặt hàng!", HttpStatus.BAD_REQUEST),
     UPDATE_CONFIRM_ERROR(2011, "Cập nhật trạng thái xác nhận không thành công!", HttpStatus.BAD_REQUEST),
+    CANNOT_CANCEL_PAST_APPOINTMENT(2012, "Không thể hủy lịch khi đang diễn ra!", HttpStatus.BAD_REQUEST),
+    REFUND_FAILED(2012, "Hoàn tiền thất bại!", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(2012, "Không tìm thấy mục thanh toán!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 3xxx: KHOA & CHUYÊN KHOA (DEPARTMENT & SPECIALTY)
@@ -63,6 +66,8 @@ public enum ErrorCode {
     ALREADY_APPROVED(5004, "Hồ sơ này đã được duyệt trước đó!", HttpStatus.BAD_REQUEST),
     NOT_HOSPITAL_MANAGER(5005, "Bạn không phải quản lý của bệnh viện này!", HttpStatus.FORBIDDEN),
     HOSPITAL_ALREADY_EXISTS(5006, "Bệnh viện này đã tồn tại!", HttpStatus.BAD_REQUEST),
+    APPOINTMENT_ALREADY_CANCELLED(5007, "Cuộc hẹn đã bị hủy!", HttpStatus.BAD_REQUEST),
+    CANCEL_DEADLINE_PASSED(5008, "Thời gian hủy đã hết hạn!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 6xxx: ĐẶT LỊCH & THANH TOÁN (BOOKING & PAYMENT)
