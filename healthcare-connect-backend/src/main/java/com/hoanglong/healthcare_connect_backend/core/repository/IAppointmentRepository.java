@@ -14,7 +14,7 @@ public interface IAppointmentRepository {
     Appointment save(Appointment appointment);
     Optional<Appointment> findById(UUID id);
     List<Appointment> findByPatientId(UUID patientId);
-    boolean existsByPatientOverlap(UUID patientId, LocalDate date, LocalTime startTime, List<AppointmentStatus> excludedStatuses);
-    boolean existsByPatientIdAndScheduleIdAndStatus(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
+    boolean existsByPatientOverlap(UUID patientId, String date, String startTime, List<String> excludedStatuses);
+    boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
     Optional<Appointment> findByIdWithLock(UUID id);
 }

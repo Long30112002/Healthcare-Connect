@@ -21,4 +21,7 @@ public interface IDoctorRepository
     Optional<Doctor> findByUserId(UUID userId);
 
     List<Doctor> findAllByHospitalId(UUID hospitalId);
+
+    List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
+
 }

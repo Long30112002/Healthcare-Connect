@@ -35,13 +35,13 @@ public class AppointmentRepositoryImpl implements IAppointmentRepository
     }
 
     @Override
-    public boolean existsByPatientOverlap(UUID patientId, LocalDate date, LocalTime startTime, List<AppointmentStatus> excludedStatuses) {
-        return jpaAppointmentRepository.existsByPatientOverlap(patientId, date, startTime, List.of(AppointmentStatus.CANCELLED));
+    public boolean existsByPatientOverlap(UUID patientId, String date, String startTime, List<String> excludedStatuses) {
+        return jpaAppointmentRepository.existsByPatientOverlap(patientId, date, startTime, excludedStatuses);
     }
 
     @Override
-    public boolean existsByPatientIdAndScheduleIdAndStatus(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus) {
-        return jpaAppointmentRepository.existsByPatientIdAndScheduleIdAndStatus(patientId, scheduleId, appointmentStatus);
+    public boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus) {
+        return jpaAppointmentRepository.existsByPatientIdAndScheduleIdAndStatusNot(patientId, scheduleId, appointmentStatus);
     }
 
     @Override

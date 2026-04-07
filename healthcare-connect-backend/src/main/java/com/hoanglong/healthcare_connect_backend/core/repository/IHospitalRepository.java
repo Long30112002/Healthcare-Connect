@@ -19,4 +19,5 @@ public interface IHospitalRepository {
     @Query("SELECT h FROM Hospital h WHERE h.invitationToken IS NOT NULL " +
             "AND h.status = 'PENDING_CONFIRMATION' AND h.tempManagerEmail = :email")
     Optional<Hospital> findByTempManagerEmailAndStatus (String email, HospitalStatus status);
+    boolean existsByManagerId(UUID managerId);
 }

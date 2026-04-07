@@ -9,13 +9,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class MailService {
         log.info("==> [QUEUE] Đã đẩy mail '{}' tới {} vào hàng chờ", subject, to);
     }
 
-    // 1. NGHIỆP VỤ XÁC THỰC
+    // NGHIỆP VỤ XÁC THỰC
     public void sendVerificationEmail(User user) {
         String verifyUrl = "http://localhost:8080/api/auth/verify?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
@@ -71,39 +71,7 @@ public class MailService {
         pushToQueue(user.getEmail(), subject, "email-template", variables);
     }
 
-    // 2. NGHIỆP VỤ BẢO MẬT
-    public void sendSecurityEmail(User user, String type) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("name", user.getFullName());
-        String actionUrl = "http://localhost:3000/reset-password?code=" + user.getVerificationCode();
-        variables.put("url", actionUrl);
-
-        String subject, message, btnText;
-        if ("FORGOT_PASSWORD".equals(type)) {
-            subject = "Yêu cầu đặt lại mật khẩu - Healthcare Connect";
-            message = "Chúng tôi nhận được yêu cầu đặt lại mật khẩu của bạn.";
-            btnText = "Đặt lại mật khẩu";
-        } else if ("SETUP_MANAGER".equals(type)) {
-            subject = "Lời mời Quản lý Bệnh viện - Healthcare Connect";
-            message = "Bạn đã được bổ nhiệm làm Quản lý. Vui lòng thiết lập mật khẩu để bắt đầu.";
-            btnText = "Thiết lập tài khoản";
-        } else if ("UPGRADE_TO_MANAGER".equals(type)) {
-            subject = "Thông báo nâng cấp quyền hạn - Healthcare Connect";
-            message = "Tài khoản của bạn đã được Admin nâng cấp lên quyền Quản lý Bệnh viện.";
-            btnText = "Đi đến Dashboard";
-            variables.put("url", "http://localhost:3000/login");
-        } else {
-            subject = "Xác nhận hoạt động tài khoản";
-            message = "Vui lòng hoàn tất xác thực tài khoản.";
-            btnText = "Xác thực";
-        }
-
-        variables.put("message", message);
-        variables.put("btnText", btnText);
-        pushToQueue(user.getEmail(), subject, "email-template", variables);
-    }
-
-    // 3. NGHIỆP VỤ QUÊN MẬT KHẨU
+    // NGHIỆP VỤ QUÊN MẬT KHẨU
     public void sendForgotPasswordEmail(User user) {
         String resetUrl = "http://localhost:3000/reset-password?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
@@ -115,18 +83,33 @@ public class MailService {
         this.pushToQueue(user.getEmail(), "Yêu cầu đặt lại mật khẩu", "email-template", variables);
     }
 
-    // 4. NGHIỆP VỤ DUYỆT BÁC SĨ
-    public void sendDoctorApprovalEmail(User user) {
+    // NGHIỆP VỤ XÁC THỰC HỒ SƠ BÁC SĨ
+    public void sendDoctorVerifiedEmail(User user, Doctor doctor) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
-        variables.put("message", "Chúc mừng! Bạn đã chính thức trở thành Bác sĩ trên hệ thống.");
-        variables.put("url", "https://healthcareconnect.com/doctor/dashboard");
-        variables.put("btnText", "Vào Dashboard ngay");
+        variables.put("doctorCode", doctor.getDoctorCode());
+        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
+        variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ bệnh viện tiếp nhận.");
+        variables.put("url", "http://localhost:3000/doctor/profile");
+        variables.put("btnText", "Xem hồ sơ");
 
-        pushToQueue(user.getEmail(), "Chúc mừng Bác sĩ đã được duyệt!", "email-template", variables);
+        pushToQueue(user.getEmail(), "Hồ sơ bác sĩ đã được xác thực", "doctor-verified-template", variables);
     }
 
-    // 5. NGHIỆP VỤ TỪ CHỐI BÁC SĨ
+    // NGHIỆP VỤ DUYỆT BÁC SĨ
+    public void sendDoctorApprovalEmail(User user, Doctor doctor) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("doctorCode", doctor.getDoctorCode());
+        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
+        variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được bệnh viện tiếp nhận. Bạn chính thức là bác sĩ của hệ thống.");
+        variables.put("url", "http://localhost:3000/doctor/dashboard");
+        variables.put("btnText", "Vào Dashboard ngay");
+
+        pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành bác sĩ", "doctor-approval-template", variables);
+    }
+
+    // NGHIỆP VỤ TỪ CHỐI BÁC SĨ
     public void sendDoctorRejectionEmail(User user, String reason) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
@@ -134,21 +117,36 @@ public class MailService {
         variables.put("url", "https://healthcareconnect.com/support");
         variables.put("btnText", "Liên hệ hỗ trợ");
 
-        pushToQueue(user.getEmail(), "Thông báo kết quả hồ sơ Bác sĩ", "email-template", variables);
+        pushToQueue(user.getEmail(), "Thông báo kết quả hồ sơ Bác sĩ", "doctor-rejection-template", variables);
     }
 
-    // 6. NGHIỆP VỤ ĐẶT LỊCH
+    // NGHIỆP VỤ ĐẶT LỊCH
     public void sendBookingEmail(User patient, Schedule schedule) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", patient.getFullName());
-        variables.put("message", "Lịch khám của bạn vào lúc " + schedule.getStartTime() + " đã được xác nhận thành công.");
-        variables.put("url", "http://localhost:3000/my-appointments");
-        variables.put("btnText", "Xem lịch khám");
 
-        pushToQueue(patient.getEmail(), "Xác nhận đặt lịch khám thành công", "email-template", variables);
+        // Format
+        String formattedDate = schedule.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String formattedTime = schedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String formattedEndTime = schedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String formattedPrice = String.format("%,.0f", schedule.getPrice());
+
+        variables.put("appointmentDate", formattedDate);
+        variables.put("appointmentTime", formattedTime);
+        variables.put("appointmentEndTime", formattedEndTime);
+        variables.put("doctorName", schedule.getDoctor().getUser().getFullName());
+        variables.put("hospitalName", schedule.getDoctor().getHospital().getName());
+        variables.put("specialtyName", schedule.getDoctor().getSpecialty().getName());
+        variables.put("price", formattedPrice);
+        variables.put("address", schedule.getDoctor().getHospital().getAddress());
+
+        variables.put("url", "http://localhost:3000/my-appointments");
+        variables.put("btnText", "Xem lịch khám của tôi");
+
+        pushToQueue(patient.getEmail(), "Xác nhận đặt lịch khám thành công", "booking-confirmation-template", variables);
     }
 
-    // 7. NGHIỆP VỤ LỜI MỜI
+    // NGHIỆP VỤ LỜI MỜI
     public void sendManagerInvitation(User user, Hospital hospital, String token) {
         String confirmationUrl = "http://localhost:3000/confirm-invitation?token=" + token
                 + "&hospitalId=" + hospital.getId();
@@ -168,7 +166,7 @@ public class MailService {
         );
     }
 
-    // 8. NGHIỆP VỤ XÁC NHẬN THANH TOÁN
+    // NGHIỆP VỤ XÁC NHẬN THANH TOÁN
     public void sendPaymentSuccessEmail(Appointment appointment) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("patientName", appointment.getPatient().getFullName());
@@ -180,10 +178,11 @@ public class MailService {
         pushToQueue(
                 appointment.getPatient().getEmail(),
                 "Xác nhận thanh toán thành công - Healthcare Connect",
-                "payment-success-template", // Tên file HTML bạn sẽ tạo
+                "payment-success-template",
                 variables
         );
     }
+
     // --- HÀM GỬI MAIL VẬT LÝ ---
     public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
         try {
@@ -211,3 +210,35 @@ public class MailService {
         log.info("==> [CONFIG] Mail Service khởi tạo thành công với email: {}", mailFrom);
     }
 }
+
+//    // NGHIỆP VỤ BẢO MẬT
+//    public void sendSecurityEmail(User user, String type) {
+//        Map<String, Object> variables = new HashMap<>();
+//        variables.put("name", user.getFullName());
+//        String actionUrl = "http://localhost:3000/reset-password?code=" + user.getVerificationCode();
+//        variables.put("url", actionUrl);
+//
+//        String subject, message, btnText;
+//        if ("FORGOT_PASSWORD".equals(type)) {
+//            subject = "Yêu cầu đặt lại mật khẩu - Healthcare Connect";
+//            message = "Chúng tôi nhận được yêu cầu đặt lại mật khẩu của bạn.";
+//            btnText = "Đặt lại mật khẩu";
+//        } else if ("SETUP_MANAGER".equals(type)) {
+//            subject = "Lời mời Quản lý Bệnh viện - Healthcare Connect";
+//            message = "Bạn đã được bổ nhiệm làm Quản lý. Vui lòng thiết lập mật khẩu để bắt đầu.";
+//            btnText = "Thiết lập tài khoản";
+//        } else if ("UPGRADE_TO_MANAGER".equals(type)) {
+//            subject = "Thông báo nâng cấp quyền hạn - Healthcare Connect";
+//            message = "Tài khoản của bạn đã được Admin nâng cấp lên quyền Quản lý Bệnh viện.";
+//            btnText = "Đi đến Dashboard";
+//            variables.put("url", "http://localhost:3000/login");
+//        } else {
+//            subject = "Xác nhận hoạt động tài khoản";
+//            message = "Vui lòng hoàn tất xác thực tài khoản.";
+//            btnText = "Xác thực";
+//        }
+//
+//        variables.put("message", message);
+//        variables.put("btnText", btnText);
+//        pushToQueue(user.getEmail(), subject, "email-template", variables);
+//    }

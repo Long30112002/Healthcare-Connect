@@ -54,7 +54,7 @@ public class UserService extends BaseService<User, UserRegistrationRequest, User
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         // 3. Map sang Response cơ bản
-        UserResponse response = userMapper.toUserResponse(user);
+        UserResponse response = userMapper.toResponse(user);
 
         // 4. KIỂM TRA LỜI MỜI ĐANG CHỜ (Anti-Miss Logic)
         if (hospitalRepository != null) {

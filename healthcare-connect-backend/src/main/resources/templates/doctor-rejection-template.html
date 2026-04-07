@@ -56,6 +56,7 @@
             font-size: 16px;
             color: #334e68;
             margin-bottom: 20px;
+            line-height: 1.6;
         }
         .rejection-box {
             background-color: #fff5f5;
@@ -89,6 +90,8 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             margin: 16px 0 12px;
+            border: none;
+            cursor: pointer;
         }
         .btn:hover {
             background: linear-gradient(135deg, #0066cc, #0088e6);
@@ -131,26 +134,25 @@
 <div class="email-container">
     <div class="header">
         <h1>Healthcare Connect</h1>
-        <p>Your trusted health partner</p>
+        <p>Kết nối y tế thông minh</p>
     </div>
     <div class="body">
-        <div class="greeting" th:text="'Chào ' + ${doctorName} + ','"></div>
+        <div class="greeting" th:text="'Chào Bác sĩ ' + ${name} + '!'"></div>
         <div class="message">
-            Chúng tôi rất tiếc phải thông báo rằng hồ sơ của bạn chưa được phê duyệt.
+            Chúng tôi rất tiếc phải thông báo rằng hồ sơ đăng ký làm bác sĩ của bạn <strong>chưa được phê duyệt</strong>.
         </div>
         <div class="rejection-box">
-            <strong>Lý do:</strong>
-            <span th:text="${reason}"></span>
+            <strong>📌 Lý do từ chối:</strong>
+            <span th:text="${message}"></span>
         </div>
         <div class="message">
-            Bạn có thể cập nhật lại thông tin và gửi lại yêu cầu sau.
+            Bạn có thể cập nhật lại thông tin hồ sơ và gửi lại yêu cầu sau khi đã cải thiện các vấn đề trên.
         </div>
-        <div>
-            <a th:href="${updateProfileLink}" class="btn">Cập nhật hồ sơ</a>
+        <div style="text-align: center; margin: 30px 0;">
+            <a th:href="${url}" class="btn" th:text="${btnText}">Cập nhật hồ sơ</a>
         </div>
-        <div class="message" style="margin-top: 24px;">
-            Trân trọng,<br>
-            Healthcare Connect Team
+        <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
+            Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email support@healthcareconnect.com
         </div>
     </div>
     <div class="footer">

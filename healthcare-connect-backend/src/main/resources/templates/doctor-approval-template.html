@@ -56,6 +56,7 @@
             font-size: 16px;
             color: #334e68;
             margin-bottom: 20px;
+            line-height: 1.6;
         }
         .list {
             margin: 20px 0 20px 24px;
@@ -77,6 +78,8 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             margin: 16px 0 12px;
+            border: none;
+            cursor: pointer;
         }
         .btn:hover {
             background: linear-gradient(135deg, #1e7e34, #146b2e);
@@ -122,28 +125,28 @@
 <div class="email-container">
     <div class="header">
         <h1>Healthcare Connect</h1>
-        <p>Your trusted health partner</p>
+        <p>Kết nối y tế thông minh</p>
     </div>
     <div class="body">
-        <div class="greeting" th:text="'Chào Bác sĩ ' + ${doctorName} + '!'"></div>
+        <div class="greeting" th:text="'Chào Bác sĩ ' + ${name} + '!'"></div>
         <div class="message">
-            Chúc mừng bạn! Hồ sơ đăng ký làm đối tác bác sĩ trên hệ thống <strong>Healthcare Connect</strong> đã được phê duyệt thành công.
+            <strong>Chúc mừng bạn!</strong> Hồ sơ đăng ký làm bác sĩ trên hệ thống <strong>Healthcare Connect</strong> đã được <strong>phê duyệt thành công</strong>.
         </div>
         <div class="message">
-            Bây giờ bạn đã có quyền truy cập vào hệ thống với vai trò Bác sĩ chuyên môn. Bạn có thể:
+            Bạn đã chính thức trở thành đối tác bác sĩ của chúng tôi. Bây giờ bạn có thể:
         </div>
         <ul class="list">
-            <li>Cập nhật thông tin chuyên sâu.</li>
-            <li>Đăng ký lịch khám (Schedules).</li>
-            <li>Tiếp nhận yêu cầu khám từ bệnh nhân.</li>
+            <li>📋 Cập nhật thông tin chuyên môn của bạn</li>
+            <li>📅 Đăng ký lịch khám (Schedules)</li>
+            <li>👨‍⚕️ Tiếp nhận yêu cầu khám từ bệnh nhân</li>
+            <li>💰 Quản lý doanh thu và lịch sử khám bệnh</li>
         </ul>
-        <div class="message">
-            Hãy bắt đầu bằng cách đăng nhập vào Dashboard của bạn tại đây:
+        <div style="text-align: center; margin: 30px 0;">
+            <a th:href="${url}" class="btn" th:text="${btnText}">Vào Dashboard ngay</a>
         </div>
-        <a th:href="${dashboardLink}" class="btn">Đi tới Dashboard</a>
-        <div class="message" style="margin-top: 24px;">
+        <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
             Trân trọng,<br>
-            Healthcare Connect Team
+            <strong>Healthcare Connect Team</strong>
         </div>
     </div>
     <div class="footer">

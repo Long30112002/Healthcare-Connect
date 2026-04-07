@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Connect Email</title>
+    <title>Healthcare Connect - Xác nhận đặt lịch khám</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             border-radius: 24px;
             box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
         .header {
             background: linear-gradient(135deg, #007bff, #00a1ff);
@@ -57,24 +56,74 @@
             font-size: 16px;
             color: #334e68;
             margin-bottom: 28px;
+            line-height: 1.6;
+        }
+        .appointment-card {
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .appointment-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .appointment-header h3 {
+            color: #007bff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+        .info-icon {
+            width: 28px;
+            font-size: 18px;
+        }
+        .info-label {
+            width: 100px;
+            font-weight: 600;
+            color: #1e2a3a;
+        }
+        .info-value {
+            flex: 1;
+            color: #334e68;
+            font-weight: 500;
+        }
+        .price-tag {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
         }
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #28a745, #1e7e34);
+            background: linear-gradient(135deg, #007bff, #00a1ff);
             color: white;
             text-decoration: none;
-            padding: 12px 28px;
+            padding: 14px 32px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 40px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin: 8px 0 12px;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+            margin: 16px 0 8px;
+            border: none;
+            cursor: pointer;
         }
         .btn:hover {
-            background: linear-gradient(135deg, #1e7e34, #146b2e);
+            background: linear-gradient(135deg, #0066cc, #0088e6);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0,123,255,0.4);
         }
         .footer {
             background-color: #f8fafc;
@@ -91,6 +140,15 @@
             color: #007bff;
             text-decoration: none;
         }
+        .note {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #856404;
+        }
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -101,8 +159,15 @@
             .greeting {
                 font-size: 22px;
             }
+            .info-row {
+                flex-wrap: wrap;
+            }
+            .info-label {
+                width: 100%;
+                margin-bottom: 4px;
+            }
             .btn {
-                padding: 10px 24px;
+                padding: 12px 24px;
                 font-size: 14px;
             }
         }
@@ -112,13 +177,82 @@
 <div class="email-container">
     <div class="header">
         <h1>Healthcare Connect</h1>
-        <p>Your trusted health partner</p>
+        <p>Kết nối y tế thông minh</p>
     </div>
     <div class="body">
         <div class="greeting" th:text="'Chào ' + ${name} + '!'"></div>
-        <div class="message" th:text="${message}"></div>
-        <div th:if="${url}">
-            <a th:href="${url}" class="btn" th:text="${btnText != null ? btnText : 'Xác thực tài khoản'}"></a>
+
+        <div class="message">
+            🎉 <strong>Đặt lịch khám thành công!</strong> Dưới đây là thông tin chi tiết cuộc hẹn của bạn:
+        </div>
+
+        <!-- APPOINTMENT CARD -->
+        <div class="appointment-card">
+            <div class="appointment-header">
+                <h3>📋 THÔNG TIN LỊCH HẸN</h3>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">📅</div>
+                <div class="info-label">Ngày khám:</div>
+                <div class="info-value" th:text="${appointmentDate}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">⏰</div>
+                <div class="info-label">Giờ khám:</div>
+                <div class="info-value" th:text="${appointmentTime} + ' - ' + ${appointmentEndTime}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">👨‍⚕️</div>
+                <div class="info-label">Bác sĩ:</div>
+                <div class="info-value" th:text="${doctorName}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">🏥</div>
+                <div class="info-label">Chuyên khoa:</div>
+                <div class="info-value" th:text="${specialtyName}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">🏨</div>
+                <div class="info-label">Bệnh viện:</div>
+                <div class="info-value" th:text="${hospitalName}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">📍</div>
+                <div class="info-label">Địa chỉ:</div>
+                <div class="info-value" th:text="${address}"></div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-icon">💰</div>
+                <div class="info-label">Phí khám:</div>
+                <div class="info-value">
+                    <span class="price-tag" th:text="${price} + ' VNĐ'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CẢNH BÁO QUAN TRỌNG -->
+        <div class="note">
+            <strong>⚠️ Lưu ý quan trọng:</strong><br>
+            • Vui lòng đến trước giờ khám <strong>15 phút</strong> để làm thủ tục.<br>
+            • Mang theo <strong>CCCD/CMND</strong> và các <strong>giấy tờ liên quan</strong> (nếu có).<br>
+            • Nếu cần hủy lịch, vui lòng hủy trước <strong>ít nhất 2 giờ</strong>.
+        </div>
+
+        <!-- BUTTON -->
+        <div style="text-align: center; margin: 30px 0;">
+            <a th:href="${url}" class="btn" th:text="${btnText}">Xem lịch khám của tôi</a>
+        </div>
+
+        <div class="message" style="margin-top: 16px; font-size: 14px; color: #5a6e8a; text-align: center;">
+            Trân trọng,<br>
+            <strong>Healthcare Connect Team</strong>
         </div>
     </div>
     <div class="footer">

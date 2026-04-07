@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -27,22 +29,30 @@ public class CreateSpecialtyUseCase {
         Department department = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
-        // 2. The Golden Check (Logic Category của bạn)
+        // 2. Kiểm tra Category có khớp không
         if (!department.getCategory().equals(request.getCategory())) {
             throw new AppException(ErrorCode.SPECIALTY_CATEGORY_MISMATCH);
         }
 
-        // 3. Map Request -> Entity
-        Specialty specialty = specialtyMapper.toEntity(request);
+        // 3. Kiểm tra tên chuyên khoa đã tồn tại chưa
+        if (specialtyRepository.existsByName(request.getName())) {
+            throw new AppException(ErrorCode.SPECIALTY_EXISTED);
+        }
 
-        // 4. Gán Department và các thông tin cần thiết
+        // 4. Map Request -> Entity
+        Specialty specialty = specialtyMapper.toEntity(request);
         specialty.setDepartment(department);
-        specialty.setCode("SPEC-" + System.currentTimeMillis()); // Ví dụ tạo code tự động
+        specialty.setCode(generateSpecialtyCode(department.getCode()));
 
         // 5. Lưu vào DB
         specialty = specialtyRepository.save(specialty);
 
         // 6. Trả về Response (Lúc này specialty đã có department bên trong)
         return specialtyMapper.toResponse(specialty);
+    }
+
+    private String generateSpecialtyCode(String departmentCode) {
+        String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        return departmentCode + "_" + randomPart;
     }
 }

@@ -24,6 +24,7 @@ public class SpecialtyController {
     CreateSpecialtyUseCase createSpecialtyUseCase;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<SpecialtyResponse> create(@RequestBody @Valid SpecialtyRequest request) {
         return ApiResponse.<SpecialtyResponse>builder()
                 .status("success")
@@ -54,5 +55,13 @@ public class SpecialtyController {
     public ApiResponse<String> delete(@PathVariable UUID id) {
         specialtyService.delete(id);
         return ApiResponse.<String>builder().data("Xóa chuyên khoa thành công!").build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<SpecialtyResponse> update(@PathVariable UUID id, @RequestBody @Valid SpecialtyRequest request) {
+        return ApiResponse.<SpecialtyResponse>builder()
+                .data(specialtyService.update(id, request))
+                .build();
     }
 }

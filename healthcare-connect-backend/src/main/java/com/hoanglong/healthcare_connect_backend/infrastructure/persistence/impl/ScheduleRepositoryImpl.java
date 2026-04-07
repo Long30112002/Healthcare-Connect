@@ -40,12 +40,12 @@ public class ScheduleRepositoryImpl implements IScheduleRepository {
     }
 
     @Override
-    public boolean existsByDoctorAndOverlap(UUID doctorId, LocalDate date, LocalTime start, LocalTime end) {
-        return jpaScheduleRepository.existsByDoctorAndOverlap(doctorId, date, start, end);
+    public List<Schedule> findAll() {
+        return jpaScheduleRepository.findAll();
     }
 
     @Override
-    public List<Schedule> findAll() {
-        return jpaScheduleRepository.findAll();
+    public boolean existsOverlappingSchedule(UUID doctorId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return jpaScheduleRepository.existsOverlappingSchedule(doctorId, date, startTime, endTime);
     }
 }

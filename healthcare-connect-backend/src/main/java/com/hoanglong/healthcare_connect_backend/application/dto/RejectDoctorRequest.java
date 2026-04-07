@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 
 public class RejectDoctorRequest {
     @NotNull(message = "REASON_REQUIRED")
-    RejectionReason reasonCode; // Chọn từ Enum trên
-
-    String note; // Ghi chú thêm nếu chọn lý do OTHER
+    RejectionReason reasonCode;
+    String note;
 }

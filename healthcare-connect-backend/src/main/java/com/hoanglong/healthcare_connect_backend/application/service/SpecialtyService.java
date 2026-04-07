@@ -46,7 +46,12 @@ public class SpecialtyService extends BaseService<Specialty, SpecialtyRequest, S
         Department dept = departmentRepository.findById(request.getDepartmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
-        // 2. Sinh mã tự động: [Mã Khoa] + [_] + [5 ký tự ngẫu nhiên]
+        // 2. Kiểm tra Category
+        if (!dept.getCategory().equals(request.getCategory())) {
+            throw new AppException(ErrorCode.SPECIALTY_CATEGORY_MISMATCH);
+        }
+
+        // 3. Sinh mã tự động: [Mã Khoa] + [_] + [5 ký tự ngẫu nhiên]
         // Ví dụ: KNOI -> KNOI_A7B2C
         String randomPart = UUID.randomUUID().toString().substring(0, 5).toUpperCase();
         String autoCode = dept.getCode() + "_" + randomPart;
@@ -55,8 +60,34 @@ public class SpecialtyService extends BaseService<Specialty, SpecialtyRequest, S
                 .name(request.getName())
                 .code(autoCode)
                 .description(request.getDescription())
+                .category(request.getCategory())
                 .department(dept)
                 .build();
+    }
+
+    public SpecialtyResponse update(UUID id, SpecialtyRequest request) {
+        Specialty specialty = specialtyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SPECIALTY_NOT_FOUND));
+
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+
+        if (!department.getCategory().equals(request.getCategory())) {
+            throw new AppException(ErrorCode.SPECIALTY_CATEGORY_MISMATCH);
+        }
+
+        // Kiểm tra tên trùng
+        if (specialtyRepository.existsByName(request.getName()) &&
+                !specialty.getName().equals(request.getName())) {
+            throw new AppException(ErrorCode.SPECIALTY_EXISTED);
+        }
+
+        specialty.setName(request.getName());
+        specialty.setDescription(request.getDescription());
+        specialty.setCategory(request.getCategory());
+        specialty.setDepartment(department);
+
+        return specialtyMapper.toResponse(specialtyRepository.save(specialty));
     }
 }
 

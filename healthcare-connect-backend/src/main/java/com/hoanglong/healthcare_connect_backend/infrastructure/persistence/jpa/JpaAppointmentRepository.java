@@ -19,21 +19,24 @@ import java.util.UUID;
 @Repository
 public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUID>
 {
-    @Query("SELECT COUNT(a) > 0 FROM Appointment a " +
-            "WHERE a.patient.id = :patientId " +
-            "AND a.schedule.date = :date " +
-            "AND a.schedule.startTime = :startTime " +
-            "AND a.status NOT IN :excludedStatuses")
+    @Query(value = "SELECT COUNT(*) > 0 FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE a.patient_id = :patientId " +
+            "AND s.date::date = CAST(:date AS date) " +
+            "AND s.start_time::time = CAST(:startTime AS time) " +
+            "AND a.status NOT IN (:excludedStatuses)",
+            nativeQuery = true)
     boolean existsByPatientOverlap(
             @Param("patientId") UUID patientId,
-            @Param("date") LocalDate date,
-            @Param("startTime") LocalTime startTime,
-            @Param("excludedStatuses") Collection<AppointmentStatus> excludedStatuses
+            @Param("date") String date,
+            @Param("startTime") String startTime,
+            @Param("excludedStatuses") Collection<String> excludedStatuses
     );
     List<Appointment> findByPatientId(UUID patientId);
 
-    boolean existsByPatientIdAndScheduleIdAndStatus(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
-    @Lock(LockModeType.PESSIMISTIC_WRITE) // Khóa dòng này lại để đợi thanh toán
+    boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
+    
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Appointment a WHERE a.id = :id")
     Optional<Appointment> findByIdWithLock(@Param("id") UUID id);
 }

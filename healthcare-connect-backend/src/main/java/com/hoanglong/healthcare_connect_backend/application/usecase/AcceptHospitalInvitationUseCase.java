@@ -46,20 +46,43 @@ public class AcceptHospitalInvitationUseCase {
             throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
-        // 3.Dùng ID thay Email để khớp với Token
+        // 3. Dùng ID thay Email để khớp với Token
         UUID currentUserId = SecurityUtils.getCurrentUserId();
-
         User user = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // 4. Thực hiện nâng cấp Role và kích hoạt Bệnh viện
+        // 4. Kiểm tra email user có khớp với email được mời không
+        if (!user.getEmail().equals(hospital.getTempManagerEmail())) {
+            throw new AppException(ErrorCode.INVITATION_EMAIL_MISMATCH);
+        }
+
+        // 4a. Kiểm tra user đã verify email chưa
+        if (!Boolean.TRUE.equals(user.getEnabled())) {
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
+        }
+
+        // 4b. Kiểm tra user không phải là ADMIN
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new AppException(ErrorCode.ADMIN_CANNOT_BE_MANAGER);
+        }
+
+        // 4c. Kiểm tra user có ROLE manager của bệnh viện khác
+        if (user.getRole() == UserRole.HOSPITAL_MANAGER) {
+            boolean alreadyManager = hospitalRepository.existsByManagerId(user.getId());
+            if (alreadyManager) {
+                throw new AppException(ErrorCode.USER_ALREADY_MANAGER);
+            }
+        }
+
+        // 5. Thực hiện nâng cấp Role và kích hoạt Bệnh viện
         user.setRole(UserRole.HOSPITAL_MANAGER);
         userRepository.save(user);
 
         hospital.setManager(user);
         hospital.setStatus(HospitalStatus.ACTIVE);
         hospital.setInvitationToken(null);
-        hospital.setTokenExpiry(null); // Xóa luôn hạn dùng cho sạch DB
+        hospital.setTokenExpiry(null);
+        hospital.setTempManagerEmail(null);
         hospitalRepository.save(hospital);
 
         log.info("User {} đã chấp nhận quản lý bệnh viện {}", user.getEmail(), hospital.getName());
@@ -68,7 +91,7 @@ public class AcceptHospitalInvitationUseCase {
                 .status("success")
                 .code(200)
                 .message("Chúc mừng! Bạn đã trở thành Quản lý của " + hospital.getName())
-                .data(userMapper.toUserResponse(user))
+                .data(userMapper.toResponse(user))
                 .build();
     }
 }

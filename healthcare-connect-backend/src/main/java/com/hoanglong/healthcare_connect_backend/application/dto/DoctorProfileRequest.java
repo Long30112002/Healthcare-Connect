@@ -14,24 +14,24 @@ import java.util.UUID;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DoctorProfileRequest {
-    @NotNull(message = "Vui lòng chọn khoa")
+    @NotNull(message = "DEPARTMENT_ID_REQUIRED")
     UUID departmentId;
 
-    @NotNull(message = "Vui lòng chọn chuyên khoa")
+    @NotNull(message = "SPECIALTY_ID_REQUIRED")
     UUID specialtyId;
 
-    @NotBlank(message = "Vui lòng nhập học vị")
+    @NotBlank(message = "DEGREE_REQUIRED")
     String degree;
 
-    @Min(value = 0, message = "Số năm kinh nghiệm không được âm")
+    @Min(value = 0, message = "EXPERIENCE_YEARS_INVALID")
     Integer experienceYears;
 
-    @NotBlank(message = "Vui lòng nhập tiểu sử tóm tắt")
+    @NotBlank(message = "BIOGRAPHY_REQUIRED") 
     String biography;
 
-    @NotNull(message = "Vui lòng đính kèm file CV (PDF)")
+    @NotNull(message = "REQUIRED_CV")
     MultipartFile cvFile;
 
-    @NotNull(message = "Vui lòng chọn bệnh viện")
+    @NotNull(message = "HOSPITAL_ID_REQUIRED")
     UUID hospitalId;
 }
