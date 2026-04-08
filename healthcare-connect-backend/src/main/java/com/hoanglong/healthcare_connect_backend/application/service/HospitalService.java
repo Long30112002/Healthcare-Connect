@@ -11,16 +11,13 @@ import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
-import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,23 +40,32 @@ public class HospitalService {
         User user = userRepository.findByEmail(request.getManagerEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // 3. Không mời Admin hoặc Doctor làm Manager
+        // 3. Kiểm tra user đã verify email chưa
+        if (!Boolean.TRUE.equals(user.getEnabled())) {
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
+        }
+
+        // 4. Không mời Admin hoặc Doctor làm Manager
         if (user.getRole() == UserRole.ADMIN || user.getRole() == UserRole.DOCTOR) {
             throw new AppException(ErrorCode.INVALID_ROLE_FOR_MANAGER);
         }
 
-        // 4. Map request sang Entity và thiết lập các thông số lời mời
+        // 5. Kiểm tra user đã là Manager của bệnh viện khác chưa
+        if (user.getRole() == UserRole.HOSPITAL_MANAGER) {
+            boolean alreadyManager = hospitalRepository.existsByManagerId(user.getId());
+            if (alreadyManager) {
+                throw new AppException(ErrorCode.USER_ALREADY_MANAGER);
+            }
+        }
+
+        // 6. Map request sang Entity và thiết lập các thông số lời mời
         String token = UUID.randomUUID().toString();
         Hospital hospital = hospitalMapper.swallowRequestToHospital(request);
 
         hospital.setStatus(HospitalStatus.PENDING_CONFIRMATION);
         hospital.setInvitationToken(token);
         hospital.setTokenExpiry(LocalDateTime.now().plusHours(24));
-
-        // QUAN TRỌNG: Gán email vào cột tạm để tra cứu Anti-Miss
         hospital.setTempManagerEmail(request.getManagerEmail());
-
-        // Manager ID vẫn để null cho đến khi họ nhấn Accept
         hospital.setManager(null);
 
         Hospital savedHospital = hospitalRepository.save(hospital);
@@ -81,8 +87,6 @@ public class HospitalService {
     public HospitalResponse updateHospital(@P("id") UUID id, HospitalRequest request) {
         Hospital hospital = hospitalRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
-
-        // MapStruct update
         hospitalMapper.updateHospital(hospital, request);
 
         return hospitalMapper.toHospitalResponse(hospitalRepository.save(hospital));

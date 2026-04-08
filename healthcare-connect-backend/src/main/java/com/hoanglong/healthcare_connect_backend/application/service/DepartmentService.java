@@ -45,14 +45,12 @@ public class DepartmentService extends BaseService<Department, DepartmentRequest
                 .build();
     }
 
-    // Không cần viết thêm bất cứ hàm lấy danh sách hay xóa khoa nào nữa.
-
-    // Hàm Tạo mới (Create) - Vì BaseService chưa có hàm Save chung
+    // Hàm Tạo mới (Create)
     public DepartmentResponse create(DepartmentRequest request) {
-        // 1. Chuyển DTO sang Entity (Chỗ này mới chạy toUpperCase cho code nè)
+        // 1. Chuyển DTO sang Entity
         Department entity = mapToEntity(request);
 
-        // 2. Kiểm tra trùng mã (Nếu cần)
+        // 2. Kiểm tra trùng mã
         if (departmentRepository.existsByCode(entity.getCode())) {
             throw new AppException(ErrorCode.DEPARTMENT_EXISTED);
         }
@@ -65,7 +63,7 @@ public class DepartmentService extends BaseService<Department, DepartmentRequest
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
 
         department.setName(request.getName());
-        department.setCode(request.getCode().toUpperCase()); // Cập nhật cả code
+        department.setCode(request.getCode().toUpperCase());
         department.setDescription(request.getDescription());
 
         return departmentMapper.toResponse(departmentRepository.save(department));

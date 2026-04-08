@@ -15,7 +15,5 @@ public interface UserMapper extends BaseMapper<User, UserResponse> {
     @Mapping(target = "authenticated", constant = "true")
     LoginResponse toLoginResponse(User user, String token, String reToken);
 
-    UserResponse toUserResponse(User user);
-
     User toUser(UserRegistrationRequest request);
 }

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -122,6 +123,8 @@ public class AuthenticationService {
 
     // 1. Hàm verifyToken: Kiểm tra chữ ký và hạn dùng của Token
     public SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+        if (!StringUtils.hasText(token)) throw new AppException(ErrorCode.UNAUTHORIZED);
+
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
 
@@ -145,6 +148,10 @@ public class AuthenticationService {
 
     // 2. Hàm Logout hoàn chỉnh
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        if (request == null || ! StringUtils.hasText(request.getToken())) {
+            log.info("Token trống.");
+            return;
+        }
         try {
             // Giải mã để lấy JTI và ExpiryTime
             var signToken = verifyToken(request.getToken());
@@ -160,7 +167,7 @@ public class AuthenticationService {
 
             invalidatedTokenRepository.save(invalidatedToken);
             log.info("Token {} đã được vô hiệu hóa thành công", jti);
-        } catch (AppException e) {
+        } catch (AppException | ParseException e) {
             log.warn("Token đã hết hạn hoặc không hợp lệ, không cần logout nữa.");
         }
     }

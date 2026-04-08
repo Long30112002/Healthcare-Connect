@@ -2,6 +2,8 @@ package com.hoanglong.healthcare_connect_backend.core.repository;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
@@ -13,8 +15,9 @@ import java.util.UUID;
 public interface IAppointmentRepository {
     Appointment save(Appointment appointment);
     Optional<Appointment> findById(UUID id);
-    List<Appointment> findByPatientId(UUID patientId);
-    boolean existsByPatientOverlap(UUID patientId, LocalDate date, LocalTime startTime, List<AppointmentStatus> excludedStatuses);
-    boolean existsByPatientIdAndScheduleIdAndStatus(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
+    Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+    boolean existsByPatientOverlap(UUID patientId, String date, String startTime, List<String> excludedStatuses);
+    boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
     Optional<Appointment> findByIdWithLock(UUID id);
+
 }

@@ -1,5 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
@@ -15,6 +17,8 @@ import com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo.Momo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudinary.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,10 +39,11 @@ public class AppointmentService {
     private final IScheduleRepository scheduleRepository;
     private final MomoService momoService;
     private final NotificationService notificationService;
+    private final AppointmentMapper appointmentMapper;
 
     @Transactional
     public void cancelAndRefund(UUID appointmentId, String reason) {
-        // 1. Kiểm tra quyền (Giữ nguyên logic của bạn)
+        // 1. Kiểm tra quyền
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -117,5 +123,12 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointment.setCancelReason(reason);
         appointmentRepository.save(appointment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponse> getPatientAppointments(UUID patientId, Pageable pageable) {
+        log.info("==> [SERVICE] Đang truy vấn danh sách lịch hẹn cho Patient ID: {}", patientId);
+        Page<Appointment> appointmentPage = appointmentRepository.findAllByPatientId(patientId, pageable);
+        return appointmentPage.map(appointmentMapper::toResponse);
     }
 }

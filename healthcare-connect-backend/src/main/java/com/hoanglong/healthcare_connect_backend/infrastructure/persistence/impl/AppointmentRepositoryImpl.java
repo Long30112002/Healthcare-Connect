@@ -5,6 +5,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaAppointmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -30,18 +32,18 @@ public class AppointmentRepositoryImpl implements IAppointmentRepository
     }
 
     @Override
-    public List<Appointment> findByPatientId(UUID patientId) {
-        return jpaAppointmentRepository.findByPatientId(patientId);
+    public Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable) {
+        return jpaAppointmentRepository.findAllByPatientId(patientId, pageable);
     }
 
     @Override
-    public boolean existsByPatientOverlap(UUID patientId, LocalDate date, LocalTime startTime, List<AppointmentStatus> excludedStatuses) {
-        return jpaAppointmentRepository.existsByPatientOverlap(patientId, date, startTime, List.of(AppointmentStatus.CANCELLED));
+    public boolean existsByPatientOverlap(UUID patientId, String date, String startTime, List<String> excludedStatuses) {
+        return jpaAppointmentRepository.existsByPatientOverlap(patientId, date, startTime, excludedStatuses);
     }
 
     @Override
-    public boolean existsByPatientIdAndScheduleIdAndStatus(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus) {
-        return jpaAppointmentRepository.existsByPatientIdAndScheduleIdAndStatus(patientId, scheduleId, appointmentStatus);
+    public boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus) {
+        return jpaAppointmentRepository.existsByPatientIdAndScheduleIdAndStatusNot(patientId, scheduleId, appointmentStatus);
     }
 
     @Override

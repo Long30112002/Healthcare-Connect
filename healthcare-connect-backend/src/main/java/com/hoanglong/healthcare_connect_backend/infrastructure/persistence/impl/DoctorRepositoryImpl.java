@@ -47,4 +47,9 @@ public class DoctorRepositoryImpl implements IDoctorRepository
     public List<Doctor> findAllByHospitalId(UUID hospitalId) {
         return jpaDoctorRepository.findAllByHospitalId(hospitalId);
     }
+
+    @Override
+    public List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status) {
+        return jpaDoctorRepository.findAllByHospitalIdAndStatus(hospitalId, status);
+    }
 }

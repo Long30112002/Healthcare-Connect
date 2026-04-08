@@ -27,5 +27,5 @@ public interface JpaHospitalRepository extends JpaRepository<Hospital, UUID> {
             @Param("status") HospitalStatus status,
             @Param("now") LocalDateTime now
     );
-
+    boolean existsByManagerId(UUID managerId);
 }

@@ -12,8 +12,9 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     private String status;
-    private int code;        // 201, 400...
+    private int code;
+    private String errorKey;
     private String message;
     private T data;
-    private List<String> errors;
+//    private List<String> errors;
 }

@@ -3,27 +3,32 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
+import com.hoanglong.healthcare_connect_backend.application.service.ApplyDoctorHistoryService;
 import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
+import com.hoanglong.healthcare_connect_backend.core.constant.DoctorHistoryAction;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
-import com.hoanglong.healthcare_connect_backend.core.entity.Department;
-import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
-import com.hoanglong.healthcare_connect_backend.core.entity.Specialty;
-import com.hoanglong.healthcare_connect_backend.core.entity.User;
+import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.core.repository.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RegisterDoctorProfileUseCase {
+
     private final IDoctorRepository doctorRepository;
     private final IUserRepository userRepository;
+    private final ApplyDoctorHistoryService applyDoctorHistoryService;
     private final ISpecialtyRepository specialtyRepository;
     private final IDepartmentRepository departmentRepository;
     private final IHospitalRepository hospitalRepository;
@@ -31,47 +36,171 @@ public class RegisterDoctorProfileUseCase {
     private final CloudinaryService cloudinaryService;
 
     @Transactional
-    public DoctorResponse execute(UUID userId, DoctorProfileRequest request) {
-        // 1. Upload CV
+    public DoctorResponse execute(UUID userId, DoctorProfileRequest request, HttpServletRequest httpRequest) {
+
+        // 1. Validate CV
+        validateCv(request);
+
+        // 2. Check existing doctor profile
+        Optional<Doctor> existingDoctorOpt = doctorRepository.findByUserId(userId);
+
+        if (existingDoctorOpt.isPresent()) {
+            Doctor existingDoctor = existingDoctorOpt.get();
+            return handleExistingDoctor(existingDoctor, userId, request, httpRequest);
+        }
+
+        // 3. Validate and fetch entities
+        User user = getUser(userId);
+        Department department = getDepartment(request.getDepartmentId());
+        Specialty specialty = getSpecialty(request.getSpecialtyId());
+        validateDepartmentAndSpecialty(department, specialty);
+        Hospital hospital = getHospital(request.getHospitalId());
+
+        // 4. Upload CV (after all validations passed)
         String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
 
-        // 2. Tìm hoặc tạo mới Profile
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        // 5. Create new doctor
+        Doctor doctor = createNewDoctor(user, department, specialty, hospital, request, cvUrl);
+        Doctor savedDoctor = doctorRepository.save(doctor);
 
-        Doctor doctor = doctorRepository.findByUserId(userId).orElse(new Doctor());
+        // 6. Record history
+        applyDoctorHistoryService.recordDoctorHistory(
+                savedDoctor.getId(),
+                userId,
+                "DOCTOR",
+                DoctorHistoryAction.CREATE,
+                null,
+                DoctorStatus.PENDING.name(),
+                "Nộp hồ sơ đăng ký bác sĩ lần đầu",
+                httpRequest
+        );
 
-        // 3. Tìm các thực thể liên quan
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
-        Specialty specialty = specialtyRepository.findById(request.getSpecialtyId())
-                .orElseThrow(() -> new RuntimeException("Specialty not found"));
+        return doctorMapper.toDoctorResponse(savedDoctor);
+    }
 
-        // 2. LẤY HOSPITAL TỪ DATABASE
-        var hospital = hospitalRepository.findById(request.getHospitalId())
-                .orElseThrow(() -> new RuntimeException("Hospital not found"));
+    private DoctorResponse handleExistingDoctor(Doctor doctor, UUID userId,
+            DoctorProfileRequest request,
+            HttpServletRequest httpRequest) {
 
-        // 4. Map dữ liệu vào Entity
+        // Không cho apply lại nếu đã approved
+        if (doctor.getStatus() == DoctorStatus.APPROVED) {
+            throw new AppException(ErrorCode.DOCTOR_ALREADY_APPROVED);
+        }
+
+        // Không cho apply nếu đang pending hoặc verified
+        if (doctor.getStatus() == DoctorStatus.PENDING ||
+                doctor.getStatus() == DoctorStatus.VERIFIED) {
+            throw new AppException(ErrorCode.DOCTOR_PROFILE_PENDING_OR_VERIFIED);
+        }
+
+        // Chỉ cho apply lại khi REJECTED
+        if (doctor.getStatus() == DoctorStatus.REJECTED) {
+            return updateExistingDoctor(doctor, userId, request, httpRequest);
+        }
+
+        throw new AppException(ErrorCode.INVALID_DOCTOR_STATUS);
+    }
+
+    private DoctorResponse updateExistingDoctor(Doctor oldDoc,
+            UUID userId,
+            DoctorProfileRequest request,
+            HttpServletRequest httpRequest) {
+
+        Department department = getDepartment(request.getDepartmentId());
+        Specialty specialty = getSpecialty(request.getSpecialtyId());
+        validateDepartmentAndSpecialty(department, specialty);
+        Hospital hospital = getHospital(request.getHospitalId());
+
+        // Upload CV sau validate
+        String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
+
+        oldDoc.setDepartment(department);
+        oldDoc.setSpecialty(specialty);
+        oldDoc.setHospital(hospital);
+        oldDoc.setDegree(request.getDegree());
+        oldDoc.setExperienceYears(request.getExperienceYears());
+        oldDoc.setBiography(request.getBiography());
+        oldDoc.setCvUrl(cvUrl);
+        oldDoc.setStatus(DoctorStatus.PENDING);
+        oldDoc.setRejectionReason(null);
+        oldDoc.setRejectionNote(null);
+
+        Doctor savedDoctor = doctorRepository.save(oldDoc);
+
+        applyDoctorHistoryService.recordDoctorHistory(
+                savedDoctor.getId(),
+                userId,
+                "DOCTOR",
+                DoctorHistoryAction.REAPPLY,
+                DoctorStatus.REJECTED.name(),
+                DoctorStatus.PENDING.name(),
+                "Gửi lại hồ sơ sau khi bị từ chối",
+                httpRequest
+        );
+
+        return doctorMapper.toDoctorResponse(savedDoctor);
+    }
+
+    private Doctor createNewDoctor(User user,
+            Department department,
+            Specialty specialty,
+            Hospital hospital,
+            DoctorProfileRequest request,
+            String cvUrl) {
+
+        Doctor doctor = new Doctor();
         doctor.setUser(user);
         doctor.setDepartment(department);
         doctor.setSpecialty(specialty);
         doctor.setHospital(hospital);
-
         doctor.setDegree(request.getDegree());
         doctor.setExperienceYears(request.getExperienceYears());
         doctor.setBiography(request.getBiography());
         doctor.setCvUrl(cvUrl);
         doctor.setStatus(DoctorStatus.PENDING);
+        doctor.setDoctorCode(generateDoctorCode());
 
-        if (doctor.getDoctorCode() == null) {
-            doctor.setDoctorCode(generateDoctorCode());
+        return doctor;
+    }
+
+    private void validateCv(DoctorProfileRequest request) {
+        if (request.getCvFile() == null || request.getCvFile().isEmpty()) {
+            throw new AppException(ErrorCode.REQUIRED_CV);
+        }
+    }
+
+    private void validateDepartmentAndSpecialty(Department department, Specialty specialty) {
+        if (!specialty.getDepartment().getId().equals(department.getId())) {
+            throw new AppException(ErrorCode.SPECIALTY_NOT_BELONG_TO_DEPARTMENT);
         }
 
-        // 5. Lưu và Map sang Response
-        return doctorMapper.toDoctorResponse(doctorRepository.save(doctor));
+        if (!department.getCategory().equals(specialty.getCategory())) {
+            throw new AppException(ErrorCode.SPECIALTY_CATEGORY_MISMATCH);
+        }
+    }
+
+    private User getUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Department getDepartment(UUID id) {
+        return departmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+    }
+
+    private Specialty getSpecialty(UUID id) {
+        return specialtyRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.SPECIALTY_NOT_FOUND));
+    }
+
+    private Hospital getHospital(UUID id) {
+        return hospitalRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
     }
 
     private String generateDoctorCode() {
-        return "DOC-" + LocalDate.now().getYear() + "-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
+        return "DOC-" + LocalDate.now().getYear() + "-" +
+                UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

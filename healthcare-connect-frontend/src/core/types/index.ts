@@ -1,0 +1,72 @@
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus } from '../constants/enums';
+
+export interface User {
+    id: string;
+    email: string;
+    fullName: string;
+    phone: string;
+    role: UserRole;
+    createdAt?: string; 
+}
+
+export interface Doctor {
+    id: string;
+    doctorCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    degree: string;
+    experienceYears: number;
+    biography: string;
+    cvUrl: string;
+    consultationFee: number; 
+    status: DoctorStatus;
+    specialtyName: string;
+    departmentName: string;
+    hospitalName: string;
+}
+
+export interface Schedule {
+    id: string;
+    doctor: Doctor;
+    date: string; 
+    startTime: string;
+    endTime: string;
+    maxPatients: number;
+    currentBookings: number;
+    status: ScheduleStatus;
+    price: number;
+}
+
+export interface Payment {
+    id: string;
+    amount: number;
+    refundAmount?: number;
+    paymentMethod: "MOMO" | "VNPAY";
+    transactionNo?: string;
+    status: PaymentStatus;
+    createdAt: string;
+}
+
+export interface Hospital {
+    id: string;
+    name: string;
+    address: string;
+    description: string;
+    imageUrl: string;
+    managerEmail: string; 
+}
+
+export interface Appointment {
+    id: string;
+    patientName: string; 
+    doctorName: string;
+    hospitalName: string;
+    appointmentDate: string; 
+    startTime: string;
+    endTime: string;
+    symptoms: string;
+    status: AppointmentStatus;
+    price: number;
+    isPaid: boolean;
+}

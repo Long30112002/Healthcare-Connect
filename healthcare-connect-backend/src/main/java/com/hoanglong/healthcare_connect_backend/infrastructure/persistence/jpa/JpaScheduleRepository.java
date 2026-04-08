@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -22,8 +23,15 @@ public interface JpaScheduleRepository extends JpaRepository<Schedule, UUID> {
 
     List<Schedule> findByDoctorIdAndDate(UUID doctorId, LocalDate date);
 
-    @Query("SELECT COUNT(s) > 0 FROM Schedule s WHERE s.doctor.id = :doctorId " +
-            "AND s.date = :date AND s.status != 'CANCELLED' " +
-            "AND ((s.startTime < :end AND s.endTime > :start))")
-    boolean existsByDoctorAndOverlap(UUID doctorId, LocalDate date, LocalTime start, LocalTime end);
+
+    @Query(value = "SELECT COUNT(*) > 0 FROM schedules s " +
+            "WHERE s.doctor_id = :doctorId " +
+            "AND s.date::date = :date " +
+            "AND s.status != 'CANCELLED' " +
+            "AND (s.start_time::time < :endTime AND s.end_time::time > :startTime)", 
+            nativeQuery = true)
+    boolean existsOverlappingSchedule(@Param("doctorId") UUID doctorId,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime);
 }

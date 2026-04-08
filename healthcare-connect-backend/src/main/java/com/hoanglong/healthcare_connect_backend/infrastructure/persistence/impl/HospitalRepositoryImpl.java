@@ -46,4 +46,9 @@ public class HospitalRepositoryImpl implements IHospitalRepository {
     public Optional<Hospital> findByTempManagerEmailAndStatus (String email, HospitalStatus status) {
         return jpaHospitalRepository.findByTempManagerEmailAndStatus (email, status);
     }
+
+    @Override
+    public boolean existsByManagerId(UUID managerId) {
+        return jpaHospitalRepository.existsByManagerId(managerId);
+    }
 }

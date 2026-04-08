@@ -24,14 +24,4 @@ public class UserController {
                 .data(userService.getMyInfo())
                 .build();
     }
-
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") // Chỉ ADMIN mới xem được hết
-    public ApiResponse<List<UserResponse>> getAllUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .status("success")
-                .code(200)
-                .data(userService.getAll())
-                .build();
-    }
 }

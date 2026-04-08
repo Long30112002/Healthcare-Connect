@@ -19,7 +19,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

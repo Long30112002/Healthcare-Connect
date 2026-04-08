@@ -14,4 +14,5 @@ public interface JpaDoctorRepository extends JpaRepository<Doctor, UUID>
     List<Doctor> findAllByStatus(DoctorStatus status);
     Optional<Doctor> findByUserId(UUID userId);
     List<Doctor> findAllByHospitalId(UUID hospitalId);
+    List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
 }
