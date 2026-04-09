@@ -39,8 +39,9 @@
         NAME_INVALID(2003, "Họ tên không được để trống!", HttpStatus.BAD_REQUEST),
         EMAIL_INVALID(2004, "Email không đúng định dạng!", HttpStatus.BAD_REQUEST),
         PASSWORD_INVALID(2005, "Mật khẩu phải có ít nhất 8 ký tự!", HttpStatus.BAD_REQUEST),
-    
-    
+        EMAIL_REQUIRED(2006, "Email là bắt buộc!", HttpStatus.BAD_REQUEST),
+        PASSWORD_REQUIRED(2007, "Mật khẩu là bắt buộc!", HttpStatus.BAD_REQUEST),
+
         // =============================================================================
         // 3xxx: VALIDATION (REQUEST VALIDATION)
         // =============================================================================

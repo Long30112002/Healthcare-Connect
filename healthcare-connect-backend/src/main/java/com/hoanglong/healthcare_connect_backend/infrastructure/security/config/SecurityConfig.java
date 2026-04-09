@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
+import jakarta.servlet.Filter;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,12 @@ public class SecurityConfig {
     @Lazy
     private AuthenticationService authenticationService;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
+    @Value("${app.frontend.url.host}")
+    private String frontendLan;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
@@ -54,13 +62,14 @@ public class SecurityConfig {
                 .disable()
         );
 
-        http.cors(Customizer.withDefaults());
+//        http.cors(Customizer.withDefaults());
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.authorizeHttpRequests(request -> request
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
-                .requestMatchers("/api/v1/payments/momo/**").permitAll()
+                .requestMatchers("/api/payments/momo/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/departments/**", "/api/specialties/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
@@ -122,7 +131,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 1. Cho phép nguồn từ Frontend của bạn
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.11:5173/"));
+        configuration.setAllowedOrigins(List.of(frontendUrl, frontendLan));
 
         // 2. Cho phép các phương thức HTTP phổ biến
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
@@ -162,15 +171,23 @@ public class SecurityConfig {
             }
         });
         return token -> {
-            if (!StringUtils.hasText(token)) {
-                throw new JwtException("Token is missing or empty");
-            }
             try {
                 return nimbusJwtDecoder.decode(token);
             } catch (Exception e) {
-                // Chuyển mọi lỗi thành JwtException để EntryPoint bắt được
                 throw new JwtException(e.getMessage());
             }
+        };
+    }
+
+    @Bean
+    public Filter corsFilter() {
+        return (request, response, chain) -> {
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            httpResponse.setHeader("Access-Control-Allow-Origin", frontendUrl);
+            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+            httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+            httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+            chain.doFilter(request, response);
         };
     }
 
@@ -189,4 +206,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

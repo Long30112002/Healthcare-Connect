@@ -12,7 +12,7 @@
         }
         body {
             font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f4f7fc;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
@@ -75,28 +75,24 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .rejection-box span {
-            font-weight: 500;
+        .btn-wrapper {
+            text-align: center;
+            margin: 24px 0 16px;
         }
-        .btn {
+        .btn-warning {
             display: inline-block;
-            background: linear-gradient(135deg, #007bff, #00a1ff);
-            color: white;
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #1e2a3a;
             text-decoration: none;
-            padding: 12px 28px;
+            padding: 12px 32px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 40px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin: 16px 0 12px;
-            border: none;
-            cursor: pointer;
         }
-        .btn:hover {
-            background: linear-gradient(135deg, #0066cc, #0088e6);
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800, #c69500);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
         .footer {
             background-color: #f8fafc;
@@ -113,20 +109,21 @@
             color: #007bff;
             text-decoration: none;
         }
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #1a1a2e; }
+            .email-container { background-color: #16213e; }
+            .body { background: #16213e; }
+            .greeting { color: #e2e8f0; }
+            .message { color: #a0aec0; }
+            .rejection-box { background-color: #3d1a1a; border-left-color: #ef9a9a; color: #fcd9d9; }
+            .rejection-box strong { color: #ef9a9a; }
+            .footer { background-color: #0f172a; border-top-color: #1e293b; color: #64748b; }
+        }
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .body {
-                padding: 28px 20px;
-            }
-            .greeting {
-                font-size: 22px;
-            }
-            .btn {
-                padding: 10px 24px;
-                font-size: 14px;
-            }
+            body { padding: 10px; }
+            .body { padding: 28px 20px; }
+            .greeting { font-size: 22px; }
+            .btn-warning { padding: 10px 24px; font-size: 14px; }
         }
     </style>
 </head>
@@ -148,8 +145,8 @@
         <div class="message">
             Bạn có thể cập nhật lại thông tin hồ sơ và gửi lại yêu cầu sau khi đã cải thiện các vấn đề trên.
         </div>
-        <div style="text-align: center; margin: 30px 0;">
-            <a th:href="${url}" class="btn" th:text="${btnText}">Cập nhật hồ sơ</a>
+        <div class="btn-wrapper">
+            <a th:href="${url}" class="btn-warning" th:text="${btnText}">Cập nhật hồ sơ</a>
         </div>
         <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
             Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email support@healthcareconnect.com

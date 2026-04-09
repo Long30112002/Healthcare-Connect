@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (location.pathname === '/login') navigate('/');
             } catch (err) {
                 setUser(null);
-                if (location.pathname !== '/login') navigate('/login');
             } finally {
                 setLoading(false);
             }
@@ -47,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await authApi.logout();
         } finally {
             setUser(null);
-            navigate('/login');
+            navigate('/');
         }
     };
 

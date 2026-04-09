@@ -12,7 +12,7 @@
         }
         body {
             font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f4f7fc;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
@@ -66,25 +66,26 @@
         .list li {
             margin-bottom: 8px;
         }
-        .btn {
+        .btn-wrapper {
+            text-align: center;
+            margin: 24px 0 16px;
+        }
+        .btn-success {
             display: inline-block;
             background: linear-gradient(135deg, #28a745, #1e7e34);
             color: white;
             text-decoration: none;
-            padding: 12px 28px;
+            padding: 12px 32px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 40px;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin: 16px 0 12px;
-            border: none;
-            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(40,167,69,0.3);
         }
-        .btn:hover {
+        .btn-success:hover {
             background: linear-gradient(135deg, #1e7e34, #146b2e);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(40,167,69,0.4);
         }
         .footer {
             background-color: #f8fafc;
@@ -101,23 +102,21 @@
             color: #007bff;
             text-decoration: none;
         }
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #1a1a2e; }
+            .email-container { background-color: #16213e; }
+            .body { background: #16213e; }
+            .greeting { color: #e2e8f0; }
+            .message { color: #a0aec0; }
+            .list { color: #a0aec0; }
+            .footer { background-color: #0f172a; border-top-color: #1e293b; color: #64748b; }
+        }
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .body {
-                padding: 28px 20px;
-            }
-            .greeting {
-                font-size: 22px;
-            }
-            .btn {
-                padding: 10px 24px;
-                font-size: 14px;
-            }
-            .list {
-                margin-left: 20px;
-            }
+            body { padding: 10px; }
+            .body { padding: 28px 20px; }
+            .greeting { font-size: 22px; }
+            .btn-success { padding: 10px 24px; font-size: 14px; }
+            .list { margin-left: 20px; }
         }
     </style>
 </head>
@@ -141,8 +140,8 @@
             <li>👨‍⚕️ Tiếp nhận yêu cầu khám từ bệnh nhân</li>
             <li>💰 Quản lý doanh thu và lịch sử khám bệnh</li>
         </ul>
-        <div style="text-align: center; margin: 30px 0;">
-            <a th:href="${url}" class="btn" th:text="${btnText}">Vào Dashboard ngay</a>
+        <div class="btn-wrapper">
+            <a th:href="${url}" class="btn-success" th:text="${btnText}">Vào Dashboard ngay</a>
         </div>
         <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
             Trân trọng,<br>

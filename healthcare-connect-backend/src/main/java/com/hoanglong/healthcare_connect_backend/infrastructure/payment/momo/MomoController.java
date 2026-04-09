@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/payments/momo")
+@RequestMapping("/api/payments/momo")
 @RequiredArgsConstructor
 @Slf4j
 public class MomoController {

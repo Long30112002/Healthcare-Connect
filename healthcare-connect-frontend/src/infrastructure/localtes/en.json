@@ -32,20 +32,179 @@
     "actions": "Actions",
     "canceled": "Cancelled"
   },
-
+  "verify": {
+    "verifying": "Verifying your account...",
+    "successTitle": "Verification Successful!",
+    "errorTitle": "Verification Failed",
+    "success": "Verification successful! Please login.",
+    "failed": "Verification failed, please try again!",
+    "expired": "Verification link has expired. Please register again!",
+    "invalidCode": "Invalid verification code!",
+    "redirecting": "Redirecting to login page..."
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Join Healthcare Connect today",
+    "confirmPassword": "Confirm password",
+    "passwordHint": "Password must be at least 8 characters",
+    "acceptTerms": "I agree to the",
+    "terms": "Terms of Service",
+    "haveAccount": "Already have an account?",
+    "successMessage": "Registration successful! Please check your email to verify your account.",
+    "errorMessage": "Registration failed, please try again!",
+    "passwordMismatch": "Passwords do not match!",
+    "termsRequired": "Please accept the terms of service!"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email to receive reset link",
+    "sendButton": "Send Request",
+    "successMessage": "Request sent. Please check your email!",
+    "errorMessage": "Something went wrong, please try again later!"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your new password",
+    "submitButton": "Reset Password",
+    "successMessage": "Password reset successfully! Please login.",
+    "errorMessage": "Password reset failed, please try again!",
+    "invalidCode": "Invalid or expired verification code!",
+    "passwordMismatch": "Passwords do not match!"
+  },
+  "footer": {
+    "aboutUs": "About Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "contact": "Contact",
+    "quickLinks": "Quick Links",
+    "contactInfo": "Contact Info",
+    "address": "Address",
+    "hotline": "Hotline",
+    "email": "Email",
+    "workingHours": "Working Hours",
+    "followUs": "Follow Us",
+    "newsletter": "Newsletter",
+    "yourEmail": "Your email",
+    "subscribe": "Subscribe",
+    "newsletterNote": "Get notifications about promotions and news",
+    "copyright": "All rights reserved.",
+    "sitemap": "Sitemap",
+    "accessibility": "Accessibility",
+    "cookies": "Cookies",
+    "description": "A platform connecting patients with top doctors, delivering high-quality and convenient healthcare services."
+  },
   "nav": {
     "home": "Home",
-    "dashboard": "Dashboard",
-    "appointments": "Appointments",
+    "about": "About Us",
     "doctors": "Doctors",
-    "hospitals": "Hospitals",
-    "profile": "Profile",
-    "settings": "Settings",
-    "patients": "Patients",
+    "contact": "Contact",
+    "appointments": "Appointments",
+    "findDoctors": "Find Doctors",
+    "myHealth": "My Health",
     "schedule": "Schedule",
-    "reports": "Reports"
+    "patients": "Patients",
+    "profile": "Profile",
+    "manageDoctors": "Manage Doctors",
+    "hospital": "Hospital",
+    "users": "Users",
+    "hospitals": "Hospitals",
+    "specialties": "Specialties",
+    "settings": "Settings"
   },
-
+  "home": {
+    "hero": {
+      "title": "Healthcare Connect",
+      "subtitle": "Connecting Patients - Doctors - Hospitals",
+      "description": "Smart healthcare platform that helps you easily book appointments, consult remotely, and manage your health comprehensively.",
+      "register": "Register Now",
+      "findDoctor": "Find a Doctor"
+    },
+    "stats": {
+      "doctors": "Doctors",
+      "patients": "Patients",
+      "hospitals": "Hospitals",
+      "rating": "Rating"
+    },
+    "features": {
+      "title": "Featured Services",
+      "subtitle": "We provide the best healthcare solutions"
+    },
+    "feature1": {
+      "title": "Top Doctors",
+      "desc": "Partnered with experienced doctors from major hospitals"
+    },
+    "feature2": {
+      "title": "Easy Booking",
+      "desc": "Choose a doctor, pick a time, and pay online quickly"
+    },
+    "feature3": {
+      "title": "Telemedicine",
+      "desc": "Consult via video call, receive prescriptions at home"
+    },
+    "feature4": {
+      "title": "Smart AI",
+      "desc": "Get specialty suggestions based on your symptoms"
+    },
+    "feature5": {
+      "title": "Electronic Health Records",
+      "desc": "Store and track your medical history"
+    },
+    "feature6": {
+      "title": "Transparent Reviews",
+      "desc": "See real reviews from other patients"
+    },
+    "doctors": {
+      "title": "Our Doctors",
+      "subtitle": "Meet our top medical experts",
+      "viewAll": "View all doctors"
+    },
+    "doctor1": {
+      "specialty": "Cardiology"
+    },
+    "doctor2": {
+      "specialty": "Pediatrics"
+    },
+    "doctor3": {
+      "specialty": "Internal Medicine"
+    },
+    "doctor4": {
+      "specialty": "Dermatology"
+    },
+    "testimonials": {
+      "title": "What Patients Say",
+      "subtitle": "Thousands of patients trust our service"
+    },
+    "testimonial1": "Great service! I booked an appointment very quickly and received thorough consultation.",
+    "testimonial2": "Easy to use app, convenient online payment. Will recommend to friends and family.",
+    "testimonial3": "Very satisfied with the service quality. Professional and enthusiastic support team.",
+    "cta": {
+      "title": "Ready to take care of your health?",
+      "subtitle": "Sign up today to experience smart healthcare services",
+      "button": "Sign up for free"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance & Language",
+    "theme": "Theme",
+    "themeDescription": "Choose light or dark theme for the application",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "languageDescription": "Select display language",
+    "personalInfo": "Personal Information",
+    "changePassword": "Change Password",
+    "change": "Change",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "notifications": "Notifications",
+    "emailNotification": "Email Notification",
+    "emailNotificationDesc": "Receive email notifications for appointments and updates",
+    "appointmentReminder": "Appointment Reminder",
+    "appointmentReminderDesc": "Receive reminders 24 hours before appointment"
+  },
   "page": {
     "login": {
       "title": "Healthcare Connect",
@@ -78,14 +237,12 @@
       "updateSuccess": "Update successful"
     }
   },
-
   "role": {
     "PATIENT": "Patient",
     "DOCTOR": "Doctor",
     "ADMIN": "Administrator",
     "HOSPITAL_MANAGER": "Hospital Manager"
   },
-
   "status": {
     "PENDING": "Pending",
     "CONFIRMED": "Confirmed",
@@ -101,8 +258,9 @@
     "AVAILABLE": "Available",
     "FULL": "Full"
   },
-
   "error": {
+    "EMAIL_REQUIRED": "Email is required!",
+    "PASSWORD_REQUIRED": "Password is required!",
     "UNCATEGORIZED_EXCEPTION": "Unknown system error!",
     "INVALID_KEY": "Unknown error!",
     "UNAUTHORIZED": "Unauthorized access!",

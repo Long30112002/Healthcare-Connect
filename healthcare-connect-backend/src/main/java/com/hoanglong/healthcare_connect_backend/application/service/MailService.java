@@ -22,10 +22,14 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+
 public class MailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Value("${spring.mail.username}")
     private String mailFrom;
@@ -35,7 +39,6 @@ public class MailService {
         if (to == null || to.isEmpty()) {
             log.error("==> [QUEUE] Bỏ qua đẩy vào hàng chờ vì email người nhận bị NULL!");
             return;
-
         }
         NotificationMessage message = NotificationMessage.builder()
                 .recipientEmail(to)
@@ -50,7 +53,7 @@ public class MailService {
 
     // NGHIỆP VỤ XÁC THỰC
     public void sendVerificationEmail(User user) {
-        String verifyUrl = "http://localhost:8080/api/auth/verify?code=" + user.getVerificationCode();
+        String verifyUrl = frontendUrl + "/verify?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
         variables.put("url", verifyUrl);
@@ -73,7 +76,7 @@ public class MailService {
 
     // NGHIỆP VỤ QUÊN MẬT KHẨU
     public void sendForgotPasswordEmail(User user) {
-        String resetUrl = "http://localhost:3000/reset-password?code=" + user.getVerificationCode();
+        String resetUrl = frontendUrl + "/reset-password?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
         variables.put("url", resetUrl);
@@ -90,7 +93,7 @@ public class MailService {
         variables.put("doctorCode", doctor.getDoctorCode());
         variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
         variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ bệnh viện tiếp nhận.");
-        variables.put("url", "http://localhost:3000/doctor/profile");
+        variables.put("url", frontendUrl + "/doctor/profile");
         variables.put("btnText", "Xem hồ sơ");
 
         pushToQueue(user.getEmail(), "Hồ sơ bác sĩ đã được xác thực", "doctor-verified-template", variables);
@@ -103,7 +106,7 @@ public class MailService {
         variables.put("doctorCode", doctor.getDoctorCode());
         variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
         variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được bệnh viện tiếp nhận. Bạn chính thức là bác sĩ của hệ thống.");
-        variables.put("url", "http://localhost:3000/doctor/dashboard");
+        variables.put("url", frontendUrl + "/doctor/dashboard");
         variables.put("btnText", "Vào Dashboard ngay");
 
         pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành bác sĩ", "doctor-approval-template", variables);
@@ -140,7 +143,7 @@ public class MailService {
         variables.put("price", formattedPrice);
         variables.put("address", schedule.getDoctor().getHospital().getAddress());
 
-        variables.put("url", "http://localhost:3000/my-appointments");
+        variables.put("url", frontendUrl + "/my-appointments");
         variables.put("btnText", "Xem lịch khám của tôi");
 
         pushToQueue(patient.getEmail(), "Xác nhận đặt lịch khám thành công", "booking-confirmation-template", variables);
@@ -148,7 +151,7 @@ public class MailService {
 
     // NGHIỆP VỤ LỜI MỜI
     public void sendManagerInvitation(User user, Hospital hospital, String token) {
-        String confirmationUrl = "http://localhost:3000/confirm-invitation?token=" + token
+        String confirmationUrl = frontendUrl + "/confirm-invitation?token=" + token
                 + "&hospitalId=" + hospital.getId();
 
         Map<String, Object> variables = new HashMap<>();
@@ -210,35 +213,3 @@ public class MailService {
         log.info("==> [CONFIG] Mail Service khởi tạo thành công với email: {}", mailFrom);
     }
 }
-
-//    // NGHIỆP VỤ BẢO MẬT
-//    public void sendSecurityEmail(User user, String type) {
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("name", user.getFullName());
-//        String actionUrl = "http://localhost:3000/reset-password?code=" + user.getVerificationCode();
-//        variables.put("url", actionUrl);
-//
-//        String subject, message, btnText;
-//        if ("FORGOT_PASSWORD".equals(type)) {
-//            subject = "Yêu cầu đặt lại mật khẩu - Healthcare Connect";
-//            message = "Chúng tôi nhận được yêu cầu đặt lại mật khẩu của bạn.";
-//            btnText = "Đặt lại mật khẩu";
-//        } else if ("SETUP_MANAGER".equals(type)) {
-//            subject = "Lời mời Quản lý Bệnh viện - Healthcare Connect";
-//            message = "Bạn đã được bổ nhiệm làm Quản lý. Vui lòng thiết lập mật khẩu để bắt đầu.";
-//            btnText = "Thiết lập tài khoản";
-//        } else if ("UPGRADE_TO_MANAGER".equals(type)) {
-//            subject = "Thông báo nâng cấp quyền hạn - Healthcare Connect";
-//            message = "Tài khoản của bạn đã được Admin nâng cấp lên quyền Quản lý Bệnh viện.";
-//            btnText = "Đi đến Dashboard";
-//            variables.put("url", "http://localhost:3000/login");
-//        } else {
-//            subject = "Xác nhận hoạt động tài khoản";
-//            message = "Vui lòng hoàn tất xác thực tài khoản.";
-//            btnText = "Xác thực";
-//        }
-//
-//        variables.put("message", message);
-//        variables.put("btnText", btnText);
-//        pushToQueue(user.getEmail(), subject, "email-template", variables);
-//    }

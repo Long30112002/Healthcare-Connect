@@ -30,3 +30,12 @@
 .dark ::-webkit-scrollbar-thumb:hover {
     background: #6b7280;
 }
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

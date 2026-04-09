@@ -32,20 +32,179 @@
     "actions": "Thao tác",
     "canceled": "Đã hủy"
   },
-
+  "verify": {
+    "verifying": "Đang xác thực tài khoản của bạn...",
+    "successTitle": "Xác thực thành công!",
+    "errorTitle": "Xác thực thất bại",
+    "success": "Xác thực thành công! Vui lòng đăng nhập.",
+    "failed": "Xác thực thất bại, vui lòng thử lại!",
+    "expired": "Liên kết xác thực đã hết hạn. Vui lòng đăng ký lại!",
+    "invalidCode": "Mã xác thực không hợp lệ!",
+    "redirecting": "Chuyển hướng đến trang đăng nhập..."
+  },
+  "register": {
+    "title": "Đăng ký tài khoản",
+    "subtitle": "Tham gia Healthcare Connect ngay hôm nay",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "passwordHint": "Mật khẩu phải có ít nhất 8 ký tự",
+    "acceptTerms": "Tôi đồng ý với",
+    "terms": "Điều khoản sử dụng",
+    "haveAccount": "Đã có tài khoản?",
+    "successMessage": "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+    "errorMessage": "Đăng ký thất bại, vui lòng thử lại!",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp!",
+    "termsRequired": "Vui lòng đồng ý với điều khoản sử dụng!"
+  },
+  "forgotPassword": {
+    "title": "Quên mật khẩu",
+    "subtitle": "Nhập email để nhận link đặt lại mật khẩu",
+    "sendButton": "Gửi yêu cầu",
+    "successMessage": "Yêu cầu đã được gửi. Vui lòng kiểm tra email của bạn!",
+    "errorMessage": "Có lỗi xảy ra, vui lòng thử lại sau!"
+  },
+  "resetPassword": {
+    "title": "Đặt lại mật khẩu",
+    "subtitle": "Nhập mật khẩu mới của bạn",
+    "submitButton": "Đặt lại mật khẩu",
+    "successMessage": "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
+    "errorMessage": "Đặt lại mật khẩu thất bại, vui lòng thử lại!",
+    "invalidCode": "Mã xác nhận không hợp lệ hoặc đã hết hạn!",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp!"
+  },
   "nav": {
     "home": "Trang chủ",
-    "dashboard": "Tổng quan",
-    "appointments": "Lịch hẹn",
+    "about": "Về chúng tôi",
     "doctors": "Bác sĩ",
-    "hospitals": "Bệnh viện",
-    "profile": "Hồ sơ",
-    "settings": "Cài đặt",
-    "patients": "Bệnh nhân",
+    "contact": "Liên hệ",
+    "appointments": "Lịch hẹn",
+    "findDoctors": "Tìm bác sĩ",
+    "myHealth": "Sức khỏe của tôi",
     "schedule": "Lịch làm việc",
-    "reports": "Báo cáo"
+    "patients": "Bệnh nhân",
+    "profile": "Hồ sơ",
+    "manageDoctors": "Quản lý bác sĩ",
+    "hospital": "Bệnh viện",
+    "users": "Người dùng",
+    "hospitals": "Bệnh viện",
+    "specialties": "Chuyên khoa",
+    "settings": "Cài đặt"
   },
-
+  "home": {
+    "hero": {
+      "title": "Healthcare Connect",
+      "subtitle": "Kết nối Bệnh nhân - Bác sĩ - Bệnh viện",
+      "description": "Nền tảng y tế thông minh giúp bạn đặt lịch khám dễ dàng, tư vấn từ xa và quản lý sức khỏe toàn diện.",
+      "register": "Đăng ký ngay",
+      "findDoctor": "Tìm bác sĩ"
+    },
+    "stats": {
+      "doctors": "Bác sĩ",
+      "patients": "Bệnh nhân",
+      "hospitals": "Bệnh viện",
+      "rating": "Đánh giá"
+    },
+    "features": {
+      "title": "Dịch vụ nổi bật",
+      "subtitle": "Chúng tôi mang đến những giải pháp chăm sóc sức khỏe tốt nhất"
+    },
+    "feature1": {
+      "title": "Đội ngũ bác sĩ hàng đầu",
+      "desc": "Hợp tác với các bác sĩ giàu kinh nghiệm từ các bệnh viện lớn"
+    },
+    "feature2": {
+      "title": "Đặt lịch dễ dàng",
+      "desc": "Chọn bác sĩ, chọn khung giờ, thanh toán online nhanh chóng"
+    },
+    "feature3": {
+      "title": "Tư vấn từ xa",
+      "desc": "Khám bệnh qua video call, nhận đơn thuốc tại nhà"
+    },
+    "feature4": {
+      "title": "AI thông minh",
+      "desc": "Gợi ý chuyên khoa dựa trên triệu chứng của bạn"
+    },
+    "feature5": {
+      "title": "Hồ sơ sức khỏe điện tử",
+      "desc": "Lưu trữ và theo dõi lịch sử khám bệnh của bạn"
+    },
+    "feature6": {
+      "title": "Đánh giá minh bạch",
+      "desc": "Xem đánh giá thực từ bệnh nhân khác"
+    },
+    "doctors": {
+      "title": "Đội ngũ bác sĩ",
+      "subtitle": "Gặp gỡ các chuyên gia y tế hàng đầu",
+      "viewAll": "Xem tất cả bác sĩ"
+    },
+    "doctor1": {
+      "specialty": "Tim mạch"
+    },
+    "doctor2": {
+      "specialty": "Nhi khoa"
+    },
+    "doctor3": {
+      "specialty": "Nội tổng quát"
+    },
+    "doctor4": {
+      "specialty": "Da liễu"
+    },
+    "testimonials": {
+      "title": "Khách hàng nói gì",
+      "subtitle": "Hàng ngàn bệnh nhân tin tưởng sử dụng dịch vụ"
+    },
+    "testimonial1": "Dịch vụ tuyệt vời! Tôi đã đặt lịch khám rất nhanh chóng và được bác sĩ tư vấn tận tình.",
+    "testimonial2": "Ứng dụng dễ sử dụng, thanh toán online tiện lợi. Sẽ giới thiệu cho bạn bè và người thân.",
+    "testimonial3": "Tôi rất hài lòng với chất lượng dịch vụ. Đội ngũ hỗ trợ chuyên nghiệp, nhiệt tình.",
+    "cta": {
+      "title": "Sẵn sàng chăm sóc sức khỏe của bạn?",
+      "subtitle": "Đăng ký ngay hôm nay để trải nghiệm dịch vụ y tế thông minh",
+      "button": "Đăng ký miễn phí"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "appearance": "Giao diện & Ngôn ngữ",
+    "theme": "Chủ đề",
+    "themeDescription": "Chọn chủ đề sáng hoặc tối cho ứng dụng",
+    "light": "Sáng",
+    "dark": "Tối",
+    "language": "Ngôn ngữ",
+    "languageDescription": "Chọn ngôn ngữ hiển thị",
+    "personalInfo": "Thông tin cá nhân",
+    "changePassword": "Đổi mật khẩu",
+    "change": "Đổi",
+    "oldPassword": "Mật khẩu cũ",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "updatePassword": "Cập nhật mật khẩu",
+    "notifications": "Thông báo",
+    "emailNotification": "Thông báo qua email",
+    "emailNotificationDesc": "Nhận thông báo qua email khi có lịch hẹn hoặc cập nhật",
+    "appointmentReminder": "Nhắc lịch hẹn",
+    "appointmentReminderDesc": "Nhận thông báo trước giờ khám 24 giờ"
+  },
+  "footer": {
+    "aboutUs": "Về chúng tôi",
+    "privacyPolicy": "Chính sách bảo mật",
+    "termsOfService": "Điều khoản sử dụng",
+    "contact": "Liên hệ",
+    "quickLinks": "Liên kết nhanh",
+    "contactInfo": "Thông tin liên hệ",
+    "address": "Địa chỉ",
+    "hotline": "Hotline",
+    "email": "Email",
+    "workingHours": "Giờ làm việc",
+    "followUs": "Theo dõi chúng tôi",
+    "newsletter": "Đăng ký nhận tin",
+    "yourEmail": "Email của bạn",
+    "subscribe": "Đăng ký",
+    "newsletterNote": "Nhận thông báo về khuyến mãi và tin tức mới",
+    "copyright": "Tất cả các quyền được bảo lưu.",
+    "sitemap": "Sơ đồ trang",
+    "accessibility": "Trợ năng",
+    "cookies": "Cookie",
+    "description": "Nền tảng kết nối bệnh nhân với bác sĩ hàng đầu, mang đến dịch vụ y tế chất lượng cao và tiện lợi."
+  },
   "page": {
     "login": {
       "title": "Healthcare Connect",
@@ -78,14 +237,12 @@
       "updateSuccess": "Cập nhật thành công"
     }
   },
-
   "role": {
     "PATIENT": "Bệnh nhân",
     "DOCTOR": "Bác sĩ",
     "ADMIN": "Quản trị viên",
     "HOSPITAL_MANAGER": "Quản lý bệnh viện"
   },
-
   "status": {
     "PENDING": "Chờ xử lý",
     "CONFIRMED": "Đã xác nhận",
@@ -101,8 +258,9 @@
     "AVAILABLE": "Còn trống",
     "FULL": "Đã kín lịch"
   },
-
   "error": {
+    "EMAIL_REQUIRED": "Email là bắt buộc!",
+    "PASSWORD_REQUIRED": "Mật khẩu là bắt buộc!",
     "UNCATEGORIZED_EXCEPTION": "Lỗi hệ thống chưa xác định!",
     "INVALID_KEY": "Lỗi không xác định!",
     "UNAUTHORIZED": "Bạn không có quyền truy cập!",
