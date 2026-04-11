@@ -9,6 +9,7 @@ import RegisterPage from '../../presentation/pages/RegisterPage';
 import ForgotPasswordPage from '../../presentation/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../../presentation/pages/ResetPasswordPage';
 import VerifyEmailPage from '../../presentation/pages/VerifyEmailPage';
+import PatientDashboard from '../../presentation/components/dashboard/PatientDashboard';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -31,14 +32,15 @@ export const AppRouter = () => {
         <Route path="/appointments" element={
           <PrivateRoute> <AppointmentListPage /> </PrivateRoute>
         }
-
         />
         <Route path="/settings" element={
           <PrivateRoute> <SettingsPage /> </PrivateRoute>
         }
         />
-
-
+        <Route path="/dashboard" element={
+            <PrivateRoute> <PatientDashboard /> </PrivateRoute>
+          }
+        />
 
       </Route>
       {/* Auth routes (không có Layout) */}

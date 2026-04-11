@@ -4,7 +4,7 @@ import { useAuth } from '../../../application/context/AuthContext';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { t, getRole } = useAppTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,7 +28,21 @@ const Header = () => {
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
+    const isMatch = location.pathname === path ||
+      (location.pathname.startsWith(path + '/') && path !== '/doctors');
+    if (path === '/doctors') {
+      return location.pathname === '/doctors';
+    }
+    return isMatch;
+  };
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
   };
 
   const publicMenuItems = [
@@ -67,12 +81,12 @@ const Header = () => {
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-300">
       <div className="container mx-auto px-3 sm:px-4">
-        {/* Layout 3 cột: Logo trái - Menu giữa - Actions phải */}
-        <div className="flex items-center h-14 sm:h-16">
-          
-          {/* Cột 1: Logo + Brand (Bên trái) */}
+        {/* Layout 2 cột đơn giản hơn: Logo trái - Menu + Actions phải */}
+        <div className="flex items-center justify-between h-14 sm:h-16">
+
+          {/* Logo + Brand (Bên trái) */}
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 group">
+            <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-1.5 sm:gap-2 group">
               <img
                 src="/src/presentation/assets/images/hospital_logo.png"
                 alt="Healthcare Connect"
@@ -87,31 +101,52 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Cột 2: Menu chính (Căn giữa tuyệt đối) */}
-          <div className="hidden lg:flex flex-1 justify-center">
+          {/* Desktop Menu + Actions (Bên phải) */}
+          <div className="hidden lg:flex items-center gap-4">
+            {/* Menu items */}
             <nav className="flex items-center gap-0.5 xl:gap-1">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${
-                    isActive(item.path)
-                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                  title={item.label}
-                >
-                  <span className="text-base xl:text-lg">{item.icon}</span>
-                  <span className={`${isLargeScreen ? 'inline' : 'hidden'} xl:inline`}>
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-          </div>
+              {menuItems.map((item) => {
+                // Xử lý riêng cho Home (path === '/')
+                if (item.path === '/') {
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={handleHomeClick}
+                      className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
+                          ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      title={item.label}
+                    >
+                      <span className="text-base xl:text-lg">{item.icon}</span>
+                      <span className={`${isLargeScreen ? 'inline' : 'hidden'} xl:inline`}>
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                }
 
-          {/* Cột 3: Actions (User menu, Login, Mobile button) - Bên phải */}
-          <div className="flex-shrink-0 flex items-center gap-1 sm:gap-2">
+                // Các item khác
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
+                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    title={item.label}
+                  >
+                    <span className="text-base xl:text-lg">{item.icon}</span>
+                    <span className={`${isLargeScreen ? 'inline' : 'hidden'} xl:inline`}>
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* User Actions */}
             {user ? (
               <div className="relative">
                 <button
@@ -148,7 +183,6 @@ const Header = () => {
                         </svg>
                         {t('nav.profile')}
                       </Link>
-
                       <Link
                         to="/settings"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -160,7 +194,6 @@ const Header = () => {
                         </svg>
                         {t('nav.settings')}
                       </Link>
-
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
@@ -182,17 +215,45 @@ const Header = () => {
                 {t('common.login')}
               </Link>
             )}
+          </div>
+
+          {/* Mobile: Chỉ hiển thị user avatar + menu button */}
+          <div className="flex lg:hidden items-center gap-2">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm"
+                >
+                  {user?.fullName?.charAt(0) || 'U'}
+                </button>
+                {/* Dropdown giống như trên desktop */}
+                {isProfileDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsProfileDropdownOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{user?.fullName}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{getRole(user?.role || '')}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{user?.email}</p>
+                      </div>
+                      <Link to="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>👤 {t('nav.profile')}</Link>
+                      <Link to="/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>⚙️ {t('nav.settings')}</Link>
+                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition">🚪 {t('common.logout')}</button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link to="/login" className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm">Login</Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`lg:hidden p-2 rounded-lg transition ${
-                isMobileMenuOpen
-                  ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -206,21 +267,40 @@ const Header = () => {
         {/* Mobile Menu - Hiển thị khi click menu button */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-3 border-t border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
-                  isActive(item.path)
-                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {menuItems.map((item) => {
+              if (item.path === '/') {
+                return (
+                  <button
+                    key={item.path}
+                    onClick={(e) => {
+                      handleHomeClick(e);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition w-full text-left ${isActive(item.path)
+                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              }
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${isActive(item.path)
+                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
             {!user && (
               <Link
                 to="/login"

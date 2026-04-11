@@ -30,7 +30,42 @@
     "role": "Vai trò",
     "status": "Trạng thái",
     "actions": "Thao tác",
-    "canceled": "Đã hủy"
+    "canceled": "Đã hủy",
+    "suggestion": "Gợi ý"
+  },
+  "dashboard": {
+    "welcome": "Xin chào",
+    "welcomeMessage": "Chào mừng bạn quay trở lại! Hãy kiểm tra lịch hẹn sắp tới của bạn.",
+    "upcomingAppointments": "Lịch hẹn sắp tới",
+    "visitedDoctors": "Bác sĩ đã khám",
+    "statAppointments": "Lịch hẹn",
+    "statDoctors": "Bác sĩ",
+    "statPrescriptions": "Đơn thuốc",
+    "viewAll": "Xem tất cả",
+    "pay": "Thanh toán",
+    "cancel": "Hủy lịch",
+    "details": "Chi tiết",
+    "bookAgain": "Đặt lại lịch",
+    "bookNow": "Đặt lịch ngay",
+    "findDoctor": "Tìm bác sĩ",
+    "yearsExperience": "năm kinh nghiệm",
+    "paid": "Đã thanh toán",
+    "unpaid": "Chưa thanh toán",
+    "emptyAppointments": "Chưa có lịch hẹn nào",
+    "emptyAppointmentsDesc": "Hãy đặt lịch khám đầu tiên của bạn",
+    "emptyDoctors": "Chưa khám bác sĩ nào",
+    "emptyDoctorsDesc": "Hãy tìm và đặt lịch với bác sĩ phù hợp",
+    "morning": "Chào buổi sáng",
+    "afternoon": "Chào buổi chiều",
+    "evening": "Chào buổi tối"
+  },
+  "aiSuggestion": {
+    "title": "GỢI Ý TỪ AI",
+    "symptomLabel": "Bạn đang gặp triệu chứng gì?",
+    "symptomPlaceholder": "VD: đau đầu, sốt, mệt mỏi, ho...",
+    "analyzeButton": "Gợi ý",
+    "analyzing": "Đang phân tích...",
+    "defaultSuggestion": "Bạn có thể khám tổng quát để kiểm tra sức khỏe định kỳ, phát hiện sớm các vấn đề tiềm ẩn."
   },
   "verify": {
     "verifying": "Đang xác thực tài khoản của bạn...",
@@ -97,6 +132,48 @@
       "register": "Đăng ký ngay",
       "findDoctor": "Tìm bác sĩ"
     },
+    "heroSlides": [
+      {
+        "id": 1,
+        "title": "Healthcare Connect",
+        "subtitle": "Kết nối Bệnh nhân - Bác sĩ - Bệnh viện",
+        "description": "Nền tảng y tế thông minh giúp bạn đặt lịch khám dễ dàng, tư vấn từ xa và quản lý sức khỏe toàn diện.",
+        "icon": "🏥",
+        "bgGradient": "from-blue-600 via-blue-500 to-cyan-500"
+      },
+      {
+        "id": 2,
+        "title": "Đội ngũ bác sĩ hàng đầu",
+        "subtitle": "Chuyên gia giàu kinh nghiệm",
+        "description": "Hơn 500 bác sĩ chuyên khoa giỏi, tận tâm với nghề",
+        "icon": "👨‍⚕️",
+        "bgGradient": "from-green-600 via-green-500 to-teal-500"
+      },
+      {
+        "id": 3,
+        "title": "Công nghệ hiện đại",
+        "subtitle": "Đặt lịch khám trực tuyến",
+        "description": "Hệ thống đặt lịch thông minh, thanh toán dễ dàng",
+        "icon": "💻",
+        "bgGradient": "from-purple-600 via-purple-500 to-pink-500"
+      },
+      {
+        "id": 4,
+        "title": "Bảo hiểm y tế toàn diện",
+        "subtitle": "Chi phí hợp lý",
+        "description": "Liên kết với nhiều bảo hiểm, hỗ trợ tối đa cho bệnh nhân",
+        "icon": "📋",
+        "bgGradient": "from-orange-600 via-orange-500 to-red-500"
+      },
+      {
+        "id": 5,
+        "title": "Chăm sóc tận tâm",
+        "subtitle": "Sức khỏe là vàng",
+        "description": "Đồng hành cùng bạn trên mọi chặng đường chăm sóc sức khỏe",
+        "icon": "❤️",
+        "bgGradient": "from-rose-600 via-rose-500 to-pink-500"
+      }
+    ],
     "stats": {
       "doctors": "Bác sĩ",
       "patients": "Bệnh nhân",

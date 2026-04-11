@@ -6,7 +6,7 @@ export interface User {
     fullName: string;
     phone: string;
     role: UserRole;
-    createdAt?: string; 
+    createdAt?: string;
 }
 
 export interface Doctor {
@@ -19,7 +19,7 @@ export interface Doctor {
     experienceYears: number;
     biography: string;
     cvUrl: string;
-    consultationFee: number; 
+    consultationFee: number;
     status: DoctorStatus;
     specialtyName: string;
     departmentName: string;
@@ -29,7 +29,7 @@ export interface Doctor {
 export interface Schedule {
     id: string;
     doctor: Doctor;
-    date: string; 
+    date: string;
     startTime: string;
     endTime: string;
     maxPatients: number;
@@ -54,19 +54,21 @@ export interface Hospital {
     address: string;
     description: string;
     imageUrl: string;
-    managerEmail: string; 
+    managerEmail: string;
+    hotline?: string;
 }
 
 export interface Appointment {
     id: string;
-    patientName: string; 
+    patientName: string;
     doctorName: string;
     hospitalName: string;
-    appointmentDate: string; 
-    startTime: string;
-    endTime: string;
+    specialtyName?: string;
+    startTime: number[];
+    endTime: number[];
     symptoms: string;
     status: AppointmentStatus;
     price: number;
     isPaid: boolean;
 }
+

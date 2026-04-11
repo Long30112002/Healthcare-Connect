@@ -30,7 +30,42 @@
     "role": "Role",
     "status": "Status",
     "actions": "Actions",
-    "canceled": "Cancelled"
+    "canceled": "Cancelled",
+    "suggestion": "Suggestion"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "welcomeMessage": "Welcome back! Check your upcoming appointments.",
+    "upcomingAppointments": "Upcoming Appointments",
+    "visitedDoctors": "Visited Doctors",
+    "statAppointments": "Appointments",
+    "statDoctors": "Doctors",
+    "statPrescriptions": "Prescriptions",
+    "viewAll": "View all",
+    "pay": "Pay",
+    "cancel": "Cancel",
+    "details": "Details",
+    "bookAgain": "Book again",
+    "bookNow": "Book now",
+    "findDoctor": "Find a doctor",
+    "yearsExperience": "years experience",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "emptyAppointments": "No appointments yet",
+    "emptyAppointmentsDesc": "Book your first appointment now",
+    "emptyDoctors": "No doctors visited yet",
+    "emptyDoctorsDesc": "Find and book an appointment with a doctor",
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "aiSuggestion": {
+    "title": "AI SUGGESTION",
+    "symptomLabel": "What symptoms are you experiencing?",
+    "symptomPlaceholder": "e.g., headache, fever, fatigue, cough...",
+    "analyzeButton": "Suggest",
+    "analyzing": "Analyzing...",
+    "defaultSuggestion": "You may consider a general health check-up to monitor your health and detect potential issues early."
   },
   "verify": {
     "verifying": "Verifying your account...",
@@ -119,6 +154,48 @@
       "register": "Register Now",
       "findDoctor": "Find a Doctor"
     },
+    "heroSlides": [
+      {
+        "id": 1,
+        "title": "Healthcare Connect",
+        "subtitle": "Connecting Patients - Doctors - Hospitals",
+        "description": "Smart healthcare platform that helps you easily book appointments, consult remotely, and manage your health comprehensively.",
+        "icon": "🏥",
+        "bgGradient": "from-blue-600 via-blue-500 to-cyan-500"
+      },
+      {
+        "id": 2,
+        "title": "Top Medical Team",
+        "subtitle": "Experienced Specialists",
+        "description": "Over 500 skilled and dedicated specialist doctors",
+        "icon": "👨‍⚕️",
+        "bgGradient": "from-green-600 via-green-500 to-teal-500"
+      },
+      {
+        "id": 3,
+        "title": "Modern Technology",
+        "subtitle": "Online Appointment Booking",
+        "description": "Smart scheduling system, easy payment",
+        "icon": "💻",
+        "bgGradient": "from-purple-600 via-purple-500 to-pink-500"
+      },
+      {
+        "id": 4,
+        "title": "Comprehensive Health Insurance",
+        "subtitle": "Affordable Costs",
+        "description": "Partnered with multiple insurance providers, maximum support for patients",
+        "icon": "📋",
+        "bgGradient": "from-orange-600 via-orange-500 to-red-500"
+      },
+      {
+        "id": 5,
+        "title": "Dedicated Care",
+        "subtitle": "Health is Gold",
+        "description": "Accompanying you on every step of your healthcare journey",
+        "icon": "❤️",
+        "bgGradient": "from-rose-600 via-rose-500 to-pink-500"
+      }
+    ],
     "stats": {
       "doctors": "Doctors",
       "patients": "Patients",

@@ -7,47 +7,62 @@ const PublicHomePage = () => {
   const { t } = useAppTranslation();
   const { theme } = useTheme();
 
-  const slides = [
-    {
-      id: 1,
-      title: t('home.hero.title'),
-      subtitle: t('home.hero.subtitle'),
-      description: t('home.hero.description'),
-      icon: '🏥',
-      bgGradient: 'from-blue-600 via-blue-500 to-cyan-500'
-    },
-    {
-      id: 2,
-      title: 'Đội ngũ bác sĩ hàng đầu',
-      subtitle: 'Chuyên gia giàu kinh nghiệm',
-      description: 'Hơn 500 bác sĩ chuyên khoa giỏi, tận tâm với nghề',
-      icon: '👨‍⚕️',
-      bgGradient: 'from-green-600 via-green-500 to-teal-500'
-    },
-    {
-      id: 3,
-      title: 'Công nghệ hiện đại',
-      subtitle: 'Đặt lịch khám trực tuyến',
-      description: 'Hệ thống đặt lịch thông minh, thanh toán dễ dàng',
-      icon: '💻',
-      bgGradient: 'from-purple-600 via-purple-500 to-pink-500'
-    },
-    {
-      id: 4,
-      title: 'Bảo hiểm y tế toàn diện',
-      subtitle: 'Chi phí hợp lý',
-      description: 'Liên kết với nhiều bảo hiểm, hỗ trợ tối đa cho bệnh nhân',
-      icon: '📋',
-      bgGradient: 'from-orange-600 via-orange-500 to-red-500'
-    },
-    {
-      id: 5,
-      title: 'Chăm sóc tận tâm',
-      subtitle: 'Sức khỏe là vàng',
-      description: 'Đồng hành cùng bạn trên mọi chặng đường chăm sóc sức khỏe',
-      icon: '❤️',
-      bgGradient: 'from-rose-600 via-rose-500 to-pink-500'
+  const getBgGradient = (id: number): string => {
+    switch (id) {
+      case 1: return 'from-blue-600 via-blue-500 to-cyan-500';
+      case 2: return 'from-green-600 via-green-500 to-teal-500';
+      case 3: return 'from-purple-600 via-purple-500 to-pink-500';
+      case 4: return 'from-orange-600 via-orange-500 to-red-500';
+      case 5: return 'from-rose-600 via-rose-500 to-pink-500';
+      default: return 'from-blue-600 via-blue-500 to-cyan-500';
     }
+  };
+
+  const slidesData = t('home.heroSlides', { returnObjects: true }) as Array<{
+    id: number;
+    title: string;
+    subtitle: string;
+    description: string;
+    icon: string;
+  }>;
+
+  const slides = slidesData.map(slide => ({
+    ...slide,
+    bgGradient: getBgGradient(slide.id)
+  }));
+
+  const testimonials = [
+    { name: 'Nguyễn Thị A', role: 'Bệnh nhân', content: t('home.testimonial1'), avatar: '👩', rating: 5 },
+    { name: 'Trần Văn B', role: 'Bệnh nhân', content: t('home.testimonial2'), avatar: '👨', rating: 5 },
+    { name: 'Lê Thị C', role: 'Bệnh nhân', content: t('home.testimonial3'), avatar: '👩', rating: 4 },
+    { name: 'Phạm Văn D', role: 'Bệnh nhân', content: 'Dịch vụ tuyệt vời, bác sĩ tận tâm!', avatar: '👨', rating: 5 },
+    { name: 'Hoàng Thị E', role: 'Bệnh nhân', content: 'Đặt lịch nhanh chóng, tiện lợi.', avatar: '👩', rating: 4 },
+    { name: 'Vũ Văn F', role: 'Bệnh nhân', content: 'Cơ sở vật chất hiện đại, sạch sẽ.', avatar: '👨', rating: 5 },
+    { name: 'Ngô Thị G', role: 'Bệnh nhân', content: 'Nhân viên thân thiện, nhiệt tình.', avatar: '👩', rating: 5 },
+    { name: 'Đặng Văn H', role: 'Bệnh nhân', content: 'Chi phí hợp lý, chất lượng tốt.', avatar: '👨', rating: 4 },
+  ];
+
+  const features = [
+    { icon: '👨‍⚕️', title: t('home.feature1.title'), desc: t('home.feature1.desc'), color: 'from-blue-500 to-cyan-500' },
+    { icon: '📅', title: t('home.feature2.title'), desc: t('home.feature2.desc'), color: 'from-green-500 to-teal-500' },
+    { icon: '💊', title: t('home.feature3.title'), desc: t('home.feature3.desc'), color: 'from-purple-500 to-pink-500' },
+    { icon: '🤖', title: t('home.feature4.title'), desc: t('home.feature4.desc'), color: 'from-orange-500 to-red-500' },
+    { icon: '🏥', title: t('home.feature5.title'), desc: t('home.feature5.desc'), color: 'from-indigo-500 to-blue-500' },
+    { icon: '⭐', title: t('home.feature6.title'), desc: t('home.feature6.desc'), color: 'from-yellow-500 to-amber-500' },
+  ];
+
+  const stats = [
+    { value: '500+', label: t('home.stats.doctors'), icon: '👨‍⚕️' },
+    { value: '50K+', label: t('home.stats.patients'), icon: '👥' },
+    { value: '100+', label: t('home.stats.hospitals'), icon: '🏥' },
+    { value: '4.9', label: t('home.stats.rating'), icon: '⭐' },
+  ];
+
+  const doctors = [
+    { name: 'BS. Nguyễn Văn An', specialty: t('home.doctor1.specialty'), experience: '15 năm', image: '👨‍⚕️', rating: 4.9 },
+    { name: 'BS. Trần Thị Bình', specialty: t('home.doctor2.specialty'), experience: '12 năm', image: '👩‍⚕️', rating: 4.8 },
+    { name: 'BS. Lê Văn Cường', specialty: t('home.doctor3.specialty'), experience: '20 năm', image: '👨‍⚕️', rating: 5.0 },
+    { name: 'BS. Phạm Thị Dung', specialty: t('home.doctor4.specialty'), experience: '8 năm', image: '👩‍⚕️', rating: 4.7 },
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -82,7 +97,7 @@ const PublicHomePage = () => {
 
   const handleTouchEnd = () => {
     const deltaX = touchEndX.current - touchStartX.current;
-    const minSwipeDistance = 50; // Ngưỡng tối thiểu để vuốt (px)
+    const minSwipeDistance = 50;
 
     if (Math.abs(deltaX) > minSwipeDistance) {
       if (deltaX > 0) {
@@ -227,39 +242,7 @@ const PublicHomePage = () => {
 
   const current = slides[currentSlide];
 
-  const features = [
-    { icon: '👨‍⚕️', title: t('home.feature1.title'), desc: t('home.feature1.desc'), color: 'from-blue-500 to-cyan-500' },
-    { icon: '📅', title: t('home.feature2.title'), desc: t('home.feature2.desc'), color: 'from-green-500 to-teal-500' },
-    { icon: '💊', title: t('home.feature3.title'), desc: t('home.feature3.desc'), color: 'from-purple-500 to-pink-500' },
-    { icon: '🤖', title: t('home.feature4.title'), desc: t('home.feature4.desc'), color: 'from-orange-500 to-red-500' },
-    { icon: '🏥', title: t('home.feature5.title'), desc: t('home.feature5.desc'), color: 'from-indigo-500 to-blue-500' },
-    { icon: '⭐', title: t('home.feature6.title'), desc: t('home.feature6.desc'), color: 'from-yellow-500 to-amber-500' },
-  ];
 
-  const stats = [
-    { value: '500+', label: t('home.stats.doctors'), icon: '👨‍⚕️' },
-    { value: '50K+', label: t('home.stats.patients'), icon: '👥' },
-    { value: '100+', label: t('home.stats.hospitals'), icon: '🏥' },
-    { value: '4.9', label: t('home.stats.rating'), icon: '⭐' },
-  ];
-
-  const testimonials = [
-    { name: 'Nguyễn Thị A', role: 'Bệnh nhân', content: t('home.testimonial1'), avatar: '👩', rating: 5 },
-    { name: 'Trần Văn B', role: 'Bệnh nhân', content: t('home.testimonial2'), avatar: '👨', rating: 5 },
-    { name: 'Lê Thị C', role: 'Bệnh nhân', content: t('home.testimonial3'), avatar: '👩', rating: 4 },
-    { name: 'Phạm Văn D', role: 'Bệnh nhân', content: 'Dịch vụ tuyệt vời, bác sĩ tận tâm!', avatar: '👨', rating: 5 },
-    { name: 'Hoàng Thị E', role: 'Bệnh nhân', content: 'Đặt lịch nhanh chóng, tiện lợi.', avatar: '👩', rating: 4 },
-    { name: 'Vũ Văn F', role: 'Bệnh nhân', content: 'Cơ sở vật chất hiện đại, sạch sẽ.', avatar: '👨', rating: 5 },
-    { name: 'Ngô Thị G', role: 'Bệnh nhân', content: 'Nhân viên thân thiện, nhiệt tình.', avatar: '👩', rating: 5 },
-    { name: 'Đặng Văn H', role: 'Bệnh nhân', content: 'Chi phí hợp lý, chất lượng tốt.', avatar: '👨', rating: 4 },
-  ];
-
-  const doctors = [
-    { name: 'BS. Nguyễn Văn An', specialty: t('home.doctor1.specialty'), experience: '15 năm', image: '👨‍⚕️', rating: 4.9 },
-    { name: 'BS. Trần Thị Bình', specialty: t('home.doctor2.specialty'), experience: '12 năm', image: '👩‍⚕️', rating: 4.8 },
-    { name: 'BS. Lê Văn Cường', specialty: t('home.doctor3.specialty'), experience: '20 năm', image: '👨‍⚕️', rating: 5.0 },
-    { name: 'BS. Phạm Thị Dung', specialty: t('home.doctor4.specialty'), experience: '8 năm', image: '👩‍⚕️', rating: 4.7 },
-  ];
 
   return (
     <div className="overflow-x-hidden">
@@ -493,7 +476,6 @@ const PublicHomePage = () => {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>

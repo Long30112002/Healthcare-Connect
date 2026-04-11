@@ -10,6 +10,9 @@ interface DataWrapperProps<T> {
     children: (data: T) => React.ReactNode;
     onRetry?: () => void;
     emptyMessage?: string;
+    emptyDescription?: string;      // ← thêm
+    emptyActionText?: string;       // ← thêm
+    onEmptyAction?: () => void;     // ← thêm
     loadingSize?: 'sm' | 'md' | 'lg';
     showEmptyIcon?: boolean;
 }
@@ -21,6 +24,9 @@ function DataWrapper<T>({
     children,
     onRetry,
     emptyMessage = 'Không có dữ liệu',
+    emptyDescription,
+    emptyActionText,
+    onEmptyAction,
     loadingSize = 'md',
     showEmptyIcon = true
 }: DataWrapperProps<T>) {
@@ -32,7 +38,6 @@ function DataWrapper<T>({
         );
     }
 
-    // Có lỗi
     if (error) {
         return (
             <div className="py-4">
@@ -41,14 +46,14 @@ function DataWrapper<T>({
         );
     }
 
-    // Không có dữ liệu
     if (!data || (Array.isArray(data) && data.length === 0)) {
         return (
             <EmptyState
-                title="Trống"
-                message={emptyMessage}
                 icon={showEmptyIcon ? '📋' : undefined}
-                action={onRetry ? { label: 'Tải lại', onClick: onRetry } : undefined}
+                title={emptyMessage}
+                description={emptyDescription}      // ← sửa: dùng description
+                actionText={emptyActionText}        // ← thêm
+                onAction={onEmptyAction}            // ← thêm
             />
         );
     }

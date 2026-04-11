@@ -24,7 +24,7 @@ const LoginPage = () => {
         const error = searchParams.get('error');
 
         if (verified === 'true') {
-            toast.success('Xác thực thành công! Vui lòng đăng nhập kakakak.');
+            toast.success('Xác thực thành công! Vui lòng đăng nhập.');
             window.history.replaceState({}, '', '/login');
         }
 
@@ -35,7 +35,7 @@ const LoginPage = () => {
 
         if (error === 'expired_code') {
             toast.error('Liên kết xác thực đã hết hạn. Vui lòng đăng ký lại.');
-            window.history.replaceState({}, '', '/login');
+            window.history.replaceState({}, '', '/register');
         }
     }, [searchParams]);
 
@@ -52,7 +52,7 @@ const LoginPage = () => {
             const loginData = response?.data?.data;
             if (loginData?.authenticated && loginData?.user) {
                 login(loginData.user);
-                navigate('/', { replace: true });
+                navigate('/dashboard', { replace: true });
             }
         },
     });
