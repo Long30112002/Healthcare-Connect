@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { authApi } from '../../infrastructure/api/authApi';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import LoadingSpinner from '../../presentation/components/shared/LoadingSpinner';
 
 const VerifyEmailPage = () => {
     const [searchParams] = useSearchParams();
@@ -16,19 +16,17 @@ const VerifyEmailPage = () => {
 
         const verifyEmail = async () => {
             try {
-                const response = await authApi.verifyEmail(code);
-                if (response.data.code === 200 || response.data.status === 'success') {
-                    navigate('/login?verified=true');
-                } else {
-                    navigate('/login?error=verification_failed');
-                }
+                await authApi.verifyEmail(code);
+                navigate('/login?verified=true');
             } catch (err) {
                 navigate('/login?error=verification_failed');
             }
         };
+        
         verifyEmail();
     }, [code, navigate]);
-    return <LoadingSpinner />;
+
+    return <LoadingSpinner fullScreen variant="dots" text="Đang xác thực email..." />;
 };
 
 export default VerifyEmailPage;

@@ -22,19 +22,17 @@ const Header = () => {
   }, []);
 
   const handleLogout = async () => {
+    setIsProfileDropdownOpen(false);
+    setIsMobileMenuOpen(false);
     await logout();
-    navigate('/');
   };
 
   const isActive = (path: string) => {
+    const currentPath = location.pathname;
     if (path === '/') {
-      if (isAuthenticated && location.pathname === '/dashboard') return true;
-      return location.pathname === '/';
+      return currentPath === '/' || currentPath === '/dashboard';
     }
-    if (path === '/doctors') {
-      return location.pathname === '/doctors';
-    }
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return currentPath === path || currentPath.startsWith(path + '/');
   };
 
   const handleHomeClick = (e: React.MouseEvent) => {
@@ -46,9 +44,12 @@ const Header = () => {
     }
   };
 
-  const publicMenuItems = [
+  const publicMenuItems = !isAuthenticated ? [
     { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
     { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
+    { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
+  ] : [
+    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
     { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
   ];
 
@@ -60,7 +61,7 @@ const Header = () => {
     PATIENT: [
       { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: '🔍' },
       { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: '💊' },
-    ],
+    ],  
     DOCTOR: [
       { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
       { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },

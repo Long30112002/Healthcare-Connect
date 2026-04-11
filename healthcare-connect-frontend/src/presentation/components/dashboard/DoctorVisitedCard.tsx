@@ -1,14 +1,6 @@
+import type { VisitedDoctor } from '../../../core/types';
 import { getAvatarUrl, getSpecialtyIcon } from '../../../shared/utils/avatarUtils';
 
-interface VisitedDoctor {
-    id: string;
-    fullName: string;
-    specialtyName: string;
-    experienceYears: number;
-    consultationFee: number | null;
-    rating: number;
-    avatar: string | null;
-}
 
 interface DoctorVisitedCardProps {
     doctor: VisitedDoctor;

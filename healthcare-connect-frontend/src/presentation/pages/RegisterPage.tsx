@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
@@ -9,7 +9,6 @@ import { authApi } from '../../infrastructure/api/authApi';
 
 const RegisterPage = () => {
   const { t, getError } = useAppTranslation();
-  const navigate = useNavigate();
   
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');

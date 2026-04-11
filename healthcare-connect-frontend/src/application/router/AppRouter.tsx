@@ -10,6 +10,8 @@ import ForgotPasswordPage from '../../presentation/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../../presentation/pages/ResetPasswordPage';
 import VerifyEmailPage from '../../presentation/pages/VerifyEmailPage';
 import PatientDashboard from '../../presentation/components/dashboard/PatientDashboard';
+import DoctorDetailPage from '../../presentation/pages/patient/DoctorDetailPage';
+import DoctorsPage from '../../presentation/pages/patient/DoctorsPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -32,11 +34,11 @@ export const AppRouter = () => {
         <Route path="/contact" element={<div>Liên hệ</div>} />
         <Route path="/doctors/public" element={<div>Danh sách bác sĩ</div>} />
 
-        {/* <Route path="/doctors" element={
+        <Route path="/doctors" element={
           <PrivateRoute>
             <DoctorsPage />
           </PrivateRoute>
-        } /> */}
+        } />
 
         {/* Private routes */}
         <Route path="/appointments" element={
@@ -52,6 +54,11 @@ export const AppRouter = () => {
         <Route path="/dashboard" element={
           <PrivateRoute>
             <PatientDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/doctors/:id" element={
+          <PrivateRoute>
+            <DoctorDetailPage />
           </PrivateRoute>
         } />
       </Route>

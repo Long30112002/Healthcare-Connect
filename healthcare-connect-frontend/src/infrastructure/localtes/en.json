@@ -33,6 +33,12 @@
     "canceled": "Cancelled",
     "suggestion": "Suggestion"
   },
+  "toast": {
+    "login_success": "Login successful!",
+    "login_failed": "Login failed. Please check your credentials!",
+    "verify_success": "Verification successful!",
+    "error": "An error occurred. Please try again later."
+  },
   "dashboard": {
     "welcome": "Welcome",
     "welcomeMessage": "Welcome back! Check your upcoming appointments.",
@@ -300,12 +306,31 @@
       "filterByStatus": "Filter by status"
     },
     "doctors": {
-      "title": "Doctor List",
-      "specialty": "Specialty",
-      "experience": "Experience",
-      "consultationFee": "Consultation fee",
-      "bookNow": "Book now",
-      "viewProfile": "View profile"
+      "title": "Find Doctors",
+      "subtitle": "Book appointment with top doctors",
+      "book": "Book Now",
+      "selectDate": "Select specific date",
+      "selectRange": "Or select time range",
+      "today": "Today",
+      "thisWeek": "This week",
+      "thisMonth": "This month",
+      "threeMonths": "3 months",
+      "showingForDate": "Showing schedules for",
+      "showingWithinDays": "Showing schedules within",
+      "daysForward": "days",
+      "allSpecialties": "All Specialties",
+      "searchPlaceholder": "Search by name or specialty...",
+      "noDoctorsFound": "No doctors found",
+      "tryDifferentDate": "Try selecting a different date or time range!",
+      "yearsExperience": "years experience",
+      "availableSchedules": "available schedules",
+      "noRating": "No rating",
+      "consultationFee": "VND",
+      "selectDateHint": "Please select a date",
+      "noDoctorsInRange": "No doctors available in this time range",
+      "noSearchResults": "No matching doctors found",
+      "searchTitle": "Search by name or specialty",
+      "foundCount": "Found {{count}} doctors"
     },
     "profile": {
       "title": "My Profile",

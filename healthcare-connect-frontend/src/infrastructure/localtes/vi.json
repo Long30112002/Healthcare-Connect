@@ -33,6 +33,12 @@
     "canceled": "Đã hủy",
     "suggestion": "Gợi ý"
   },
+  "toast": {
+    "login_success": "Đăng nhập thành công!",
+    "login_failed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!",
+    "verify_success": "Xác thực thành công!",
+    "error": "Có lỗi xảy ra, vui lòng thử lại sau."
+  },
   "dashboard": {
     "welcome": "Xin chào",
     "welcomeMessage": "Chào mừng bạn quay trở lại! Hãy kiểm tra lịch hẹn sắp tới của bạn.",
@@ -300,12 +306,36 @@
       "filterByStatus": "Lọc theo trạng thái"
     },
     "doctors": {
-      "title": "Danh sách bác sĩ",
-      "specialty": "Chuyên khoa",
-      "experience": "Kinh nghiệm",
-      "consultationFee": "Phí khám",
-      "bookNow": "Đặt lịch ngay",
-      "viewProfile": "Xem hồ sơ"
+      "title": "Tìm bác sĩ",
+      "subtitle": "Đặt lịch khám với bác sĩ hàng đầu",
+      "book": "Đặt lịch",
+      "selectDate": "Chọn ngày khám cụ thể",
+      "selectRange": "Hoặc chọn khoảng thời gian",
+      "today": "Hôm nay",
+      "thisWeek": "Tuần này",
+      "thisMonth": "Tháng này",
+      "threeMonths": "3 tháng",
+      "showingForDate": "Đang hiển thị lịch ngày",
+      "showingWithinDays": "Đang hiển thị lịch trong",
+      "daysForward": "ngày tới",
+      "allSpecialties": "Tất cả chuyên khoa",
+      "searchPlaceholder": "Tìm theo tên hoặc chuyên khoa...",
+      "noDoctorsFound": "Không tìm thấy bác sĩ",
+      "tryDifferentDate": "Thử chọn ngày khác hoặc khoảng thời gian khác nhé!",
+      "yearsExperience": "năm kinh nghiệm",
+      "availableSchedules": "lịch trống",
+      "noRating": "Chưa có đánh giá",
+      "consultationFee": "VNĐ",
+      "selectDateHint": "Vui lòng chọn ngày khám",
+      "noDoctorsInRange": "Không có bác sĩ nào trong khoảng thời gian này",
+      "noSearchResults": "Không tìm thấy bác sĩ phù hợp",
+      "searchTitle": "Tìm theo tên hoặc chuyên khoa",
+      "foundCount": "Tìm thấy {{count}} bác sĩ"
+    },
+    "doctorsPage": {
+      "title": "Tìm bác sĩ",
+      "subtitle": "Đặt lịch khám với bác sĩ hàng đầu",
+      "book": "Đặt lịch"
     },
     "profile": {
       "title": "Hồ sơ của tôi",

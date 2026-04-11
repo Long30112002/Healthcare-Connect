@@ -5,9 +5,10 @@ import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
-import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import LanguageToggle from '../components/shared/LanguageToggle';
 import toast from 'react-hot-toast';
+import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
+import type { LoginResponse } from '../../core/types/api.response';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -16,7 +17,6 @@ const LoginPage = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
     const { t, getError } = useAppTranslation();
-
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
@@ -24,22 +24,22 @@ const LoginPage = () => {
         const error = searchParams.get('error');
 
         if (verified === 'true') {
-            toast.success('Xác thực thành công! Vui lòng đăng nhập.');
+            toast.success(t('verify.success'));
             window.history.replaceState({}, '', '/login');
         }
 
         if (error === 'already_verified') {
-            toast.success('Tài khoản đã được xác thực trước đó. Vui lòng đăng nhập.');
+            toast.success(t('verify.alreadyVerified'));
             window.history.replaceState({}, '', '/login');
         }
 
         if (error === 'expired_code') {
-            toast.error('Liên kết xác thực đã hết hạn. Vui lòng đăng ký lại.');
+            toast.error(t('verify.expired'));
             window.history.replaceState({}, '', '/register');
         }
-    }, [searchParams]);
+    }, [searchParams, t]);
 
-    const { execute: handleLogin, loading } = useMinLoadingAction({
+    const { execute: handleLogin, loading } = useMinLoadingAction<LoginResponse>({
         minLoadingTime: 1000,
         errorMessage: (error) => {
             const errorKey = error.response?.data?.errorKey;
@@ -48,8 +48,7 @@ const LoginPage = () => {
             }
             return error.response?.data?.message || t('toast.login_failed');
         },
-        onSuccess: (response) => {
-            const loginData = response?.data?.data;
+        onSuccess: (loginData) => {
             if (loginData?.authenticated && loginData?.user) {
                 login(loginData.user);
                 navigate('/dashboard', { replace: true });
@@ -72,6 +71,7 @@ const LoginPage = () => {
 
         await handleLogin(() => authApi.login({ email, password }));
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500 p-4 relative">

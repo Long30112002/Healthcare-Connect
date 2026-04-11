@@ -5,7 +5,7 @@ interface InputProps {
     type?: string;
     placeholder?: string;
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: string;
     required?: boolean;
     disabled?: boolean;  // ← THÊM DÒNG NÀY
@@ -14,6 +14,7 @@ interface InputProps {
     size?: 'sm' | 'md' | 'lg';
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
     fullWidth?: boolean;
+    className?: string;
 }
 
 const Input = ({
@@ -30,6 +31,7 @@ const Input = ({
     size = 'md',
     rounded = 'md',
     fullWidth = true,
+    className = '',
 }: InputProps) => {
     const [isFocused, setIsFocused] = useState(false);
 
@@ -60,7 +62,7 @@ const Input = ({
     };
 
     return (
-        <div className={`${fullWidth ? 'w-full' : ''}`}>
+        <div className={`${fullWidth ? 'w-full' : ''} ${className}`}>
             {label && (
                 <label className={`block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors ${disabled ? 'opacity-60' : ''}`}>
                     {label} {required && <span className="text-red-500 dark:text-red-400">*</span>}

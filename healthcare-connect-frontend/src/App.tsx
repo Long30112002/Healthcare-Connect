@@ -21,6 +21,7 @@ function App() {
     <>
       <AppRouter />;
       <FloatingChatbot />
+      {/* <Toaster position="top-right" /> */}
     </>
   )
 }

@@ -1,19 +1,6 @@
 import { AppointmentStatus } from '../../../core/constants/enums';
+import type { Appointment } from '../../../core/types';
 import { formatDateTime, formatPrice } from '../../../shared/utils/dateUtils';
-
-interface Appointment {
-    id: string;
-    patientName: string;
-    doctorName: string;
-    hospitalName: string;
-    specialtyName?: string;
-    startTime: number[];
-    endTime: number[];
-    symptoms: string;
-    status: AppointmentStatus;
-    price: number;
-    isPaid: boolean;
-}
 
 interface UpcomingAppointmentCardProps {
     appointment: Appointment;
@@ -117,7 +104,7 @@ const UpcomingAppointmentCard = ({
                                 {formatPrice(appointment.price)}
                             </span>
                             <span className="text-xs">
-                                {appointment.isPaid ? `• ${paidText}` : `• ${unpaidText}`}
+                                {appointment.paid ? `• ${paidText}` : `• ${unpaidText}`}
                             </span>
                         </div>
                     </div>

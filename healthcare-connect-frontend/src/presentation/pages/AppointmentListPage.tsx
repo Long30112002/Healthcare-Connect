@@ -1,25 +1,12 @@
-// import { useAuth } from '../../application/context/AuthContext';
 import useFetch from '../../application/hooks/useFetch';
 import DataWrapper from '../components/shared/DataWrapper';
 import type { PaginatedResponse } from '../../core/types/api.response';
 import { formatDateTime, formatPrice } from '../../shared/utils/dateUtils';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
+import type { Appointment } from '../../core/types';
 
-interface Appointment {
-    id: string;
-    patientName: string;
-    doctorName: string;
-    hospitalName: string;
-    startTime: number[];
-    endTime: number[];
-    symptoms: string;
-    status: string;
-    price: number;
-    paid: boolean;
-}
 
 const AppointmentListPage = () => {
-    // const { user } = useAuth();
     const { t, getStatus } = useAppTranslation();
     
     const { 

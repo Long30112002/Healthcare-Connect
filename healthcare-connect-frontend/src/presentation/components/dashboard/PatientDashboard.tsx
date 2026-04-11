@@ -3,7 +3,7 @@ import { useAuth } from "../../../application/context/AuthContext";
 import { useAppTranslation } from "../../../application/hooks/useAppTranslation";
 import useFetch from "../../../application/hooks/useFetch";
 import { AppointmentStatus } from "../../../core/constants/enums";
-import type { Appointment } from "../../../core/types";
+import type { Appointment, VisitedDoctor } from "../../../core/types";
 import DataWrapper from "../shared/DataWrapper";
 import AISuggestionCard from "./AISuggestionCard";
 import DoctorVisitedCard from "./DoctorVisitedCard";
@@ -12,22 +12,11 @@ import StatCard from "./StatCard";
 import UpcomingAppointmentCard from "./UpcomingAppointmentCard";
 
 
-interface VisitedDoctor {
-    id: string;
-    fullName: string;
-    specialtyName: string;
-    experienceYears: number;
-    consultationFee: number | null;
-    rating: number;
-    avatar: string | null;
-}
-
 const PatientDashboard = () => {
     const { user } = useAuth();
     const { t } = useAppTranslation();
     const navigate = useNavigate();
 
-    // Fetch appointments
     const { 
         data: appointmentsData, 
         loading: appointmentsLoading, 
@@ -39,7 +28,6 @@ const PatientDashboard = () => {
         { immediate: true }
     );
 
-    // Fetch visited doctors
     const { 
         data: visitedDoctors, 
         loading: doctorsLoading, 
@@ -82,7 +70,6 @@ const PatientDashboard = () => {
         navigate('/doctors', { state: { suggestedSpecialty: suggestion } });
     };
 
-    // Helper để lấy thông báo chào theo giờ
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return '🌅 ' + t('dashboard.morning');
