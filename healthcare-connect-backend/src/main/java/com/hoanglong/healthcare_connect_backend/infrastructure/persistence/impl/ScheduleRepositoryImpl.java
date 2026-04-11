@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.impl;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -47,5 +49,11 @@ public class ScheduleRepositoryImpl implements IScheduleRepository {
     @Override
     public boolean existsOverlappingSchedule(UUID doctorId, LocalDate date, LocalTime startTime, LocalTime endTime) {
         return jpaScheduleRepository.existsOverlappingSchedule(doctorId, date, startTime, endTime);
+    }
+
+    @Override
+    public List<Schedule> findByDoctorIdAndStatusAndDateBetween(UUID doctorId, ScheduleStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+        return jpaScheduleRepository.findByDoctorIdAndStatusAndDateBetween(doctorId, status, startDate, endDate
+        );
     }
 }

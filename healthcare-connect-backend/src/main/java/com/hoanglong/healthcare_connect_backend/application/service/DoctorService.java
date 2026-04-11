@@ -1,26 +1,21 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorHistoryResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.VisitedDoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.*;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
-import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
-import com.hoanglong.healthcare_connect_backend.core.entity.DoctorHistory;
-import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
-import com.hoanglong.healthcare_connect_backend.core.entity.User;
+import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorHistoryRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.core.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +30,7 @@ public class DoctorService {
     IUserRepository userRepository;
     IDoctorHistoryRepository doctorHistoryRepository;
     DoctorMapper doctorMapper;
+    IScheduleRepository scheduleRepository;
 
     public List<VisitedDoctorResponse> getVisitedDoctors(UUID patientId) {
         List<AppointmentStatus> statuses = List.of(
@@ -56,6 +52,79 @@ public class DoctorService {
                         .avatar(null)
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public List<DoctorListResponse> getAvailableDoctors(LocalDate date, Integer days) {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end;
+
+        if (date != null) {
+            start = date.atStartOfDay();
+            end = date.atTime(23, 59, 59);
+        } else if (days != null && days > 0) {
+            end = start.plusDays(days);
+        } else {
+            end = start.plusDays(30);
+        }
+
+        System.out.println("Start: " + start);
+        System.out.println("End: " + end);
+
+        List<Doctor> doctors = doctorRepository.findAvailableDoctorsWithSchedules(start, end);
+
+        return doctors.stream()
+                .map(this::toDoctorListResponse)
+                .collect(Collectors.toList());
+    }
+
+    private DoctorListResponse toDoctorListResponse(Doctor doctor) {
+        return DoctorListResponse.builder()
+                .id(doctor.getId())
+                .fullName(doctor.getUser().getFullName())
+                .specialtyName(doctor.getSpecialty().getName())
+                .hospitalName(doctor.getHospital().getName())
+                .experienceYears(doctor.getExperienceYears())
+                .consultationFee(doctor.getConsultationFee())
+                .rating(0.0)
+                .avatar(null)
+                .availableSchedules(doctor.getSchedules().size())
+                .build();
+    }
+
+    public DoctorDetailResponse getDoctorDetail(UUID doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime next30Days = now.plusDays(30);
+        List<Schedule> availableSchedules = scheduleRepository.findByDoctorIdAndStatusAndDateBetween(
+                doctorId, ScheduleStatus.AVAILABLE, now, next30Days
+        );
+
+        return DoctorDetailResponse.builder()
+                .id(doctor.getId())
+                .fullName(doctor.getUser().getFullName())
+                .specialtyName(doctor.getSpecialty().getName())
+                .hospitalName(doctor.getHospital().getName())
+                .address(doctor.getHospital().getAddress())
+                .experienceYears(doctor.getExperienceYears())
+                .degree(doctor.getDegree())
+                .biography(doctor.getBiography())
+                .consultationFee(doctor.getConsultationFee())
+                .rating(0.0)
+                .avatar(null)
+                .schedules(availableSchedules.stream()
+                        .map(s -> ScheduleResponse.builder()
+                                .id(s.getId())
+                                .date(s.getDate())
+                                .startTime(s.getStartTime())
+                                .endTime(s.getEndTime())
+                                .price(s.getPrice())
+                                .currentBookings(s.getCurrentBookings())
+                                .maxPatients(s.getMaxPatients())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     public DoctorResponse getPublicDoctorById(UUID id) {

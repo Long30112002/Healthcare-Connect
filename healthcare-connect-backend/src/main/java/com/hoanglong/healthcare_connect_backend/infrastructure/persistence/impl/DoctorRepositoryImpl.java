@@ -2,12 +2,15 @@ package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.impl
 
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaDoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,5 +59,15 @@ public class DoctorRepositoryImpl implements IDoctorRepository
     @Override
     public List<Doctor> findVisitedDoctorsByPatientId(UUID patientId, List<AppointmentStatus> statuses) {
         return jpaDoctorRepository.findVisitedDoctorsByPatientId(patientId, statuses);
+    }
+
+    @Override
+    public List<Doctor> findAvailableDoctorsWithSchedules(LocalDateTime startDate, LocalDateTime endDate) {
+        return jpaDoctorRepository.findAvailableDoctorsWithSchedules(
+                DoctorStatus.APPROVED,
+                ScheduleStatus.AVAILABLE,
+                startDate,
+                endDate
+        );
     }
 }

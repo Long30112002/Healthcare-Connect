@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,7 @@ public interface JpaScheduleRepository extends JpaRepository<Schedule, UUID> {
     Optional<Schedule> findByIdWithLock(UUID id);
 
     List<Schedule> findByDoctorIdAndDate(UUID doctorId, LocalDate date);
-
+    List<Schedule> findByDoctorIdAndStatusAndDateBetween(UUID doctorId, ScheduleStatus status, LocalDateTime startDate, LocalDateTime endDate);
 
     @Query(value = "SELECT COUNT(*) > 0 FROM schedules s " +
             "WHERE s.doctor_id = :doctorId " +
@@ -34,4 +36,5 @@ public interface JpaScheduleRepository extends JpaRepository<Schedule, UUID> {
             @Param("date") LocalDate date,
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime);
+
 }

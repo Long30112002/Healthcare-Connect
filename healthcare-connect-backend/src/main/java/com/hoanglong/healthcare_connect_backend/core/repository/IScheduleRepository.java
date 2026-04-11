@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.core.repository;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import jakarta.persistence.LockModeType;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -33,4 +35,6 @@ public interface IScheduleRepository {
             @Param("date") LocalDate date,
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime);
+
+    List<Schedule> findByDoctorIdAndStatusAndDateBetween(UUID doctorId, ScheduleStatus scheduleStatus, LocalDateTime now, LocalDateTime next30Days);
 }
