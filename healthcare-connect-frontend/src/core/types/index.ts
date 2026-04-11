@@ -72,3 +72,14 @@ export interface Appointment {
     isPaid: boolean;
 }
 
+
+export interface VisitedDoctor {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    experienceYears: number;
+    consultationFee: number;
+    rating?: number;
+    avatar?: string;
+}
+

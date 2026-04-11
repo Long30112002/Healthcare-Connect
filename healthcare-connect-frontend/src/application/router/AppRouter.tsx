@@ -17,39 +17,51 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const AppRouter = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Routes>
-      {/* Public routes - vẫn dùng Layout (Header tự ẩn menu private) */}
+      {/* Public routes - có Layout */}
       <Route element={<Layout />}>
-        <Route path="/" element={<PublicHomePage />} />
+        <Route path="/" element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <PublicHomePage />
+        } />
         <Route path="/about" element={<div>Về chúng tôi</div>} />
         <Route path="/privacy-policy" element={<div>Chính sách bảo mật</div>} />
         <Route path="/terms" element={<div>Điều khoản sử dụng</div>} />
         <Route path="/contact" element={<div>Liên hệ</div>} />
         <Route path="/doctors/public" element={<div>Danh sách bác sĩ</div>} />
 
+        {/* <Route path="/doctors" element={
+          <PrivateRoute>
+            <DoctorsPage />
+          </PrivateRoute>
+        } /> */}
+
         {/* Private routes */}
         <Route path="/appointments" element={
-          <PrivateRoute> <AppointmentListPage /> </PrivateRoute>
-        }
-        />
+          <PrivateRoute>
+            <AppointmentListPage />
+          </PrivateRoute>
+        } />
         <Route path="/settings" element={
-          <PrivateRoute> <SettingsPage /> </PrivateRoute>
-        }
-        />
+          <PrivateRoute>
+            <SettingsPage />
+          </PrivateRoute>
+        } />
         <Route path="/dashboard" element={
-            <PrivateRoute> <PatientDashboard /> </PrivateRoute>
-          }
-        />
-
+          <PrivateRoute>
+            <PatientDashboard />
+          </PrivateRoute>
+        } />
       </Route>
+
       {/* Auth routes (không có Layout) */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify" element={<VerifyEmailPage />} />
-
     </Routes>
   );
 };

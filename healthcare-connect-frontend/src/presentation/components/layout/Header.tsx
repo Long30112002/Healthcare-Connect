@@ -27,13 +27,14 @@ const Header = () => {
   };
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    const isMatch = location.pathname === path ||
-      (location.pathname.startsWith(path + '/') && path !== '/doctors');
+    if (path === '/') {
+      if (isAuthenticated && location.pathname === '/dashboard') return true;
+      return location.pathname === '/';
+    }
     if (path === '/doctors') {
       return location.pathname === '/doctors';
     }
-    return isMatch;
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   const handleHomeClick = (e: React.MouseEvent) => {
@@ -113,8 +114,8 @@ const Header = () => {
                       key={item.path}
                       onClick={handleHomeClick}
                       className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
-                          ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                       title={item.label}
                     >
@@ -132,8 +133,8 @@ const Header = () => {
                     key={item.path}
                     to={item.path}
                     className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
-                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     title={item.label}
                   >
@@ -277,8 +278,8 @@ const Header = () => {
                       setIsMobileMenuOpen(false);
                     }}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition w-full text-left ${isActive(item.path)
-                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
                     <span>{item.icon}</span>
@@ -291,8 +292,8 @@ const Header = () => {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${isActive(item.path)
-                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
