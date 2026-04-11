@@ -26,6 +26,31 @@ export interface Doctor {
     hospitalName: string;
 }
 
+export interface ScheduleSlot {
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    price: number;
+    currentBookings: number;
+    maxPatients: number;
+}
+
+export interface DoctorDetail {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    hospitalName: string;
+    address: string;
+    experienceYears: number;
+    degree: string;
+    biography: string;
+    consultationFee: number;
+    rating: number;
+    avatar: string | null;
+    schedules: ScheduleSlot[];
+}
+
 export interface Schedule {
     id: string;
     doctor: Doctor;
@@ -58,6 +83,7 @@ export interface Hospital {
     hotline?: string;
 }
 
+
 export interface Appointment {
     id: string;
     patientName: string;
@@ -69,17 +95,28 @@ export interface Appointment {
     symptoms: string;
     status: AppointmentStatus;
     price: number;
-    isPaid: boolean;
+    paid: boolean;
 }
-
 
 export interface VisitedDoctor {
     id: string;
     fullName: string;
     specialtyName: string;
     experienceYears: number;
-    consultationFee: number;
-    rating?: number;
-    avatar?: string;
+    consultationFee: number | null;
+    rating: number;
+    avatar: string | null;
 }
 
+
+export interface DoctorListItem {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    hospitalName: string;
+    experienceYears: number;
+    consultationFee: number;
+    rating: number;
+    avatar: string | null;
+    availableSchedules: number;
+}

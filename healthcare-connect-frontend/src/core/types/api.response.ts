@@ -1,7 +1,7 @@
 import type { User } from ".";
 
 export interface ApiResponse<T> {
-    status: string; // "success" hoặc "error" [cite: 57]
+    status: string; 
     code: number;  
     message: string;
     data: T;

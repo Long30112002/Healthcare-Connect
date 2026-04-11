@@ -31,6 +31,7 @@ function useFetch<T = any>(
     }, [options?.initialData]);
 
     const execute = useCallback(async (...args: any[]) => {
+
         setLoading(true);
         setError(null);
 
@@ -59,7 +60,6 @@ function useFetch<T = any>(
                     throw new Error(`Unsupported method: ${method}`);
             }
 
-            // Backend trả về ApiResponse, data nằm trong response.data.data
             const responseData = response.data?.data ?? response.data;
             setData(responseData);
             options?.onSuccess?.(responseData);

@@ -45,3 +45,61 @@ export const formatPrice = (price: number): string => {
 export const formatTimeOnly = (hour: number, minute: number): string => {
     return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 };
+
+// 👇 THÊM HÀM NÀY
+/**
+ * Định dạng ngày từ string ISO hoặc Date object sang định dạng tiếng Việt
+ * @param dateString Chuỗi ngày (VD: "2026-05-15" hoặc "2026-05-15T00:00:00")
+ * @param language Ngôn ngữ ('vi' hoặc 'en')
+ * @returns Chuỗi ngày đã định dạng
+ * 
+ * @example
+ * formatDateToVietnam("2026-05-15", 'vi') 
+ * // "Ngày 15 tháng 5 năm 2026"
+ * 
+ * formatDateToVietnam("2026-05-15", 'en')
+ * // "May 15, 2026"
+ */
+export const formatDateToVietnam = (dateString: string, language: 'vi' | 'en' = 'vi'): string => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    
+    if (language === 'vi') {
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `Ngày ${day} tháng ${month} năm ${year}`;
+    }
+    
+    // Tiếng Anh
+    return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+};
+
+/**
+ * Format ngày hiển thị ngắn gọn
+ * @param dateString Chuỗi ngày
+ * @param language Ngôn ngữ
+ * @returns Chuỗi ngày ngắn
+ * 
+ * @example
+ * formatDateShort("2026-05-15", 'vi') // "15/05/2026"
+ * formatDateShort("2026-05-15", 'en') // "05/15/2026"
+ */
+export const formatDateShort = (dateString: string, language: 'vi' | 'en' = 'vi'): string => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    if (language === 'vi') {
+        return `${day}/${month}/${year}`;
+    }
+    return `${month}/${day}/${year}`;
+};
