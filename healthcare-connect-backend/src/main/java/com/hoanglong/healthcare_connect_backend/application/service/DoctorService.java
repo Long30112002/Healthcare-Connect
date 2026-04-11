@@ -2,7 +2,9 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorHistoryResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.VisitedDoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
+import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.entity.DoctorHistory;
@@ -33,6 +35,28 @@ public class DoctorService {
     IUserRepository userRepository;
     IDoctorHistoryRepository doctorHistoryRepository;
     DoctorMapper doctorMapper;
+
+    public List<VisitedDoctorResponse> getVisitedDoctors(UUID patientId) {
+        List<AppointmentStatus> statuses = List.of(
+                AppointmentStatus.CONFIRMED,
+                AppointmentStatus.COMPLETED,
+                AppointmentStatus.IN_PROGRESS
+        );
+
+        List<Doctor> doctors = doctorRepository.findVisitedDoctorsByPatientId(patientId, statuses);
+
+        return doctors.stream()
+                .map(doctor -> VisitedDoctorResponse.builder()
+                        .id(doctor.getId())
+                        .fullName(doctor.getUser().getFullName())
+                        .specialtyName(doctor.getSpecialty().getName())
+                        .experienceYears(doctor.getExperienceYears())
+                        .consultationFee(doctor.getConsultationFee())
+                        .rating(0.0)
+                        .avatar(null)
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     public DoctorResponse getPublicDoctorById(UUID id) {
         Doctor doctor = doctorRepository.findById(id)

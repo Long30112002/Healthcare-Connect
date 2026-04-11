@@ -1,8 +1,11 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +18,12 @@ public interface JpaDoctorRepository extends JpaRepository<Doctor, UUID>
     Optional<Doctor> findByUserId(UUID userId);
     List<Doctor> findAllByHospitalId(UUID hospitalId);
     List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
+
+    @Query("SELECT DISTINCT d FROM Appointment a " +
+            "JOIN a.schedule s " +
+            "JOIN s.doctor d " +
+            "WHERE a.patient.id = :patientId " +
+            "AND a.status IN :statuses")
+    List<Doctor> findVisitedDoctorsByPatientId(@Param("patientId") UUID patientId,
+            @Param("statuses") List<AppointmentStatus> statuses);
 }

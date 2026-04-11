@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.impl;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
@@ -51,5 +52,9 @@ public class DoctorRepositoryImpl implements IDoctorRepository
     @Override
     public List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status) {
         return jpaDoctorRepository.findAllByHospitalIdAndStatus(hospitalId, status);
+    }
+    @Override
+    public List<Doctor> findVisitedDoctorsByPatientId(UUID patientId, List<AppointmentStatus> statuses) {
+        return jpaDoctorRepository.findVisitedDoctorsByPatientId(patientId, statuses);
     }
 }
