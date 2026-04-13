@@ -1,34 +1,48 @@
 /**
- * Định dạng mảng ngày tháng từ BE thành chuỗi hiển thị
- * @param dateArray Mảng số [year, month, day, hour, minute] từ BE
- * @param format Định dạng mong muốn (mặc định: 'dd/mm/yyyy HH:MM')
+ * Chuyển đổi đầu vào thành Date object
+ * Hỗ trợ: string ISO, mảng [year, month, day, hour, minute], hoặc Date object
+ */
+const parseToDate = (input: string | number[] | Date): Date => {
+    if (input instanceof Date) return input;
+    
+    if (Array.isArray(input)) {
+        const [year, month, day, hour = 0, minute = 0] = input;
+        return new Date(year, month - 1, day, hour, minute);
+    }
+    
+    return new Date(input);
+};
+
+/**
+ * Định dạng ngày giờ từ nhiều kiểu dữ liệu
+ * @param input Mảng số [year, month, day, hour, minute] hoặc string ISO
+ * @param format Định dạng mong muốn
  * @returns Chuỗi ngày giờ đã định dạng
- * 
- * @example
- * formatDateTime([2026, 8, 10, 8, 30]) 
- * // "10/08/2026 08:30"
- * 
- * formatDateTime([2026, 8, 10, 8, 30], 'yyyy-mm-dd')
- * // "2026-08-10"
  */
 export const formatDateTime = (
-    dateArray: number[], 
+    input: string | number[], 
     format: 'dd/mm/yyyy HH:MM' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'HH:MM' = 'dd/mm/yyyy HH:MM'
 ): string => {
-    if (!dateArray || dateArray.length < 5) return 'N/A';
+    if (!input) return 'N/A';
     
-    const [year, month, day, hour, minute] = dateArray;
-    const pad = (n: number) => n.toString().padStart(2, '0');
+    const date = parseToDate(input);
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hour = date.getHours().toString().padStart(2, '0');
+    const minute = date.getMinutes().toString().padStart(2, '0');
     
     switch (format) {
         case 'dd/mm/yyyy':
-            return `${pad(day)}/${pad(month)}/${year}`;
+            return `${day}/${month}/${year}`;
         case 'yyyy-mm-dd':
-            return `${year}-${pad(month)}-${pad(day)}`;
+            return `${year}-${month}-${day}`;
         case 'HH:MM':
-            return `${pad(hour)}:${pad(minute)}`;
+            return `${hour}:${minute}`;
         default: // 'dd/mm/yyyy HH:MM'
-            return `${pad(day)}/${pad(month)}/${year} ${pad(hour)}:${pad(minute)}`;
+            return `${day}/${month}/${year} ${hour}:${minute}`;
     }
 };
 
@@ -36,34 +50,55 @@ export const formatDateTime = (
  * Format giá tiền sang VND
  */
 export const formatPrice = (price: number): string => {
+    if (!price && price !== 0) return '0đ';
     return price.toLocaleString('vi-VN') + 'đ';
 };
 
 /**
- * Lấy thời gian từ mảng [hour, minute]
+ * Lấy thời gian từ nhiều kiểu dữ liệu
+ * Hỗ trợ: mảng [hour, minute], string ISO, hoặc 2 số riêng
  */
-export const formatTimeOnly = (hour: number, minute: number): string => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+export const formatTimeOnly = (input: number | number[] | string, minute?: number): string => {
+    // Trường hợp 1: input là mảng [year, month, day, hour, minute] (từ BE)
+    if (Array.isArray(input) && input.length >= 5) {
+        const hour = input[3];
+        const min = input[4];
+        return `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+    }
+    
+    // Trường hợp 2: input là mảng [hour, minute] (cũ)
+    if (Array.isArray(input) && input.length === 2) {
+        const [hour, min] = input;
+        return `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+    }
+    
+    // Trường hợp 3: input là string ISO
+    if (typeof input === 'string') {
+        const date = new Date(input);
+        if (!isNaN(date.getTime())) {
+            const hour = date.getHours().toString().padStart(2, '0');
+            const min = date.getMinutes().toString().padStart(2, '0');
+            return `${hour}:${min}`;
+        }
+        return 'N/A';
+    }
+    
+    // Trường hợp 4: input là hour (number), minute là number riêng
+    if (typeof input === 'number' && minute !== undefined) {
+        return `${input.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    }
+    
+    return 'N/A';
 };
 
-// 👇 THÊM HÀM NÀY
 /**
- * Định dạng ngày từ string ISO hoặc Date object sang định dạng tiếng Việt
- * @param dateString Chuỗi ngày (VD: "2026-05-15" hoặc "2026-05-15T00:00:00")
- * @param language Ngôn ngữ ('vi' hoặc 'en')
- * @returns Chuỗi ngày đã định dạng
- * 
- * @example
- * formatDateToVietnam("2026-05-15", 'vi') 
- * // "Ngày 15 tháng 5 năm 2026"
- * 
- * formatDateToVietnam("2026-05-15", 'en')
- * // "May 15, 2026"
+ * Định dạng ngày dạng "Ngày 15 tháng 5 năm 2026" (tiếng Việt)
  */
-export const formatDateToVietnam = (dateString: string, language: 'vi' | 'en' = 'vi'): string => {
-    if (!dateString) return '';
+export const formatDateToVietnam = (input: string | number[], language: 'vi' | 'en' = 'vi'): string => {
+    if (!input) return '';
     
-    const date = new Date(dateString);
+    const date = parseToDate(input);
+    if (isNaN(date.getTime())) return '';
     
     if (language === 'vi') {
         const day = date.getDate();
@@ -72,7 +107,6 @@ export const formatDateToVietnam = (dateString: string, language: 'vi' | 'en' = 
         return `Ngày ${day} tháng ${month} năm ${year}`;
     }
     
-    // Tiếng Anh
     return date.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -81,19 +115,14 @@ export const formatDateToVietnam = (dateString: string, language: 'vi' | 'en' = 
 };
 
 /**
- * Format ngày hiển thị ngắn gọn
- * @param dateString Chuỗi ngày
- * @param language Ngôn ngữ
- * @returns Chuỗi ngày ngắn
- * 
- * @example
- * formatDateShort("2026-05-15", 'vi') // "15/05/2026"
- * formatDateShort("2026-05-15", 'en') // "05/15/2026"
+ * Format ngày ngắn gọn
  */
-export const formatDateShort = (dateString: string, language: 'vi' | 'en' = 'vi'): string => {
-    if (!dateString) return '';
+export const formatDateShort = (input: string | number[], language: 'vi' | 'en' = 'vi'): string => {
+    if (!input) return '';
     
-    const date = new Date(dateString);
+    const date = parseToDate(input);
+    if (isNaN(date.getTime())) return '';
+    
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();

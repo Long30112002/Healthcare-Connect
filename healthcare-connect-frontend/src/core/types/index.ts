@@ -88,6 +88,7 @@ export interface Appointment {
     id: string;
     patientName: string;
     doctorName: string;
+    doctorId?: string;  
     hospitalName: string;
     specialtyName?: string;
     startTime: number[];
@@ -119,4 +120,9 @@ export interface DoctorListItem {
     rating: number;
     avatar: string | null;
     availableSchedules: number;
+}
+
+export interface BookingRequest {
+    scheduleId: string;
+    symptoms: string;
 }

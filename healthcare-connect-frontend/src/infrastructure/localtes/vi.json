@@ -33,11 +33,50 @@
     "canceled": "Đã hủy",
     "suggestion": "Gợi ý"
   },
+  "doctor": {
+    "noRating": "No ratings yet",
+    "yearsExperience": "years experience",
+    "visit": "visit",
+    "biography": "Biography",
+    "degree": "Degree"
+  },
+  "booking": {
+    "symptoms": "Symptoms",
+    "symptomsPlaceholder": "Describe your symptoms...",
+    "selectSchedule": "Select appointment schedule",
+    "noSchedules": "No available schedules in this period",
+    "confirmBooking": "Confirm booking",
+    "slotsLeft": "slots left",
+    "selectScheduleFirst": "Vui lòng chọn lịch khám trước khi đặt",
+    "successMessage": "Đặt lịch thành công! Vui lòng thanh toán để hoàn tất.",
+    "errorMessage": "Đặt lịch thất bại, vui lòng thử lại!"
+  },
   "toast": {
     "login_success": "Đăng nhập thành công!",
     "login_failed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!",
     "verify_success": "Xác thực thành công!",
     "error": "Có lỗi xảy ra, vui lòng thử lại sau."
+  },
+  "payment": {
+    "title": "Thanh toán",
+    "subtitle": "Hoàn tất thanh toán để xác nhận lịch khám",
+    "appointmentId": "Mã lịch hẹn",
+    "amount": "Số tiền",
+    "pending": "Đang tính...",
+    "payNow": "Thanh toán ngay",
+    "cancel": "Hủy bỏ",
+    "processing": "Đang xử lý thanh toán...",
+    "createFailed": "Không thể tạo thanh toán, vui lòng thử lại",
+    "invalidAppointment": "Lịch hẹn không hợp lệ",
+    "successTitle": "Thanh toán thành công!",
+    "successMessage": "Cảm ơn bạn đã thanh toán. Lịch khám của bạn đã được xác nhận.",
+    "failedTitle": "Thanh toán thất bại",
+    "failedMessage": "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.",
+    "orderId": "Mã đơn hàng",
+    "transactionId": "Mã giao dịch",
+    "viewAppointments": "Xem lịch hẹn",
+    "redirecting": "Đang xử lý thanh toán, vui lòng chờ...",
+    "openNewTab": "Mở tab thanh toán mới, vui lòng hoàn tất thanh toán!"
   },
   "dashboard": {
     "welcome": "Xin chào",
@@ -303,7 +342,25 @@
       "empty": "Chưa có lịch hẹn nào",
       "upcoming": "Sắp tới",
       "past": "Đã qua",
-      "filterByStatus": "Lọc theo trạng thái"
+      "filterByStatus": "Lọc theo trạng thái",
+      "tabAll": "Tất cả",
+      "tabAwaitingPayment": "Chờ thanh toán",
+      "tabConfirmed": "Đã xác nhận",
+      "tabInProgress": "Đang khám",
+      "tabCompleted": "Đã khám",
+      "tabCancelled": "Đã hủy",
+      "payNow": "Thanh toán ngay",
+      "cancel": "Hủy lịch",
+      "cancelConfirm": "Bạn có chắc chắn muốn hủy lịch hẹn này?",
+      "cancelSuccess": "Hủy lịch thành công!",
+      "cancelFailed": "Hủy lịch thất bại, vui lòng thử lại!",
+      "bookAgain": "Đặt lại",
+      "review": "Đánh giá",
+      "reviewComingSoon": "Tính năng đánh giá sẽ sớm ra mắt!",
+      "doctorNotFound": "Không tìm thấy thông tin bác sĩ",
+      "subtitle": "Quản lý tất cả lịch hẹn của bạn",
+      "emptyDesc": "Bạn chưa có lịch hẹn nào",
+      "bookNow": "Đặt lịch ngay"
     },
     "doctors": {
       "title": "Tìm bác sĩ",
@@ -343,6 +400,36 @@
       "changePassword": "Đổi mật khẩu",
       "updateSuccess": "Cập nhật thành công"
     }
+  },
+  "modal": {
+    "defaultTitle": {
+      "success": "Thành công",
+      "danger": "Xác nhận",
+      "warning": "Cảnh báo",
+      "info": "Thông báo"
+    },
+    "defaultMessage": {
+      "success": "Thao tác thành công!",
+      "danger": "Bạn có chắc chắn muốn thực hiện hành động này?",
+      "warning": "Hành động này không thể hoàn tác!",
+      "info": "Vui lòng kiểm tra lại thông tin."
+    }
+  },
+  "appointment": {
+    "payNow": "Thanh toán ngay",
+    "cancel": "Hủy lịch",
+    "cancelConfirm": "Bạn có chắc chắn muốn hủy lịch hẹn này?",
+    "cancelSuccess": "Hủy lịch thành công!",
+    "cancelFailed": "Hủy lịch thất bại, vui lòng thử lại!",
+    "bookAgain": "Đặt lại",
+    "review": "Đánh giá",
+    "reviewComingSoon": "Tính năng đánh giá sẽ sớm ra mắt!",
+    "doctorNotFound": "Không tìm thấy thông tin bác sĩ",
+    "cancelConfirmTitle": "Xác nhận hủy lịch",
+    "cancelConfirmMessage": "Bạn có chắc chắn muốn hủy lịch hẹn này?",
+    "cancelWarning": "Nếu bạn hủy sau 24h trước giờ khám, phí sẽ không được hoàn lại.",
+    "paid": "Đã thanh toán",
+    "unpaid": "Chưa thanh toán"
   },
   "role": {
     "PATIENT": "Bệnh nhân",

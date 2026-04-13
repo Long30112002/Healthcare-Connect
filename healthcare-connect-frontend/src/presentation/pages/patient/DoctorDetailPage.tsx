@@ -5,6 +5,11 @@ import useFetch from '../../../application/hooks/useFetch';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import Button from '../../components/shared/Button';
 import type { DoctorDetail, ScheduleSlot } from '../../../core/types';
+import { formatDateTime, formatTimeOnly } from '../../../shared/utils/dateUtils';
+import toast from 'react-hot-toast';
+import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
+import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
+import type { AppointmentResponse } from '../../../core/types/api.response';
 
 const DoctorDetailPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,22 +18,36 @@ const DoctorDetailPage = () => {
     const [selectedSchedule, setSelectedSchedule] = useState<ScheduleSlot | null>(null);
     const [symptoms, setSymptoms] = useState('');
 
+
     const { data: doctor, loading } = useFetch<DoctorDetail>(
         `/patients/doctors/${id}`,
         'GET',
         { immediate: true }
     );
 
+    const { execute: bookAppointment, loading: bookingLoading } = useMinLoadingAction<AppointmentResponse>({
+        minLoadingTime: 1500,
+        onSuccess: (result) => {
+            toast.success(t('booking.successMessage'));
+            navigate(`/payment/${result.id}`);
+        },
+        onError: (error) => {
+            toast.error(error.response?.data?.message || t('booking.errorMessage'));
+        }
+    });
+
     const handleBookAppointment = () => {
         if (!selectedSchedule) {
-            // Hiển thị toast chọn lịch
+            toast.error(t('booking.selectScheduleFirst'));
             return;
         }
-        navigate(`/booking/${selectedSchedule.id}`, { state: { symptoms, doctor } });
+
+        bookAppointment(() => appointmentApi.bookAppointment(selectedSchedule.id, symptoms));
     };
 
+
     if (loading) {
-        return <LoadingSpinner size="lg" />; 
+        return <LoadingSpinner size="lg" />;
     }
 
 
@@ -117,17 +136,17 @@ const DoctorDetailPage = () => {
                                     key={schedule.id}
                                     onClick={() => setSelectedSchedule(schedule)}
                                     className={`p-3 rounded-lg border-2 transition text-left ${selectedSchedule?.id === schedule.id
-                                            ? 'border-primary bg-primary/10 dark:bg-primary/20'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-primary'
+                                        ? 'border-primary bg-primary/10 dark:bg-primary/20'
+                                        : 'border-gray-200 dark:border-gray-700 hover:border-primary'
                                         }`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">
-                                                📅 {new Date(schedule.date).toLocaleDateString()}
+                                                📅 {formatDateTime(schedule.date, 'dd/mm/yyyy')}
                                             </p>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                ⏰ {schedule.startTime} - {schedule.endTime}
+                                                ⏰ {formatTimeOnly(schedule.startTime)} - {formatTimeOnly(schedule.endTime)}
                                             </p>
                                         </div>
                                         <p className="text-sm font-semibold text-primary">
@@ -150,7 +169,8 @@ const DoctorDetailPage = () => {
                         variant="primary"
                         size="lg"
                         fullWidth
-                        disabled={!selectedSchedule}
+                        disabled={!selectedSchedule || bookingLoading}
+                        loading={bookingLoading}
                     >
                         {t('booking.confirmBooking')}
                     </Button>

@@ -2,6 +2,7 @@ import { createContext, type ReactNode, useState, useEffect, useContext } from "
 import type { User } from "../../core/types";
 import { authApi } from "../../infrastructure/api/authApi";
 import { useLocation, useNavigate } from 'react-router-dom';
+import LoadingSpinner from "../../presentation/components/shared/LoadingSpinner";
 
 interface AuthContextType {
     user: User | null;
@@ -23,8 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const initAuth = async () => {
             try {
-                const res = await authApi.getMyInfo();
-                setUser(res.data.data);
+                const userData = await authApi.getMyInfo();
+                setUser(userData);
                 if (location.pathname === '/login') navigate('/');
             } catch (err) {
                 setUser(null);
@@ -44,36 +45,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         try {
             await authApi.logout();
+        } catch (err) {
+            console.error("Logout error:", err);
         } finally {
             setUser(null);
-            navigate('/');
+            navigate('/', { replace: true });
         }
     };
 
     return (
-        <AuthContext.Provider
-            value={{
-                user,
-                isAuthenticated: !!user,
-                login,
-                logout,
-                loading
-            }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, loading }}>
             {loading ? (
-                <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900">
-                    <div className="text-center animate-fade-in">
-                        <h1 className="text-4xl font-bold text-primary mb-2">Healthcare Connect</h1>
-                        <div className="flex justify-center gap-1">
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                        </div>
-                    </div>
-                </div>
-            ) : children}
-
+                <LoadingSpinner
+                    fullScreen
+                    variant="dots"
+                    text="Healthcare Connect"
+                />
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
-    );
+    )
 };
 
 export const useAuth = () => {

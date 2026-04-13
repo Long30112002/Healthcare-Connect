@@ -31,7 +31,47 @@
     "status": "Status",
     "actions": "Actions",
     "canceled": "Cancelled",
-    "suggestion": "Suggestion"
+    "suggestion": "Suggestion",
+    "notFound": "Information not found"
+  },
+  "doctor": {
+    "noRating": "No ratings yet",
+    "yearsExperience": "years experience",
+    "visit": "visit",
+    "biography": "Biography",
+    "degree": "Degree"
+  },
+  "booking": {
+    "symptoms": "Symptoms",
+    "symptomsPlaceholder": "Describe your symptoms...",
+    "selectSchedule": "Select appointment schedule",
+    "noSchedules": "No available schedules in this period",
+    "confirmBooking": "Confirm booking",
+    "slotsLeft": "slots left",
+    "selectScheduleFirst": "Please select your appointment time before booking",
+    "successMessage": "Schedule successful! Please proceed with payment to complete.",
+    "errorMessage": "Schedule failed, please try again!"
+  },
+  "payment": {
+    "title": "Payment",
+    "subtitle": "Complete payment to confirm your appointment",
+    "appointmentId": "Appointment ID",
+    "amount": "Amount",
+    "pending": "Calculating...",
+    "payNow": "Pay Now",
+    "cancel": "Cancel",
+    "processing": "Processing payment...",
+    "createFailed": "Cannot create payment, please try again",
+    "invalidAppointment": "Invalid appointment",
+    "successTitle": "Payment Successful!",
+    "successMessage": "Thank you for your payment. Your appointment has been confirmed.",
+    "failedTitle": "Payment Failed",
+    "failedMessage": "An error occurred during payment. Please try again.",
+    "orderId": "Order ID",
+    "transactionId": "Transaction ID",
+    "viewAppointments": "View Appointments",
+    "redirecting": "Processing payment, please wait...",
+    "openNewTab": "Open a new payment tab, please complete your payment!"
   },
   "toast": {
     "login_success": "Login successful!",
@@ -303,7 +343,25 @@
       "empty": "No appointments yet",
       "upcoming": "Upcoming",
       "past": "Past",
-      "filterByStatus": "Filter by status"
+      "filterByStatus": "Filter by status",
+      "tabAll": "All",
+      "tabAwaitingPayment": "Awaiting Payment",
+      "tabConfirmed": "Confirmed",
+      "tabInProgress": "In Progress",
+      "tabCompleted": "Completed",
+      "tabCancelled": "Cancelled",
+      "payNow": "Pay Now",
+      "cancel": "Cancel",
+      "cancelConfirm": "Are you sure you want to cancel this appointment?",
+      "cancelSuccess": "Appointment cancelled successfully!",
+      "cancelFailed": "Failed to cancel appointment, please try again!",
+      "bookAgain": "Book Again",
+      "review": "Review",
+      "reviewComingSoon": "Review feature coming soon!",
+      "doctorNotFound": "Doctor information not found",
+      "subtitle": "Manage all your appointments",
+      "emptyDesc": "You have no appointments yet",
+      "bookNow": "Book now"
     },
     "doctors": {
       "title": "Find Doctors",
@@ -344,6 +402,36 @@
     "DOCTOR": "Doctor",
     "ADMIN": "Administrator",
     "HOSPITAL_MANAGER": "Hospital Manager"
+  },
+  "appointment": {
+    "payNow": "Pay Now",
+    "cancel": "Cancel Appointment",
+    "cancelConfirm": "Are you sure you want to cancel this appointment?",
+    "cancelSuccess": "Cancel successful!",
+    "cancelFailed": "Cancel failed, please try again!",
+    "bookAgain": "Book Again",
+    "review": "Review",
+    "reviewComingSoon": "Review feature coming soon!",
+    "doctorNotFound": "Doctor information not found",
+    "cancelConfirmTitle": "Confirm Cancellation",
+    "cancelConfirmMessage": "Are you sure you want to cancel this appointment?",
+    "cancelWarning": "If you cancel less than 24 hours before the appointment, fees will not be refunded.",
+    "paid": "Paid",
+    "unpaid": "Unpaid"
+  },
+  "modal": {
+    "defaultTitle": {
+      "success": "Success",
+      "danger": "Confirm",
+      "warning": "Warning",
+      "info": "Notice"
+    },
+    "defaultMessage": {
+      "success": "Action completed successfully!",
+      "danger": "Are you sure you want to perform this action?",
+      "warning": "This action cannot be undone!",
+      "info": "Please check your information."
+    }
   },
   "status": {
     "PENDING": "Pending",

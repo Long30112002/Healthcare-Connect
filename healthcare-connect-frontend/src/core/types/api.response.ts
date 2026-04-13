@@ -1,4 +1,5 @@
 import type { User } from ".";
+import type { AppointmentStatus } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string; 
@@ -45,4 +46,26 @@ export interface PaginatedResponse<T> {
     first: boolean;
     numberOfElements: number;
     empty: boolean;
+}
+
+export interface AppointmentResponse {
+    id: string;
+    patientName: string;
+    doctorName: string;
+    hospitalName: string;
+    appointmentDate: string;     // "2026-04-15"
+    startTime: string;           // "08:00:00"
+    endTime: string;             // "08:30:00"
+    symptoms: string;
+    status: AppointmentStatus;
+    price: number;
+    isPaid: boolean;
+    cancelReason?: string;
+    checkInTime?: string;
+}
+
+export interface PaymentResponse {
+    payUrl: string;
+    orderId: string;
+    amount: number;
 }

@@ -170,11 +170,45 @@ const DoctorsPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
-            <div className="container mx-auto px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            {/* Background Pattern */}
+            <div className="fixed inset-0 opacity-5 pointer-events-none">
+                <div className="absolute inset-0" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234299e1' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'repeat',
+                }} />
+            </div>
+
+            <div className="relative z-10 container mx-auto px-4 py-6">
+                {/* Header với gradient */}
+                <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-2xl shadow-xl mb-6">
+                    <div className="absolute top-0 right-0 opacity-10">
+                        <svg className="w-64 h-64" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" />
+                        </svg>
+                    </div>
+                    <div className="relative z-10 p-6">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                                    🔍 {t('page.doctors.title')}
+                                </h1>
+                                <p className="text-blue-100 text-sm mt-1">
+                                    {t('page.doctors.subtitle')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" className="w-full h-8">
+                            <path fill="#f0f9ff" fillOpacity="1" d="M0,32L80,37.3C160,43,320,53,480,48C640,43,800,21,960,21C1120,21,1280,43,1360,53.3L1440,64L1440,60L1360,60C1280,60,1120,60,960,60C800,60,640,60,480,60C320,60,160,60,80,60L0,60Z"></path>
+                        </svg>
+                    </div>
+                </div>
+
                 {/* ===== SECTION 1: CHỌN NGÀY CỤ THỂ ===== */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div className="flex items-center gap-2 mb-3">
+                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl shadow-sm p-5 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">📅</span>
                         <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('page.doctors.selectDate')}
@@ -192,16 +226,18 @@ const DoctorsPage = () => {
                             ✓ {t('page.doctors.showingForDate')}: {formatDateToVietnam(selectedDate, currentLanguage as 'vi' | 'en')}
                         </p>
                     )}
-                    <DoctorGrid
-                        doctors={dateDoctors || []}
-                        loading={dateLoading}
-                        emptyMessage={selectedDate ? t('page.doctors.tryDifferentDate') : t('page.doctors.selectDateHint')}
-                    />
+                    <div className="mt-4">
+                        <DoctorGrid
+                            doctors={dateDoctors || []}
+                            loading={dateLoading}
+                            emptyMessage={selectedDate ? t('page.doctors.tryDifferentDate') : t('page.doctors.selectDateHint')}
+                        />
+                    </div>
                 </div>
 
                 {/* ===== SECTION 2: KHOẢNG THỜI GIAN ===== */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
-                    <div className="flex items-center gap-2 mb-3">
+                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl shadow-sm p-5 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">⏰</span>
                         <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('page.doctors.selectRange')}
@@ -218,15 +254,15 @@ const DoctorsPage = () => {
                                 key={range.days}
                                 onClick={() => handleRangeChange(range.days)}
                                 className={`px-3 py-1.5 rounded-lg text-sm transition ${selectedRange === range.days && !selectedDate
-                                    ? 'bg-primary text-white'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        ? 'bg-primary text-white'
+                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {range.label}
                             </button>
                         ))}
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                         📍 {t('page.doctors.showingWithinDays')} {selectedRange} {t('page.doctors.daysForward')}
                     </p>
                     <DoctorGrid
@@ -237,8 +273,8 @@ const DoctorsPage = () => {
                 </div>
 
                 {/* ===== SECTION 3: TÌM KIẾM ===== */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4">
-                    <div className="flex items-center gap-2 mb-3">
+                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl shadow-sm p-5">
+                    <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🔍</span>
                         <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                             {t('page.doctors.searchTitle')}

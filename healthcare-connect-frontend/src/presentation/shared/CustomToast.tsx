@@ -1,4 +1,4 @@
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export const CustomToaster = () => {
   return (
@@ -34,7 +34,19 @@ export const CustomToaster = () => {
             color: '#fff',
           },
         },
+
       }}
     />
   );
+};
+
+export const toastInfo = (message: string) => {
+  toast(message, {
+    icon: 'ℹ️',
+    duration: 3000,
+    style: {
+      background: '#3B82F6',
+      color: '#fff',
+    },
+  });
 };

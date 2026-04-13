@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoginPage from '../../presentation/pages/LoginPage';
-import AppointmentListPage from '../../presentation/pages/AppointmentListPage';
+import AppointmentListPage from '../../presentation/pages/patient/AppointmentListPage';
 import Layout from '../../presentation/components/layout/Layout';
 import PublicHomePage from '../../presentation/pages/PublicHomePage';
 import SettingsPage from '../../presentation/pages/SettingsPage';
@@ -12,6 +12,8 @@ import VerifyEmailPage from '../../presentation/pages/VerifyEmailPage';
 import PatientDashboard from '../../presentation/components/dashboard/PatientDashboard';
 import DoctorDetailPage from '../../presentation/pages/patient/DoctorDetailPage';
 import DoctorsPage from '../../presentation/pages/patient/DoctorsPage';
+import PaymentPage from '../../presentation/pages/payment/PaymentPage';
+import PaymentResultPage from '../../presentation/pages/payment/PaymentResultPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -59,6 +61,16 @@ export const AppRouter = () => {
         <Route path="/doctors/:id" element={
           <PrivateRoute>
             <DoctorDetailPage />
+          </PrivateRoute>
+        } />
+        <Route path="/payment/:appointmentId" element={
+          <PrivateRoute>
+            <PaymentPage />
+          </PrivateRoute>
+        } />
+        <Route path="/payment-result" element={
+          <PrivateRoute>
+            <PaymentResultPage />
           </PrivateRoute>
         } />
       </Route>
