@@ -14,6 +14,8 @@ public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentRe
     @Mapping(source = "schedule.startTime", target = "startTime")
     @Mapping(source = "schedule.endTime", target = "endTime")
     @Mapping(source = "schedule.price", target = "price")
+    @Mapping(source = "paid", target = "isPaid")
+    @Mapping(source = "status", target = "status")
     AppointmentResponse toResponse(Appointment appointment);
 
     @Override

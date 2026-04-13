@@ -18,6 +18,7 @@ public class AppointmentResponse {
     String patientName;
     String doctorName;
     String hospitalName;
+    UUID doctorId;
     LocalDateTime appointmentDate;
     LocalDateTime startTime;
     LocalDateTime endTime;

@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.security.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -9,6 +10,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
+    @Value("${app.frontend.url.host}")
+    private String frontendLan;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -20,7 +26,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // Cho phép mọi nguồn (CORS) để tránh lỗi lúc test
-                .withSockJS(); // Hỗ trợ fallback nếu trình duyệt không hỗ trợ WebSocket thuần
+                .setAllowedOrigins(frontendUrl, frontendLan)
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 }

@@ -96,7 +96,7 @@ public class DoctorService {
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime next30Days = now.plusDays(30);
+        LocalDateTime next30Days = now.plusDays(300);
         List<Schedule> availableSchedules = scheduleRepository.findByDoctorIdAndStatusAndDateBetween(
                 doctorId, ScheduleStatus.AVAILABLE, now, next30Days
         );

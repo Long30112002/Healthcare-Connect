@@ -1,12 +1,17 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.PaymentStatusResponse;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreatePaymentUseCase;
+import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
+import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
@@ -19,6 +24,7 @@ public class MomoController {
 
     private final CreatePaymentUseCase createPaymentUseCase;
     private final PaymentProvider paymentProvider;
+    private final IPaymentRepository paymentRepository;
 
     // 1. API CHÍNH: Người dùng nhấn nút "Thanh toán" ở Frontend sẽ gọi vào đây
     @PostMapping("/create-payment/{appointmentId}")
@@ -30,6 +36,25 @@ public class MomoController {
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .data(payUrl)
                 .build());
+    }
+
+    @GetMapping("/status/{appointmentId}")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ApiResponse<PaymentStatusResponse> getPaymentStatus(@PathVariable UUID appointmentId) {
+        Payment payment = paymentRepository.findByAppointmentId(appointmentId)
+                .orElse(null);
+
+        PaymentStatusResponse response = PaymentStatusResponse.builder()
+                .status(payment != null ? payment.getStatus().name() : "NOT_FOUND")
+                .paid(payment != null && payment.getStatus() == PaymentStatus.SUCCESS)
+                .payUrl(null) // Nếu lưu URL thì trả về
+                .build();
+
+        return ApiResponse.<PaymentStatusResponse>builder()
+                .status("success")
+                .code(200)
+                .data(response)
+                .build();
     }
 
     // 2. RETURN URL

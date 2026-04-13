@@ -3,7 +3,6 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.HospitalResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterDoctorProfileUseCase;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
@@ -14,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,7 +20,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/doctors")
 @RequiredArgsConstructor
-public class DoctorController {
+public class PublicDoctorController
+{
     private final RegisterDoctorProfileUseCase registerDoctorProfileUseCase;
     private final DoctorService doctorService;
 

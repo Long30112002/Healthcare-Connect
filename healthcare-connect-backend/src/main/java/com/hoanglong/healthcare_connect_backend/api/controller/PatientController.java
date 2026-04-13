@@ -53,4 +53,6 @@ public class PatientController {
                 .data(doctorService.getDoctorDetail(doctorId))
                 .build();
     }
+
+
 }
