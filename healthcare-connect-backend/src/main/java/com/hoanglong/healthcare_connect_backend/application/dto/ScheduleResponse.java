@@ -25,4 +25,7 @@ public class ScheduleResponse {
     Integer currentBookings;
     String status;
     BigDecimal price;
+    UUID roomId;
+    String roomNumber;
+    Integer roomFloor;
 }

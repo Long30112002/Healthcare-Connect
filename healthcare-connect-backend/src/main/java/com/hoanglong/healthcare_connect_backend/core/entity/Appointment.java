@@ -48,4 +48,8 @@ public class Appointment {
 
     @Column(name = "is_paid")
     boolean isPaid = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    Room room;
 }

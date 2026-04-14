@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -27,4 +28,6 @@ public class ScheduleRequest {
 
     @Min(value = 1, message = "MAX_PATIENTS_INVALID")
     int maxPatients;
+
+    private UUID roomId;
 }

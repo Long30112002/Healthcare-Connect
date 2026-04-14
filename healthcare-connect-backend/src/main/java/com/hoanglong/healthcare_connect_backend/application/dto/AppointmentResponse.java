@@ -26,4 +26,8 @@ public class AppointmentResponse {
     String status;
     double price;
     boolean isPaid;
+    UUID roomId;
+    String phone;
+    String roomNumber;
+    Integer roomFloor;
 }

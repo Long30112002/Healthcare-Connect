@@ -10,5 +10,8 @@ import org.mapstruct.Mapping;
 public interface ScheduleMapper{
     @Mapping(source = "doctor.id", target = "doctorId")
     @Mapping(source = "doctor.user.fullName", target = "doctorName")
-    ScheduleResponse toResponse(Schedule entity);
+    @Mapping(source = "room.id", target = "roomId")
+    @Mapping(source = "room.roomNumber", target = "roomNumber")
+    @Mapping(source = "room.floor", target = "roomFloor")
+    ScheduleResponse toResponse(Schedule schedule);
 }

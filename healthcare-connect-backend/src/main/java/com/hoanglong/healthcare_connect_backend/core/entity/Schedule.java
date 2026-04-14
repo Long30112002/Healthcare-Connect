@@ -40,4 +40,8 @@ public class Schedule {
 
     @Column(precision = 19, scale = 2)
     BigDecimal price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    Room room;
 }
