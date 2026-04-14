@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +22,17 @@ import java.util.UUID;
 @Repository
 public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUID>
 {
+    @Query("""
+        SELECT a FROM Appointment a
+        JOIN FETCH a.schedule s
+        JOIN FETCH s.doctor d
+        JOIN FETCH d.user u
+        WHERE a.id = :id
+    """)
+    Optional<Appointment> findByIdWithDetails(@Param("id") UUID id);
+
+
+
     @Query(value = "SELECT COUNT(*) > 0 FROM appointments a " +
             "JOIN schedules s ON a.schedule_id = s.id " +
             "WHERE a.patient_id = :patientId " +
@@ -42,4 +54,39 @@ public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUI
     Optional<Appointment> findByIdWithLock(@Param("id") UUID id);
 
     Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN a.schedule s " +
+            "WHERE s.doctor.id = :doctorId " +
+            "ORDER BY a.appointmentDate ASC")
+    Page<Appointment> findByScheduleDoctorId(@Param("doctorId") UUID doctorId, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN a.schedule s " +
+            "WHERE s.doctor.id = :doctorId " +
+            "AND a.status = :status " +
+            "ORDER BY a.appointmentDate ASC")
+    Page<Appointment> findByScheduleDoctorIdAndStatus(@Param("doctorId") UUID doctorId,
+            @Param("status") AppointmentStatus status,
+            Pageable pageable);
+
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.patient p " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "WHERE a.appointmentDate BETWEEN :start AND :end " +
+            "ORDER BY a.appointmentDate ASC")
+    List<Appointment> findByAppointmentDateBetween(@Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    @Query("SELECT DISTINCT a FROM Appointment a " +
+            "JOIN FETCH a.patient p " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "WHERE LOWER(p.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR p.phone LIKE CONCAT('%', :keyword, '%') " +
+            "OR CAST(a.id AS string) LIKE CONCAT('%', :keyword, '%')")
+    List<Appointment> searchAppointments(@Param("keyword") String keyword);
+
 }

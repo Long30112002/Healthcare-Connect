@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/doctor/schedules")
+@RequestMapping("/api/doctor")
 @RequiredArgsConstructor
 public class DoctorScheduleController {
 
     private final CreateScheduleUseCase createScheduleUseCase;
 
-    @PostMapping
+    @PostMapping("/schedules")
     @PreAuthorize("hasRole('DOCTOR')")
     public ApiResponse<ScheduleResponse> create(@RequestBody @Valid ScheduleRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
@@ -34,4 +34,7 @@ public class DoctorScheduleController {
                 .data(createScheduleUseCase.execute(userId, request))
                 .build();
     }
+
+
+
 }
