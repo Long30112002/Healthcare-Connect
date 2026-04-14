@@ -5,4 +5,5 @@ public enum UserRole {
     DOCTOR,
     ADMIN,
     HOSPITAL_MANAGER,
+    RECEPTIONIST,
 }
