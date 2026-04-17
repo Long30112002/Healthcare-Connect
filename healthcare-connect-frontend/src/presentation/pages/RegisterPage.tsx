@@ -40,6 +40,10 @@ const RegisterPage = () => {
       toast.error(t('error.EMAIL_INVALID'));
       return false;
     }
+    if (!phone.trim()) {
+      toast.error(t('error.PHONE_INVALID'));
+      return false;
+    }
     if (!password) {
       toast.error(t('error.PASSWORD_INVALID'));
       return false;

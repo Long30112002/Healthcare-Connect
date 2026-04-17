@@ -13,14 +13,15 @@ const PaymentPage = () => {
     const { t } = useAppTranslation();
     const [loading, setLoading] = useState(false);
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-    const [isRedirecting, setIsRedirecting] = useState(false); 
+    const [isRedirecting, setIsRedirecting] = useState(false);
+    const [hasInit, setHasInit] = useState(false);
 
     const { isProcessing } = usePaymentWebSocket(appointmentId || '', () => {
-        setIsRedirecting(true); 
+        setIsRedirecting(true);
         toast.success(t('payment.successTitle'));
         setTimeout(() => {
             navigate('/appointments');
-        }, 500); 
+        }, 500);
     });
 
     useEffect(() => {
@@ -29,6 +30,9 @@ const PaymentPage = () => {
             navigate('/appointments');
             return;
         }
+
+        if (!appointmentId || hasInit) return;
+        setHasInit(true);
 
         const initPayment = async () => {
             setLoading(true);
@@ -59,8 +63,8 @@ const PaymentPage = () => {
     if (isRedirecting || isProcessing) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-                <LoadingSpinner 
-                    size="lg" 
+                <LoadingSpinner
+                    size="lg"
                     text={t('payment.redirecting')}
                     variant="circle"
                 />

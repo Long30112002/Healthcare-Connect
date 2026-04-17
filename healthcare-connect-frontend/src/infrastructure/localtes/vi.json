@@ -8,7 +8,6 @@
     "view": "Xem",
     "confirm": "Xác nhận",
     "back": "Quay lại",
-    "next": "Tiếp theo",
     "submit": "Gửi",
     "search": "Tìm kiếm",
     "filter": "Lọc",
@@ -35,7 +34,19 @@
     "loadMore": "Tải thêm",
     "noPhone": "Chưa có SĐT",
     "clearFilter": "Xóa bộ lọc",
-    "notAssigned": "Chưa phân công"
+    "notAssigned": "Chưa phân công",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "page": "Trang"
+  },
+  "pagination": {
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "goToPage": "Go to page",
+    "pagePlaceholder": "...",
+    "jumpToPage": "Jump to page"
   },
   "doctor": {
     "noRating": "No ratings yet",
@@ -204,12 +215,6 @@
   "statistics": {
     "title": "Thống kê",
     "subtitle": "Báo cáo hoạt động quầy lễ tân",
-    "period": {
-      "today": "Hôm nay",
-      "week": "Tuần này",
-      "month": "Tháng này",
-      "custom": "Tùy chọn"
-    },
     "totalAppointments": "Tổng lịch hẹn",
     "checkedIn": "Đã check-in",
     "waiting": "Chờ check-in",
@@ -224,6 +229,17 @@
       "success": "Xuất báo cáo thành công",
       "error": "Xuất báo cáo thất bại"
     },
+    "loadError": "Không thể tải dữ liệu thống kê",
+    "period": {
+      "today": "Hôm nay",
+      "week": "Tuần này",
+      "month": "Tháng này",
+      "quarter": "3 tháng",
+      "halfyear": "6 tháng",
+      "year": "1 năm"
+    },
+    "dailyChart": "Thống kê theo ngày",
+    "date": "Ngày",
     "noData": "Không có dữ liệu"
   },
   "home": {
@@ -523,7 +539,28 @@
     "noAppointments": "Không có lịch hẹn nào",
     "waitingCheckin": "Chờ check-in",
     "checkedInStatus": "Đã check-in • Đang chờ khám",
-    "completedStatus": "Đã hoàn thành"
+    "completedStatus": "Đã hoàn thành",
+    "loadStatsError": "Không thể tải dữ liệu thống kê",
+    "showing": "Hiển thị",
+    "of": "trong",
+    "createNew": "Tạo lịch mới",
+    "selectDoctor": "Chọn bác sĩ",
+    "enterPatientInfo": "Nhập thông tin bệnh nhân",
+    "patientName": "Họ tên bệnh nhân",
+    "patientNamePlaceholder": "Nhập họ tên",
+    "phonePlaceholder": "Nhập số điện thoại",
+    "selectSchedule": "Chọn khung giờ",
+    "symptomsPlaceholder": "Mô tả triệu chứng (không bắt buộc)",
+    "time": "Giờ",
+    "createAppointment": "Tạo lịch hẹn",
+    "createAppointmentSuccess": "Tạo lịch hẹn thành công!",
+    "createAppointmentError": "Tạo lịch hẹn thất bại",
+    "loadDoctorsError": "Không thể tải danh sách bác sĩ",
+    "loadSchedulesError": "Không thể tải lịch khám",
+    "noDoctorsAvailable": "Không có bác sĩ nào trống trong ngày",
+    "requiredPatientName": "Vui lòng nhập tên bệnh nhân",
+    "requiredPhone": "Vui lòng nhập số điện thoại",
+    "requiredSchedule": "Vui lòng chọn khung giờ khám"
   },
   "role": {
     "PATIENT": "Bệnh nhân",

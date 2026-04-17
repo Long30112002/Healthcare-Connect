@@ -4,11 +4,12 @@ interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
     variant?: 'primary' | 'secondary' | 'danger' | 'outline';
     size?: 'sm' | 'md' | 'lg';
-    rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'; 
+    rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
     fullWidth?: boolean;
     loading?: boolean;
     disabled?: boolean;
     className?: string;
+    title?: string;
 }
 
 const Button = ({
@@ -17,11 +18,12 @@ const Button = ({
     type = 'button',
     variant = 'primary',
     size = 'md',
-    rounded = 'md',  
+    rounded = 'md',
     fullWidth = false,
     loading = false,
     disabled = false,
     className = '',
+    title,
 }: ButtonProps) => {
     const variants = {
         primary: 'bg-primary hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700',
@@ -44,13 +46,14 @@ const Button = ({
         full: 'rounded-full'
     };
 
-    const isLoading = loading; 
+    const isLoading = loading;
 
     return (
         <button
             type={type}
             onClick={onClick}
             disabled={disabled || isLoading}
+            title={title}  
             className={`${sizes[size]} ${variants[variant]} ${roundedStyles[rounded]} 
                 font-medium transition-all duration-200 ${fullWidth ? 'w-full' : ''}
                 ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}

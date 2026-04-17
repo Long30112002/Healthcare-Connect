@@ -36,7 +36,18 @@
     "loadMore": "Load More",
     "noPhone": "No phone",
     "clearFilter": "Clear filter",
-    "notAssigned": "Not assigned"
+    "notAssigned": "Not assigned",
+    "previous": "Previous",
+    "page": "Page"
+  },
+  "pagination": {
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "goToPage": "Go to page",
+    "pagePlaceholder": "...",
+    "jumpToPage": "Jump to page"
   },
   "doctor": {
     "noRating": "No ratings yet",
@@ -227,12 +238,6 @@
   "statistics": {
     "title": "Statistics",
     "subtitle": "Receptionist activity report",
-    "period": {
-      "today": "Today",
-      "week": "This Week",
-      "month": "This Month",
-      "custom": "Custom"
-    },
     "totalAppointments": "Total Appointments",
     "checkedIn": "Checked-in",
     "waiting": "Waiting",
@@ -247,6 +252,17 @@
       "success": "Report exported successfully",
       "error": "Failed to export report"
     },
+    "loadError": "Cannot load statistics data",
+    "period": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "quarter": "3 Months",
+      "halfyear": "6 Months",
+      "year": "1 Year"
+    },
+    "dailyChart": "Daily Statistics",
+    "date": "Date",
     "noData": "No data available"
   },
   "home": {
@@ -512,7 +528,28 @@
     "noAppointments": "No appointments found",
     "waitingCheckin": "Waiting for check-in",
     "checkedInStatus": "Checked-in • Waiting for exam",
-    "completedStatus": "Completed"
+    "completedStatus": "Completed",
+    "loadStatusError": "Cannot load appointment status",
+    "showing": "Showing",
+    "of": "of",
+    "createNew": "New Appointment",
+    "selectDoctor": "Select Doctor",
+    "enterPatientInfo": "Enter Patient Info",
+    "patientName": "Patient Name",
+    "patientNamePlaceholder": "Enter full name",
+    "phonePlaceholder": "Enter phone number",
+    "selectSchedule": "Select Time Slot",
+    "symptomsPlaceholder": "Describe symptoms (optional)",
+    "time": "Time",
+    "createAppointment": "Create Appointment",
+    "createAppointmentSuccess": "Appointment created successfully!",
+    "createAppointmentError": "Failed to create appointment",
+    "loadDoctorsError": "Cannot load doctors list",
+    "loadSchedulesError": "Cannot load schedules",
+    "noDoctorsAvailable": "No doctors available today",
+    "requiredPatientName": "Please enter patient name",
+    "requiredPhone": "Please enter phone number",
+    "requiredSchedule": "Please select a time slot"
   },
   "modal": {
     "defaultTitle": {

@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import { UserRole } from '../../core/constants/enums';
 import ReceptionistDashboard from '../../presentation/pages/receptionist/ReceptionistDashboard';
+import ReceptionistStatistics from '../../presentation/pages/receptionist/ReceptionistStatistics';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -52,4 +53,6 @@ export const routes: RouteConfig[] = [
   { path: '/payment/:appointmentId', element: <PaymentPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/payment-result', element: <PaymentResultPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/receptionist/dashboard', element: <ReceptionistDashboard />, layout: true, roles: [UserRole.RECEPTIONIST] },
+  { path: '/receptionist/statistics', element: <ReceptionistStatistics />, layout: true, roles: [UserRole.RECEPTIONIST] },
+
 ];
