@@ -4,7 +4,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
-import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CreatePaymentUseCase {
 
-    private final IAppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
     private final PaymentProvider paymentProvider; // Chính là Interface MoMo/VNPay
 
     public String execute(UUID appointmentId) {

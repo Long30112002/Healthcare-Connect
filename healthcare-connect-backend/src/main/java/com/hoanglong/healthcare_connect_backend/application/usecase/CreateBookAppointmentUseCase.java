@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentRespo
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.BookingType;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
@@ -26,7 +27,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BookAppointmentUseCase {
+public class CreateBookAppointmentUseCase
+{
     private final AppointmentRepository appointmentRepository;
     private final IScheduleRepository scheduleRepository;
     private final IUserRepository userRepository;
@@ -107,12 +109,15 @@ public class BookAppointmentUseCase {
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
+                .patientName(patient.getFullName())
+                .patientPhone(patient.getPhone())
                 .schedule(schedule)
                 .appointmentDate(LocalDateTime.now())
                 .status(AppointmentStatus.AWAITING_PAYMENT)
                 .symptoms(symptoms)
                 .isPaid(false)
                 .room(schedule.getRoom())
+                .bookingType(BookingType.ONLINE)
                 .build();
 
         int newBookingCount = schedule.getCurrentBookings() + 1;

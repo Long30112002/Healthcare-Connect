@@ -2,15 +2,16 @@ package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.NotificationService;
-import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
-import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.*;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
+import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
+import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
-import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -20,6 +21,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.cloudinary.json.JSONObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +35,15 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "payment.momo.enabled", havingValue = "true")
 public class MomoService implements PaymentProvider
 {
     private final MomoConfig momoConfig;
-    private final IAppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
     private final IPaymentRepository paymentRepository;
     private final MailService mailService;
     private final NotificationService notificationService;
+    private final IScheduleRepository scheduleRepository;
     private static final String REQUEST_TYPE = "payWithMethod";
 
     public String createPaymentRequest(Appointment appointment) {
@@ -229,12 +233,12 @@ public class MomoService implements PaymentProvider
                 return;
             }
 
-            // ===== 11. UPDATE DB =====
-            updateAppointmentStatus(appointment, params);
+            // ===== 11. UPDATE DB (gọi method riêng) =====
+            updateAppointmentStatus(appointment, params, transId);
 
             // ===== 12. AUDIT LOG =====
-            log.info("==> [SUCCESS] Payment success | orderId={} | transId={} | amount={}",
-                    orderId, transId, amount);
+            log.info("==> [SUCCESS] Payment success | orderId={} | transId={} | amount={} | bookingType={}",
+                    orderId, transId, amount, appointment.getBookingType());
 
         } catch (Exception e) {
             log.error("==> [ERROR] IPN processing failed: {}", e.getMessage());
@@ -242,38 +246,84 @@ public class MomoService implements PaymentProvider
         }
     }
 
-    private void updateAppointmentStatus(Appointment appointment, Map<String, String> params) {
+    @Override
+    public PaymentMethod getSupportedMethod() {
+        return PaymentMethod.MOMO;
+    }
+
+    private void updateAppointmentStatus(Appointment appointment, Map<String, String> params, String transId) {
         // 1. Cập nhật Appointment
         appointment.setPaid(true);
         appointment.setStatus(AppointmentStatus.CONFIRMED);
         appointmentRepository.save(appointment);
 
-        // 2. Tạo bản ghi Payment theo Entity mới của Long
-        Payment payment = Payment.builder()
-                .appointment(appointment)
-                .transactionNo(params.get("transId"))
-                .amount(new BigDecimal(params.get("amount")))
-                .paymentMethod("MOMO")
-                .status(PaymentStatus.SUCCESS)
-                .createdAt(LocalDateTime.now())
-                .build();
+        // 2. Tạo hoặc cập nhật bản ghi Payment
+        Payment payment = paymentRepository.findByAppointmentId(appointment.getId())
+                .orElseGet(() -> Payment.builder()
+                        .appointment(appointment)
+                        .build());
+
+        payment.setTransactionNo(transId);
+        payment.setAmount(new BigDecimal(params.get("amount")));
+        payment.setPaymentMethod(PaymentMethod.MOMO); 
+        payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setCreatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        mailService.sendPaymentSuccessEmail(appointment);
+        // 3. GỬI EMAIL - CHỈ GỬI NẾU CÓ PATIENT (ONLINE)
+        if (appointment.getPatient() != null) {
+            try {
+                mailService.sendPaymentSuccessEmail(appointment);
+                log.info("==> [MAIL] Payment success email sent for appointment: {}", appointment.getId());
+            } catch (Exception e) {
+                log.error("==> [MAIL ERROR] Failed to send payment email: {}", e.getMessage());
+            }
+        } else {
+            log.info("==> [MAIL] Skip email for walk-in appointment: {}", appointment.getId());
+        }
 
-        // 4. Bắn tín hiệu realtime để front - end tự cập nhật
+        // 4. NẾU LÀ WALK-IN, TRỪ SLOT
+        BookingType bookingType = appointment.getBookingType();
+        if (bookingType == null) {
+            bookingType = BookingType.ONLINE;
+            log.warn("==> [MOMO] BookingType was null, set to ONLINE for appointment: {}", appointment.getId());
+        }
+
+        // 5. NẾU LÀ WALK-IN, TRỪ SLOT
+        if (bookingType == BookingType.WALK_IN) {
+            Schedule schedule = appointment.getSchedule();
+            Schedule lockedSchedule = scheduleRepository.findByIdWithLock(schedule.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+            int newBookingCount = lockedSchedule.getCurrentBookings() + 1;
+            lockedSchedule.setCurrentBookings(newBookingCount);
+
+            if (newBookingCount >= lockedSchedule.getMaxPatients()) {
+                lockedSchedule.setStatus(ScheduleStatus.FULL);
+            }
+            scheduleRepository.save(lockedSchedule);
+
+            log.info("==> [WALK-IN MOMO] Đã trừ slot cho schedule: {}", lockedSchedule.getId());
+        }
+
+
+        // 6. Gửi WebSocket thông báo (dùng biến bookingType đã xử lý)
         Map<String, Object> socketData = new HashMap<>();
         socketData.put("appointmentId", appointment.getId());
         socketData.put("status", "PAID");
-        socketData.put("message", "Thanh toán thành công!");
+        socketData.put("bookingType", bookingType.name());
+        socketData.put("message", bookingType == BookingType.WALK_IN
+                ? "Thanh toán walk-in thành công!"
+                : "Thanh toán thành công!");
 
-        // Frontend sẽ lắng nghe tại topic: /topic/payment/{id}
-        notificationService.sendRealtimeNotification(
-                "/topic/payment/" + appointment.getId(),
-                socketData
-        );
+        String topic = bookingType == BookingType.WALK_IN
+                ? "/topic/receptionist/payment/" + appointment.getId()
+                : "/topic/payment/" + appointment.getId();
 
-        log.info("==> [SUCCESS] Đã cập nhật và phát tín hiệu realtime cho đơn hàng: {}", appointment.getId());
+        notificationService.sendRealtimeNotification(topic, socketData);
+
+        log.info("==> [SUCCESS] Đã cập nhật và phát tín hiệu realtime cho đơn hàng: {}, type: {}",
+                appointment.getId(), bookingType);
     }
 
     public JSONObject refundTransaction(Payment payment, long amount, String description) {

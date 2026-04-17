@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +18,6 @@ public class NotificationMessage implements Serializable {
     String templateName; // "email-template" hoặc template riêng cho từng loại
     // Dùng Map để chứa bất kỳ thứ gì: name, url, message, time...
     Map<String, Object> variables;
+    UUID appointmentId;
+    String paymentType;
 }

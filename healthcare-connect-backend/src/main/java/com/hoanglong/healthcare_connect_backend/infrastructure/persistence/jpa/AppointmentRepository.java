@@ -13,14 +13,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUID>
+public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
 {
     @Query("""
         SELECT a FROM Appointment a
@@ -30,8 +29,6 @@ public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUI
         WHERE a.id = :id
     """)
     Optional<Appointment> findByIdWithDetails(@Param("id") UUID id);
-
-
 
     @Query(value = "SELECT COUNT(*) > 0 FROM appointments a " +
             "JOIN schedules s ON a.schedule_id = s.id " +
@@ -70,7 +67,6 @@ public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUI
             @Param("status") AppointmentStatus status,
             Pageable pageable);
 
-
     @Query("SELECT a FROM Appointment a " +
             "JOIN FETCH a.patient p " +
             "JOIN FETCH a.schedule s " +
@@ -89,4 +85,16 @@ public interface JpaAppointmentRepository extends JpaRepository<Appointment, UUI
             "OR CAST(a.id AS string) LIKE CONCAT('%', :keyword, '%')")
     List<Appointment> searchAppointments(@Param("keyword") String keyword);
 
+    List<Appointment> findByScheduleStartTimeBetween(LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT a FROM Appointment a WHERE DATE(a.schedule.date) = :date")
+    Page<Appointment> findByScheduleDate(@Param("date") LocalDate date, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a WHERE DATE(a.schedule.date) BETWEEN :start AND :end")
+    Page<Appointment> findByScheduleDateBetween(@Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a ORDER BY a.schedule.date ASC")
+    Page<Appointment> findAllByOrderByScheduleDateAsc(Pageable pageable);
 }

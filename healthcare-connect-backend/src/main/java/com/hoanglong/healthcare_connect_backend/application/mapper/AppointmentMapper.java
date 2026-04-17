@@ -18,9 +18,10 @@ public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentRe
     @Mapping(source = "paid", target = "isPaid")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "room.id", target = "roomId")
-    @Mapping(source = "patient.phone", target = "phone")
     @Mapping(source = "room.roomNumber", target = "roomNumber")
     @Mapping(source = "room.floor", target = "roomFloor")
+    @Mapping(source = "patientPhone", target = "patientPhone")
+    @Mapping(source = "bookingType", target = "bookingType")
     AppointmentResponse toResponse(Appointment appointment);
 
     @Override

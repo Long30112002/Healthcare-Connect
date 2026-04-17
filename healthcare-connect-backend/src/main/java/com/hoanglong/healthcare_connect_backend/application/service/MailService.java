@@ -14,6 +14,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.springframework.core.io.FileSystemResource;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -25,8 +27,10 @@ import java.util.Map;
 
 public class MailService {
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
     private final RabbitTemplate rabbitTemplate;
+    private final QRCodeService qrCodeService;
+    private final SpringTemplateEngine templateEngine;
+
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -170,20 +174,51 @@ public class MailService {
     }
 
     // NGHIỆP VỤ XÁC NHẬN THANH TOÁN
+//    public void sendPaymentSuccessEmail(Appointment appointment) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+//        String formattedStartTime = appointment.getSchedule().getStartTime().format(formatter);
+//        String qrCodeImage = qrCodeService.generateQRCodeBase64(appointment.getId().toString());
+//        log.info("QR Code Image length: {}", qrCodeImage != null ? qrCodeImage.length() : "null");
+//        log.info("QR Code Image starts with: {}", qrCodeImage != null ? qrCodeImage.substring(0, 50) : "null");
+//
+//        Map<String, Object> variables = new HashMap<>();
+//        variables.put("patientName", appointment.getPatient().getFullName());
+//        variables.put("appointmentId", appointment.getId().toString().substring(0, 8));
+//        variables.put("doctorName", appointment.getSchedule().getDoctor().getUser().getFullName());
+//        variables.put("startTime", formattedStartTime);
+//        variables.put("amount", appointment.getSchedule().getPrice());
+//        variables.put("qrCodeImage", qrCodeImage);
+//
+//        pushToQueue(
+//                appointment.getPatient().getEmail(),
+//                "Xác nhận thanh toán thành công - Healthcare Connect",
+//                "payment-success-template",
+//                variables
+//        );
+//    }
+
+    // NGHIỆP VỤ XÁC NHẬN THANH TOÁN DÙNG CID ĐỂ GỬI QR
     public void sendPaymentSuccessEmail(Appointment appointment) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        String formattedStartTime = appointment.getSchedule().getStartTime().format(formatter);
+
         Map<String, Object> variables = new HashMap<>();
         variables.put("patientName", appointment.getPatient().getFullName());
         variables.put("appointmentId", appointment.getId().toString().substring(0, 8));
         variables.put("doctorName", appointment.getSchedule().getDoctor().getUser().getFullName());
-        variables.put("startTime", appointment.getSchedule().getStartTime());
+        variables.put("startTime", formattedStartTime);
         variables.put("amount", appointment.getSchedule().getPrice());
 
-        pushToQueue(
-                appointment.getPatient().getEmail(),
-                "Xác nhận thanh toán thành công - Healthcare Connect",
-                "payment-success-template",
-                variables
-        );
+        NotificationMessage message = NotificationMessage.builder()
+                .recipientEmail(appointment.getPatient().getEmail())
+                .subject("Xác nhận thanh toán thành công - Healthcare Connect")
+                .templateName("payment-success-template")
+                .variables(variables)
+                .appointmentId(appointment.getId())
+                .paymentType("PAYMENT_SUCCESS")
+                .build();
+
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, message);
     }
 
     // --- HÀM GỬI MAIL VẬT LÝ ---

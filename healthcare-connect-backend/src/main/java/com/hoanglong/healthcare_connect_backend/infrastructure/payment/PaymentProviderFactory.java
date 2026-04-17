@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
+package com.hoanglong.healthcare_connect_backend.infrastructure.payment;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentMethod;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
@@ -16,26 +16,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentProviderFactory {
 
-    private final Map<PaymentMethod, PaymentProvider> providerMap;
-
-    // Spring sẽ tự inject tất cả PaymentProvider beans vào constructor
-    public PaymentProviderFactory(List<PaymentProvider> providers) {
-        this.providerMap = providers.stream()
-                .collect(Collectors.toMap(
-                        provider -> provider.getSupportedMethod(),
-                        Function.identity()
-                ));
-    }
+    private final List<PaymentProvider> providers;  // Spring tự inject tất cả PaymentProvider beans
 
     public PaymentProvider getProvider(PaymentMethod method) {
-        PaymentProvider provider = providerMap.get(method);
-        if (provider == null) {
-            throw new AppException(ErrorCode.UNSUPPORTED_PAYMENT_METHOD);
-        }
-        return provider;
+        return providers.stream()
+                .filter(provider -> provider.getSupportedMethod() == method)
+                .findFirst()
+                .orElseThrow(() -> new AppException(ErrorCode.UNSUPPORTED_PAYMENT_METHOD));
     }
 
     public boolean isSupported(PaymentMethod method) {
-        return providerMap.containsKey(method);
+        return providers.stream()
+                .anyMatch(provider -> provider.getSupportedMethod() == method);
     }
 }

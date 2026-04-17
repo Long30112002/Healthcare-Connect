@@ -13,7 +13,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AppointmentResponse {
+public class AppointmentResponse
+{
     UUID id;
     String patientName;
     String doctorName;
@@ -27,7 +28,8 @@ public class AppointmentResponse {
     double price;
     boolean isPaid;
     UUID roomId;
-    String phone;
     String roomNumber;
     Integer roomFloor;
+    String patientPhone;
+    String bookingType;
 }

@@ -1,3 +1,19 @@
-package com.hoanglong.healthcare_connect_backend.application.dto;public class WalkInAppointmentResponse {
-            
+package com.hoanglong.healthcare_connect_backend.application.dto;
+
+import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class WalkInAppointmentResponse {
+    AppointmentResponse appointment;
+    PaymentStatus paymentStatus;
+    String payUrl;
+    boolean needPayment;
+    String message;
 }

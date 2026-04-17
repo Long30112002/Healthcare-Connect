@@ -22,5 +22,7 @@ public class UserRegistrationRequest {
     String password;
 
     UserRole role;
+
+    @NotBlank(message = "PHONE_INVALID")
     String phone;
 }
