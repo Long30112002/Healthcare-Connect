@@ -31,14 +31,43 @@
     "status": "Trạng thái",
     "actions": "Thao tác",
     "canceled": "Đã hủy",
-    "suggestion": "Gợi ý"
+    "suggestion": "Gợi ý",
+    "loadMore": "Tải thêm",
+    "noPhone": "Chưa có SĐT",
+    "clearFilter": "Xóa bộ lọc",
+    "notAssigned": "Chưa phân công"
   },
   "doctor": {
     "noRating": "No ratings yet",
     "yearsExperience": "years experience",
     "visit": "visit",
     "biography": "Biography",
-    "degree": "Degree"
+    "degree": "Degree",
+    "dashboardTitle": "Bảng điều khiển bác sĩ",
+    "dashboardSubtitle": "Quản lý lịch khám và bệnh nhân của bạn",
+    "tabConfirmed": "Chờ khám",
+    "tabInProgress": "Đang khám",
+    "tabCompleted": "Đã khám",
+    "tabCancelled": "Đã hủy",
+    "noAppointments": "Không có lịch hẹn",
+    "noAppointmentsDesc": "Bạn không có lịch hẹn nào trong danh sách này",
+    "checkIn": "Check-in",
+    "completeExam": "Kết thúc khám"
+  },
+  "checkin": {
+    "invalidToken": "Mã QR không hợp lệ",
+    "processing": "Đang xử lý check-in...",
+    "success": "Check-in thành công!",
+    "successTitle": "Check-in thành công!",
+    "successMessage": "Chào mừng bạn đến với bệnh viện. Vui lòng vào phòng khám.",
+    "failed": "Check-in thất bại, vui lòng liên hệ quầy lễ tân",
+    "errorTitle": "Check-in thất bại",
+    "errorMessage": "Có lỗi xảy ra, vui lòng thử lại hoặc liên hệ nhân viên",
+    "doctor": "Bác sĩ",
+    "time": "Thời gian",
+    "room": "Phòng",
+    "backToHome": "Về trang chủ",
+    "retry": "Thử lại"
   },
   "booking": {
     "symptoms": "Symptoms",
@@ -76,7 +105,8 @@
     "transactionId": "Mã giao dịch",
     "viewAppointments": "Xem lịch hẹn",
     "redirecting": "Đang xử lý thanh toán, vui lòng chờ...",
-    "openNewTab": "Mở tab thanh toán mới, vui lòng hoàn tất thanh toán!"
+    "openNewTab": "Mở tab thanh toán mới, vui lòng hoàn tất thanh toán!",
+    "clickToPay": "Lựa chọn để thanh toán"
   },
   "dashboard": {
     "welcome": "Xin chào",
@@ -167,7 +197,34 @@
     "users": "Người dùng",
     "hospitals": "Bệnh viện",
     "specialties": "Chuyên khoa",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "myHospital": "Bệnh viện của tôi",
+    "statistics": "Thống kê"
+  },
+  "statistics": {
+    "title": "Thống kê",
+    "subtitle": "Báo cáo hoạt động quầy lễ tân",
+    "period": {
+      "today": "Hôm nay",
+      "week": "Tuần này",
+      "month": "Tháng này",
+      "custom": "Tùy chọn"
+    },
+    "totalAppointments": "Tổng lịch hẹn",
+    "checkedIn": "Đã check-in",
+    "waiting": "Chờ check-in",
+    "cancelled": "Đã hủy",
+    "noShow": "Không đến",
+    "checkInRate": "Tỷ lệ check-in",
+    "hourlyChart": "Biểu đồ check-in theo giờ",
+    "doctorRanking": "Bác sĩ có nhiều bệnh nhân nhất",
+    "export": {
+      "excel": "Xuất Excel",
+      "pdf": "Xuất PDF",
+      "success": "Xuất báo cáo thành công",
+      "error": "Xuất báo cáo thất bại"
+    },
+    "noData": "Không có dữ liệu"
   },
   "home": {
     "hero": {
@@ -431,11 +488,49 @@
     "paid": "Đã thanh toán",
     "unpaid": "Chưa thanh toán"
   },
+  "receptionist": {
+    "title": "Bảng điều khiển Lễ tân",
+    "subtitle": "Quản lý check-in bệnh nhân",
+    "waiting": "Chờ check-in",
+    "checkedIn": "Đã check-in",
+    "completed": "Đã khám",
+    "searchPlaceholder": "🔍 Tìm theo tên hoặc số điện thoại...",
+    "todayAppointments": "Lịch hẹn hôm nay",
+    "checkIn": "Check-in",
+    "loadError": "Không thể tải danh sách lịch hẹn",
+    "checkInSuccess": "Check-in thành công!",
+    "checkInError": "Check-in thất bại, vui lòng thử lại",
+    "filterToday": "Hôm nay",
+    "filterTomorrow": "Ngày mai",
+    "filterWeek": "Tuần này",
+    "filterAll": "Tất cả",
+    "appointments": "Danh sách lịch hẹn",
+    "room": "Phòng",
+    "floor": "Tầng",
+    "phone": "Điện thoại",
+    "doctor": "Bác sĩ",
+    "hospital": "Bệnh viện",
+    "appointmentTime": "Giờ hẹn",
+    "price": "Phí khám",
+    "paid": "Đã thanh toán",
+    "unpaid": "Chưa thanh toán",
+    "symptoms": "Triệu chứng",
+    "checkInTime": "Thời gian check-in",
+    "statusAll": "Tất cả trạng thái",
+    "statusWaiting": "Chờ check-in",
+    "statusCheckedIn": "Đã check-in",
+    "statusCompleted": "Đã khám",
+    "noAppointments": "Không có lịch hẹn nào",
+    "waitingCheckin": "Chờ check-in",
+    "checkedInStatus": "Đã check-in • Đang chờ khám",
+    "completedStatus": "Đã hoàn thành"
+  },
   "role": {
     "PATIENT": "Bệnh nhân",
     "DOCTOR": "Bác sĩ",
     "ADMIN": "Quản trị viên",
-    "HOSPITAL_MANAGER": "Quản lý bệnh viện"
+    "HOSPITAL_MANAGER": "Quản lý bệnh viện",
+    "RECEPTIONIST": "Lễ tân"
   },
   "status": {
     "PENDING": "Chờ xử lý",
@@ -552,6 +647,7 @@
     "SCHEDULE_ALREADY_PASSED": "Lịch khám này đã qua giờ, không thể đặt!",
     "PAYMENT_ERROR": "Thanh toán không thành công!",
     "REFUND_FAILED": "Hoàn tiền thất bại!",
-    "PAYMENT_NOT_FOUND": "Không tìm thấy mục thanh toán!"
+    "PAYMENT_NOT_FOUND": "Không tìm thấy mục thanh toán!",
+    "PHONE_INVALID": "Số điện thoại không hợp lệ!"
   }
 }

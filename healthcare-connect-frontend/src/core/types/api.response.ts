@@ -2,8 +2,8 @@ import type { User } from ".";
 import type { AppointmentStatus } from "../constants/enums";
 
 export interface ApiResponse<T> {
-    status: string; 
-    code: number;  
+    status: string;
+    code: number;
     message: string;
     data: T;
     errors?: string[];
@@ -44,6 +44,27 @@ export interface PaginatedResponse<T> {
         unsorted: boolean;
     };
     first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        sort: { empty: boolean; sorted: boolean; unsorted: boolean };
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    first: boolean;
+    size: number;
+    number: number;
+    sort: { empty: boolean; sorted: boolean; unsorted: boolean };
     numberOfElements: number;
     empty: boolean;
 }

@@ -1,86 +1,60 @@
+import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import LoginPage from '../../presentation/pages/LoginPage';
-import AppointmentListPage from '../../presentation/pages/patient/AppointmentListPage';
 import Layout from '../../presentation/components/layout/Layout';
-import PublicHomePage from '../../presentation/pages/PublicHomePage';
-import SettingsPage from '../../presentation/pages/SettingsPage';
-import RegisterPage from '../../presentation/pages/RegisterPage';
-import ForgotPasswordPage from '../../presentation/pages/ForgotPasswordPage';
-import ResetPasswordPage from '../../presentation/pages/ResetPasswordPage';
-import VerifyEmailPage from '../../presentation/pages/VerifyEmailPage';
-import PatientDashboard from '../../presentation/components/dashboard/PatientDashboard';
-import DoctorDetailPage from '../../presentation/pages/patient/DoctorDetailPage';
-import DoctorsPage from '../../presentation/pages/patient/DoctorsPage';
-import PaymentPage from '../../presentation/pages/payment/PaymentPage';
-import PaymentResultPage from '../../presentation/pages/payment/PaymentResultPage';
+import LoadingSpinner from '../../presentation/components/shared/LoadingSpinner';
+import { UserRole } from '../../core/constants/enums';
+import { routes, type RouteConfig } from './routes';
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+const ProtectedRoute = ({ children, roles }: { children: React.ReactNode; roles?: UserRole[] }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+  
+  if (loading) return <LoadingSpinner fullScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  
+  if (roles && !roles.includes(user?.role as UserRole)) {
+    switch (user?.role) {
+      case UserRole.PATIENT:
+        return <Navigate to="/dashboard" replace />;
+      case UserRole.DOCTOR:
+        return <Navigate to="/doctor/dashboard" replace />;
+      case UserRole.RECEPTIONIST:
+        return <Navigate to="/receptionist/dashboard" replace />;
+      case UserRole.ADMIN:
+        return <Navigate to="/admin/dashboard" replace />;
+      case UserRole.HOSPITAL_MANAGER:
+        return <Navigate to="/manager/dashboard" replace />;
+      default:
+        return <Navigate to="/" replace />;
+    }
+  }
+  
+  return children;
+};
+
+const RouteElement = ({ route }: { route: RouteConfig }) => {
+  const content = route.isPublic ? (
+    route.element
+  ) : (
+    <ProtectedRoute roles={route.roles}>{route.element}</ProtectedRoute>
+  );
+
+  return route.layout ? <Layout>{content}</Layout> : content;
 };
 
 export const AppRouter = () => {
-  const { isAuthenticated } = useAuth();
-
   return (
-    <Routes>
-      {/* Public routes - có Layout */}
-      <Route element={<Layout />}>
-        <Route path="/" element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <PublicHomePage />
-        } />
-        <Route path="/about" element={<div>Về chúng tôi</div>} />
-        <Route path="/privacy-policy" element={<div>Chính sách bảo mật</div>} />
-        <Route path="/terms" element={<div>Điều khoản sử dụng</div>} />
-        <Route path="/contact" element={<div>Liên hệ</div>} />
-        <Route path="/doctors/public" element={<div>Danh sách bác sĩ</div>} />
-
-        <Route path="/doctors" element={
-          <PrivateRoute>
-            <DoctorsPage />
-          </PrivateRoute>
-        } />
-
-        {/* Private routes */}
-        <Route path="/appointments" element={
-          <PrivateRoute>
-            <AppointmentListPage />
-          </PrivateRoute>
-        } />
-        <Route path="/settings" element={
-          <PrivateRoute>
-            <SettingsPage />
-          </PrivateRoute>
-        } />
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <PatientDashboard />
-          </PrivateRoute>
-        } />
-        <Route path="/doctors/:id" element={
-          <PrivateRoute>
-            <DoctorDetailPage />
-          </PrivateRoute>
-        } />
-        <Route path="/payment/:appointmentId" element={
-          <PrivateRoute>
-            <PaymentPage />
-          </PrivateRoute>
-        } />
-        <Route path="/payment-result" element={
-          <PrivateRoute>
-            <PaymentResultPage />
-          </PrivateRoute>
-        } />
-      </Route>
-
-      {/* Auth routes (không có Layout) */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/verify" element={<VerifyEmailPage />} />
-    </Routes>
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
+      <Routes>
+        {routes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={<RouteElement route={route} />}
+          />
+        ))}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 };

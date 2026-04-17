@@ -8,7 +8,7 @@ CREATE TABLE public.payments (
                           id UUID PRIMARY KEY,
                           appointment_id UUID NOT NULL,
                           amount DECIMAL(19, 2) NOT NULL,
-                          payment_method VARCHAR(20) NOT NULL, -- MOMO, VNPAY
+                          payment_method VARCHAR(20) NOT NULL, -- MOMO, VPAY
                           transaction_no VARCHAR(100),         -- Mã GD từ nhà cung cấp
                           status VARCHAR(20) NOT NULL,         -- PENDING, SUCCESS, FAILED, REFUNDED
                           refund_amount DECIMAL(19, 2) DEFAULT 0,

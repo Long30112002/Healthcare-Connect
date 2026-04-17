@@ -21,7 +21,7 @@ const parseToDate = (input: string | number[] | Date): Date => {
  */
 export const formatDateTime = (
     input: string | number[], 
-    format: 'dd/mm/yyyy HH:MM' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'HH:MM' = 'dd/mm/yyyy HH:MM'
+    format: 'dd/mm/yyyy HH:MM' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'HH:MM' | 'HH:MM:ss' | 'dd/MM/yyyy' = 'dd/mm/yyyy HH:MM'
 ): string => {
     if (!input) return 'N/A';
     
@@ -33,14 +33,19 @@ export const formatDateTime = (
     const year = date.getFullYear();
     const hour = date.getHours().toString().padStart(2, '0');
     const minute = date.getMinutes().toString().padStart(2, '0');
+    const second = date.getSeconds().toString().padStart(2, '0');
     
     switch (format) {
         case 'dd/mm/yyyy':
+            return `${day}/${month}/${year}`;
+        case 'dd/MM/yyyy':
             return `${day}/${month}/${year}`;
         case 'yyyy-mm-dd':
             return `${year}-${month}-${day}`;
         case 'HH:MM':
             return `${hour}:${minute}`;
+        case 'HH:MM:ss':
+            return `${hour}:${minute}:${second}`;
         default: // 'dd/mm/yyyy HH:MM'
             return `${day}/${month}/${year} ${hour}:${minute}`;
     }

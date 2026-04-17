@@ -2,7 +2,9 @@ export const UserRole = {
     PATIENT: 'PATIENT',
     DOCTOR: 'DOCTOR',
     ADMIN: 'ADMIN',
-    HOSPITAL_MANAGER: 'HOSPITAL_MANAGER'
+    HOSPITAL_MANAGER: 'HOSPITAL_MANAGER',
+    RECEPTIONIST: 'RECEPTIONIST',
+
 } as const;
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 

@@ -11,9 +11,9 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class BookAppointmentUseCase {
-    private final IAppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
     private final IScheduleRepository scheduleRepository;
     private final IUserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
@@ -112,6 +112,7 @@ public class BookAppointmentUseCase {
                 .status(AppointmentStatus.AWAITING_PAYMENT)
                 .symptoms(symptoms)
                 .isPaid(false)
+                .room(schedule.getRoom())
                 .build();
 
         int newBookingCount = schedule.getCurrentBookings() + 1;

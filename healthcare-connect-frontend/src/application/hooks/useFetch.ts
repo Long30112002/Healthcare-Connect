@@ -6,6 +6,7 @@ interface UseFetchOptions<T> {
     initialData?: T | null;
     onSuccess?: (data: T) => void;
     onError?: (error: any) => void;
+    deps?: any[];  
 }
 
 interface UseFetchReturn<T> {
@@ -14,6 +15,7 @@ interface UseFetchReturn<T> {
     error: string | null;
     execute: (...args: any[]) => Promise<void>;
     reset: () => void;
+    refetch: () => void;
 }
 
 function useFetch<T = any>(
@@ -30,31 +32,33 @@ function useFetch<T = any>(
         setError(null);
     }, [options?.initialData]);
 
-    const execute = useCallback(async (...args: any[]) => {
-
+    const execute = useCallback(async (customUrl?: string) => {
+        const finalUrl = customUrl || url;
+        if (!finalUrl) return;
+        
         setLoading(true);
         setError(null);
 
         try {
             let response;
-            const requestData = args[0];
-            const config = args[1];
+            const requestData = arguments[1];
+            const config = arguments[2];
 
             switch (method) {
                 case 'GET':
-                    response = await axiosClient.get(url, config);
+                    response = await axiosClient.get(finalUrl, config);
                     break;
                 case 'POST':
-                    response = await axiosClient.post(url, requestData, config);
+                    response = await axiosClient.post(finalUrl, requestData, config);
                     break;
                 case 'PUT':
-                    response = await axiosClient.put(url, requestData, config);
+                    response = await axiosClient.put(finalUrl, requestData, config);
                     break;
                 case 'PATCH':
-                    response = await axiosClient.patch(url, requestData, config);
+                    response = await axiosClient.patch(finalUrl, requestData, config);
                     break;
                 case 'DELETE':
-                    response = await axiosClient.delete(url, config);
+                    response = await axiosClient.delete(finalUrl, config);
                     break;
                 default:
                     throw new Error(`Unsupported method: ${method}`);
@@ -70,17 +74,20 @@ function useFetch<T = any>(
         } finally {
             setLoading(false);
         }
-    }, [url, method, options]);
+    }, [method, options]);
 
-    // Tự động gọi nếu immediate = true
+    const refetch = useCallback(() => {
+        execute();
+    }, [execute]);
+
+    //Tự động gọi khi url hoặc deps thay đổi
     useEffect(() => {
-        if (options?.immediate !== false) {
+        if (options?.immediate !== false && url) {
             execute();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Chỉ chạy 1 lần khi mount, không cần theo dõi execute
+    }, [url, ...(options?.deps || [])]);
 
-    return { data, loading, error, execute, reset };
+    return { data, loading, error, execute, reset, refetch };
 }
 
 export default useFetch;

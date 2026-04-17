@@ -30,17 +30,51 @@ const Header = () => {
   const isActive = (path: string) => {
     const currentPath = location.pathname;
     if (path === '/') {
-      return currentPath === '/' || currentPath === '/dashboard';
+      if (isAuthenticated) {
+        const dashboardPaths = [
+          '/dashboard',           // PATIENT
+          '/doctor/dashboard',    // DOCTOR
+          '/receptionist/dashboard', // RECEPTIONIST
+          '/admin/dashboard',     // ADMIN
+          '/manager/dashboard',   // HOSPITAL_MANAGER
+        ];
+        if (dashboardPaths.includes(currentPath)) {
+          return true;
+        }
+      }
+      return currentPath === '/';
     }
+
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isAuthenticated) {
-      navigate('/dashboard');
-    } else {
+
+    if (!isAuthenticated) {
       navigate('/');
+      return;
+    }
+
+    // Chuyển về dashboard theo role
+    switch (user?.role) {
+      case 'PATIENT':
+        navigate('/dashboard');
+        break;
+      case 'DOCTOR':
+        navigate('/doctor/dashboard');
+        break;
+      case 'RECEPTIONIST':
+        navigate('/receptionist/dashboard');
+        break;
+      case 'ADMIN':
+        navigate('/admin/dashboard');
+        break;
+      case 'HOSPITAL_MANAGER':
+        navigate('/manager/dashboard');
+        break;
+      default:
+        navigate('/');
     }
   };
 
@@ -53,7 +87,7 @@ const Header = () => {
     { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
   ];
 
-  const privateMenuItems = user ? [
+  const privateMenuItems = user && user.role !== 'RECEPTIONIST' ? [
     { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: '📋' },
   ] : [];
 
@@ -61,19 +95,22 @@ const Header = () => {
     PATIENT: [
       { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: '🔍' },
       { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: '💊' },
-    ],  
+    ],
     DOCTOR: [
       { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
       { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },
     ],
     HOSPITAL_MANAGER: [
-      { path: '/manage-doctors', label: 'Quản lý BS', shortLabel: '📋', icon: '👨‍⚕️' },
-      { path: '/hospital-dashboard', label: 'BV của tôi', shortLabel: '🏥', icon: '🏥' },
+      { path: '/manage-doctors', label: t('nav.manageDoctors'), shortLabel: '📋', icon: '👨‍⚕️' },
+      { path: '/hospital-dashboard', label: t('nav.myHospital'), shortLabel: '🏥', icon: '🏥' },
     ],
     ADMIN: [
-      { path: '/admin/users', label: 'Users', shortLabel: '👥', icon: '👥' },
-      { path: '/admin/hospitals', label: 'BV', shortLabel: '🏥', icon: '🏥' },
-      { path: '/admin/specialties', label: 'CK', shortLabel: '📚', icon: '📚' },
+      { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: '👥' },
+      { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: '🏥' },
+      { path: '/admin/specialties', label: t('nav.specialties'), shortLabel: '📚', icon: '📚' },
+    ],
+    RECEPTIONIST: [
+      { path: '/receptionist/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' },
     ],
   };
 

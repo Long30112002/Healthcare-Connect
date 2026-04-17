@@ -97,6 +97,10 @@ export interface Appointment {
     status: AppointmentStatus;
     price: number;
     paid: boolean;
+    phone?: string;      
+    roomNumber?: string;  
+    roomFloor?: number;
+    checkInTime?: number[];
 }
 
 export interface VisitedDoctor {

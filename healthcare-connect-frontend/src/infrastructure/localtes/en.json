@@ -32,14 +32,43 @@
     "actions": "Actions",
     "canceled": "Cancelled",
     "suggestion": "Suggestion",
-    "notFound": "Information not found"
+    "notFound": "Information not found",
+    "loadMore": "Load More",
+    "noPhone": "No phone",
+    "clearFilter": "Clear filter",
+    "notAssigned": "Not assigned"
   },
   "doctor": {
     "noRating": "No ratings yet",
     "yearsExperience": "years experience",
     "visit": "visit",
     "biography": "Biography",
-    "degree": "Degree"
+    "degree": "Degree",
+    "dashboardTitle": "Doctor Dashboard",
+    "dashboardSubtitle": "Manage your appointments and patients",
+    "tabConfirmed": "Waiting",
+    "tabInProgress": "In Progress",
+    "tabCompleted": "Completed",
+    "tabCancelled": "Cancelled",
+    "noAppointments": "No appointments",
+    "noAppointmentsDesc": "You have no appointments in this list",
+    "checkIn": "Check-in",
+    "completeExam": "Complete Exam"
+  },
+  "checkin": {
+    "invalidToken": "Invalid QR code",
+    "processing": "Processing check-in...",
+    "success": "Check-in successful!",
+    "successTitle": "Check-in Successful!",
+    "successMessage": "Welcome to the hospital. Please proceed to the examination room.",
+    "failed": "Check-in failed, please contact receptionist",
+    "errorTitle": "Check-in Failed",
+    "errorMessage": "An error occurred, please try again or contact staff",
+    "doctor": "Doctor",
+    "time": "Time",
+    "room": "Room",
+    "backToHome": "Back to Home",
+    "retry": "Retry"
   },
   "booking": {
     "symptoms": "Symptoms",
@@ -71,7 +100,8 @@
     "transactionId": "Transaction ID",
     "viewAppointments": "View Appointments",
     "redirecting": "Processing payment, please wait...",
-    "openNewTab": "Open a new payment tab, please complete your payment!"
+    "openNewTab": "Open a new payment tab, please complete your payment!",
+    "clickToPay": "Click to proceed with payment"
   },
   "toast": {
     "login_success": "Login successful!",
@@ -190,7 +220,34 @@
     "users": "Users",
     "hospitals": "Hospitals",
     "specialties": "Specialties",
-    "settings": "Settings"
+    "settings": "Settings",
+    "myHospital": "My Hospital",
+    "statistics": "Statistics"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "subtitle": "Receptionist activity report",
+    "period": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "custom": "Custom"
+    },
+    "totalAppointments": "Total Appointments",
+    "checkedIn": "Checked-in",
+    "waiting": "Waiting",
+    "cancelled": "Cancelled",
+    "noShow": "No Show",
+    "checkInRate": "Check-in Rate",
+    "hourlyChart": "Hourly Check-in Chart",
+    "doctorRanking": "Top Doctors",
+    "export": {
+      "excel": "Export Excel",
+      "pdf": "Export PDF",
+      "success": "Report exported successfully",
+      "error": "Failed to export report"
+    },
+    "noData": "No data available"
   },
   "home": {
     "hero": {
@@ -401,7 +458,8 @@
     "PATIENT": "Patient",
     "DOCTOR": "Doctor",
     "ADMIN": "Administrator",
-    "HOSPITAL_MANAGER": "Hospital Manager"
+    "HOSPITAL_MANAGER": "Hospital Manager",
+    "RECEPTIONIST": "Receptionist"
   },
   "appointment": {
     "payNow": "Pay Now",
@@ -418,6 +476,43 @@
     "cancelWarning": "If you cancel less than 24 hours before the appointment, fees will not be refunded.",
     "paid": "Paid",
     "unpaid": "Unpaid"
+  },
+  "receptionist": {
+    "title": "Receptionist Dashboard",
+    "subtitle": "Manage patient check-in",
+    "waiting": "Waiting",
+    "checkedIn": "Checked-in",
+    "completed": "Completed",
+    "searchPlaceholder": "🔍 Search by name or phone number...",
+    "todayAppointments": "Today's Appointments",
+    "checkIn": "Check-in",
+    "loadError": "Cannot load appointment list",
+    "checkInSuccess": "Check-in successful!",
+    "checkInError": "Check-in failed, please try again",
+    "filterToday": "Today",
+    "filterTomorrow": "Tomorrow",
+    "filterWeek": "This Week",
+    "filterAll": "All",
+    "appointments": "Appointments",
+    "room": "Room",
+    "floor": "Floor",
+    "phone": "Phone",
+    "doctor": "Doctor",
+    "hospital": "Hospital",
+    "appointmentTime": "Appointment Time",
+    "price": "Fee",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "symptoms": "Symptoms",
+    "checkInTime": "Check-in Time",
+    "statusAll": "All status",
+    "statusWaiting": "Waiting for check-in",
+    "statusCheckedIn": "Checked-in",
+    "statusCompleted": "Completed",
+    "noAppointments": "No appointments found",
+    "waitingCheckin": "Waiting for check-in",
+    "checkedInStatus": "Checked-in • Waiting for exam",
+    "completedStatus": "Completed"
   },
   "modal": {
     "defaultTitle": {
@@ -548,6 +643,7 @@
     "SCHEDULE_ALREADY_PASSED": "Schedule already passed!",
     "PAYMENT_ERROR": "Payment failed!",
     "REFUND_FAILED": "Refund failed!",
-    "PAYMENT_NOT_FOUND": "Payment not found!"
+    "PAYMENT_NOT_FOUND": "Payment not found!",
+    "PHONE_INVALID": "Invalid phone number!"
   }
 }
