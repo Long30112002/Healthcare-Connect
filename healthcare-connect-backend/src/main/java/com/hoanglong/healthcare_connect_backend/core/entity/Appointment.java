@@ -1,6 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.BookingType;
+import com.hoanglong.healthcare_connect_backend.core.constant.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +24,7 @@ public class Appointment {
     UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
+    @JoinColumn(name = "patient_id", nullable = true)
     User patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,4 +54,14 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     Room room;
+
+    @Column(name = "patient_name")
+    String patientName;
+
+    @Column(name = "patient_phone")
+    String patientPhone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "booking_type")
+    BookingType bookingType;
 }

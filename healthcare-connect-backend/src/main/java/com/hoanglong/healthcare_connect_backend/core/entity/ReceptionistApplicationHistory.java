@@ -1,9 +1,10 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistApplicationStatus;
-import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistHistoryAction;
+import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
@@ -16,54 +17,55 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReceptionistApplicationHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "receptionist_id", nullable = false)
-    private UUID receptionistId;
+    UUID receptionistId;
 
     @Column(name = "actor_id")
-    private UUID actorId;
+    UUID actorId;
 
     @Column(name = "actor_role", length = 50)
-    private String actorRole;
+    String actorRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false, length = 50)
-    private ReceptionistHistoryAction action;
+    ReceptionistApplicationStatus action;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "old_status", length = 50)
-    private ReceptionistApplicationStatus oldStatus;
+    ReceptionistStatus  oldStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "new_status", length = 50)
-    private ReceptionistApplicationStatus newStatus;
+    ReceptionistStatus newStatus;
 
     @Column(name = "rejection_reason", length = 255)
-    private String rejectionReason;
+    String rejectionReason;
 
     @Column(name = "rejection_note", columnDefinition = "TEXT")
-    private String rejectionNote;
+    String rejectionNote;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private String changes;
+    String changes;
 
     @Column(columnDefinition = "TEXT")
-    private String note;
+    String note;
 
     @Column(name = "ip_address", length = 50)
-    private String ipAddress;
+    String ipAddress;
 
     @Column(name = "user_agent", columnDefinition = "TEXT")
-    private String userAgent;
+    String userAgent;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
