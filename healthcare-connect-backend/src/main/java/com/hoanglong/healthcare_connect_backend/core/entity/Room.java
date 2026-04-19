@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -32,11 +33,9 @@ public class Room {
     @Column(name = "building")
     String building;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    String status; // AVAILABLE, OCCUPIED, MAINTENANCE
-
-    @Column(name = "current_appointment_id")
-    UUID currentAppointmentId;
+    RoomStatus status; // AVAILABLE, OCCUPIED, MAINTENANCE
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -47,5 +46,5 @@ public class Room {
     LocalDateTime updatedAt;
 
     @Column(name = "deleted")
-    private boolean deleted;
+    boolean deleted;
 }

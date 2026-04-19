@@ -15,7 +15,7 @@ public class SecurityUtils {
     private SecurityUtils() {}
 
     public static UUID getCurrentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getName())) {
@@ -27,6 +27,19 @@ public class SecurityUtils {
         } catch (IllegalArgumentException e) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
+    }
+
+    public static String getCurrentUserRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            return "UNAUTHENTICATED";
+        }
+
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("UNKNOWN");
     }
 
     public static Optional<String> getCurrentUserEmail() {
@@ -57,5 +70,9 @@ public class SecurityUtils {
                 .anyMatch(a -> a.equals(role));
     }
 
-
+    public static boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName());
+    }
 }

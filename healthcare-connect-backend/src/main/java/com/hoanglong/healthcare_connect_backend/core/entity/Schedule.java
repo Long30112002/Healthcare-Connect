@@ -29,7 +29,9 @@ public class Schedule {
     Doctor doctor;
 
     LocalDateTime date;
+
     LocalDateTime startTime;
+
     LocalDateTime endTime;
 
     int maxPatients;

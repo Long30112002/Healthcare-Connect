@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.PaymentStatusResponse;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreatePaymentUseCase;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
@@ -28,13 +29,13 @@ public class MomoController {
 
     // 1. API CHÍNH: Người dùng nhấn nút "Thanh toán" ở Frontend sẽ gọi vào đây
     @PostMapping("/create-payment/{appointmentId}")
-    public ResponseEntity<ApiResponse<String>> createPayment(@PathVariable UUID appointmentId) {
+    public ResponseEntity<ApiResponse<MomoPaymentResponse>> createPayment(@PathVariable UUID appointmentId) {
         log.info("==> [MOMO] Yêu cầu tạo link thanh toán cho Appointment: {}", appointmentId);
 
-        String payUrl = createPaymentUseCase.execute(appointmentId);
+        MomoPaymentResponse response = createPaymentUseCase.execute(appointmentId);
 
-        return ResponseEntity.ok(ApiResponse.<String>builder()
-                .data(payUrl)
+        return ResponseEntity.ok(ApiResponse.<MomoPaymentResponse>builder()
+                .data(response)
                 .build());
     }
 

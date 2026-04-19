@@ -30,6 +30,8 @@
         CANNOT_BOOK_WITH_SELF(1022, "Không đặt lịch của chính mình!", HttpStatus.FORBIDDEN),
         ONLY_PATIENT_OR_DOCTOR_CAN_BOOK(1023, "Chỉ bệnh nhân hoặc bác sĩ mới có thể đặt lịch!", HttpStatus.FORBIDDEN),
         TOKEN_REQUIRED(1024, "Yêu cầu token!", HttpStatus.FORBIDDEN),
+        UNSUPPORTED_PAYMENT_METHOD(1025, "Phương thức thanh toán không được hỗ trợ!", HttpStatus.BAD_REQUEST),
+        ADMIN_CANNOT_BE_RECEPTIONIST(1027, "Admin không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
 
         // =============================================================================
         // 2xxx: NGƯỜI DÙNG (USER)
@@ -41,6 +43,7 @@
         PASSWORD_INVALID(2005, "Mật khẩu phải có ít nhất 8 ký tự!", HttpStatus.BAD_REQUEST),
         EMAIL_REQUIRED(2006, "Email là bắt buộc!", HttpStatus.BAD_REQUEST),
         PASSWORD_REQUIRED(2007, "Mật khẩu là bắt buộc!", HttpStatus.BAD_REQUEST),
+        PHONE_INVALID(2008, "Số điện thoại là bắt buộc!", HttpStatus.BAD_REQUEST),
 
         // =============================================================================
         // 3xxx: VALIDATION (REQUEST VALIDATION)
@@ -62,7 +65,10 @@
         MANAGER_EMAIL_REQUIRED(3015, "Email quản lý không được để trống!", HttpStatus.BAD_REQUEST),
         DESCRIPTION_TOO_LONG(3016, "Mô tả không được vượt quá 2000 ký tự!", HttpStatus.BAD_REQUEST),
         IMAGE_URL_TOO_LONG(3017, "URL hình ảnh không được vượt quá 500 ký tự!", HttpStatus.BAD_REQUEST),
-    
+        SYMPTOMS_TOO_LONG(3020, "Triệu chứng không được vượt quá 500 ký tự!", HttpStatus.BAD_REQUEST),
+        SCHEDULE_ID_REQUIRED(3021, "Vui lòng chọn lịch khám!", HttpStatus.BAD_REQUEST),
+        PAYMENT_METHOD_REQUIRED(3022, "Vui lòng chọn phương thức thanh toán!", HttpStatus.BAD_REQUEST),
+
         // =============================================================================
         // 4xxx: KHOA & CHUYÊN KHOA (DEPARTMENT & SPECIALTY)
         // =============================================================================
@@ -104,8 +110,25 @@
         DOCTOR_PROFILE_PENDING_OR_VERIFIED(6018, "Hồ sơ của bạn đang trong quá trình xét duyệt, không thể gửi lại!", HttpStatus.BAD_REQUEST),
         INVALID_DOCTOR_STATUS(6019, "Trạng thái không hợp lệ!", HttpStatus.BAD_REQUEST),
         DOCTOR_NOT_APPROVED(6020, "Bác sĩ chưa được phê duyệt, không thể tạo lịch khám!", HttpStatus.BAD_REQUEST),
-    
-    
+        RECEPTIONIST_ALREADY_EXISTS(6021, "Bạn đã có hồ sơ receptionist!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_NOT_FOUND(6022, "Không tìm thấy hồ sơ receptionist!", HttpStatus.NOT_FOUND),
+        RECEPTIONIST_WRONG_STATUS(6023, "Trạng thái hồ sơ không phù hợp!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_ALREADY_APPROVED(6024, "Hồ sơ đã được duyệt!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_NO_HOSPITAL(6025, "Receptionist chưa được gán bệnh viện!", HttpStatus.BAD_REQUEST),
+        HOSPITAL_NOT_ACTIVE(6026, "Bệnh viện chưa được kích hoạt!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_ALREADY_VERIFIED(6027, "Hồ sơ lễ tân đã được xác thực!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_ALREADY_REJECTED(6028, "Hồ sơ lễ tân đã bị từ chối!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_NOT_VERIFIED_YET(6029, "Hồ sơ lễ tân chưa được xác thực!", HttpStatus.BAD_REQUEST),
+        INVALID_RECEPTIONIST_STATUS(6030, "Trạng thái hồ sơ lễ tân không hợp lệ!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_PROFILE_PENDING_OR_VERIFIED(6031, "Hồ sơ lễ tân đang trong quá trình xét duyệt, không thể gửi lại!", HttpStatus.BAD_REQUEST),
+        DOCTOR_CANNOT_BE_RECEPTIONIST(6033, "Bác sĩ không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
+        MANAGER_CANNOT_BE_RECEPTIONIST(6034, "Quản lý bệnh viện không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
+        ALREADY_RECEPTIONIST(6035, "Bạn đã là lễ tân!", HttpStatus.BAD_REQUEST),
+        ADMIN_CANNOT_BE_DOCTOR(6036, "Admin không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
+        ALREADY_DOCTOR(6037, "Bạn đã là bác sĩ!", HttpStatus.BAD_REQUEST),
+        MANAGER_CANNOT_BE_DOCTOR(6038, "Quản lý bệnh viện không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
+        RECEPTIONIST_CANNOT_BE_DOCTOR(6039, "Lễ tân không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
+
         // =============================================================================
         // 7xxx: ĐẶT LỊCH & LỊCH KHÁM (BOOKING & SCHEDULE)
         // =============================================================================
@@ -132,14 +155,37 @@
         SCHEDULE_OVERLAP(7021, "Lịch khám bị trùng với khung giờ đã có!", HttpStatus.BAD_REQUEST),
         SCHEDULE_CANCELLED(7022, "Lịch khám này đã bị hủy!", HttpStatus.BAD_REQUEST),
         BOOKING_TOO_LATE(7023, "Chỉ có thể đặt lịch trước giờ khám ít nhất 30 phút!", HttpStatus.BAD_REQUEST),
-        SCHEDULE_ALREADY_PASSED(7024, "Lịch khám này đã qua giờ, không thể đặt!", HttpStatus.BAD_REQUEST),
-    
+        SCHEDULE_ALREADY_PASSED(7024, "Lịch khám này đã quá giờ, không thể đặt!", HttpStatus.BAD_REQUEST),
+        INVALID_CHECKIN_STATUS(7025, "Không thể check-in với trạng thái hiện tại!", HttpStatus.BAD_REQUEST),
+        WRONG_CHECKIN_DATE(7026, "Chỉ có thể check-in trong ngày khám!", HttpStatus.BAD_REQUEST),
+        INVALID_COMPLETE_STATUS(7027, "Không thể hoàn thành khi chưa check-in!", HttpStatus.BAD_REQUEST),
+        ALREADY_CHECKED_IN(7028, "Lịch hẹn này đã được check-in trước đó", HttpStatus.BAD_REQUEST),
+        CHECKIN_TIME_INVALID(7029, "Chỉ có thể check-in trong khung giờ cho phép (30 phút trước đến 30 phút sau giờ khám)", HttpStatus.BAD_REQUEST),
+        QR_CODE_EXPIRED(7030, "Mã QR đã hết hạn sử dụng", HttpStatus.BAD_REQUEST),
+        WALK_IN_SCHEDULE_FULL(7031, "Lịch khám đã hết chỗ!", HttpStatus.BAD_REQUEST),
+
         // =============================================================================
         // 8xxx: THANH TOÁN (PAYMENT)
         // =============================================================================
         PAYMENT_ERROR(8001, "Thanh toán không thành công!", HttpStatus.BAD_REQUEST),
         REFUND_FAILED(8002, "Hoàn tiền thất bại!", HttpStatus.BAD_REQUEST),
         PAYMENT_NOT_FOUND(8003, "Không tìm thấy mục thanh toán!", HttpStatus.NOT_FOUND),
+        PAYMENT_ALREADY_PROCESSED(8004, "Thanh toán đã được xử lý!", HttpStatus.BAD_REQUEST),
+        PAYMENT_ALREADY_REFUNDED(8006, "Giao dịch này đã được hoàn tiền trước đó!", HttpStatus.BAD_REQUEST),
+        REFUND_METHOD_MISMATCH(8007, "Phương thức hoàn tiền không khớp với phương thức thanh toán!", HttpStatus.BAD_REQUEST),
+        REFUND_AMOUNT_EXCEEDS_PAYMENT(8008, "Số tiền hoàn không được vượt quá số tiền đã thanh toán!", HttpStatus.BAD_REQUEST),
+        REFUND_AMOUNT_INVALID(8009, "Số tiền hoàn không hợp lệ!", HttpStatus.BAD_REQUEST),
+        MOMO_REFUND_AMOUNT_MUST_BE_FULL(8010, "Số tiền hoàn của momo không đẩy đủ!", HttpStatus.BAD_REQUEST),
+        MOMO_REFUND_NO_MANUAL_AMOUNT(8011, "Hoàn tiền qua MOMO không được nhập số tiền thủ công! Hệ thống sẽ tự động hoàn 100%.", HttpStatus.BAD_REQUEST),
+
+        // =============================================================================
+        // 9xxx: PHÒNG KHÁM (ROOM)
+        // =============================================================================        ROOM_NOT_FOUND(9001, "Không tìm thấy phòng khám", HttpStatus.NOT_FOUND),
+        ROOM_NOT_FOUND(9001, "Không tìm thấy phòng khám", HttpStatus.NOT_FOUND),
+        ROOM_ALREADY_EXISTS(9002, "Số phòng đã tồn tại", HttpStatus.BAD_REQUEST),
+        ROOM_IS_OCCUPIED(9003, "Phòng đang được sử dụng", HttpStatus.BAD_REQUEST),
+        ROOM_NOT_AVAILABLE(9004, "Phòng không khả dụng", HttpStatus.BAD_REQUEST),
+        ROOM_NOT_DELETED(9005, "Phòng chưa bị xóa", HttpStatus.BAD_REQUEST),
         ;
     
         private final int code;

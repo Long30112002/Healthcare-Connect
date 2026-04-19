@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.NotificationService;
 import com.hoanglong.healthcare_connect_backend.core.constant.*;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -44,9 +46,10 @@ public class MomoService implements PaymentProvider
     private final MailService mailService;
     private final NotificationService notificationService;
     private final IScheduleRepository scheduleRepository;
-    private static final String REQUEST_TYPE = "payWithMethod";
+    private static final String REQUEST_TYPE = "captureWallet";
 
-    public String createPaymentRequest(Appointment appointment) {
+    @Override
+    public MomoPaymentResponse createPaymentRequest(Appointment appointment) {
         try {
             // Lấy dữ liệu từ object momoConfig
             String partnerCode = momoConfig.getPartnerCode();
@@ -56,8 +59,7 @@ public class MomoService implements PaymentProvider
             String returnUrl = momoConfig.getReturnUrl();
             String notifyUrl = momoConfig.getNotifyUrl();
 
-            // XỬ LÝ AMOUNT: Ép double về long
-//            String amount = String.valueOf((long) appointment.getSchedule().getPrice());
+            // XỬ LÝ AMOUNT: Ép BigDecimal về long
             BigDecimal price = appointment.getSchedule().getPrice();
             long amountLong = price.longValue();
             String amountStr = String.valueOf(amountLong);
@@ -74,11 +76,11 @@ public class MomoService implements PaymentProvider
                     accessKey, amountStr, extraData, notifyUrl, orderId, orderInfo, partnerCode, returnUrl,
                     requestId, REQUEST_TYPE);
 
-            System.out.println("--- DEBUG RAW SIGNATURE ---");
-            System.out.println(rawSignature);
+            log.debug("RAW SIGNATURE: {}", rawSignature);
 
             // 2. KÝ CHỮ KÝ
             String signature = signHmacSHA256(rawSignature, secretKey);
+            log.debug("SIGNATURE: {}", signature);
 
             // 3. TẠO JSON BODY
             JSONObject requestBody = new JSONObject();
@@ -105,17 +107,45 @@ public class MomoService implements PaymentProvider
                     JSONObject responseJson = new JSONObject(result);
 
                     if (responseJson.has("payUrl")) {
-                        log.info("==> [MOMO] Tạo link thành công: {}", responseJson.getString("payUrl"));
-                        return responseJson.getString("payUrl");
+                        String payUrl = responseJson.getString("payUrl");
+                        log.info("==> [MOMO] Tạo link thành công: {}", payUrl);
+
+                        // TRẢ VỀ DTO ĐẦY ĐỦ
+                        return MomoPaymentResponse.builder()
+                                .payUrl(payUrl)
+                                .qrCodeUrl(generateQRCodeUrl(payUrl))
+                                .deeplink(generateDeeplink(payUrl))
+                                .build();
                     } else {
                         // Nếu MoMo trả về lỗi (như sai Key, sai Signature...)
                         log.error("==> [MOMO ERROR] Phản hồi lỗi: {}", result);
                         throw new AppException(ErrorCode.PAYMENT_ERROR);
                     }
-                }            }
+                }
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            return "{\"error\": \"Lỗi: " + e.getMessage() + "\"}";
+            log.error("==> [MOMO ERROR] Tạo payment request thất bại: {}", e.getMessage(), e);
+            throw new AppException(ErrorCode.PAYMENT_ERROR);
+        }
+    }
+
+    private String generateQRCodeUrl(String payUrl) {
+        try {
+            return "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data="
+                    + URLEncoder.encode(payUrl, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            log.error("Failed to generate QR code URL: {}", e.getMessage());
+            return "";
+        }
+    }
+
+
+    private String generateDeeplink(String payUrl) {
+        try {
+            return "momo://payment?url=" + URLEncoder.encode(payUrl, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            log.error("Failed to generate deeplink: {}", e.getMessage());
+            return payUrl; // fallback to payUrl
         }
     }
 
@@ -205,6 +235,18 @@ public class MomoService implements PaymentProvider
             // ===== 6. LOAD APPOINTMENT (LOCK) =====
             Appointment appointment = appointmentRepository.findByIdWithLock(appointmentId)
                     .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+
+            // CHẶN CALLBACK KHI APPOINTMENT ĐÃ HỦY ==========
+            if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+                log.warn("==> [MOMO IPN] Appointment already cancelled, ignoring payment callback. AppointmentId: {}", appointmentId);
+                return; // Không xử lý thanh toán
+            }
+
+            // THÊM KIỂM TRA: CHẶN CALLBACK KHI ĐÃ QUÁ GIỜ KHÁM ==========
+            if (appointment.getSchedule().getStartTime().isBefore(LocalDateTime.now())) {
+                log.warn("==> [MOMO IPN] Appointment already passed, ignoring payment callback. AppointmentId: {}", appointmentId);
+                return; // Không xử lý thanh toán
+            }
 
             // ===== 7. CHECK AMOUNT =====
             BigDecimal momoAmount = new BigDecimal(amount);
