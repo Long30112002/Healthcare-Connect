@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.core.constant;
 
-public enum DoctorHistoryAction {
+public enum ReceptionistApplicationStatus {
     CREATE("Tạo mới"),
     UPDATE("Cập nhật"),
     REAPPLY("Gửi lại"),
@@ -11,7 +11,7 @@ public enum DoctorHistoryAction {
 
     private final String displayName;
 
-    DoctorHistoryAction(String displayName) {
+    ReceptionistApplicationStatus(String displayName) {
         this.displayName = displayName;
     }
 

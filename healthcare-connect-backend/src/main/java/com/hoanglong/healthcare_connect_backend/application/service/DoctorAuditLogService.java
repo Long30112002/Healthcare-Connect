@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.core.constant.DoctorHistoryAction;
+import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.DoctorHistory;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class ApplyDoctorHistoryService {
     private final IDoctorHistoryRepository doctorHistoryRepository;
 
     public void recordDoctorHistory(UUID doctorId, UUID actorId, String actorRole,
-            DoctorHistoryAction action, String oldStatus,
+            DoctorApplicationStatus action, String oldStatus,
             String newStatus, String note, HttpServletRequest request) {
         DoctorHistory history = DoctorHistory.builder()
                 .doctorId(doctorId)
@@ -44,7 +44,7 @@ public class ApplyDoctorHistoryService {
                 .doctorId(doctorId)
                 .actorId(actorId)
                 .actorRole(actorRole)
-                .action(DoctorHistoryAction.REJECT.name())
+                .action(DoctorApplicationStatus.REJECT.name())
                 .oldStatus(oldStatus)
                 .newStatus("REJECTED")
                 .rejectionReason(rejectionReason)
@@ -64,7 +64,7 @@ public class ApplyDoctorHistoryService {
                 .doctorId(doctorId)
                 .actorId(actorId)
                 .actorRole("DOCTOR")
-                .action(DoctorHistoryAction.ARCHIVE.name())
+                .action(DoctorApplicationStatus.ARCHIVE.name())
                 .oldStatus(oldStatus)
                 .newStatus("ARCHIVED")
                 .note(note)
