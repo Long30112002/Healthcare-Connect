@@ -16,7 +16,9 @@ interface ModalProps {
     children?: ReactNode;
     showConfirm?: boolean;
     showCancel?: boolean;
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
+
 
 const Modal = ({
     isOpen,
@@ -32,6 +34,7 @@ const Modal = ({
     children,
     showConfirm = true,
     showCancel = true,
+    size = 'md',
 }: ModalProps) => {
     const { t } = useAppTranslation();
 
@@ -47,6 +50,14 @@ const Modal = ({
     }, [isOpen]);
 
     if (!isOpen) return null;
+
+    const sizeClasses = {
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        xl: 'max-w-xl',
+        full: 'max-w-[90vw]',
+    };
 
     const variantStyles = {
         primary: 'bg-blue-100 dark:bg-blue-900/30 text-blue-500',
@@ -64,7 +75,7 @@ const Modal = ({
 
     const IconComponent = () => {
         if (icon) return <>{icon}</>;
-        
+
         switch (variant) {
             case 'danger':
                 return (
@@ -93,7 +104,7 @@ const Modal = ({
         }
     };
 
-    // 👉 Giá trị mặc định với i18n
+    // Giá trị mặc định với i18n
     const defaultTitle = {
         primary: t('modal.defaultTitle.success'),
         danger: t('modal.defaultTitle.danger'),
@@ -111,8 +122,8 @@ const Modal = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            
-            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full animate-fade-in-up">
+
+            <div className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full ${sizeClasses[size]} animate-fade-in-up`}>
                 {/* Icon */}
                 <div className="flex justify-center pt-6">
                     <div className={`w-16 h-16 rounded-full ${variantStyles[variant]} flex items-center justify-center`}>

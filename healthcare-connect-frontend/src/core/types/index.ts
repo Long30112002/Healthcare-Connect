@@ -1,4 +1,4 @@
-import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus } from '../constants/enums';
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus } from '../constants/enums';
 
 export interface User {
     id: string;
@@ -36,6 +36,7 @@ export interface ScheduleSlot {
     maxPatients: number;
 }
 
+
 export interface DoctorDetail {
     id: string;
     fullName: string;
@@ -50,6 +51,16 @@ export interface DoctorDetail {
     avatar: string | null;
     schedules: ScheduleSlot[];
 }
+
+export interface Room {
+    id: string;
+    roomNumber: string;
+    floor: number;
+    building: string;
+    status: RoomStatus;
+    deleted: boolean;
+}
+
 
 export interface Schedule {
     id: string;
@@ -67,7 +78,7 @@ export interface Payment {
     id: string;
     amount: number;
     refundAmount?: number;
-    paymentMethod: "MOMO" | "VNPAY";
+    paymentMethod: PaymentMethod;
     transactionNo?: string;
     status: PaymentStatus;
     createdAt: string;
@@ -85,6 +96,7 @@ export interface Hospital {
 
 
 export interface Appointment {
+    paymentMethod: PaymentMethod;
     id: string;
     patientName: string;
     doctorName: string;
@@ -126,7 +138,3 @@ export interface DoctorListItem {
     availableSchedules: number;
 }
 
-export interface BookingRequest {
-    scheduleId: string;
-    symptoms: string;
-}

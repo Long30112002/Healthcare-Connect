@@ -21,7 +21,7 @@ const PaymentPage = () => {
         toast.success(t('payment.successTitle'));
         setTimeout(() => {
             navigate('/appointments');
-        }, 500);
+        }, 1000);
     });
 
     useEffect(() => {

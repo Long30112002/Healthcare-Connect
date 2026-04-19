@@ -4,11 +4,9 @@ import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.BookingRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.CancelAppointmentRequest;
-import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
-import com.hoanglong.healthcare_connect_backend.application.usecase.BookAppointmentUseCase;
-import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
-import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
+import com.hoanglong.healthcare_connect_backend.application.usecase.CreateBookAppointmentUseCase;
+import com.hoanglong.healthcare_connect_backend.application.usecase.ProcessRefundUseCase;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,8 +28,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingAppointmentController
 {
-    BookAppointmentUseCase bookAppointmentUseCase;
+    CreateBookAppointmentUseCase createBookAppointmentUseCase;
     AppointmentService appointmentService;
+    ProcessRefundUseCase processRefundUseCase;
 
     @GetMapping("/my-bookings")
     public ApiResponse<Page<AppointmentResponse>> getMyAppointments(
@@ -56,7 +54,7 @@ public class BookingAppointmentController
         UUID patientId = UUID.fromString(authentication.getName());
 
         return ApiResponse.<AppointmentResponse>builder()
-                .data(bookAppointmentUseCase.execute(patientId, request.getScheduleId(), request.getSymptoms()))
+                .data(createBookAppointmentUseCase.execute(patientId, request.getScheduleId(), request.getSymptoms()))
                 .build();
     }
 
@@ -67,7 +65,7 @@ public class BookingAppointmentController
 
         log.info("==> [REQUEST] Hủy lịch hẹn: {}, Lý do: {}", appointmentId, request.getReason());
 
-        appointmentService.cancelAndRefund(appointmentId, request.getReason());
+        processRefundUseCase.execute(appointmentId, request.getReason());
 
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .message("Hủy lịch và hoàn tiền thành công!")

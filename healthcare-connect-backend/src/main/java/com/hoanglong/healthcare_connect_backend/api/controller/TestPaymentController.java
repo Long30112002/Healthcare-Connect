@@ -1,13 +1,15 @@
 //package com.hoanglong.healthcare_connect_backend.api.controller;
 //
+//import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
 //import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 //import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 ////import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
-//import com.hoanglong.healthcare_connect_backend.core.repository.IAppointmentRepository;
 //import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 //import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
 //import com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo.MomoService;
+//import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 //import lombok.RequiredArgsConstructor;
+//import org.apache.commons.lang3.ObjectUtils;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.web.bind.annotation.PostMapping;
 //import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +25,7 @@
 //@RequiredArgsConstructor
 //public class TestPaymentController {
 //
-//    private final IAppointmentRepository appointmentRepository;
-////    private final PaymentProvider paymentProvider;
+//    private final AppointmentRepository appointmentRepository;
 //    private final IUserRepository userRepository;
 //    private final IScheduleRepository scheduleRepository;
 //    private final MomoService momoService;
@@ -56,9 +57,9 @@
 //            Appointment savedApp = appointmentRepository.save(appointment);
 //
 //            // 4. Gọi MoMo lấy link
-//            String payUrl = momoService.createPaymentRequest(savedApp);
+//            MomoPaymentResponse payUrl = momoService.createPaymentRequest(savedApp);
 //
-//            if (payUrl == null || payUrl.isEmpty()) {
+//            if (payUrl == null || ObjectUtils.isEmpty(payUrl)) {
 //                return ResponseEntity.badRequest().body("MoMo không trả về link. Kiểm tra lại cấu hình key/signature!");
 //            }
 //

@@ -30,6 +30,8 @@ public class AdminDoctorController
     private final DoctorService doctorService;
     private final DoctorMapper doctorMapper;
 
+
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<DoctorResponse> getDoctorForAdmin(@PathVariable UUID id) {

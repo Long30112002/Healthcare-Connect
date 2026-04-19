@@ -5,6 +5,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.DoctorDetailResp
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.VisitedDoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
+import com.hoanglong.healthcare_connect_backend.application.service.QRCodeService;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class PatientController {
 
     private final DoctorService doctorService;
+    private final QRCodeService qrCodeService;
 
     @GetMapping("/visited-doctors")
     @PreAuthorize("hasRole('PATIENT')")
@@ -54,5 +56,14 @@ public class PatientController {
                 .build();
     }
 
-
+    @GetMapping("/{appointmentId}/qr-code")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ApiResponse<String> getQRCode(@PathVariable UUID appointmentId) {
+        String qrCode = qrCodeService.generateQRCodeBase64(appointmentId.toString());
+        return ApiResponse.<String>builder()
+                .status("success")
+                .code(200)
+                .data(qrCode)
+                .build();
+    }
 }

@@ -6,8 +6,9 @@ export const patientApi = {
         return axiosClient.get('/patients/doctors/available');
     },
 
-    getDoctorDetail: (doctorId: string): Promise<DoctorDetail> => {
-        return axiosClient.get(`/patients/doctors/${doctorId}`);
+    getDoctorDetail: async (doctorId: string): Promise<DoctorDetail> => {
+        const response = await axiosClient.get(`/patients/doctors/${doctorId}`);
+        return response.data.data;
     },
 
     getAvailableDoctorsByDate: async (date: string): Promise<DoctorListItem[]> => {

@@ -24,9 +24,26 @@ export const PaymentStatus = {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
     FAILED: 'FAILED',
-    REFUNDED: 'REFUNDED'
+    REFUNDED: 'REFUNDED',
+    CANCELLED: 'CANCELLED'
 } as const;
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
+
+export const PaymentMethod = {
+    CASH: 'CASH',
+    MOMO: 'MOMO',
+    VNPAY: 'VNPAY',
+    BANK_TRANSFER: 'BANK_TRANSFER',
+    CREDIT_CARD: 'CREDIT_CARD'
+} as const;
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
+
+export const RoomStatus = {
+    AVAILABLE: 'AVAILABLE',
+    OCCUPIED: 'OCCUPIED',
+    MAINTENANCE: 'MAINTENANCE'
+} as const;
+export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus];
 
 
 export const ScheduleStatus = {
@@ -41,7 +58,8 @@ export const DoctorStatus = {
     VERIFIED: 'VERIFIED',   // 2. Admin đã xác thực hồ sơ xong, chờ Bệnh viện tiếp nhận
     APPROVED: 'APPROVED',   // 3. Bệnh viện đã duyệt, bác sĩ chính thức hoạt động (Chốt Role)
     REJECTED: 'REJECTED',   // 4. Hồ sơ bị từ chối (bởi Admin hoặc Manager)
-    INACTIVE: 'INACTIVE'    // 5. Bác sĩ đã nghỉ việc hoặc bị khóa tài khoản
+    INACTIVE: 'INACTIVE',    // 5. Bác sĩ đã nghỉ việc hoặc bị khóa tài khoản
+    ARCHIVED: 'ARCHIVED'    // 5. Bác sĩ đã nghỉ việc hoặc bị khóa tài khoản
 } as const;
 export type DoctorStatus = (typeof DoctorStatus)[keyof typeof DoctorStatus];
 
@@ -60,3 +78,14 @@ export const RejectionReason = {
 
 } as const;
 export type RejectionReason = (typeof RejectionReason)[keyof typeof RejectionReason];
+
+export const RefundMethod = {
+    MOMO: 'MOMO',
+    CASH: 'CASH',
+    BANK_TRANSFER: 'BANK_TRANSFER',
+    VNPAY: 'VNPAY',
+    WALLET: 'WALLET',
+
+} as const;
+export type RefundMethod = (typeof RefundMethod)[keyof typeof RefundMethod];
+

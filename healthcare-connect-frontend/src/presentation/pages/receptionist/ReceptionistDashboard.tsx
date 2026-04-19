@@ -8,6 +8,9 @@ import type { Appointment } from '../../../core/types';
 import type { DashboardStatistics, PageResponse } from '../../../core/types/api.response';
 import toast from 'react-hot-toast';
 import CreateOfflineAppointmentModal from './CreateOfflineAppointmentModal';
+import { PaymentMethod, RefundMethod } from '../../../core/constants/enums';
+import CancelAppointmentModal from './CancelAppointmentModal';
+import Modal from '../../components/shared/Modal';
 
 type FilterKey = 'today' | 'tomorrow' | 'week' | 'all';
 type StatusFilter = 'all' | 'waiting' | 'checkedIn' | 'completed';
@@ -29,7 +32,27 @@ const ReceptionistDashboard = () => {
     const [totalElements, setTotalElements] = useState(0);
     const [jumpToPage, setJumpToPage] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [cancelModal, setCancelModal] = useState<{
+        open: boolean;
+        appointmentId: string | null;
+        patientName: string;
+        appointmentPrice: number;
+        paymentMethod: PaymentMethod;
+    }>({
+        open: false,
+        appointmentId: null,
+        patientName: '',
+        appointmentPrice: 0,
+        paymentMethod: PaymentMethod.MOMO
+    });
 
+    const [qrModal, setQrModal] = useState<{ open: boolean; payUrl: string; qrCodeUrl: string }>({
+        open: false,
+        payUrl: '',
+        qrCodeUrl: ''
+    });
+
+    const [cancelling, setCancelling] = useState(false);
 
     // State thống kê
     const [stats, setStats] = useState<DashboardStatistics>({ waiting: 0, checkedIn: 0, completed: 0, total: 0 });
@@ -47,6 +70,7 @@ const ReceptionistDashboard = () => {
         { value: 'waiting', label: t('receptionist.statusWaiting'), icon: '⏳' },
         { value: 'checkedIn', label: t('receptionist.statusCheckedIn'), icon: '✅' },
         { value: 'completed', label: t('receptionist.statusCompleted'), icon: '📋' },
+        { value: 'cancelled', label: t('receptionist.cancelledStatus'), icon: '❌' },
     ];
 
     // Lấy thống kê
@@ -123,6 +147,7 @@ const ReceptionistDashboard = () => {
                 waiting: 'CONFIRMED',
                 checkedIn: 'IN_PROGRESS',
                 completed: 'COMPLETED',
+                cancelled: 'CANCELLED',
             };
             const targetStatus = statusMap[statusFilter as keyof typeof statusMap];
             result = result.filter(a => a.status === targetStatus);
@@ -146,6 +171,41 @@ const ReceptionistDashboard = () => {
             setPage(newPage);
             fetchAppointments(newPage);
             setJumpToPage('');
+        }
+    };
+
+    const handleCancelAppointment = async (data: { reason: string; refundMethod: RefundMethod; refundAmount?: number }) => {
+        if (!cancelModal.appointmentId) return;
+
+        setCancelling(true);
+        try {
+            await receptionistApi.cancelAppointment(cancelModal.appointmentId, {
+                reason: data.reason,
+                refundMethod: data.refundMethod,
+                refundAmount: data.refundAmount
+            });
+            toast.success(t('receptionist.cancelSuccess'));
+            fetchAppointments(page);
+            fetchStatistics();
+            setCancelModal({ ...cancelModal, open: false });
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || t('receptionist.cancelError'));
+        } finally {
+            setCancelling(false);
+        }
+    };
+
+    // Hàm mở lại QR
+    const handleOpenQR = async (appointmentId: string) => {
+        try {
+            const response = await receptionistApi.getPaymentQR(appointmentId);
+            setQrModal({
+                open: true,
+                payUrl: response.payUrl,
+                qrCodeUrl: response.qrCodeUrl
+            });
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || t('receptionist.openQRError'));
         }
     };
 
@@ -193,6 +253,27 @@ const ReceptionistDashboard = () => {
         );
     };
 
+    // Kiểm tra xem có thể check-in không
+    const canCheckIn = (appointment: Appointment): boolean => {
+        // Chỉ check-in được khi status là CONFIRMED
+        if (appointment.status !== 'CONFIRMED') return false;
+
+        // Lấy ngày của appointment (từ startTime)
+        const appointmentDate = new Date(
+            appointment.startTime[0],  // year
+            appointment.startTime[1] - 1, // month (0-indexed)
+            appointment.startTime[2]  // day
+        );
+
+        // Lấy ngày hôm nay
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Chỉ check-in được nếu là ngày hôm nay
+        return appointmentDate.getTime() === today.getTime();
+    };
+
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="container mx-auto px-4 py-6">
@@ -205,7 +286,6 @@ const ReceptionistDashboard = () => {
                 {/* Filter Tabs + Create Button */}
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl shadow-sm p-2 mb-6">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                        {/* Các nút filter bên trái */}
                         <div className="flex flex-wrap gap-2">
                             {filters.map((filter) => (
                                 <Button
@@ -220,7 +300,6 @@ const ReceptionistDashboard = () => {
                             ))}
                         </div>
 
-                        {/* Nút tạo lịch mới bên phải */}
                         <Button
                             variant="outline"
                             onClick={() => setShowCreateModal(true)}
@@ -316,7 +395,6 @@ const ReceptionistDashboard = () => {
                     </div>
 
                     <div className="relative">
-                        {/* Overlay loading */}
                         {loading ? (
                             <div className="py-12 flex justify-center">
                                 <LoadingSpinner size="lg" />
@@ -337,9 +415,11 @@ const ReceptionistDashboard = () => {
                                                         {apt.patientName}
                                                     </span>
                                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(apt.status)}`}>
-                                                        {apt.status === 'CONFIRMED' && t('receptionist.waitingCheckin')}
+                                                        {apt.status === 'CONFIRMED' && canCheckIn(apt) && t('receptionist.waitingCheckin')}
+                                                        {apt.status === 'CONFIRMED' && !canCheckIn(apt) && t('receptionist.upcomingAppointment')}
                                                         {apt.status === 'IN_PROGRESS' && t('receptionist.checkedInStatus')}
                                                         {apt.status === 'COMPLETED' && t('receptionist.completedStatus')}
+                                                        {apt.status === 'CANCELLED' && t('receptionist.cancelledStatus')}
                                                     </span>
                                                 </div>
                                                 <div className="text-right">
@@ -393,9 +473,38 @@ const ReceptionistDashboard = () => {
                                                 </div>
                                             )}
 
-                                            {/* Action */}
-                                            <div className="mt-4 flex justify-end">
-                                                {apt.status === 'CONFIRMED' && (
+                                            {/* Action Buttons */}
+                                            <div className="mt-4 flex justify-end gap-2">
+                                                {/* Nút mở lại QR - cho appointment AWAITING_PAYMENT */}
+                                                {apt.status === 'AWAITING_PAYMENT' && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleOpenQR(apt.id)}
+                                                    >
+                                                        🟣 {t('receptionist.openQR')}
+                                                    </Button>
+                                                )}
+
+                                                {/* Nút hủy lịch - cho appointment chưa bị hủy */}
+                                                {apt.status !== 'CANCELLED' && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="danger"
+                                                        onClick={() => setCancelModal({
+                                                            open: true,
+                                                            appointmentId: apt.id,
+                                                            patientName: apt.patientName || '',
+                                                            appointmentPrice: apt.price,
+                                                            paymentMethod: apt.paymentMethod === 'MOMO' ? PaymentMethod.MOMO : PaymentMethod.CASH
+                                                        })}
+                                                    >
+                                                        ❌ {t('common.cancel')}
+                                                    </Button>
+                                                )}
+
+                                                {/* Nút check-in */}
+                                                {apt.status === 'CONFIRMED' && canCheckIn(apt) && (
                                                     <Button
                                                         size="sm"
                                                         variant="primary"
@@ -404,6 +513,11 @@ const ReceptionistDashboard = () => {
                                                     >
                                                         ✅ {t('receptionist.checkIn')}
                                                     </Button>
+                                                )}
+                                                {apt.status === 'CONFIRMED' && !canCheckIn(apt) && (
+                                                    <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-sm flex items-center gap-1">
+                                                        📅 {t('receptionist.waitForExamDate')}
+                                                    </span>
                                                 )}
                                                 {apt.status === 'IN_PROGRESS' && (
                                                     <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg text-sm flex items-center gap-1">
@@ -415,21 +529,25 @@ const ReceptionistDashboard = () => {
                                                         📋 {t('receptionist.completedStatus')}
                                                     </span>
                                                 )}
+                                                {apt.status === 'CANCELLED' && (
+                                                    <span className="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-center gap-1">
+                                                        ❌ {t('receptionist.cancelledStatus')}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </>
                         )}
+
                         {/* Pagination */}
                         {filteredTotalPages > 1 && (
                             <>
                                 {renderPaginationInfo()}
                                 <div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
                                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                                        {/* Nút điều hướng */}
                                         <div className="flex items-center gap-1">
-                                            {/* First page */}
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -443,8 +561,6 @@ const ReceptionistDashboard = () => {
                                             >
                                                 ⏮
                                             </Button>
-
-                                            {/* Previous */}
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -454,13 +570,9 @@ const ReceptionistDashboard = () => {
                                             >
                                                 ← {t('common.previous')}
                                             </Button>
-
-                                            {/* Current page indicator */}
                                             <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-md font-medium mx-1">
                                                 {page + 1}
                                             </span>
-
-                                            {/* Next */}
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -470,8 +582,6 @@ const ReceptionistDashboard = () => {
                                             >
                                                 {t('common.next')} →
                                             </Button>
-
-                                            {/* Last page */}
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -489,10 +599,7 @@ const ReceptionistDashboard = () => {
                                         </div>
 
                                         <div className="flex items-center gap-1">
-                                            {/* Divider */}
                                             <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
-
-                                            {/* Jump to page */}
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm text-gray-500 dark:text-gray-400">
                                                     {t('pagination.goToPage')}
@@ -524,8 +631,43 @@ const ReceptionistDashboard = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Cancel Appointment Modal */}
+                <CancelAppointmentModal
+                    isOpen={cancelModal.open}
+                    onClose={() => setCancelModal({ ...cancelModal, open: false })}
+                    onConfirm={handleCancelAppointment}
+                    appointmentPrice={cancelModal.appointmentPrice}
+                    paymentMethod={cancelModal.paymentMethod}
+                    patientName={cancelModal.patientName}
+                    loading={cancelling}
+                />
+
+                {/* QR Modal - Mở lại thanh toán */}
+                <Modal
+                    isOpen={qrModal.open}
+                    onClose={() => setQrModal({ open: false, payUrl: '', qrCodeUrl: '' })}
+                    title={t('payment.scanQRCode')}
+                    message={t('payment.pleaseScanQR')}
+                    showConfirm={false}
+                    showCancel={true}
+                    cancelText={t('common.close')}
+                    size="lg"
+                >
+                    <div className="flex flex-col items-center p-2">
+                        <iframe
+                            src={qrModal.payUrl}
+                            title="MoMo Payment"
+                            className="w-full h-[500px] rounded-lg border-0"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
+                        />
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
+                            ⏳ {t('payment.waitingForPayment')}
+                        </p>
+                    </div>
+                </Modal>
             </div>
-        </div >
+        </div>
     );
 };
 
