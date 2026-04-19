@@ -8,7 +8,7 @@ bin/
 build/
 
 # k6 Reports
-*.html
+#*.html
 
 # --- CONFIG & SECRETS  ---
 .env

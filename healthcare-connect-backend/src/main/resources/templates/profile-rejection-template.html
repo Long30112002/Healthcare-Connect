@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Connect – Doctor Application Status</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff, #00a1ff);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+        .body {
+            padding: 40px 32px;
+            background: #ffffff;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e2a3a;
+            margin-bottom: 16px;
+        }
+        .message {
+            font-size: 16px;
+            color: #334e68;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .rejection-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 15px;
+            color: #2d3748;
+        }
+        .rejection-box strong {
+            color: #c53030;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-wrapper {
+            text-align: center;
+            margin: 24px 0 16px;
+        }
+        .btn-warning {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #1e2a3a;
+            text-decoration: none;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+        }
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e0a800, #c69500);
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px 32px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #5a6e8a;
+        }
+        .footer p {
+            margin: 6px 0;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #1a1a2e; }
+            .email-container { background-color: #16213e; }
+            .body { background: #16213e; }
+            .greeting { color: #e2e8f0; }
+            .message { color: #a0aec0; }
+            .rejection-box { background-color: #3d1a1a; border-left-color: #ef9a9a; color: #fcd9d9; }
+            .rejection-box strong { color: #ef9a9a; }
+            .footer { background-color: #0f172a; border-top-color: #1e293b; color: #64748b; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .body { padding: 28px 20px; }
+            .greeting { font-size: 22px; }
+            .btn-warning { padding: 10px 24px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>Healthcare Connect</h1>
+        <p>Kết nối y tế thông minh</p>
+    </div>
+    <div class="body">
+        <div class="greeting" th:text="'Chào ' + ${name} + '!'"></div>
+        <div class="message">
+            <strong>Thông báo!</strong> Hồ sơ đăng ký làm <span th:text="${role}"></span> trên hệ thống
+            <strong>Healthcare Connect</strong> đã bị từ chối.
+        </div>
+        <div class="rejection-box">
+            <strong>📌 Lý do từ chối:</strong>
+            <span th:text="${message}"></span>
+        </div>
+        <div class="message">
+            Bạn có thể cập nhật lại thông tin hồ sơ và gửi lại yêu cầu sau khi đã cải thiện các vấn đề trên.
+        </div>
+        <div class="btn-wrapper">
+            <a th:href="${url}" class="btn-primary" th:text="${btnText}">Cập nhật hồ sơ</a>
+        </div>
+        <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
+            Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email support@healthcareconnect.com
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2026 Healthcare Connect System. All rights reserved.</p>
+        <p>If you have any questions, please contact our support team.</p>
+        <p>Need help? <a href="#">Contact support</a></p>
+    </div>
+</div>
+</body>
+</html>

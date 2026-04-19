@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Connect – Hồ sơ đã được xác thực</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff, #00a1ff);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+        .body {
+            padding: 40px 32px;
+            background: #ffffff;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e2a3a;
+            margin-bottom: 16px;
+        }
+        .message {
+            font-size: 16px;
+            color: #334e68;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .doctor-details {
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .doctor-details p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        .btn-wrapper {
+            text-align: center;
+            margin: 24px 0 16px;
+        }
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #007bff, #00a1ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0066cc, #0088e6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,123,255,0.4);
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px 32px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #5a6e8a;
+        }
+        .footer p {
+            margin: 6px 0;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #1a1a2e; }
+            .email-container { background-color: #16213e; }
+            .body { background: #16213e; }
+            .greeting { color: #e2e8f0; }
+            .message { color: #a0aec0; }
+            .doctor-details { background: #1e2a3a; border-left-color: #3b82f6; }
+            .doctor-details p { color: #cbd5e0; }
+            .footer { background-color: #0f172a; border-top-color: #1e293b; color: #64748b; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .body { padding: 28px 20px; }
+            .greeting { font-size: 22px; }
+            .btn-primary { padding: 10px 24px; font-size: 14px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="email-container">
+    <div class="header">
+        <h1>Healthcare Connect</h1>
+        <p>Kết nối y tế thông minh</p>
+    </div>
+    <div class="body">
+        <div class="greeting" th:text="'Chào ' + ${name} + '!'"></div>
+        <div class="message">
+            <strong>Chúc mừng bạn!</strong> Hồ sơ đăng ký làm <span th:text="${role}"></span> trên hệ thống
+            <strong>Healthcare Connect</strong> đã được xác thực thành công.
+        </div>
+        <div class="doctor-details">
+            <p><strong>Mã <span th:text="${role}"></span>:</strong> <span th:text="${code}"></span></p>
+            <p><strong>Bệnh viện:</strong> <span th:text="${hospitalName}"></span></p>
+        </div>
+        <div class="message">
+            Hồ sơ của bạn hiện đang trong giai đoạn <strong>chờ bệnh viện tiếp nhận</strong>.
+            Bệnh viện sẽ liên hệ và xác nhận với bạn trong thời gian sớm nhất.
+        </div>
+        <div class="btn-wrapper">
+            <a th:href="${url}" class="btn-primary" th:text="${btnText}">Xem hồ sơ</a>
+        </div>
+        <div class="message" style="margin-top: 24px; font-size: 14px; color: #5a6e8a;">
+            Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email support@healthcareconnect.com
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2026 Healthcare Connect System. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
