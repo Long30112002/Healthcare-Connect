@@ -90,31 +90,32 @@ public class MailService {
         this.pushToQueue(user.getEmail(), "Yêu cầu đặt lại mật khẩu", "email-template", variables);
     }
 
-    // NGHIỆP VỤ XÁC THỰC HỒ SƠ BÁC SĨ
-    public void sendDoctorVerifiedEmail(User user, Doctor doctor) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("name", user.getFullName());
-        variables.put("doctorCode", doctor.getDoctorCode());
-        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
-        variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ bệnh viện tiếp nhận.");
-        variables.put("url", frontendUrl + "/doctor/profile");
-        variables.put("btnText", "Xem hồ sơ");
+//    // NGHIỆP VỤ XÁC THỰC HỒ SƠ BÁC SĨ
+//    public void sendDoctorVerifiedEmail(User user, Doctor doctor) {
+//        Map<String, Object> variables = new HashMap<>();
+//        variables.put("name", user.getFullName());
+//        variables.put("doctorCode", doctor.getDoctorCode());
+//        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
+//        variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ bệnh viện tiếp nhận.");
+//        variables.put("url", frontendUrl + "/doctor/profile");
+//        variables.put("btnText", "Xem hồ sơ");
+//
+//        pushToQueue(user.getEmail(), "Hồ sơ bác sĩ đã được xác thực", "doctor-verified-template", variables);
+//    }
+//
+//    // NGHIỆP VỤ DUYỆT BÁC SĨ
+//    public void sendDoctorApprovalEmail(User user, Doctor doctor) {
+//        Map<String, Object> variables = new HashMap<>();
+//        variables.put("name", user.getFullName());
+//        variables.put("doctorCode", doctor.getDoctorCode());
+//        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
+//        variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được bệnh viện tiếp nhận. Bạn chính thức là bác sĩ của hệ thống.");
+//        variables.put("url", frontendUrl + "/doctor/dashboard");
+//        variables.put("btnText", "Vào Dashboard ngay");
+//
+//        pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành bác sĩ", "doctor-approval-template", variables);
+//    }
 
-        pushToQueue(user.getEmail(), "Hồ sơ bác sĩ đã được xác thực", "doctor-verified-template", variables);
-    }
-
-    // NGHIỆP VỤ DUYỆT BÁC SĨ
-    public void sendDoctorApprovalEmail(User user, Doctor doctor) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("name", user.getFullName());
-        variables.put("doctorCode", doctor.getDoctorCode());
-        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
-        variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được bệnh viện tiếp nhận. Bạn chính thức là bác sĩ của hệ thống.");
-        variables.put("url", frontendUrl + "/doctor/dashboard");
-        variables.put("btnText", "Vào Dashboard ngay");
-
-        pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành bác sĩ", "doctor-approval-template", variables);
-    }
 
     // NGHIỆP VỤ TỪ CHỐI BÁC SĨ
     public void sendDoctorRejectionEmail(User user, String reason) {
@@ -125,6 +126,49 @@ public class MailService {
         variables.put("btnText", "Liên hệ hỗ trợ");
 
         pushToQueue(user.getEmail(), "Thông báo kết quả hồ sơ Bác sĩ", "doctor-rejection-template", variables);
+    }
+
+    // NGHIỆP VỤ XÁC THỰC HỒ SƠ (Dùng chung cho Doctor và Receptionist)
+    public void sendProfileVerifiedEmail(User user, String code, String hospitalName, String role, String urlPath) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("code", code);
+        variables.put("hospitalName", hospitalName != null ? hospitalName : "Đang cập nhật");
+        variables.put("role", role); // "bác sĩ" hoặc "lễ tân"
+        variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ " +
+                (role.equals("bác sĩ") ? "bệnh viện" : "bệnh viện") + " tiếp nhận.");
+        variables.put("url", frontendUrl + urlPath);
+        variables.put("btnText", "Xem hồ sơ");
+
+        pushToQueue(user.getEmail(), "Hồ sơ " + role + " đã được xác thực", "profile-verified-template", variables);
+    }
+
+    // NGHIỆP VỤ DUYỆT HỒ SƠ (Dùng chung cho Doctor và Receptionist)
+    public void sendProfileApprovalEmail(User user, String code, String hospitalName, String role, String urlPath) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("code", code);
+        variables.put("hospitalName", hospitalName);
+        variables.put("role", role);
+        variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được " +
+                (role.equals("bác sĩ") ? "bệnh viện tiếp nhận" : "bệnh viện tiếp nhận") +
+                ". Bạn chính thức là " + role + " của hệ thống.");
+        variables.put("url", frontendUrl + urlPath);
+        variables.put("btnText", "Vào Dashboard ngay");
+
+        pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành " + role, "profile-approval-template", variables);
+    }
+
+    // NGHIỆP VỤ TỪ CHỐI HỒ SƠ (Dùng chung cho Doctor và Receptionist)
+    public void sendProfileRejectionEmail(User user, String reason, String role) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("role", role);
+        variables.put("message", "Hồ sơ đăng ký làm " + role + " của bạn đã bị từ chối với lý do: " + reason);
+        variables.put("url", frontendUrl + "/support");
+        variables.put("btnText", "Liên hệ hỗ trợ");
+
+        pushToQueue(user.getEmail(), "Thông báo kết quả hồ sơ " + role, "profile-rejection-template", variables);
     }
 
     // NGHIỆP VỤ ĐẶT LỊCH

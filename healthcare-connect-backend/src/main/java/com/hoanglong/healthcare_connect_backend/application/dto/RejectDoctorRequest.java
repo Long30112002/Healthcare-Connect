@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class RejectDoctorRequest {
     @NotNull(message = "REASON_REQUIRED")
     RejectionReason reasonCode;

@@ -1,9 +1,11 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.WalkInAppointmentRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.WalkInAppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
+import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
 import com.hoanglong.healthcare_connect_backend.core.constant.*;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
@@ -13,10 +15,12 @@ import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleReposit
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import com.hoanglong.healthcare_connect_backend.infrastructure.payment.PaymentProviderFactory;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -30,9 +34,10 @@ public class CreateWalkInAppointmentUseCase {
     private final IPaymentRepository paymentRepository;
     private final PaymentProviderFactory paymentProviderFactory;
     private final AppointmentMapper appointmentMapper;
+    private final ReceptionistAuditLogService receptionistAuditLogService;
 
     @Transactional
-    public WalkInAppointmentResponse execute(WalkInAppointmentRequest request) {
+    public WalkInAppointmentResponse execute(WalkInAppointmentRequest request, HttpServletRequest httpRequest) {
 
         // 1. Lấy schedule có lock
         Schedule schedule = scheduleRepository.findByIdWithLock(request.getScheduleId())
@@ -48,9 +53,9 @@ public class CreateWalkInAppointmentUseCase {
         PaymentMethod method = request.getPaymentMethod();
 
         if (method == PaymentMethod.CASH) {
-            return handleCashPayment(schedule, request);
+            return handleCashPayment(schedule, request, httpRequest);
         } else if (paymentProviderFactory.isSupported(method)) {
-            return handleElectronicPayment(schedule, request, method);
+            return handleElectronicPayment(schedule, request, method, httpRequest);
         } else {
             throw new AppException(ErrorCode.UNSUPPORTED_PAYMENT_METHOD);
         }
@@ -61,7 +66,6 @@ public class CreateWalkInAppointmentUseCase {
             throw new AppException(ErrorCode.SCHEDULE_CANCELLED);
         }
 
-        // Kiểm tra đặt trước 30 phút
         LocalDateTime minBookingTime = LocalDateTime.now().plusMinutes(30);
         if (schedule.getStartTime().isBefore(minBookingTime)) {
             throw new AppException(ErrorCode.BOOKING_TOO_LATE);
@@ -71,7 +75,6 @@ public class CreateWalkInAppointmentUseCase {
             throw new AppException(ErrorCode.SCHEDULE_ALREADY_PASSED);
         }
 
-        // Kiểm tra full
         if (schedule.getCurrentBookings() >= schedule.getMaxPatients()) {
             schedule.setStatus(ScheduleStatus.FULL);
             scheduleRepository.save(schedule);
@@ -91,7 +94,7 @@ public class CreateWalkInAppointmentUseCase {
         }
     }
 
-    private WalkInAppointmentResponse handleCashPayment(Schedule schedule, WalkInAppointmentRequest request) {
+    private WalkInAppointmentResponse handleCashPayment(Schedule schedule, WalkInAppointmentRequest request, HttpServletRequest httpRequest) {
         log.info("==> [WALK-IN CASH] Tạo lịch tiền mặt cho bệnh nhân: {}", request.getPatientName());
 
         // Tạo appointment
@@ -104,9 +107,12 @@ public class CreateWalkInAppointmentUseCase {
         // Update slot
         updateSlot(schedule);
 
+        receptionistAuditLogService.logCreateWalkIn(savedAppointment, PaymentMethod.CASH.name(), httpRequest);
+
         log.info("==> [WALK-IN CASH] Thành công! Appointment ID: {}", savedAppointment.getId());
 
         AppointmentResponse appointmentResponse = appointmentMapper.toResponse(savedAppointment);
+        appointmentResponse.setPatientName(request.getPatientName());
 
         return WalkInAppointmentResponse.builder()
                 .appointment(appointmentResponse)
@@ -118,7 +124,8 @@ public class CreateWalkInAppointmentUseCase {
 
     private WalkInAppointmentResponse handleElectronicPayment(Schedule schedule,
             WalkInAppointmentRequest request,
-            PaymentMethod method) {
+            PaymentMethod method,
+            HttpServletRequest httpRequest) {
         log.info("==> [WALK-IN E-PAYMENT] Tạo lịch {} cho bệnh nhân: {}", method, request.getPatientName());
 
         // 1. Tạo appointment PENDING
@@ -130,16 +137,20 @@ public class CreateWalkInAppointmentUseCase {
 
         // 3. Gọi provider để tạo payment link
         PaymentProvider provider = paymentProviderFactory.getProvider(method);
-        String payUrl = provider.createPaymentRequest(savedAppointment);
+        MomoPaymentResponse paymentResponse = provider.createPaymentRequest(savedAppointment);
 
-        log.info("==> [WALK-IN E-PAYMENT] Đã tạo payment link: {}", payUrl);
+        receptionistAuditLogService.logCreateWalkIn(savedAppointment, method.name(), httpRequest);
 
+        log.info("==> [WALK-IN E-PAYMENT] Đã tạo payment link: {}", paymentResponse.getPayUrl());
         AppointmentResponse appointmentResponse = appointmentMapper.toResponse(savedAppointment);
+        appointmentResponse.setPatientName(request.getPatientName());
 
         return WalkInAppointmentResponse.builder()
                 .appointment(appointmentResponse)
                 .paymentStatus(PaymentStatus.PENDING)
-                .payUrl(payUrl)
+                .payUrl(paymentResponse.getPayUrl())
+                .qrCodeUrl(paymentResponse.getQrCodeUrl())
+                .deeplink(paymentResponse.getDeeplink())
                 .needPayment(true)
                 .message("Vui lòng cho bệnh nhân quét QR để thanh toán")
                 .build();

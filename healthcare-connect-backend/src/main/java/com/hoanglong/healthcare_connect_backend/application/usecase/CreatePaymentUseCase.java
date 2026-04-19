@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
@@ -18,7 +19,7 @@ public class CreatePaymentUseCase {
     private final AppointmentRepository appointmentRepository;
     private final PaymentProvider paymentProvider; // Chính là Interface MoMo/VNPay
 
-    public String execute(UUID appointmentId) {
+    public MomoPaymentResponse execute(UUID appointmentId) {
         // 1. Tìm Appointment
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch hẹn"));

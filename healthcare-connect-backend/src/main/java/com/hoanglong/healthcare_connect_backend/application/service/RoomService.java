@@ -3,6 +3,7 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 import com.hoanglong.healthcare_connect_backend.application.dto.RoomRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.RoomResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.RoomMapper;
+import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class RoomService {
                 .roomNumber(request.getRoomNumber().trim().toUpperCase())
                 .floor(request.getFloor())
                 .building(request.getBuilding())
-                .status("AVAILABLE")
+                .status(RoomStatus.AVAILABLE)
                 .build();
 
         log.info("==> [ROOM] Tạo phòng mới: {}", room.getRoomNumber());
@@ -67,20 +67,16 @@ public class RoomService {
 
     // Cập nhật trạng thái phòng (khi bác sĩ bắt đầu khám)
     @Transactional
-    public void occupyRoom(UUID roomId, UUID appointmentId) {
+    public void occupyRoom(UUID roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        // Kiểm tra phòng có đang khả dụng không
-        if (!"AVAILABLE".equals(room.getStatus())) {
+        if (room.getStatus() != RoomStatus.AVAILABLE) {
             throw new AppException(ErrorCode.ROOM_NOT_AVAILABLE);
         }
 
-        room.setStatus("OCCUPIED");
-        room.setCurrentAppointmentId(appointmentId);
+        room.setStatus(RoomStatus.OCCUPIED);
         roomRepository.save(room);
-
-        log.info("==> [ROOM] Phòng {} đã được chiếm bởi appointment {}", room.getRoomNumber(), appointmentId);
     }
 
     // Giải phóng phòng (khi kết thúc khám)
@@ -90,15 +86,14 @@ public class RoomService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
         // Kiểm tra phòng có đang được sử dụng không
-        if (!"OCCUPIED".equals(room.getStatus()) && !"MAINTENANCE".equals(room.getStatus())) {
+        if (!RoomStatus.OCCUPIED.equals(room.getStatus()) && !RoomStatus.MAINTENANCE.equals(room.getStatus())) {
             // Nếu phòng đang AVAILABLE thì không cần giải phóng
-            if ("AVAILABLE".equals(room.getStatus())) {
+            if (RoomStatus.AVAILABLE.equals(room.getStatus())) {
                 return;
             }
         }
 
-        room.setStatus("AVAILABLE");
-        room.setCurrentAppointmentId(null);
+        room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
 
         log.info("==> [ROOM] Phòng {} đã được giải phóng", room.getRoomNumber());
@@ -110,12 +105,11 @@ public class RoomService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        if ("OCCUPIED".equals(room.getStatus())) {
+        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
             throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
         }
 
-        room.setStatus("MAINTENANCE");
-        room.setCurrentAppointmentId(null);
+        room.setStatus(RoomStatus.MAINTENANCE);
         roomRepository.save(room);
 
         log.info("==> [ROOM] Phòng {} đã được chuyển sang bảo trì", room.getRoomNumber());
@@ -128,7 +122,7 @@ public class RoomService {
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
         // Không cho xóa phòng đang được sử dụng
-        if ("OCCUPIED".equals(room.getStatus())) {
+        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
             throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
         }
 
@@ -162,7 +156,7 @@ public class RoomService {
     // Kiểm tra phòng có khả dụng không
     public boolean isRoomAvailable(UUID roomId) {
         return roomRepository.findById(roomId)
-                .map(room -> "AVAILABLE".equals(room.getStatus()))
+                .map(room -> RoomStatus.AVAILABLE.equals(room.getStatus()))
                 .orElse(false);
     }
 
@@ -186,17 +180,15 @@ public class RoomService {
         return roomMapper.toResponse(roomRepository.save(room));
     }
 
-    // Kích hoạt phòng (chuyển từ MAINTENANCE hoặc OCCUPIED -> AVAILABLE)
+    // Kích hoạt phòng
     @Transactional
     public void activateRoom(UUID id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        room.setStatus("AVAILABLE");
-        room.setCurrentAppointmentId(null);
+        room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
 
         log.info("==> [ROOM] Đã kích hoạt phòng: {}", room.getRoomNumber());
     }
-
 }

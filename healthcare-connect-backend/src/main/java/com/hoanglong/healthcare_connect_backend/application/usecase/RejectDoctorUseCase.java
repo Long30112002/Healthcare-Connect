@@ -1,17 +1,14 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.RejectDoctorRequest;
-import com.hoanglong.healthcare_connect_backend.application.service.ApplyDoctorHistoryService;
+import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
-import com.hoanglong.healthcare_connect_backend.core.constant.DoctorHistoryAction;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.RejectionReason;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
-import com.hoanglong.healthcare_connect_backend.core.entity.DoctorHistory;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorHistoryRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
@@ -22,7 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -32,7 +28,7 @@ public class RejectDoctorUseCase {
     private final IDoctorRepository doctorRepository;
     private final IHospitalRepository hospitalRepository;
     private final MailService mailService;
-    private final ApplyDoctorHistoryService applyDoctorHistoryService;
+    private final DoctorAuditLogService doctorAuditLogService;
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'HOSPITAL_MANAGER')")
@@ -69,7 +65,7 @@ public class RejectDoctorUseCase {
                 doctorRepository.save(doctor);
 
                 // Ghi history REJECT
-                applyDoctorHistoryService.recordDoctorRejection(
+                doctorAuditLogService.recordDoctorRejection(
                         doctor.getId(), currentUserId, "ADMIN", oldStatus,
                         request.getReasonCode().name(), reasonDetail,
                         "Admin từ chối hồ sơ", httpRequest);
@@ -106,7 +102,7 @@ public class RejectDoctorUseCase {
                 doctorRepository.save(doctor);
 
                 // Ghi history REJECT
-                applyDoctorHistoryService.recordDoctorRejection(
+                doctorAuditLogService.recordDoctorRejection(
                         doctor.getId(), currentUserId, "HOSPITAL_MANAGER", oldStatus,
                         request.getReasonCode().name(), reasonDetail,
                         "Manager từ chối tiếp nhận bác sĩ", httpRequest);

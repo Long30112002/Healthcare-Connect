@@ -14,7 +14,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ApplyDoctorHistoryService {
+public class DoctorAuditLogService
+{
 
     private final IDoctorHistoryRepository doctorHistoryRepository;
 

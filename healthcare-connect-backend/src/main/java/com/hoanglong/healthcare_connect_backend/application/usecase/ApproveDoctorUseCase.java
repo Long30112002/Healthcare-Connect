@@ -1,13 +1,12 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.service.ApplyDoctorHistoryService;
+import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
-import com.hoanglong.healthcare_connect_backend.core.constant.DoctorHistoryAction;
+import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorHistoryRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
 import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
@@ -19,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -29,7 +27,7 @@ public class ApproveDoctorUseCase {
     private final IDoctorRepository doctorRepository;
     private final IUserRepository userRepository;
     private final IHospitalRepository hospitalRepository;
-    private final ApplyDoctorHistoryService applyDoctorHistoryService;
+    private final DoctorAuditLogService doctorAuditLogService;
     private final MailService mailService;
 
     @Transactional
@@ -57,10 +55,16 @@ public class ApproveDoctorUseCase {
                 doctorRepository.save(doctor);
 
                 // Ghi history VERIFY
-                applyDoctorHistoryService.recordDoctorHistory(doctor.getId(), currentUserId, "ADMIN", DoctorHistoryAction.VERIFY,
+                doctorAuditLogService.recordDoctorHistory(doctor.getId(), currentUserId, "ADMIN", DoctorApplicationStatus.VERIFY,
                         oldStatus, DoctorStatus.VERIFIED.name(), "Admin xác thực hồ sơ bác sĩ", httpRequest);
 
-                mailService.sendDoctorVerifiedEmail(doctor.getUser(), doctor);
+                mailService.sendProfileVerifiedEmail(
+                        doctor.getUser(),
+                        doctor.getDoctorCode(),
+                        doctor.getHospital() != null ? doctor.getHospital().getName() : null,
+                        "bác sĩ",
+                        "/doctor/profile"
+                );
                 log.info("==> [APPROVE] Admin đã duyệt bác sĩ {} từ PENDING → VERIFIED", doctorId);
                 return;
             }
@@ -97,10 +101,16 @@ public class ApproveDoctorUseCase {
                 doctorRepository.save(doctor);
 
                 // Ghi history APPROVE
-                applyDoctorHistoryService.recordDoctorHistory(doctor.getId(), currentUserId, "HOSPITAL_MANAGER", DoctorHistoryAction.APPROVE,
+                doctorAuditLogService.recordDoctorHistory(doctor.getId(), currentUserId, "HOSPITAL_MANAGER", DoctorApplicationStatus.APPROVE,
                         oldStatus, DoctorStatus.APPROVED.name(), "Manager tiếp nhận bác sĩ vào bệnh viện", httpRequest);
 
-                mailService.sendDoctorApprovalEmail(user, doctor);
+                mailService.sendProfileApprovalEmail(
+                        user,
+                        doctor.getDoctorCode(),
+                        doctor.getHospital().getName(),
+                        "bác sĩ",
+                        "/doctor/dashboard"
+                );
                 log.info("==> [APPROVE] Manager đã duyệt bác sĩ {} từ VERIFIED → APPROVED", doctorId);
                 return;
             }

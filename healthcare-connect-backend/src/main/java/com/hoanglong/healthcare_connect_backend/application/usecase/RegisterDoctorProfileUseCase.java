@@ -3,9 +3,9 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
-import com.hoanglong.healthcare_connect_backend.application.service.ApplyDoctorHistoryService;
+import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
 import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
-import com.hoanglong.healthcare_connect_backend.core.constant.DoctorHistoryAction;
+import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
@@ -22,13 +22,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class RegisterDoctorProfileUseCase {
 
     private final IDoctorRepository doctorRepository;
     private final IUserRepository userRepository;
-    private final ApplyDoctorHistoryService applyDoctorHistoryService;
+    private final DoctorAuditLogService doctorAuditLogService;
     private final ISpecialtyRepository specialtyRepository;
     private final IDepartmentRepository departmentRepository;
     private final IHospitalRepository hospitalRepository;
@@ -41,7 +41,11 @@ public class RegisterDoctorProfileUseCase {
         // 1. Validate CV
         validateCv(request);
 
-        // 2. Check existing doctor profile
+        // 2. Validate user role (chỉ PATIENT mới được đăng ký làm bác sĩ)
+        User user = getUser(userId);
+        validateUserRole(user);
+
+        // 3. Check existing doctor profile
         Optional<Doctor> existingDoctorOpt = doctorRepository.findByUserId(userId);
 
         if (existingDoctorOpt.isPresent()) {
@@ -49,26 +53,25 @@ public class RegisterDoctorProfileUseCase {
             return handleExistingDoctor(existingDoctor, userId, request, httpRequest);
         }
 
-        // 3. Validate and fetch entities
-        User user = getUser(userId);
+        // 4. Validate and fetch entities
         Department department = getDepartment(request.getDepartmentId());
         Specialty specialty = getSpecialty(request.getSpecialtyId());
         validateDepartmentAndSpecialty(department, specialty);
         Hospital hospital = getHospital(request.getHospitalId());
 
-        // 4. Upload CV (after all validations passed)
+        // 5. Upload CV (after all validations passed)
         String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
 
-        // 5. Create new doctor
+        // 6. Create new doctor
         Doctor doctor = createNewDoctor(user, department, specialty, hospital, request, cvUrl);
         Doctor savedDoctor = doctorRepository.save(doctor);
 
-        // 6. Record history
-        applyDoctorHistoryService.recordDoctorHistory(
+        // 7. Record history
+        doctorAuditLogService.recordDoctorHistory(
                 savedDoctor.getId(),
                 userId,
                 "DOCTOR",
-                DoctorHistoryAction.CREATE,
+                DoctorApplicationStatus.CREATE,
                 null,
                 DoctorStatus.PENDING.name(),
                 "Nộp hồ sơ đăng ký bác sĩ lần đầu",
@@ -76,6 +79,30 @@ public class RegisterDoctorProfileUseCase {
         );
 
         return doctorMapper.toDoctorResponse(savedDoctor);
+    }
+
+    private void validateUserRole(User user) {
+        // Kiểm tra user đã xác thực email chưa
+        if (!Boolean.TRUE.equals(user.getEnabled())) {
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
+        }
+
+        // KIỂM TRA USER ĐÃ CÓ ROLE ĐẶC BIỆT CHƯA
+        if (user.getRole() == UserRole.ADMIN) {
+            throw new AppException(ErrorCode.ADMIN_CANNOT_BE_DOCTOR);
+        }
+
+        if (user.getRole() == UserRole.DOCTOR) {
+            throw new AppException(ErrorCode.ALREADY_DOCTOR);
+        }
+
+        if (user.getRole() == UserRole.HOSPITAL_MANAGER) {
+            throw new AppException(ErrorCode.MANAGER_CANNOT_BE_DOCTOR);
+        }
+
+        if (user.getRole() == UserRole.RECEPTIONIST) {
+            throw new AppException(ErrorCode.RECEPTIONIST_CANNOT_BE_DOCTOR);
+        }
     }
 
     private DoctorResponse handleExistingDoctor(Doctor doctor, UUID userId,
@@ -127,11 +154,11 @@ public class RegisterDoctorProfileUseCase {
 
         Doctor savedDoctor = doctorRepository.save(oldDoc);
 
-        applyDoctorHistoryService.recordDoctorHistory(
+        doctorAuditLogService.recordDoctorHistory(
                 savedDoctor.getId(),
                 userId,
                 "DOCTOR",
-                DoctorHistoryAction.REAPPLY,
+                DoctorApplicationStatus.REAPPLY,
                 DoctorStatus.REJECTED.name(),
                 DoctorStatus.PENDING.name(),
                 "Gửi lại hồ sơ sau khi bị từ chối",

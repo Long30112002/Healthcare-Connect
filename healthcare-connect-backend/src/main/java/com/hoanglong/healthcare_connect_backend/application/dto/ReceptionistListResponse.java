@@ -12,18 +12,13 @@ import java.util.UUID;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReceptionistResponse {
+public class ReceptionistListResponse {
     UUID id;
     String receptionistCode;
     String fullName;
     String email;
     String phone;
-    String cvUrl;
-    String status;
     String hospitalName;
-    String hospitalAddress;
-    String rejectionReason;
-    String rejectionNote;
+    ReceptionistStatus status;
     LocalDateTime createdAt;
-    LocalDateTime updatedAt;
 }

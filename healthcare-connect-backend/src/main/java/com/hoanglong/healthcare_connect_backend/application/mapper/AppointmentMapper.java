@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentResponse> {
-    @Mapping(source = "patient.fullName", target = "patientName")
+//    @Mapping(source = "patient.fullName", target = "patientName")
     @Mapping(source = "schedule.doctor.user.fullName", target = "doctorName")
     @Mapping(source = "schedule.doctor.hospital.name", target = "hospitalName")
     @Mapping(source = "schedule.doctor.id", target = "doctorId")

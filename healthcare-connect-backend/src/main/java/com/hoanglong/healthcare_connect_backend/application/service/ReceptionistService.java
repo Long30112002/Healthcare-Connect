@@ -1,37 +1,64 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
-import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.application.dto.ReceptionistListResponse;
+import com.hoanglong.healthcare_connect_backend.application.mapper.ReceptionistMapper;
+import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReceptionistService {
-    private final AppointmentRepository appointmentRepository;
-    private final AppointmentMapper appointmentMapper;
+    private final ReceptionistRepository receptionistRepository;
+    private final ReceptionistMapper receptionistMapper;
 
-    public Page<AppointmentResponse> getAppointments(String filter, Pageable pageable) {
-        LocalDate today = LocalDate.now();
+    //Admin: Lấy tất cả receptionists
+    public Page<ReceptionistListResponse> getAllReceptionists(ReceptionistStatus status, String keyword, Pageable pageable) {
+        Page<Receptionist> receptionistPage;
 
-        switch (filter) {
-            case "tomorrow":
-                return appointmentRepository.findByScheduleDate(today.plusDays(1), pageable)
-                        .map(appointmentMapper::toResponse);
-            case "week":
-                return appointmentRepository.findByScheduleDateBetween(today, today.plusDays(7), pageable)
-                        .map(appointmentMapper::toResponse);
-            case "all":
-                return appointmentRepository.findAllByOrderByScheduleDateAsc(pageable)
-                        .map(appointmentMapper::toResponse);
-            default: // today
-                return appointmentRepository.findByScheduleDate(today, pageable)
-                        .map(appointmentMapper::toResponse);
+        if (keyword != null && !keyword.isEmpty()) {
+            receptionistPage = receptionistRepository.search(keyword, pageable);
+        } else if (status != null) {
+            receptionistPage = receptionistRepository.findByStatus(status, pageable);
+        } else {
+            receptionistPage = receptionistRepository.findAll(pageable);
         }
+
+        return receptionistPage.map(receptionistMapper::toListResponse);
+    }
+
+    //Manager: Lấy receptionists của bệnh viện mình quản lý
+    public Page<ReceptionistListResponse> getReceptionistsByHospital(UUID hospitalId,
+            ReceptionistStatus status,
+            String keyword,
+            Pageable pageable) {
+        Page<Receptionist> receptionistPage;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            receptionistPage = receptionistRepository.searchByHospital(hospitalId, keyword, pageable);
+        } else if (status != null) {
+            receptionistPage = receptionistRepository.findByHospitalIdAndStatus(hospitalId, status, pageable);
+        } else {
+            receptionistPage = receptionistRepository.findByHospitalId(hospitalId, pageable);
+        }
+
+        return receptionistPage.map(receptionistMapper::toListResponse);
+    }
+
+    //Manager: Lấy hospitalId từ token
+    public UUID getCurrentManagerHospitalId() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        // Lấy hospital từ manager (cần implement)
+        // Tạm thời return null, sau này sẽ lấy từ Manager entity
+        return null;
     }
 }

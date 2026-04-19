@@ -14,6 +14,8 @@ public class WalkInAppointmentResponse {
     AppointmentResponse appointment;
     PaymentStatus paymentStatus;
     String payUrl;
+    String qrCodeUrl;
+    String deeplink;
     boolean needPayment;
     String message;
 }
