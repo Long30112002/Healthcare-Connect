@@ -2,7 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Transactional
 @Slf4j
 public class VerifyUserUseCase {
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
 
     public ApiResponse<String> execute(String code) {
         // 1. Kiểm tra mã hết hạn trước (Dùng Query cũ để lấy thời gian hết hạn)

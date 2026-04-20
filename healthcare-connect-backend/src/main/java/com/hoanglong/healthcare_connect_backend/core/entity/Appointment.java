@@ -64,4 +64,12 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_type")
     BookingType bookingType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    Hospital hospital;
 }

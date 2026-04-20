@@ -10,8 +10,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class AcceptHospitalInvitationUseCase {
-    private final IHospitalRepository hospitalRepository;
-    private final IUserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Transactional

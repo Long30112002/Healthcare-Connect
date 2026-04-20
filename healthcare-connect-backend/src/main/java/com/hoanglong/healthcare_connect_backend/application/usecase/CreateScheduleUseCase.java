@@ -11,8 +11,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class CreateScheduleUseCase {
-    private final IScheduleRepository scheduleRepository;
-    private final IDoctorRepository doctorRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final DoctorRepository doctorRepository;
     private final ScheduleMapper scheduleMapper;
     private final RoomService roomService;
 

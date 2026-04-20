@@ -8,7 +8,7 @@ import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.*;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DoctorService {
-    IDoctorRepository doctorRepository;
-    IHospitalRepository hospitalRepository;
-    IUserRepository userRepository;
-    IDoctorHistoryRepository doctorHistoryRepository;
+    DoctorRepository doctorRepository;
+    HospitalRepository hospitalRepository;
+    UserRepository userRepository;
+    DoctorHistoryRepository doctorHistoryRepository;
     DoctorMapper doctorMapper;
-    IScheduleRepository scheduleRepository;
+    ScheduleRepository scheduleRepository;
 
     public List<VisitedDoctorResponse> getVisitedDoctors(UUID patientId) {
         List<AppointmentStatus> statuses = List.of(
@@ -70,7 +70,12 @@ public class DoctorService {
         System.out.println("Start: " + start);
         System.out.println("End: " + end);
 
-        List<Doctor> doctors = doctorRepository.findAvailableDoctorsWithSchedules(start, end);
+        List<Doctor> doctors = doctorRepository.findAvailableDoctorsWithSchedules(
+                DoctorStatus.APPROVED,
+                ScheduleStatus.AVAILABLE,
+                start,
+                end
+        );
 
         return doctors.stream()
                 .map(this::toDoctorListResponse)

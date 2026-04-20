@@ -2,7 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.DoctorHistory;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorHistoryRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorHistoryRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class DoctorAuditLogService
 {
 
-    private final IDoctorHistoryRepository doctorHistoryRepository;
+    private final DoctorHistoryRepository doctorHistoryRepository;
 
     public void recordDoctorHistory(UUID doctorId, UUID actorId, String actorRole,
             DoctorApplicationStatus action, String oldStatus,

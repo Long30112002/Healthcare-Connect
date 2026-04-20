@@ -5,8 +5,7 @@ import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaDepartmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DepartmentRepository;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DepartmentMapper;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,19 +16,17 @@ import java.util.UUID;
 @Service
 public class DepartmentService extends BaseService<Department, DepartmentRequest, DepartmentResponse, UUID> {
 
-    private final IDepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
-    private final JpaDepartmentRepository jpaDepartmentRepository;
 
-    public DepartmentService(IDepartmentRepository departmentRepository, DepartmentMapper departmentMapper, JpaDepartmentRepository jpaDepartmentRepository) {
+    public DepartmentService(DepartmentRepository departmentRepository, DepartmentMapper departmentMapper) {
         super(ErrorCode.DEPARTMENT_NOT_FOUND, ErrorCode.DEPARTMENT_EXISTED);
         this.departmentRepository = departmentRepository;
         this.departmentMapper = departmentMapper;
-        this.jpaDepartmentRepository = jpaDepartmentRepository;
     }
 
     @Override
-    protected JpaRepository<Department, UUID> getRepository() { return jpaDepartmentRepository; }
+    protected JpaRepository<Department, UUID> getRepository() { return departmentRepository; }
 
     @Override
     protected BaseMapper<Department, DepartmentResponse> getMapper() {

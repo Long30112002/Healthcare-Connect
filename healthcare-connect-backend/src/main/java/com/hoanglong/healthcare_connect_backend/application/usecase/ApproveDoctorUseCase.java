@@ -7,9 +7,9 @@ import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ApproveDoctorUseCase {
-    private final IDoctorRepository doctorRepository;
-    private final IUserRepository userRepository;
-    private final IHospitalRepository hospitalRepository;
+    private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
     private final DoctorAuditLogService doctorAuditLogService;
     private final MailService mailService;
 

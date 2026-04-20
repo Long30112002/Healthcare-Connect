@@ -8,9 +8,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import com.hoanglong.healthcare_connect_backend.core.entity.Specialty;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.ISpecialtyRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaSpecialtyRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DepartmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.SpecialtyRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,26 +17,23 @@ import java.util.UUID;
 
 @Service
 public class SpecialtyService extends BaseService<Specialty, SpecialtyRequest, SpecialtyResponse, UUID> {
-    private final ISpecialtyRepository specialtyRepository;
+    private final SpecialtyRepository specialtyRepository;
     private final SpecialtyMapper specialtyMapper;
-    private final IDepartmentRepository departmentRepository;
-    private final JpaSpecialtyRepository jpaSpecialtyJpaRepository;
+    private final DepartmentRepository departmentRepository;
 
     public SpecialtyService(
-            ISpecialtyRepository specialtyRepository,
+            SpecialtyRepository specialtyRepository,
             SpecialtyMapper specialtyMapper,
-            IDepartmentRepository departmentRepository,
-            JpaSpecialtyRepository jpaSpecialtyJpaRepository
+            DepartmentRepository departmentRepository
     ) {
         // Nạp mã lỗi riêng cho Specialty vào BaseService
         super(ErrorCode.SPECIALTY_NOT_FOUND, ErrorCode.SPECIALTY_EXISTED);
         this.specialtyRepository = specialtyRepository;
         this.specialtyMapper = specialtyMapper;
         this.departmentRepository = departmentRepository;
-        this.jpaSpecialtyJpaRepository = jpaSpecialtyJpaRepository;
     }
 
-    @Override protected JpaRepository<Specialty, UUID> getRepository() { return jpaSpecialtyJpaRepository; }
+    @Override protected JpaRepository<Specialty, UUID> getRepository() { return specialtyRepository; }
     @Override protected BaseMapper<Specialty, SpecialtyResponse> getMapper() { return specialtyMapper; }
 
     @Override

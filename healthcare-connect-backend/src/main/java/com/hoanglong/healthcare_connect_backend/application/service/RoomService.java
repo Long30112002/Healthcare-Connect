@@ -7,7 +7,7 @@ import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IRoomRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,20 +19,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class RoomService {
-    private final IRoomRepository roomRepository;
+    private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
 
     public List<RoomResponse> getAllRooms() {
         return roomMapper.toResponseList(roomRepository.findAll());
     }
 
+    // Sửa method getAvailableRooms
     public List<RoomResponse> getAvailableRooms() {
-        return roomMapper.toResponseList(roomRepository.findAllByStatus("AVAILABLE"));
+        return roomMapper.toResponseList(roomRepository.findAvailableRooms());
     }
 
-    public List<RoomResponse> getRoomsByStatus(String status) {
-        return roomMapper.toResponseList(roomRepository.findAllByStatus(status));
+    // Sửa method getRoomsByStatus
+    public List<RoomResponse> getRoomsByStatus(RoomStatus status) {
+        return roomMapper.toResponseList(roomRepository.findByStatusAndDeletedFalse(status));
     }
+
 
     // Lấy phòng theo ID
     public RoomResponse getRoomById(UUID id) {

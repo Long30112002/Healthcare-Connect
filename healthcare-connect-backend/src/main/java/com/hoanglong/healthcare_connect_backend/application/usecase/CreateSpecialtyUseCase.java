@@ -7,8 +7,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import com.hoanglong.healthcare_connect_backend.core.entity.Specialty;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDepartmentRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.ISpecialtyRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DepartmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.SpecialtyRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,9 +20,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CreateSpecialtyUseCase {
-    ISpecialtyRepository specialtyRepository;
-    IDepartmentRepository departmentRepository;
-    SpecialtyMapper specialtyMapper;
+    private final SpecialtyRepository specialtyRepository;
+    private final DepartmentRepository departmentRepository;
+    private final SpecialtyMapper specialtyMapper;
 
     public SpecialtyResponse execute(SpecialtyRequest request) {
         // 1. Kiểm tra Khoa có tồn tại không

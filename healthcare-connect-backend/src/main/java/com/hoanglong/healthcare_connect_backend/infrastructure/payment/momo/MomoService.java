@@ -9,10 +9,10 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
-import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.PaymentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -42,10 +42,10 @@ public class MomoService implements PaymentProvider
 {
     private final MomoConfig momoConfig;
     private final AppointmentRepository appointmentRepository;
-    private final IPaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
     private final MailService mailService;
     private final NotificationService notificationService;
-    private final IScheduleRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
     private static final String REQUEST_TYPE = "captureWallet";
 
     @Override
@@ -303,6 +303,8 @@ public class MomoService implements PaymentProvider
         Payment payment = paymentRepository.findByAppointmentId(appointment.getId())
                 .orElseGet(() -> Payment.builder()
                         .appointment(appointment)
+                        .hospital(appointment.getHospital())
+                        .doctor(appointment.getDoctor())
                         .build());
 
         payment.setTransactionNo(transId);

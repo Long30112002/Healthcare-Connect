@@ -12,9 +12,9 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,8 +30,8 @@ import java.util.UUID;
 public class CreateBookAppointmentUseCase
 {
     private final AppointmentRepository appointmentRepository;
-    private final IScheduleRepository scheduleRepository;
-    private final IUserRepository userRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
     private final MailService mailService;
 
@@ -112,6 +112,8 @@ public class CreateBookAppointmentUseCase
                 .patientName(patient.getFullName())
                 .patientPhone(patient.getPhone())
                 .schedule(schedule)
+                .doctor(schedule.getDoctor())
+                .hospital(schedule.getDoctor().getHospital())
                 .appointmentDate(LocalDateTime.now())
                 .status(AppointmentStatus.AWAITING_PAYMENT)
                 .symptoms(symptoms)

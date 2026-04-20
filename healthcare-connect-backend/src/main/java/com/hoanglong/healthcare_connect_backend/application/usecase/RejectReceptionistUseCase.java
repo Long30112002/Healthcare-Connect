@@ -10,7 +10,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +28,7 @@ import java.util.UUID;
 public class RejectReceptionistUseCase {
 
     private final ReceptionistRepository receptionistRepository;
-    private final JpaHospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
     private final MailService mailService;
     private final ReceptionistAuditLogService receptionistAuditLogService;
 

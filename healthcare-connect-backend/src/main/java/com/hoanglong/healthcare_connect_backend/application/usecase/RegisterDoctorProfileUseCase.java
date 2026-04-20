@@ -10,7 +10,7 @@ import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.*;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,12 @@ import java.util.UUID;
 @Slf4j
 public class RegisterDoctorProfileUseCase {
 
-    private final IDoctorRepository doctorRepository;
-    private final IUserRepository userRepository;
+    private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
     private final DoctorAuditLogService doctorAuditLogService;
-    private final ISpecialtyRepository specialtyRepository;
-    private final IDepartmentRepository departmentRepository;
-    private final IHospitalRepository hospitalRepository;
+    private final SpecialtyRepository specialtyRepository;
+    private final DepartmentRepository departmentRepository;
+    private final HospitalRepository hospitalRepository;
     private final DoctorMapper doctorMapper;
     private final CloudinaryService cloudinaryService;
 

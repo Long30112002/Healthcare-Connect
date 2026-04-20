@@ -9,8 +9,8 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
@@ -23,8 +23,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class HospitalService {
-    private final IHospitalRepository hospitalRepository;
-    private final IUserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
+    private final UserRepository userRepository;
     private final HospitalMapper hospitalMapper;
     private final MailService mailService;
 

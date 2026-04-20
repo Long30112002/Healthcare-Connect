@@ -14,7 +14,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class ManagerDoctorController
     private final ApproveDoctorUseCase approveDoctorUseCase;
     private final RejectDoctorUseCase rejectDoctorUseCase;
     private final DoctorService doctorService;
-    private final IHospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
     private final ReceptionistService receptionistService;
     private final ReceptionistMapper receptionistMapper;
     private final ReceptionistRepository receptionistRepository;

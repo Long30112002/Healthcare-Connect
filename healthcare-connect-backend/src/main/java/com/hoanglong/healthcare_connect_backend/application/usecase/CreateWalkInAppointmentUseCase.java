@@ -10,11 +10,11 @@ import com.hoanglong.healthcare_connect_backend.core.constant.*;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import com.hoanglong.healthcare_connect_backend.infrastructure.payment.PaymentProviderFactory;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.PaymentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +29,9 @@ import java.util.UUID;
 @Slf4j
 public class CreateWalkInAppointmentUseCase {
 
-    private final IScheduleRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
     private final AppointmentRepository appointmentRepository;
-    private final IPaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
     private final PaymentProviderFactory paymentProviderFactory;
     private final AppointmentMapper appointmentMapper;
     private final ReceptionistAuditLogService receptionistAuditLogService;
@@ -170,6 +170,8 @@ public class CreateWalkInAppointmentUseCase {
                 .isPaid(isPaid)
                 .symptoms(request.getSymptoms() != null ? request.getSymptoms().trim() : null)
                 .bookingType(BookingType.WALK_IN)
+                .doctor(schedule.getDoctor())
+                .hospital(schedule.getDoctor().getHospital())
                 .build();
     }
 
@@ -184,6 +186,8 @@ public class CreateWalkInAppointmentUseCase {
                 .status(paymentStatus)
                 .transactionNo(generateTransactionNo())
                 .createdAt(LocalDateTime.now())
+                .hospital(appointment.getHospital())
+                .doctor(appointment.getDoctor())
                 .build();
 
         return paymentRepository.save(payment);

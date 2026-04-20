@@ -8,10 +8,8 @@ import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaHospitalRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,21 +21,19 @@ import java.util.UUID;
 public class UserService extends BaseService<User, UserRegistrationRequest, UserResponse, UUID>
 {
 
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final JpaUserRepository jpaUserRepository;
-    private IHospitalRepository hospitalRepository;
+    private HospitalRepository hospitalRepository;
 
-    public UserService(IUserRepository userRepository, UserMapper userMapper, JpaUserRepository jpaUserRepository, IHospitalRepository hospitalRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, HospitalRepository hospitalRepository) {
         super(ErrorCode.USER_NOT_FOUND, ErrorCode.USER_EXISTED);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        this.jpaUserRepository = jpaUserRepository;
         this.hospitalRepository = hospitalRepository;
     }
 
     // Bắt buộc Override các "đầu nối" cho BaseService
-    @Override protected JpaRepository<User, UUID> getRepository() { return jpaUserRepository; }
+    @Override protected JpaRepository<User, UUID> getRepository() { return userRepository; }
     @Override protected BaseMapper<User, UserResponse> getMapper() { return userMapper; }
 
     @Override

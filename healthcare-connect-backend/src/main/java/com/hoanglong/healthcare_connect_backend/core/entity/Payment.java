@@ -46,4 +46,12 @@ public class Payment {
 
     @Column(precision = 19, scale = 2)
     BigDecimal refundAmount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    Hospital hospital;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    Doctor doctor;
 }

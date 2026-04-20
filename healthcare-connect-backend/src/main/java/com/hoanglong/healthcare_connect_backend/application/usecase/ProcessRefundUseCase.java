@@ -13,12 +13,11 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IScheduleRepository;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.PaymentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +39,8 @@ import java.util.UUID;
 public class ProcessRefundUseCase {
 
     private final AppointmentRepository appointmentRepository;
-    private final IPaymentRepository paymentRepository;
-    private final IScheduleRepository scheduleRepository;
+    private final PaymentRepository paymentRepository;
+    private final ScheduleRepository scheduleRepository;
     private final NotificationService notificationService;
     private final PaymentProvider paymentProvider;
     private final ReceptionistAuditLogService receptionistAuditLogService;

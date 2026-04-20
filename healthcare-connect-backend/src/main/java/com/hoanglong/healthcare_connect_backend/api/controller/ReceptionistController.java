@@ -12,8 +12,8 @@ import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo.MomoService;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.PaymentRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,7 +39,7 @@ public class ReceptionistController {
     private final AppointmentService appointmentService;
     private final ReceptionistService receptionistService;
     private final DoctorService doctorService;
-    private final IPaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
     private final CreateWalkInAppointmentUseCase createWalkInAppointmentUseCase;
     private final MomoService momoService;
     private final ProcessRefundUseCase processRefundUseCase;

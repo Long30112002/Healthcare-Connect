@@ -6,8 +6,8 @@ import com.hoanglong.healthcare_connect_backend.application.dto.PaymentStatusRes
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreatePaymentUseCase;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
-import com.hoanglong.healthcare_connect_backend.core.repository.IPaymentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment.PaymentProvider;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -25,7 +25,7 @@ public class MomoController {
 
     private final CreatePaymentUseCase createPaymentUseCase;
     private final PaymentProvider paymentProvider;
-    private final IPaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
 
     // 1. API CHÍNH: Người dùng nhấn nút "Thanh toán" ở Frontend sẽ gọi vào đây
     @PostMapping("/create-payment/{appointmentId}")

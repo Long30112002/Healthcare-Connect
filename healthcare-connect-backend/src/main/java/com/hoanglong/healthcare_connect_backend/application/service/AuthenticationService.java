@@ -6,7 +6,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.InvalidatedToken;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.security.repository.InvalidatedTokenRepository;
 import com.hoanglong.healthcare_connect_backend.shared.annotation.Throttling;
 import com.nimbusds.jose.*;
@@ -33,7 +33,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final InvalidatedTokenRepository invalidatedTokenRepository;

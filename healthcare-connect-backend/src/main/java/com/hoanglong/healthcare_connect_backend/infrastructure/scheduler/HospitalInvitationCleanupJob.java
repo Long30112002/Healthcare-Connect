@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.scheduler;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class HospitalInvitationCleanupJob {
 
-    private final JpaHospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
 
     @Scheduled(cron = "0 0 * * * *")
     @Transactional

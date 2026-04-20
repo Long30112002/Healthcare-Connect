@@ -35,6 +35,7 @@ public class Schedule {
     LocalDateTime endTime;
 
     int maxPatients;
+
     int currentBookings;
 
     @Enumerated(EnumType.STRING)

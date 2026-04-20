@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.core.repository.IHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Slf4j
 public class SecurityService {
 
-    private final IHospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
 
     public boolean isManagerOfHospital(UUID hospitalId) {
         // 1. Lấy User ID từ toke

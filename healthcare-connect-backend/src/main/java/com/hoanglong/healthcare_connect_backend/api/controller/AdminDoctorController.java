@@ -9,7 +9,7 @@ import com.hoanglong.healthcare_connect_backend.application.service.DoctorServic
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveDoctorUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RejectDoctorUseCase;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
-import com.hoanglong.healthcare_connect_backend.core.repository.IDoctorRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AdminDoctorController
 {
     private final ApproveDoctorUseCase approveDoctorUseCase;
     private final RejectDoctorUseCase rejectDoctorUseCase;
-    private final IDoctorRepository doctorRepository;
+    private final DoctorRepository doctorRepository;
     private final DoctorService doctorService;
     private final DoctorMapper doctorMapper;
 

@@ -10,9 +10,9 @@ import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.core.repository.IUserRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.JpaHospitalRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ import java.util.UUID;
 public class ApproveReceptionistUseCase {
 
     private final ReceptionistRepository receptionistRepository;
-    private final IUserRepository userRepository;
-    private final JpaHospitalRepository hospitalRepository;
+    private final UserRepository userRepository;
+    private final HospitalRepository hospitalRepository;
     private final ReceptionistAuditLogService receptionistAuditLogService;
     private final MailService mailService;
 

@@ -47,4 +47,8 @@ public class Room {
 
     @Column(name = "deleted")
     boolean deleted;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    Hospital hospital;
 }
