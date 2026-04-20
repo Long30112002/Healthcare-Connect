@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface JpaDoctorHistoryRepository extends JpaRepository<DoctorHistory, Long> {
+public interface DoctorHistoryRepository extends JpaRepository<DoctorHistory, Long> {
 
     List<DoctorHistory> findByDoctorId(UUID doctorId);
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface JpaSpecialtyRepository extends JpaRepository<Specialty, UUID>
+public interface SpecialtyRepository extends JpaRepository<Specialty, UUID>
 {
     List<Specialty> findAllByDepartmentId(UUID departmentId);
     // Kiểm tra xem tên chuyên khoa đã tồn tại chưa (để báo lỗi ALREADY_EXISTS)

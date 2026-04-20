@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface JpaScheduleRepository extends JpaRepository<Schedule, UUID> {
+public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Schedule s WHERE s.id = :id")
