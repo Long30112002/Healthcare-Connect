@@ -112,4 +112,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
             Pageable pageable);
 
     List<Appointment> findByScheduleStartTimeBetween(LocalDateTime start, LocalDateTime end);
+
+    // Kiểm tra appointment đã có medical record chưa
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END " +
+            "FROM MedicalRecord m WHERE m.appointment.id = :appointmentId")
+    boolean hasMedicalRecord(@Param("appointmentId") UUID appointmentId);
+
+    // Lấy appointment kèm thông tin để tạo medical record
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.patient p " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "JOIN FETCH d.user du " +
+            "WHERE a.id = :id")
+    Optional<Appointment> findByIdWithMedicalDetails(@Param("id") UUID id);
 }
