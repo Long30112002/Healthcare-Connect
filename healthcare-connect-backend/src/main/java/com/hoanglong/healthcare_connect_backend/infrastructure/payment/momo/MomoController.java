@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.payment.momo;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.PaymentStatusResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.payment.MomoPaymentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.payment.PaymentStatusResponse;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreatePaymentUseCase;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;

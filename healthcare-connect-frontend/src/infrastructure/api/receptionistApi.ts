@@ -1,6 +1,6 @@
 import type { Appointment, DoctorDetail, DoctorListItem, Room } from "../../core/types";
-import type { CancelAppointmentRequest, WalkInAppointmentRequest, WalkInAppointmentResponse } from "../../core/types/api.request";
-import type { DashboardStatistics, PageResponse, StatisticsResponse, HourlyStatistic, DoctorStatistic, DailyStatistic, PaymentQRResponse } from "../../core/types/api.response";
+import type { CancelAppointmentRequest, WalkInAppointmentRequest } from "../../core/types/api.request";
+import type { DashboardStatistics, PageResponse, StatisticsResponse, HourlyStatistic, DoctorStatistic, DailyStatistic, PaymentQRResponse, HospitalInfo, WalkInAppointmentResponse } from "../../core/types/api.response";
 import { getMockAppointments, getMockStatisticsByFilter, mockCheckIn } from "../../shared/mock/receptionistMock";
 import axiosClient from "./axiosClient";
 
@@ -13,6 +13,11 @@ export const receptionistApi = {
             return new Promise(resolve => setTimeout(() => { resolve(getMockAppointments(filter, page, size)); }, 200));
         }
         const response = await axiosClient.get(`/receptionist/appointments?filter=${filter}&page=${page}&size=${size}`);
+        return response.data.data;
+    },
+
+    getCurrentHospital: async (): Promise<HospitalInfo> => {
+        const response = await axiosClient.get('/receptionist/current-hospital');
         return response.data.data;
     },
 
@@ -62,6 +67,13 @@ export const receptionistApi = {
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
         const response = await axiosClient.get(`/receptionist/statistics/hourly?${params.toString()}`);
+        return response.data;
+    },
+
+    applyReceptionist: async (formData: FormData): Promise<void> => {
+        const response = await axiosClient.post('/receptionist/apply', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     },
 

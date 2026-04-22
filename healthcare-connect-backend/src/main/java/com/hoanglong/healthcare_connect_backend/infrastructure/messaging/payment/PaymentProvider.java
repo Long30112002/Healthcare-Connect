@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.messaging.payment;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.payment.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.core.constant.PaymentMethod;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;

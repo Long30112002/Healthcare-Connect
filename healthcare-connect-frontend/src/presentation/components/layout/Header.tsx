@@ -32,11 +32,11 @@ const Header = () => {
     if (path === '/') {
       if (isAuthenticated) {
         const dashboardPaths = [
-          '/dashboard',           // PATIENT
-          '/doctor/dashboard',    // DOCTOR
-          '/receptionist/dashboard', // RECEPTIONIST
-          '/admin/dashboard',     // ADMIN
-          '/manager/dashboard',   // HOSPITAL_MANAGER
+          '/dashboard',
+          '/doctor/dashboard',
+          '/receptionist/dashboard',
+          '/admin/dashboard',
+          '/manager/dashboard',
         ];
         if (dashboardPaths.includes(currentPath)) {
           return true;
@@ -44,19 +44,15 @@ const Header = () => {
       }
       return currentPath === '/';
     }
-
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
     if (!isAuthenticated) {
       navigate('/');
       return;
     }
-
-    // Chuyển về dashboard theo role
     switch (user?.role) {
       case 'PATIENT':
         navigate('/dashboard');
@@ -120,10 +116,9 @@ const Header = () => {
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-300">
       <div className="container mx-auto px-3 sm:px-4">
-        {/* Layout 2 cột đơn giản hơn: Logo trái - Menu + Actions phải */}
         <div className="flex items-center justify-between h-14 sm:h-16">
 
-          {/* Logo + Brand (Bên trái) */}
+          {/* Logo + Brand */}
           <div className="flex-shrink-0">
             <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-1.5 sm:gap-2 group">
               <img
@@ -140,12 +135,10 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Menu + Actions (Bên phải) */}
+          {/* Desktop Menu + Actions */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Menu items */}
             <nav className="flex items-center gap-0.5 xl:gap-1">
               {menuItems.map((item) => {
-                // Xử lý riêng cho Home (path === '/')
                 if (item.path === '/') {
                   return (
                     <button
@@ -164,8 +157,6 @@ const Header = () => {
                     </button>
                   );
                 }
-
-                // Các item khác
                 return (
                   <Link
                     key={item.path}
@@ -206,41 +197,91 @@ const Header = () => {
                 {isProfileDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsProfileDropdownOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                      {/* User Info */}
                       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{user?.fullName}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{getRole(user?.role || '')}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{user?.email}</p>
                       </div>
+
+                      {/* 👉 PHẦN ĐĂNG KÝ */}
+                      <div className="border-b border-gray-200 dark:border-gray-700">
+                        <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                          {t('nav.apply').toUpperCase()}
+                        </p>
+                        <Link
+                          to="/apply/doctor"
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">👨‍⚕️</span>
+                          <div>
+                            <p className="font-medium">{t('nav.applyDoctor')}</p>
+                            <p className="text-xs text-gray-400">{t('nav.applyDoctorDesc')}</p>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/apply/receptionist"
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">👩‍💼</span>
+                          <div>
+                            <p className="font-medium">{t('nav.applyReceptionist')}</p>
+                            <p className="text-xs text-gray-400">{t('nav.applyReceptionistDesc')}</p>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/apply/status"
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">📋</span>
+                          <div>
+                            <p className="font-medium">{t('nav.trackApplication')}</p>
+                            <p className="text-xs text-gray-400">{t('nav.trackApplicationDesc')}</p>
+                          </div>
+                        </Link>
+                      </div>
+
+                      {/* Profile & Settings */}
                       <Link
                         to="/profile"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                         onClick={() => setIsProfileDropdownOpen(false)}
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        {t('nav.profile')}
+                        <span className="text-xl">👤</span>
+                        <div>
+                          <p className="font-medium">{t('nav.profile')}</p>
+                          <p className="text-xs text-gray-400">Quản lý thông tin cá nhân</p>
+                        </div>
                       </Link>
                       <Link
                         to="/settings"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                         onClick={() => setIsProfileDropdownOpen(false)}
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {t('nav.settings')}
+                        <span className="text-xl">⚙️</span>
+                        <div>
+                          <p className="font-medium">{t('nav.settings')}</p>
+                          <p className="text-xs text-gray-400">Cài đặt ứng dụng</p>
+                        </div>
                       </Link>
+
+                      {/* Divider */}
+                      <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+                      {/* Logout */}
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        {t('common.logout')}
+                        <span className="text-xl">🚪</span>
+                        <div>
+                          <p className="font-medium">{t('common.logout')}</p>
+                          <p className="text-xs text-red-400">Đăng xuất khỏi hệ thống</p>
+                        </div>
                       </button>
                     </div>
                   </>
@@ -256,7 +297,7 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile: Chỉ hiển thị user avatar + menu button */}
+          {/* Mobile: User avatar + menu button */}
           <div className="flex lg:hidden items-center gap-2">
             {user ? (
               <div className="relative">
@@ -266,19 +307,59 @@ const Header = () => {
                 >
                   {user?.fullName?.charAt(0) || 'U'}
                 </button>
-                {/* Dropdown giống như trên desktop */}
                 {isProfileDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsProfileDropdownOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
                       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{user?.fullName}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{getRole(user?.role || '')}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{user?.email}</p>
                       </div>
-                      <Link to="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>👤 {t('nav.profile')}</Link>
-                      <Link to="/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>⚙️ {t('nav.settings')}</Link>
-                      <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition">🚪 {t('common.logout')}</button>
+
+                      {/* Apply menu trên mobile */}
+                      <div className="border-b border-gray-200 dark:border-gray-700">
+                        <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                          {t('nav.apply').toUpperCase()}
+                        </p>
+                        <Link
+                          to="/apply/doctor"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">👨‍⚕️</span>
+                          <span>{t('nav.applyDoctor')}</span>
+                        </Link>
+                        <Link
+                          to="/apply/receptionist"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">👩‍💼</span>
+                          <span>{t('nav.applyReceptionist')}</span>
+                        </Link>
+                        <Link
+                          to="/apply/status"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                        >
+                          <span className="text-xl">📋</span>
+                          <span>{t('nav.trackApplication')}</span>
+                        </Link>
+                      </div>
+
+                      <Link to="/profile" className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>
+                        <span className="text-xl">👤</span>
+                        <span>{t('nav.profile')}</span>
+                      </Link>
+                      <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>
+                        <span className="text-xl">⚙️</span>
+                        <span>{t('nav.settings')}</span>
+                      </Link>
+                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+                        <span className="text-xl">🚪</span>
+                        <span>{t('common.logout')}</span>
+                      </button>
                     </div>
                   </>
                 )}
@@ -287,7 +368,6 @@ const Header = () => {
               <Link to="/login" className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm">Login</Link>
             )}
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -303,7 +383,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Menu - Hiển thị khi click menu button */}
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-3 border-t border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
             {menuItems.map((item) => {

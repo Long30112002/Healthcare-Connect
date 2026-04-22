@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.messaging.consumer;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
+import com.hoanglong.healthcare_connect_backend.application.dto.notification.NotificationMessage;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.QRCodeService;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;

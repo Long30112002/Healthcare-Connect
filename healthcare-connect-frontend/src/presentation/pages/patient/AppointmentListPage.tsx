@@ -74,7 +74,7 @@ const AppointmentListPage = () => {
             open: true,
             appointmentId: appointment.id,
             doctorName: appointment.doctorName,
-            appointmentDate: formatDateTime(appointment.startTime, 'dd/mm/yyyy HH:MM')
+            appointmentDate: formatDateTime(appointment.startTime, 'dd/mm/yyyy HH:MM'),
         });
     };
 
