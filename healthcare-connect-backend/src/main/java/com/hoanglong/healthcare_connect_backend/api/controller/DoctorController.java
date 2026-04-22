@@ -6,6 +6,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
+import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreateScheduleUseCase;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
@@ -32,6 +33,7 @@ public class DoctorController
     private final CreateScheduleUseCase createScheduleUseCase;
     private final DoctorService doctorService;
     private final AppointmentService appointmentService;
+    private final ReceptionistService receptionistService;
 
     @PostMapping("/schedules")
     @PreAuthorize("hasRole('DOCTOR')")
@@ -74,7 +76,7 @@ public class DoctorController
             @PathVariable UUID appointmentId,
             HttpServletRequest httpRequest) {
         {
-            appointmentService.checkIn(appointmentId, httpRequest);
+            receptionistService.checkIn(appointmentId, httpRequest);
             return ApiResponse.<String>builder()
                     .status("success")
                     .code(200)

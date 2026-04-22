@@ -12,10 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.springframework.core.io.FileSystemResource;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -28,7 +26,6 @@ import java.util.Map;
 public class MailService {
     private final JavaMailSender mailSender;
     private final RabbitTemplate rabbitTemplate;
-    private final QRCodeService qrCodeService;
     private final SpringTemplateEngine templateEngine;
 
 
@@ -89,33 +86,6 @@ public class MailService {
 
         this.pushToQueue(user.getEmail(), "Yêu cầu đặt lại mật khẩu", "email-template", variables);
     }
-
-//    // NGHIỆP VỤ XÁC THỰC HỒ SƠ BÁC SĨ
-//    public void sendDoctorVerifiedEmail(User user, Doctor doctor) {
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("name", user.getFullName());
-//        variables.put("doctorCode", doctor.getDoctorCode());
-//        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
-//        variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ bệnh viện tiếp nhận.");
-//        variables.put("url", frontendUrl + "/doctor/profile");
-//        variables.put("btnText", "Xem hồ sơ");
-//
-//        pushToQueue(user.getEmail(), "Hồ sơ bác sĩ đã được xác thực", "doctor-verified-template", variables);
-//    }
-//
-//    // NGHIỆP VỤ DUYỆT BÁC SĨ
-//    public void sendDoctorApprovalEmail(User user, Doctor doctor) {
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("name", user.getFullName());
-//        variables.put("doctorCode", doctor.getDoctorCode());
-//        variables.put("hospitalName", doctor.getHospital() != null ? doctor.getHospital().getName() : "Đang cập nhật");
-//        variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được bệnh viện tiếp nhận. Bạn chính thức là bác sĩ của hệ thống.");
-//        variables.put("url", frontendUrl + "/doctor/dashboard");
-//        variables.put("btnText", "Vào Dashboard ngay");
-//
-//        pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành bác sĩ", "doctor-approval-template", variables);
-//    }
-
 
     // NGHIỆP VỤ TỪ CHỐI BÁC SĨ
     public void sendDoctorRejectionEmail(User user, String reason) {
@@ -216,30 +186,6 @@ public class MailService {
                 variables
         );
     }
-
-    // NGHIỆP VỤ XÁC NHẬN THANH TOÁN
-//    public void sendPaymentSuccessEmail(Appointment appointment) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-//        String formattedStartTime = appointment.getSchedule().getStartTime().format(formatter);
-//        String qrCodeImage = qrCodeService.generateQRCodeBase64(appointment.getId().toString());
-//        log.info("QR Code Image length: {}", qrCodeImage != null ? qrCodeImage.length() : "null");
-//        log.info("QR Code Image starts with: {}", qrCodeImage != null ? qrCodeImage.substring(0, 50) : "null");
-//
-//        Map<String, Object> variables = new HashMap<>();
-//        variables.put("patientName", appointment.getPatient().getFullName());
-//        variables.put("appointmentId", appointment.getId().toString().substring(0, 8));
-//        variables.put("doctorName", appointment.getSchedule().getDoctor().getUser().getFullName());
-//        variables.put("startTime", formattedStartTime);
-//        variables.put("amount", appointment.getSchedule().getPrice());
-//        variables.put("qrCodeImage", qrCodeImage);
-//
-//        pushToQueue(
-//                appointment.getPatient().getEmail(),
-//                "Xác nhận thanh toán thành công - Healthcare Connect",
-//                "payment-success-template",
-//                variables
-//        );
-//    }
 
     // NGHIỆP VỤ XÁC NHẬN THANH TOÁN DÙNG CID ĐỂ GỬI QR
     public void sendPaymentSuccessEmail(Appointment appointment) {

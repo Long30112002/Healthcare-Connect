@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.*;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.StatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,6 @@ import java.util.UUID;
 public class StatisticsService {
 
     private final StatisticsRepository statisticsRepository;
-
     // XỬ LÝ NGÀY THÁNG
     private LocalDate validateStartDate(LocalDate startDate) {
         if (startDate == null) {
@@ -39,7 +39,7 @@ public class StatisticsService {
         return endDate;
     }
 
-    public DashboardStatistics getDashboardStatistics(String filter) {
+    public DashboardStatistics getDashboardStatistics (String filter, UUID hospitalId){
         LocalDate endDate = LocalDate.now();
         LocalDate startDate;
 
@@ -54,7 +54,8 @@ public class StatisticsService {
                 startDate = endDate.minusDays(7);
                 break;
             case "all":
-                startDate = endDate.minusDays(365);
+                startDate = LocalDate.now().minusYears(1);
+                endDate = LocalDate.now().plusYears(1);
                 break;
             default:
                 startDate = endDate;
@@ -63,24 +64,51 @@ public class StatisticsService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        long waiting = statisticsRepository.countByStatusAndAppointmentDateBetween(
-                AppointmentStatus.CONFIRMED, start, end);
-        long checkedIn = statisticsRepository.countByStatusAndAppointmentDateBetween(
-                AppointmentStatus.IN_PROGRESS, start, end);
-        long completed = statisticsRepository.countByStatusAndAppointmentDateBetween(
-                AppointmentStatus.COMPLETED, start, end);
-        long total = waiting + checkedIn + completed;
+        long waiting = statisticsRepository.countByHospitalIdAndStatusAndDate(
+                hospitalId,
+                AppointmentStatus.CONFIRMED,
+                LocalDate.now()
+        );
+//        long waiting = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+//                hospitalId, AppointmentStatus.CONFIRMED, start, end);
+        long checkedIn = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+                hospitalId, AppointmentStatus.IN_PROGRESS, start, end);
+        long completed = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+                hospitalId, AppointmentStatus.COMPLETED, start, end);
+        long cancelled = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+                hospitalId, AppointmentStatus.CANCELLED, start, end);
+        long noShow = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+                hospitalId, AppointmentStatus.NO_SHOW, start, end);
+        long total = waiting + checkedIn + completed + cancelled + noShow;
+
+        long upcoming = 0;
+        if ("all".equals(filter)) {
+            LocalDateTime now = LocalDateTime.now();
+            upcoming = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(
+                    hospitalId,
+                    AppointmentStatus.CONFIRMED,
+                    now,
+                    LocalDateTime.of(2099, 12, 31, 23, 59, 59)
+            );
+        }
+
+        log.info("Waiting count: {}", waiting);
+        log.info("Start: {}", start);
+        log.info("End: {}", end);
 
         return DashboardStatistics.builder()
                 .waiting(waiting)
                 .checkedIn(checkedIn)
                 .completed(completed)
+                .cancelled(cancelled)
+                .noShow(noShow)
                 .total(total)
+                .upcoming(upcoming)
                 .build();
     }
 
     // Thống kê theo kỳ
-    public StatisticsResponse getStatisticsByPeriod(String period) {
+    public StatisticsResponse getStatisticsByPeriod(String period, UUID hospitalId) {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate;
 
@@ -107,22 +135,22 @@ public class StatisticsService {
                 startDate = endDate.minusDays(30);
         }
 
-        return getSummaryStatistics(startDate, endDate);
+        return getSummaryStatistics(startDate, endDate, hospitalId);
     }
 
     // Thống kê tổng hợp
-    public StatisticsResponse getSummaryStatistics(LocalDate startDate, LocalDate endDate) {
+    public StatisticsResponse getSummaryStatistics(LocalDate startDate, LocalDate endDate, UUID hospitalId) {
         startDate = validateStartDate(startDate);
         endDate = validateEndDate(endDate, startDate);
 
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        long total = statisticsRepository.countByStatusAndAppointmentDateBetween(null, start, end);
-        long checkedIn = statisticsRepository.countByStatusAndAppointmentDateBetween(AppointmentStatus.IN_PROGRESS, start, end);
-        long waiting = statisticsRepository.countByStatusAndAppointmentDateBetween(AppointmentStatus.CONFIRMED, start, end);
-        long cancelled = statisticsRepository.countByStatusAndAppointmentDateBetween(AppointmentStatus.CANCELLED, start, end);
-        long noShow = statisticsRepository.countByStatusAndAppointmentDateBetween(AppointmentStatus.NO_SHOW, start, end);
+        long total = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(hospitalId, null, start, end);
+        long checkedIn = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(hospitalId, AppointmentStatus.IN_PROGRESS, start, end);
+        long waiting = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(hospitalId, AppointmentStatus.CONFIRMED, start, end);
+        long cancelled = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(hospitalId, AppointmentStatus.CANCELLED, start, end);
+        long noShow = statisticsRepository.countByHospitalIdAndStatusAndDateBetween(hospitalId, AppointmentStatus.NO_SHOW, start, end);
 
         double checkInRate = total > 0 ? (double) checkedIn / total * 100 : 0;
 
@@ -140,16 +168,17 @@ public class StatisticsService {
     }
 
     // Thống kê theo giờ
-    public List<HourlyStatistic> getHourlyStatistics(LocalDate startDate, LocalDate endDate) {
+    public List<HourlyStatistic> getHourlyStatistics(LocalDate startDate, LocalDate endDate, UUID hospitalId) {
         startDate = validateStartDate(startDate);
         endDate = validateEndDate(endDate, startDate);
 
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<Object[]> results = statisticsRepository.getHourlyStatistics(start, end,
+        List<Object[]> results = statisticsRepository.getHourlyStatisticsByHospital(hospitalId, start, end,
                 AppointmentStatus.IN_PROGRESS.name(),
                 AppointmentStatus.CONFIRMED.name());
+
         List<HourlyStatistic> statistics = new ArrayList<>();
 
         for (Object[] row : results) {
@@ -170,14 +199,14 @@ public class StatisticsService {
     }
 
     // Thống kê theo bác sĩ
-    public List<DoctorStatistic> getDoctorStatistics(LocalDate startDate, LocalDate endDate) {
+    public List<DoctorStatistic> getDoctorStatistics(LocalDate startDate, LocalDate endDate, UUID hospitalId) {
         startDate = validateStartDate(startDate);
         endDate = validateEndDate(endDate, startDate);
 
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<Object[]> results = statisticsRepository.getDoctorStatistics(start, end,
+        List<Object[]> results = statisticsRepository.getDoctorStatisticsByHospital(hospitalId, start, end,
                 AppointmentStatus.IN_PROGRESS.name());
 
         List<DoctorStatistic> statistics = new ArrayList<>();
@@ -200,14 +229,14 @@ public class StatisticsService {
     }
 
     // Thống kê theo ngày
-    public List<DailyStatistic> getDailyStatistics(LocalDate startDate, LocalDate endDate) {
+    public List<DailyStatistic> getDailyStatistics(LocalDate startDate, LocalDate endDate, UUID hospitalId) {
         startDate = validateStartDate(startDate);
         endDate = validateEndDate(endDate, startDate);
 
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-        List<Object[]> results = statisticsRepository.getDailyStatistics(start, end,
+        List<Object[]> results = statisticsRepository.getDailyStatisticsByHospital(hospitalId, start, end,
                 AppointmentStatus.IN_PROGRESS.name(),
                 AppointmentStatus.CONFIRMED.name());
 

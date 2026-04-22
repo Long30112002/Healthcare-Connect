@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,5 +92,20 @@ public class HospitalService {
         hospitalMapper.updateHospital(hospital, request);
 
         return hospitalMapper.toHospitalResponse(hospitalRepository.save(hospital));
+    }
+
+    public List<HospitalResponse> getAllHospitals() {
+        return hospitalRepository.findAll().stream()
+                .map(hospital -> HospitalResponse.builder()
+                        .id(hospital.getId())
+                        .name(hospital.getName())
+                        .address(hospital.getAddress())
+                        .description(hospital.getDescription())
+                        .imageUrl(hospital.getImageUrl())
+//                        .managerEmail(hospital.getTempManagerEmail())
+                        .createdAt(hospital.getCreatedAt())
+                        .updatedAt(hospital.getUpdatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

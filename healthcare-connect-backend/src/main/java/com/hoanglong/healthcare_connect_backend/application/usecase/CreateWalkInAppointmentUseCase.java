@@ -37,11 +37,17 @@ public class CreateWalkInAppointmentUseCase {
     private final ReceptionistAuditLogService receptionistAuditLogService;
 
     @Transactional
-    public WalkInAppointmentResponse execute(WalkInAppointmentRequest request, HttpServletRequest httpRequest) {
+    public WalkInAppointmentResponse execute(WalkInAppointmentRequest request,
+            HttpServletRequest httpRequest,
+            UUID receptionistHospitalId){
 
         // 1. Lấy schedule có lock
         Schedule schedule = scheduleRepository.findByIdWithLock(request.getScheduleId())
                 .orElseThrow(() -> new AppException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        if (!schedule.getDoctor().getHospital().getId().equals(receptionistHospitalId)) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_IN_HOSPITAL);
+        }
 
         // 2. Validate schedule
         validateSchedule(schedule);
@@ -53,9 +59,9 @@ public class CreateWalkInAppointmentUseCase {
         PaymentMethod method = request.getPaymentMethod();
 
         if (method == PaymentMethod.CASH) {
-            return handleCashPayment(schedule, request, httpRequest);
+            return handleCashPayment(schedule, request, httpRequest, receptionistHospitalId);
         } else if (paymentProviderFactory.isSupported(method)) {
-            return handleElectronicPayment(schedule, request, method, httpRequest);
+            return handleElectronicPayment(schedule, request, method, httpRequest, receptionistHospitalId);
         } else {
             throw new AppException(ErrorCode.UNSUPPORTED_PAYMENT_METHOD);
         }
@@ -94,11 +100,14 @@ public class CreateWalkInAppointmentUseCase {
         }
     }
 
-    private WalkInAppointmentResponse handleCashPayment(Schedule schedule, WalkInAppointmentRequest request, HttpServletRequest httpRequest) {
+    private WalkInAppointmentResponse handleCashPayment(Schedule schedule,
+            WalkInAppointmentRequest request,
+            HttpServletRequest httpRequest,
+            UUID hospitalId) {
         log.info("==> [WALK-IN CASH] Tạo lịch tiền mặt cho bệnh nhân: {}", request.getPatientName());
 
         // Tạo appointment
-        Appointment appointment = createBaseAppointment(request, schedule, true, AppointmentStatus.CONFIRMED);
+        Appointment appointment = createBaseAppointment(request, schedule, true, AppointmentStatus.CONFIRMED, hospitalId);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         // Tạo payment record
@@ -125,11 +134,12 @@ public class CreateWalkInAppointmentUseCase {
     private WalkInAppointmentResponse handleElectronicPayment(Schedule schedule,
             WalkInAppointmentRequest request,
             PaymentMethod method,
-            HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest,
+            UUID hospitalId) {
         log.info("==> [WALK-IN E-PAYMENT] Tạo lịch {} cho bệnh nhân: {}", method, request.getPatientName());
 
         // 1. Tạo appointment PENDING
-        Appointment appointment = createBaseAppointment(request, schedule, false, AppointmentStatus.AWAITING_PAYMENT);
+        Appointment appointment = createBaseAppointment(request, schedule, false, AppointmentStatus.AWAITING_PAYMENT, hospitalId);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         // 2. Tạo payment PENDING
@@ -159,19 +169,20 @@ public class CreateWalkInAppointmentUseCase {
     private Appointment createBaseAppointment(WalkInAppointmentRequest request,
             Schedule schedule,
             boolean isPaid,
-            AppointmentStatus status) {
+            AppointmentStatus status,
+            UUID hospitalId) {
         return Appointment.builder()
                 .patient(null)
                 .patientName(request.getPatientName().trim())
                 .patientPhone(request.getPatientPhone().trim())
                 .schedule(schedule)
-                .appointmentDate(LocalDateTime.now())
+                .appointmentDate(schedule.getDate())
                 .status(status)
                 .isPaid(isPaid)
                 .symptoms(request.getSymptoms() != null ? request.getSymptoms().trim() : null)
                 .bookingType(BookingType.WALK_IN)
                 .doctor(schedule.getDoctor())
-                .hospital(schedule.getDoctor().getHospital())
+                .hospital(Hospital.builder().id(hospitalId).build())
                 .build();
     }
 

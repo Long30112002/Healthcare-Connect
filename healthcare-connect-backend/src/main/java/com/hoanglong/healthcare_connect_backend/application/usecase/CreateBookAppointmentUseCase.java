@@ -114,7 +114,7 @@ public class CreateBookAppointmentUseCase
                 .schedule(schedule)
                 .doctor(schedule.getDoctor())
                 .hospital(schedule.getDoctor().getHospital())
-                .appointmentDate(LocalDateTime.now())
+                .appointmentDate(schedule.getDate())
                 .status(AppointmentStatus.AWAITING_PAYMENT)
                 .symptoms(symptoms)
                 .isPaid(false)

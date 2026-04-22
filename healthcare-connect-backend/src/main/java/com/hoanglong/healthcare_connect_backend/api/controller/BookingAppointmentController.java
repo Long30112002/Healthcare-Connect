@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +29,12 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingAppointmentController
 {
-    CreateBookAppointmentUseCase createBookAppointmentUseCase;
-    AppointmentService appointmentService;
-    ProcessRefundUseCase processRefundUseCase;
+    private final CreateBookAppointmentUseCase createBookAppointmentUseCase;
+    private final AppointmentService appointmentService;
+    private final ProcessRefundUseCase processRefundUseCase;
 
     @GetMapping("/my-bookings")
+    @PreAuthorize("hasAnyRole('PATIENT')")
     public ApiResponse<Page<AppointmentResponse>> getMyAppointments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -49,6 +51,7 @@ public class BookingAppointmentController
     }
 
     @PostMapping("/book")
+    @PreAuthorize("hasAnyRole('PATIENT')")
     public ApiResponse<AppointmentResponse> book(@RequestBody BookingRequest request) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID patientId = UUID.fromString(authentication.getName());
@@ -59,6 +62,7 @@ public class BookingAppointmentController
     }
 
     @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('PATIENT')")
     public ResponseEntity<ApiResponse<String>> cancelAppointment(
             @PathVariable("id") UUID appointmentId,
             @RequestBody CancelAppointmentRequest request) {

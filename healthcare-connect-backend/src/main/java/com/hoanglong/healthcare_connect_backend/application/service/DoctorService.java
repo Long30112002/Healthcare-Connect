@@ -25,12 +25,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DoctorService {
-    DoctorRepository doctorRepository;
-    HospitalRepository hospitalRepository;
-    UserRepository userRepository;
-    DoctorHistoryRepository doctorHistoryRepository;
-    DoctorMapper doctorMapper;
-    ScheduleRepository scheduleRepository;
+    private final DoctorRepository doctorRepository;
+    private final HospitalRepository hospitalRepository;
+    private final UserRepository userRepository;
+    private final DoctorHistoryRepository doctorHistoryRepository;
+    private final DoctorMapper doctorMapper;
+    private final ScheduleRepository scheduleRepository;
+
+        public Doctor getDoctorById(UUID doctorId) {
+            return doctorRepository.findById(doctorId)
+                    .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        }
+
+    public DoctorDetailResponse getDoctorDetailForReceptionist(UUID doctorId, UUID hospitalId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        if (!doctor.getHospital().getId().equals(hospitalId)) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_IN_HOSPITAL);
+        }
+
+        return getDoctorDetail(doctorId);
+    }
 
     public List<VisitedDoctorResponse> getVisitedDoctors(UUID patientId) {
         List<AppointmentStatus> statuses = List.of(
@@ -222,5 +238,31 @@ public class DoctorService {
 
     public Optional<Doctor> getDoctorEntityByUserId(UUID userId) {
         return doctorRepository.findByUserId(userId);
+    }
+
+    public List<DoctorListResponse> getAvailableDoctorsByHospital(LocalDate date, Integer days, UUID hospitalId) {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end;
+
+        if (date != null) {
+            start = date.atStartOfDay();
+            end = date.atTime(23, 59, 59);
+        } else if (days != null && days > 0) {
+            end = start.plusDays(days);
+        } else {
+            end = start.plusDays(30);
+        }
+
+        List<Doctor> doctors = doctorRepository.findAvailableDoctorsByHospital(
+                DoctorStatus.APPROVED,
+                ScheduleStatus.AVAILABLE,
+                start,
+                end,
+                hospitalId
+        );
+
+        return doctors.stream()
+                .map(this::toDoctorListResponse)
+                .collect(Collectors.toList());
     }
 }

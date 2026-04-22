@@ -2,7 +2,7 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.*;
-import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
+import com.hoanglong.healthcare_connect_backend.application.service.CurrentUserService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreateWalkInAppointmentUseCase;
@@ -26,17 +26,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/receptionist")
 @RequiredArgsConstructor
 public class ReceptionistController {
-
-    private final AppointmentService appointmentService;
     private final ReceptionistService receptionistService;
     private final DoctorService doctorService;
     private final PaymentRepository paymentRepository;
@@ -44,6 +39,7 @@ public class ReceptionistController {
     private final MomoService momoService;
     private final ProcessRefundUseCase processRefundUseCase;
     private final RegisterReceptionistProfileUseCase registerReceptionistProfileUseCase;
+    private final CurrentUserService currentUserService;
 
 
     @PostMapping("/apply")
@@ -63,14 +59,26 @@ public class ReceptionistController {
                 .build();
     }
 
+    @GetMapping("/current-hospital")
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    public ApiResponse<HospitalResponse> getCurrentHospital() {
+        HospitalResponse response = currentUserService.getCurrentHospital();
+        return ApiResponse.<HospitalResponse>builder()
+                .status("success")
+                .code(200)
+                .data(response)
+                .build();
+    }
+
     @GetMapping("/doctors/{doctorId}/schedules")
     @PreAuthorize("hasRole('RECEPTIONIST')")
     public ApiResponse<DoctorDetailResponse> getDoctorSchedules(@PathVariable UUID doctorId) {
+        UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
 
         return ApiResponse.<DoctorDetailResponse>builder()
                 .status("success")
                 .code(200)
-                .data(doctorService.getDoctorDetail(doctorId))
+                .data(doctorService.getDoctorDetailForReceptionist(doctorId, hospitalId))
                 .build();
     }
 
@@ -82,7 +90,7 @@ public class ReceptionistController {
                 .status("success")
                 .code(200)
                 .message("Lấy danh sách lịch hẹn thành công")
-                .data(appointmentService.getTodayAppointments())
+                .data(receptionistService.getTodayAppointments())
                 .build();
     }
 
@@ -92,8 +100,8 @@ public class ReceptionistController {
             @RequestBody @Valid WalkInAppointmentRequest request,
             HttpServletRequest httpRequest) {
 
-        WalkInAppointmentResponse response = createWalkInAppointmentUseCase.execute(request, httpRequest);
-
+        UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
+        WalkInAppointmentResponse response = createWalkInAppointmentUseCase.execute(request, httpRequest, hospitalId);
         return ApiResponse.<WalkInAppointmentResponse>builder()
                 .status("success")
                 .code(200)
@@ -148,7 +156,7 @@ public class ReceptionistController {
                 .status("success")
                 .code(200)
                 .message("Tìm kiếm thành công")
-                .data(appointmentService.searchAppointments(keyword))
+                .data(receptionistService.searchAppointments(keyword))
                 .build();
     }
 
@@ -159,7 +167,7 @@ public class ReceptionistController {
             @PathVariable UUID appointmentId,
             HttpServletRequest httpRequest) {
         // Tái sử dụng method checkIn đã có
-        appointmentService.checkIn(appointmentId, httpRequest);
+        receptionistService.checkIn(appointmentId, httpRequest);
         return ApiResponse.<String>builder()
                 .status("success")
                 .code(200)
@@ -174,10 +182,11 @@ public class ReceptionistController {
             @RequestParam(required = false) LocalDate date,
             @RequestParam(required = false) Integer days
     ) {
+        UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
         return ApiResponse.<List<DoctorListResponse>>builder()
                 .status("success")
                 .code(200)
-                .data(doctorService.getAvailableDoctors(date, days))
+                .data(doctorService.getAvailableDoctorsByHospital(date, days, hospitalId))
                 .build();
     }
 
@@ -189,10 +198,11 @@ public class ReceptionistController {
             @RequestParam(defaultValue = "20") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("schedule.startTime").ascending());
+        UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
         return ApiResponse.<Page<AppointmentResponse>>builder()
                 .status("success")
                 .code(200)
-                .data(appointmentService.getAppointments(filter, pageable))
+                .data(receptionistService.getAppointments(filter, pageable, hospitalId))
                 .build();
     }
 

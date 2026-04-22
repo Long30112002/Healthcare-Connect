@@ -85,16 +85,31 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
             "OR CAST(a.id AS string) LIKE CONCAT('%', :keyword, '%')")
     List<Appointment> searchAppointments(@Param("keyword") String keyword);
 
-    List<Appointment> findByScheduleStartTimeBetween(LocalDateTime start, LocalDateTime end);
+    Page<Appointment> findByHospitalId(UUID hospitalId, Pageable pageable);
 
-    @Query("SELECT a FROM Appointment a WHERE DATE(a.schedule.date) = :date")
-    Page<Appointment> findByScheduleDate(@Param("date") LocalDate date, Pageable pageable);
+    @Query("SELECT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.payment p " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "AND DATE(a.schedule.date) = :date")
+    Page<Appointment> findByHospitalIdAndScheduleDate(@Param("hospitalId") UUID hospitalId,
+            @Param("date") LocalDate date,
+            Pageable pageable);
 
-    @Query("SELECT a FROM Appointment a WHERE DATE(a.schedule.date) BETWEEN :start AND :end")
-    Page<Appointment> findByScheduleDateBetween(@Param("start") LocalDate start,
+    @Query("SELECT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.payment p " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "AND DATE(a.schedule.date) BETWEEN :start AND :end")
+    Page<Appointment> findByHospitalIdAndScheduleDateBetween(@Param("hospitalId") UUID hospitalId,
+            @Param("start") LocalDate start,
             @Param("end") LocalDate end,
             Pageable pageable);
 
-    @Query("SELECT a FROM Appointment a ORDER BY a.schedule.date ASC")
-    Page<Appointment> findAllByOrderByScheduleDateAsc(Pageable pageable);
+    @Query("SELECT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.payment p " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "ORDER BY a.schedule.date ASC")
+    Page<Appointment> findByHospitalIdOrderByScheduleDateAsc(@Param("hospitalId") UUID hospitalId,
+            Pageable pageable);
+
+    List<Appointment> findByScheduleStartTimeBetween(LocalDateTime start, LocalDateTime end);
 }

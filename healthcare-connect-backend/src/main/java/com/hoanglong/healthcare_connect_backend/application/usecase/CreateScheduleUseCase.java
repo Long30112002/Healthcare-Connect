@@ -5,6 +5,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleResponse
 import com.hoanglong.healthcare_connect_backend.application.mapper.ScheduleMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.RoomService;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;
@@ -63,12 +64,12 @@ public class CreateScheduleUseCase {
             throw new AppException(ErrorCode.INVALID_PRICE);
         }
 
-        // 👉 6. Kiểm tra phòng (nếu có chọn)
+        // 6. Kiểm tra phòng (nếu có chọn)
         Room room = null;
         if (request.getRoomId() != null) {
             room = roomService.getRoomEntityById(request.getRoomId());
             // Kiểm tra phòng có khả dụng không
-            if (!"AVAILABLE".equals(room.getStatus())) {
+            if (!RoomStatus.AVAILABLE.equals(room.getStatus())) {
                 throw new AppException(ErrorCode.ROOM_NOT_AVAILABLE);
             }
         }
@@ -100,7 +101,7 @@ public class CreateScheduleUseCase {
 
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
-        // 👉 9. Cập nhật trạng thái phòng thành OCCUPIED?
+        // 9. Cập nhật trạng thái phòng thành OCCUPIED?
         // Không, phòng chỉ OCCUPIED khi bác sĩ bắt đầu khám thực tế
 
         return scheduleMapper.toResponse(savedSchedule);

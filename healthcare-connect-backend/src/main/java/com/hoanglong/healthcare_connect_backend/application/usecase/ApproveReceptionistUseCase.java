@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
+import com.hoanglong.healthcare_connect_backend.application.service.UserRoleService;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
@@ -33,6 +34,7 @@ public class ApproveReceptionistUseCase {
     private final HospitalRepository hospitalRepository;
     private final ReceptionistAuditLogService receptionistAuditLogService;
     private final MailService mailService;
+    private final UserRoleService userRoleService;
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'HOSPITAL_MANAGER')")
@@ -111,7 +113,8 @@ public class ApproveReceptionistUseCase {
 
                 // Cập nhật role user thành RECEPTIONIST
                 User user = receptionist.getUser();
-                user.setRole(UserRole.RECEPTIONIST);
+//                user.setRole(UserRole.RECEPTIONIST);
+                userRoleService.assignRole(user, UserRole.RECEPTIONIST);
                 userRepository.save(user);
 
                 // Ghi history APPROVE

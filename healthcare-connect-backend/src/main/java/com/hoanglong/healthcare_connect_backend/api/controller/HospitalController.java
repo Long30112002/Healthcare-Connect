@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +26,16 @@ public class HospitalController {
     public ApiResponse<HospitalResponse> create(@RequestBody @Valid HospitalRequest request) {
         return ApiResponse.<HospitalResponse>builder()
                 .data(hospitalService.createHospital(request))
+                .build();
+    }
+
+    @GetMapping
+    @PreAuthorize("permitAll()")
+    public ApiResponse<List<HospitalResponse>> getAllHospitals() {
+        return ApiResponse.<List<HospitalResponse>>builder()
+                .status("success")
+                .code(200)
+                .data(hospitalService.getAllHospitals())
                 .build();
     }
 

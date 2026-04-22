@@ -1,0 +1,18 @@
+package com.hoanglong.healthcare_connect_backend.application.service;
+
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import java.util.UUID;
+
+@Service("securityService")
+@RequiredArgsConstructor
+@Slf4j
+public class SecurityService {
+
+    private final HospitalRepository hospitalRepository;
+
+
+}

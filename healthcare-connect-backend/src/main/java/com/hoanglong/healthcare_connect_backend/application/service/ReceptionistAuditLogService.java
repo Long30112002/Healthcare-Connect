@@ -5,14 +5,10 @@ import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistApplic
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.entity.Payment;
-import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.entity.ReceptionistApplicationHistory;
 import com.hoanglong.healthcare_connect_backend.core.entity.ReceptionistActivityHistory;
-import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
-import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistActivityHistoryRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistApplicationHistoryRepository;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +30,7 @@ public class ReceptionistAuditLogService {
 
     private final ReceptionistApplicationHistoryRepository applicationHistoryRepository;
     private final ReceptionistActivityHistoryRepository activityHistoryRepository;
-    private final ReceptionistRepository receptionistRepository;
+    private final CurrentUserService currentUserService;
     private final ObjectMapper objectMapper;
 
     // ==================== UTILS ====================
@@ -46,19 +42,6 @@ public class ReceptionistAuditLogService {
             ip = request.getRemoteAddr();
         }
         return ip;
-    }
-
-    public UUID getCurrentReceptionistHospitalId() {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        return receptionistRepository.findByUserId(currentUserId)
-                .map(r -> r.getHospital().getId())
-                .orElseThrow(() -> new AppException(ErrorCode.RECEPTIONIST_NO_HOSPITAL));
-    }
-
-    public Receptionist getCurrentReceptionist() {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        return receptionistRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.RECEPTIONIST_NOT_FOUND));
     }
 
     // ==================== APPLICATION LOG (xin việc) ====================
@@ -120,8 +103,8 @@ public class ReceptionistAuditLogService {
         changes.put("payment_method", paymentMethod);
 
         logActivity(
-                getCurrentReceptionist().getId(),
-                getCurrentReceptionistHospitalId(),
+                currentUserService.getCurrentReceptionist().getId(),
+                currentUserService.getCurrentReceptionistHospitalId(),
                 ReceptionistActivityAction.CREATE_WALK_IN_APPOINTMENT,
                 appointment.getId(),
                 null,
@@ -145,8 +128,8 @@ public class ReceptionistAuditLogService {
                 : appointment.getPatientPhone();
 
         logActivity(
-                getCurrentReceptionist().getId(),
-                getCurrentReceptionistHospitalId(),
+                currentUserService.getCurrentReceptionist().getId(),
+                currentUserService.getCurrentReceptionistHospitalId(),
                 ReceptionistActivityAction.CHECK_IN,
                 appointment.getId(),
                 null,
@@ -170,8 +153,8 @@ public class ReceptionistAuditLogService {
                 : appointment.getPatientPhone();
 
         logActivity(
-                getCurrentReceptionist().getId(),
-                getCurrentReceptionistHospitalId(),
+                currentUserService.getCurrentReceptionist().getId(),
+                currentUserService.getCurrentReceptionistHospitalId(),
                 ReceptionistActivityAction.CANCEL_APPOINTMENT,
                 appointment.getId(),
                 null,
@@ -198,8 +181,8 @@ public class ReceptionistAuditLogService {
                 : appointment.getPatientPhone();
 
         logActivity(
-                getCurrentReceptionist().getId(),
-                getCurrentReceptionistHospitalId(),
+                currentUserService.getCurrentReceptionist().getId(),
+                currentUserService.getCurrentReceptionistHospitalId(),
                 ReceptionistActivityAction.REFUND,
                 appointment.getId(),
                 payment.getId(),

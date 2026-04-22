@@ -27,6 +27,9 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = true)
     User patient;
 
+    @OneToOne(mappedBy = "appointment", fetch = FetchType.LAZY)
+    Payment payment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id", nullable = false)
     Schedule schedule;

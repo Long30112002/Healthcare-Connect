@@ -43,7 +43,8 @@ public class SpecialtyController {
     }
 
     @GetMapping
-    public ApiResponse<List<SpecialtyResponse>> getAll() {
+    @PreAuthorize("permitAll()")
+    public ApiResponse<List<SpecialtyResponse>> getAllSpecialties() {
         return ApiResponse.<List<SpecialtyResponse>>builder()
                 .status("success")
                 .data(specialtyService.getAll())

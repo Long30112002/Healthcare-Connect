@@ -41,4 +41,20 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
     );
+
+    @Query("SELECT DISTINCT d FROM Doctor d " +
+            "JOIN FETCH d.schedules s " +
+            "WHERE d.status = :doctorStatus " +
+            "AND s.status = :scheduleStatus " +
+            "AND s.date BETWEEN :startDate AND :endDate " +
+            "AND s.currentBookings < s.maxPatients " +
+            "AND d.hospital.id = :hospitalId " +
+            "ORDER BY s.date ASC")
+    List<Doctor> findAvailableDoctorsByHospital(
+            @Param("doctorStatus") DoctorStatus doctorStatus,
+            @Param("scheduleStatus") ScheduleStatus scheduleStatus,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("hospitalId") UUID hospitalId
+    );
 }

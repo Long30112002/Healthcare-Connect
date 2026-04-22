@@ -197,4 +197,33 @@ public class AuthenticationService {
         log.info("User {} đã cập nhật mật khẩu thành công qua luồng xác thực code.", user.getEmail());
     }
 
+
+//    public AuthenticationResponse login(LoginRequest request) {
+//        // 1. Tìm user theo email
+//        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
+//
+//        // 2. Kiểm tra tổng hợp (Dùng toán tử lười || để bảo mật)
+//        // Nếu user null, hoặc pass không khớp, hoặc chưa enabled -> Đều là lỗi "Invalid Credentials"
+//        if (user == null ||
+//                !passwordEncoder.matches(request.getPassword(), user.getPassword()) ||
+//                !Boolean.TRUE.equals(user.getEnabled())) {
+//
+//            // Luôn ném ra 1 lỗi duy nhất: "Email hoặc mật khẩu không chính xác"
+//            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+//        }
+//
+//        // 3. Nếu mọi thứ OK -> Tạo Token
+//        String token = generateToken(user, 24);
+//
+//        return AuthenticationResponse.builder()
+//                .token(token)
+//                .authenticated(true)
+//                .user(UserResponse.builder()
+//                        .email(user.getEmail())
+//                        .fullName(user.getFullName())
+//                        .role(user.getRole())
+//                        .build())
+//                .build();
+//    }
+
 }

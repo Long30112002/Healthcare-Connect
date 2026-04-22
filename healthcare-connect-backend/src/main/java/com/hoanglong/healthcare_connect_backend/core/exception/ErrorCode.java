@@ -32,6 +32,7 @@
         TOKEN_REQUIRED(1024, "Yêu cầu token!", HttpStatus.FORBIDDEN),
         UNSUPPORTED_PAYMENT_METHOD(1025, "Phương thức thanh toán không được hỗ trợ!", HttpStatus.BAD_REQUEST),
         ADMIN_CANNOT_BE_RECEPTIONIST(1027, "Admin không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
+        USER_ALREADY_HAS_ROLE(1028, "Người dùng đã có role!", HttpStatus.BAD_REQUEST),
 
         // =============================================================================
         // 2xxx: NGƯỜI DÙNG (USER)
@@ -128,6 +129,7 @@
         ALREADY_DOCTOR(6037, "Bạn đã là bác sĩ!", HttpStatus.BAD_REQUEST),
         MANAGER_CANNOT_BE_DOCTOR(6038, "Quản lý bệnh viện không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
         RECEPTIONIST_CANNOT_BE_DOCTOR(6039, "Lễ tân không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
+        DOCTOR_NOT_IN_HOSPITAL(6040, "Bác sĩ không thuộc bệnh viện của bạn!", HttpStatus.BAD_REQUEST),
 
         // =============================================================================
         // 7xxx: ĐẶT LỊCH & LỊCH KHÁM (BOOKING & SCHEDULE)

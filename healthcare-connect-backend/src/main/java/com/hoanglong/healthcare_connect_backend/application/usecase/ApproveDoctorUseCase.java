@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
+import com.hoanglong.healthcare_connect_backend.application.service.UserRoleService;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
@@ -29,7 +30,7 @@ public class ApproveDoctorUseCase {
     private final HospitalRepository hospitalRepository;
     private final DoctorAuditLogService doctorAuditLogService;
     private final MailService mailService;
-
+    private final UserRoleService userRoleService;
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'HOSPITAL_MANAGER')")
     public void execute(UUID doctorId, HttpServletRequest httpRequest) {
@@ -96,7 +97,9 @@ public class ApproveDoctorUseCase {
                 doctor.setStatus(DoctorStatus.APPROVED);
 
                 User user = doctor.getUser();
-                user.setRole(UserRole.DOCTOR);
+//                user.setRole(UserRole.DOCTOR);
+//                userRepository.save(user);
+                userRoleService.assignRole(user, UserRole.DOCTOR);
                 userRepository.save(user);
                 doctorRepository.save(doctor);
 
