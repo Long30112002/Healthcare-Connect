@@ -1,5 +1,5 @@
 import type { Appointment, User } from ".";
-import type { AppointmentStatus, PaymentMethod, PaymentStatus } from "../constants/enums";
+import type { AppointmentStatus, DoctorStatus, PaymentMethod, PaymentStatus, ReceptionistStatus, RejectionReason, UserRole } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string;
@@ -115,11 +115,23 @@ export interface DoctorStatistic {
 }
 
 export interface DashboardStatistics {
+    upcoming: number;
     waiting: number;
     checkedIn: number;
     completed: number;
+    cancelled: number;
+    noShow: number;
     total: number;
 }
+
+export interface HospitalInfo {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+    email: string;
+}
+
 
 export interface DailyStatistic {
     date: string;
@@ -136,13 +148,51 @@ export interface RoomResponse {
     status: string;
 }
 
-export interface WalkInAppointmentRequest {
-    patientName: string;
-    patientPhone: string;
-    symptoms?: string;
-    scheduleId: string;
-    paymentMethod: PaymentMethod;
+
+export interface DepartmentResponse {
+    id: string;
+    name: string;
+    code: string;
+    description: string;
 }
+
+export interface SpecialtyResponse {
+    id: string;
+    name: string;
+    code: string;
+    description: string;
+    department: DepartmentResponse;
+}
+
+export interface HospitalResponse {
+    id: string;
+    name: string;
+    address: string;
+    description: string;
+    imageUrl: string;
+}
+
+// export interface WalkInAppointmentResponse {
+//     appointment: {
+//         id: string;
+//         patientName: string | null;
+//         doctorName: string;
+//         hospitalName: string;
+//         startTime: number[];
+//         endTime: number[];
+//         price: number;
+//         status: string;
+//         paid: boolean;
+//         patientPhone: string;
+//         bookingType: string;
+//     };
+//     paymentStatus: PaymentStatus;
+//     payUrl?: string;
+//     qrCodeUrl?: string;
+//     deeplink?: string;
+//     needPayment: boolean;
+//     message: string;
+// }
 
 export interface WalkInAppointmentResponse {
     appointment: Appointment;
@@ -158,4 +208,16 @@ export interface PaymentQRResponse {
     payUrl: string;
     qrCodeUrl: string;
     deeplink: string;
+}
+
+export interface ApplicationResponse {
+    id: string;
+    type: UserRole;
+    hospitalName: string;
+    hospitalId: string;
+    status: DoctorStatus | ReceptionistStatus; 
+    rejectionReason?: RejectionReason;         
+    rejectionNote?: string;
+    createdAt: string;
+    updatedAt: string;
 }

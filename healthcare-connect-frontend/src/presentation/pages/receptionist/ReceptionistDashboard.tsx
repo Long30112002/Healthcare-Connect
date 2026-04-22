@@ -11,6 +11,11 @@ import CreateOfflineAppointmentModal from './CreateOfflineAppointmentModal';
 import { PaymentMethod, RefundMethod } from '../../../core/constants/enums';
 import CancelAppointmentModal from './CancelAppointmentModal';
 import Modal from '../../components/shared/Modal';
+import StatCard from './StatCard';
+import { useSearchParams } from 'react-router-dom';
+import Pagination from '../../components/shared/Pagination';
+import StatusBadge from '../../components/shared/StatusBadge';
+import FilterTabs, { type FilterOption } from '../../components/shared/FilterTabs';
 
 type FilterKey = 'today' | 'tomorrow' | 'week' | 'all';
 type StatusFilter = 'all' | 'waiting' | 'checkedIn' | 'completed';
@@ -19,31 +24,46 @@ const PAGE_SIZE = 5;
 
 const ReceptionistDashboard = () => {
     const { t } = useAppTranslation();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    //ĐỌC FILTER TỪ URL
+    const getInitialFilter = (): FilterKey => {
+        const filter = searchParams.get('filter') as FilterKey;
+        return filter && ['today', 'tomorrow', 'week', 'all'].includes(filter) ? filter : 'today';
+    };
+
+    // ĐỌC PAGE TỪ URL
+    const getInitialPage = (): number => {
+        const page = parseInt(searchParams.get('page') || '1');
+        return isNaN(page) || page < 1 ? 1 : page;
+    };
 
     // State cơ bản
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [checkingId, setCheckingId] = useState<string | null>(null);
-    const [activeFilter, setActiveFilter] = useState<FilterKey>('today');
+    const [activeFilter, setActiveFilter] = useState<FilterKey>(getInitialFilter);
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState<number>(getInitialPage);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
-    const [jumpToPage, setJumpToPage] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [hospitalName, setHospitalName] = useState('');
     const [cancelModal, setCancelModal] = useState<{
         open: boolean;
         appointmentId: string | null;
         patientName: string;
         appointmentPrice: number;
         paymentMethod: PaymentMethod;
+        isPaid: boolean;
     }>({
         open: false,
         appointmentId: null,
         patientName: '',
         appointmentPrice: 0,
-        paymentMethod: PaymentMethod.MOMO
+        paymentMethod: PaymentMethod.MOMO,
+        isPaid: false
     });
 
     const [qrModal, setQrModal] = useState<{ open: boolean; payUrl: string; qrCodeUrl: string }>({
@@ -55,10 +75,13 @@ const ReceptionistDashboard = () => {
     const [cancelling, setCancelling] = useState(false);
 
     // State thống kê
-    const [stats, setStats] = useState<DashboardStatistics>({ waiting: 0, checkedIn: 0, completed: 0, total: 0 });
+    const [stats, setStats] = useState<DashboardStatistics>({
+        upcoming: 0, waiting: 0, checkedIn: 0, completed: 0, cancelled: 0, noShow: 0, total: 0
+    });
     const [statsLoading, setStatsLoading] = useState(true);
 
-    const filters = [
+
+    const filterOptions: FilterOption[] = [
         { key: 'today', label: t('receptionist.filterToday'), icon: '📅' },
         { key: 'tomorrow', label: t('receptionist.filterTomorrow'), icon: '⏰' },
         { key: 'week', label: t('receptionist.filterWeek'), icon: '📆' },
@@ -72,6 +95,38 @@ const ReceptionistDashboard = () => {
         { value: 'completed', label: t('receptionist.statusCompleted'), icon: '📋' },
         { value: 'cancelled', label: t('receptionist.cancelledStatus'), icon: '❌' },
     ];
+
+    useEffect(() => {
+        const currentFilter = searchParams.get('filter');
+        const currentPage = searchParams.get('page');
+
+        if (
+            currentFilter !== activeFilter ||
+            currentPage !== page.toString()
+        ) {
+            setSearchParams({
+                filter: activeFilter,
+                page: page.toString()
+            });
+        }
+    }, [activeFilter, page]);
+
+    useEffect(() => {
+        const filter = searchParams.get('filter') as FilterKey;
+        const pageParam = parseInt(searchParams.get('page') || '1');
+
+        if (
+            filter &&
+            ['today', 'tomorrow', 'week', 'all'].includes(filter) &&
+            filter !== activeFilter
+        ) {
+            setActiveFilter(filter);
+        }
+
+        if (!isNaN(pageParam) && pageParam >= 1 && pageParam !== page) {
+            setPage(pageParam);
+        }
+    }, [searchParams]);
 
     // Lấy thống kê
     const fetchStatistics = async () => {
@@ -87,13 +142,24 @@ const ReceptionistDashboard = () => {
         }
     };
 
+    // Lấy thông tin bệnh viện
+    useEffect(() => {
+        const fetchHospitalInfo = async () => {
+            try {
+                const hospital = await receptionistApi.getCurrentHospital();
+                setHospitalName(hospital.name);
+            } catch (error) {
+                console.error('Failed to fetch hospital info:', error);
+            }
+        };
+        fetchHospitalInfo();
+    }, []);
+
     // Lấy danh sách appointments
     const fetchAppointments = async (targetPage?: number) => {
-        const newPage = targetPage !== undefined ? targetPage : page;
-        setLoading(true);
-
+        const newPage = targetPage ?? page; setLoading(true);
         try {
-            const response: PageResponse<Appointment> = await receptionistApi.getAppointments(activeFilter, newPage, PAGE_SIZE);
+            const response: PageResponse<Appointment> = await receptionistApi.getAppointments(activeFilter, newPage - 1, PAGE_SIZE);
             setAppointments(response.content || []);
             setPage(newPage);
             setTotalPages(response.totalPages);
@@ -108,22 +174,22 @@ const ReceptionistDashboard = () => {
     // Gọi khi đổi filter
     useEffect(() => {
         fetchStatistics();
-        fetchAppointments(0);
+        fetchAppointments(page);
     }, [activeFilter]);
 
     // Reset page khi đổi status filter
     useEffect(() => {
-        setPage(0);
+        setPage(1);
     }, [statusFilter]);
 
     const handleFilterChange = (filter: FilterKey) => {
         setActiveFilter(filter);
         setSearchTerm('');
         setStatusFilter('all');
-        setPage(0);
+        setPage(1);
     };
 
-    // Hàm xử lý check in
+    // Xử lý check in
     const handleCheckIn = async (appointmentId: string) => {
         setCheckingId(appointmentId);
         try {
@@ -163,17 +229,6 @@ const ReceptionistDashboard = () => {
         return result;
     };
 
-    // Hàm xử lý nhảy trang
-    const handleJumpToPage = () => {
-        const pageNum = parseInt(jumpToPage);
-        if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= filteredTotalPages) {
-            const newPage = pageNum - 1;
-            setPage(newPage);
-            fetchAppointments(newPage);
-            setJumpToPage('');
-        }
-    };
-
     const handleCancelAppointment = async (data: { reason: string; refundMethod: RefundMethod; refundAmount?: number }) => {
         if (!cancelModal.appointmentId) return;
 
@@ -209,43 +264,14 @@ const ReceptionistDashboard = () => {
         }
     };
 
-    // Hàm xử lý Enter key
-    const handleJumpKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleJumpToPage();
-        }
-    };
-
     const filteredAppointments = getFilteredAppointments();
-    const filteredTotalPages = statusFilter === 'all' ? totalPages : Math.ceil(filteredAppointments.length / PAGE_SIZE);
+    const filteredTotalPages = totalPages;
     const filteredTotal = statusFilter === 'all' ? totalElements : filteredAppointments.length;
-
-    const getStatusBadge = (status: string) => {
-        const map: Record<string, string> = {
-            'CONFIRMED': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            'IN_PROGRESS': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            'COMPLETED': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-            'CANCELLED': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        return map[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-    };
-
-    const goToPreviousPage = () => {
-        if (page > 0) {
-            fetchAppointments(page - 1);
-        }
-    };
-
-    const goToNextPage = () => {
-        if (page + 1 < totalPages) {
-            fetchAppointments(page + 1);
-        }
-    };
 
     const renderPaginationInfo = () => {
         if (filteredTotal === 0) return null;
-        const start = page * PAGE_SIZE + 1;
-        const end = Math.min((page + 1) * PAGE_SIZE, filteredTotal);
+        const start = (page - 1) * PAGE_SIZE + 1;
+        const end = Math.min(page * PAGE_SIZE, filteredTotal);
         return (
             <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-2">
                 {t('receptionist.showing')} {start} - {end} {t('receptionist.of')} {filteredTotal} {t('receptionist.appointments')}
@@ -273,40 +299,63 @@ const ReceptionistDashboard = () => {
         return appointmentDate.getTime() === today.getTime();
     };
 
+    useEffect(() => {
+        console.log('=== DEBUG ===');
+        console.log('activeFilter:', activeFilter);
+        console.log('statusFilter:', statusFilter);
+        console.log('searchTerm:', searchTerm);
+        console.log('appointments length:', appointments.length);
+        console.log('filteredAppointments length:', filteredAppointments.length);
+    }, [activeFilter, statusFilter, searchTerm, appointments, filteredAppointments]);
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-            <div className="container mx-auto px-4 py-6">
+            <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl p-6 mb-6">
-                    <h1 className="text-2xl font-bold text-white">👩‍⚕️ {t('receptionist.title')}</h1>
-                    <p className="text-blue-100 mt-1">{t('receptionist.subtitle')}</p>
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div className="flex justify-between items-start sm:items-center">
+                        <div>
+                            <h1 className="text-xl sm:text-2xl font-bold text-white">👩‍⚕️ {t('receptionist.title')}</h1>
+                            <p className="text-blue-100 text-xs sm:text-sm mt-0.5 sm:mt-1">{t('receptionist.subtitle')}</p>
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl px-2 py-1 sm:px-4 sm:py-2">
+                            <div className="flex items-center gap-1 sm:gap-2">
+                                <span className="text-base sm:text-lg">🏥</span>
+                                <div className="hidden xs:block">
+                                    <p className="text-[10px] sm:text-xs text-blue-100">{t('receptionist.currentHospital')}</p>
+                                    <p className="text-xs sm:text-sm font-semibold text-white line-clamp-1 max-w-[120px] sm:max-w-[200px]">{hospitalName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Filter Tabs + Create Button */}
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl shadow-sm p-2 mb-6">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex flex-wrap gap-2">
-                            {filters.map((filter) => (
-                                <Button
-                                    key={filter.key}
-                                    onClick={() => handleFilterChange(filter.key as FilterKey)}
-                                    variant={activeFilter === filter.key ? 'primary' : 'outline'}
-                                    rounded="lg"
-                                    size="sm"
-                                >
-                                    {filter.icon} {filter.label}
-                                </Button>
-                            ))}
+                    <div className="flex items-center gap-2">
+                        {/* Filter Tabs - Scroll ngang */}
+                        <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide py-1 pl-1">
+                            <FilterTabs
+                                options={filterOptions}
+                                activeKey={activeFilter}
+                                onSelect={(key) => handleFilterChange(key as FilterKey)}
+                                variant="default"
+                                size="sm"
+                                className="min-w-max"
+                            />
                         </div>
 
+                        {/* Create Button */}
                         <Button
                             variant="outline"
                             onClick={() => setShowCreateModal(true)}
                             size="sm"
                             rounded="lg"
+                            className="flex-shrink-0 ml-1 mr-1"
                         >
-                            📝 {t('receptionist.createNew')}
+                            📝 <span className="hidden xs:inline">{t('receptionist.createNew')}</span>
+                            <span className="xs:hidden">📝</span>
                         </Button>
                     </div>
                 </div>
@@ -321,41 +370,43 @@ const ReceptionistDashboard = () => {
                 />
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 text-center shadow-sm">
-                        {statsLoading ? (
-                            <div className="text-2xl font-bold animate-pulse">...</div>
-                        ) : (
-                            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.waiting}</div>
-                        )}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('receptionist.waiting')}</div>
-                    </div>
-                    <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 text-center shadow-sm">
-                        {statsLoading ? (
-                            <div className="text-2xl font-bold animate-pulse">...</div>
-                        ) : (
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.checkedIn}</div>
-                        )}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('receptionist.checkedIn')}</div>
-                    </div>
-                    <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 text-center shadow-sm">
-                        {statsLoading ? (
-                            <div className="text-2xl font-bold animate-pulse">...</div>
-                        ) : (
-                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.completed}</div>
-                        )}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('receptionist.completed')}</div>
-                    </div>
+                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    {activeFilter !== 'tomorrow' && activeFilter !== 'all' && (
+                        <>
+                            <StatCard value={stats.waiting} label={t('receptionist.waiting')} color="yellow" loading={statsLoading} />
+                            <StatCard value={stats.checkedIn} label={t('receptionist.checkedIn')} color="green" loading={statsLoading} />
+                            <StatCard value={stats.completed} label={t('receptionist.completed')} color="blue" loading={statsLoading} />
+                            <StatCard value={stats.cancelled} label={t('receptionist.cancelled')} color="red" loading={statsLoading} />
+                            <StatCard value={stats.noShow} label={t('receptionist.noShow')} color="gray" loading={statsLoading} />
+                        </>
+                    )}
+
+                    {activeFilter === 'tomorrow' && (
+                        <>
+                            <StatCard value={stats.waiting} label={t('receptionist.expected')} color="yellow" loading={statsLoading} />
+                            <StatCard value={stats.cancelled} label={t('receptionist.cancelled')} color="red" loading={statsLoading} />
+                        </>
+                    )}
+
+                    {activeFilter === 'all' && (
+                        <>
+                            <StatCard value={stats.total} label={t('receptionist.total')} color="blue" loading={statsLoading} />
+                            <StatCard value={stats.upcoming} label={t('receptionist.upcoming')} color="purple" loading={statsLoading} />
+                            <StatCard value={stats.completed} label={t('receptionist.completed')} color="green" loading={statsLoading} />
+                            <StatCard value={stats.cancelled} label={t('receptionist.cancelled')} color="red" loading={statsLoading} />
+                            <StatCard value={stats.noShow} label={t('receptionist.noShow')} color="gray" loading={statsLoading} />
+                        </>
+                    )}
                 </div>
 
                 {/* Search + Status Filter */}
-                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 shadow-sm mb-6">
-                    <div className="flex flex-col sm:flex-row gap-3">
+                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <div className="flex-1">
                             <input
                                 type="text"
                                 placeholder={t('receptionist.searchPlaceholder')}
-                                className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white"
+                                className="w-full p-2 sm:p-3 text-sm border rounded-lg"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -414,13 +465,11 @@ const ReceptionistDashboard = () => {
                                                     <span className="text-base font-semibold text-gray-900 dark:text-white">
                                                         {apt.patientName}
                                                     </span>
-                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(apt.status)}`}>
-                                                        {apt.status === 'CONFIRMED' && canCheckIn(apt) && t('receptionist.waitingCheckin')}
-                                                        {apt.status === 'CONFIRMED' && !canCheckIn(apt) && t('receptionist.upcomingAppointment')}
-                                                        {apt.status === 'IN_PROGRESS' && t('receptionist.checkedInStatus')}
-                                                        {apt.status === 'COMPLETED' && t('receptionist.completedStatus')}
-                                                        {apt.status === 'CANCELLED' && t('receptionist.cancelledStatus')}
-                                                    </span>
+                                                    <StatusBadge
+                                                        status={apt.status}
+                                                        size="sm"
+                                                        showIcon={true}
+                                                    />
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-lg font-bold text-primary">{formatPrice(apt.price)}</p>
@@ -474,14 +523,10 @@ const ReceptionistDashboard = () => {
                                             )}
 
                                             {/* Action Buttons */}
-                                            <div className="mt-4 flex justify-end gap-2">
+                                            <div className="mt-4 flex flex-wrap justify-end gap-2">
                                                 {/* Nút mở lại QR - cho appointment AWAITING_PAYMENT */}
                                                 {apt.status === 'AWAITING_PAYMENT' && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => handleOpenQR(apt.id)}
-                                                    >
+                                                    <Button size="sm" variant="outline" onClick={() => handleOpenQR(apt.id)}>
                                                         🟣 {t('receptionist.openQR')}
                                                     </Button>
                                                 )}
@@ -496,7 +541,8 @@ const ReceptionistDashboard = () => {
                                                             appointmentId: apt.id,
                                                             patientName: apt.patientName || '',
                                                             appointmentPrice: apt.price,
-                                                            paymentMethod: apt.paymentMethod === 'MOMO' ? PaymentMethod.MOMO : PaymentMethod.CASH
+                                                            paymentMethod: apt.paymentMethod === 'MOMO' ? PaymentMethod.MOMO : PaymentMethod.CASH,
+                                                            isPaid: apt.paid
                                                         })}
                                                     >
                                                         ❌ {t('common.cancel')}
@@ -515,7 +561,7 @@ const ReceptionistDashboard = () => {
                                                     </Button>
                                                 )}
                                                 {apt.status === 'CONFIRMED' && !canCheckIn(apt) && (
-                                                    <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg text-sm flex items-center gap-1">
+                                                    <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm">
                                                         📅 {t('receptionist.waitForExamDate')}
                                                     </span>
                                                 )}
@@ -545,88 +591,14 @@ const ReceptionistDashboard = () => {
                         {filteredTotalPages > 1 && (
                             <>
                                 {renderPaginationInfo()}
-                                <div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
-                                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                                        <div className="flex items-center gap-1">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    setPage(0);
-                                                    fetchAppointments(0);
-                                                }}
-                                                disabled={page === 0}
-                                                className="px-2"
-                                                title={t('pagination.firstPage')}
-                                            >
-                                                ⏮
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={goToPreviousPage}
-                                                disabled={page === 0}
-                                                title={t('pagination.previousPage')}
-                                            >
-                                                ← {t('common.previous')}
-                                            </Button>
-                                            <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-md font-medium mx-1">
-                                                {page + 1}
-                                            </span>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={goToNextPage}
-                                                disabled={page + 1 >= filteredTotalPages}
-                                                title={t('pagination.nextPage')}
-                                            >
-                                                {t('common.next')} →
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    const lastPage = filteredTotalPages - 1;
-                                                    setPage(lastPage);
-                                                    fetchAppointments(lastPage);
-                                                }}
-                                                disabled={page + 1 >= filteredTotalPages}
-                                                className="px-2"
-                                                title={t('pagination.lastPage')}
-                                            >
-                                                ⏭
-                                            </Button>
-                                        </div>
-
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">|</span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {t('pagination.goToPage')}
-                                                </span>
-                                                <input
-                                                    type="number"
-                                                    value={jumpToPage}
-                                                    onChange={(e) => setJumpToPage(e.target.value)}
-                                                    onKeyPress={handleJumpKeyPress}
-                                                    min={1}
-                                                    max={filteredTotalPages}
-                                                    className="w-16 px-2 py-1 text-center text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
-                                                    placeholder={t('pagination.pagePlaceholder')}
-                                                />
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={handleJumpToPage}
-                                                    className="px-2"
-                                                    title={t('pagination.jumpToPage')}
-                                                >
-                                                    GO
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <Pagination
+                                    currentPage={page}
+                                    totalPages={filteredTotalPages}
+                                    onPageChange={(newPage) => {
+                                        setPage(newPage);
+                                        fetchAppointments(newPage);
+                                    }}
+                                />
                             </>
                         )}
                     </div>
@@ -640,6 +612,7 @@ const ReceptionistDashboard = () => {
                     appointmentPrice={cancelModal.appointmentPrice}
                     paymentMethod={cancelModal.paymentMethod}
                     patientName={cancelModal.patientName}
+                    isPaid={cancelModal.isPaid}
                     loading={cancelling}
                 />
 

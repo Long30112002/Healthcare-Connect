@@ -2,6 +2,9 @@ import { lazy } from 'react';
 import { UserRole } from '../../core/constants/enums';
 import ReceptionistDashboard from '../../presentation/pages/receptionist/ReceptionistDashboard';
 import ReceptionistStatistics from '../../presentation/pages/receptionist/ReceptionistStatistics';
+import ApplyDoctorPage from '../../presentation/pages/apply/ApplyDoctorPage';
+import ApplyReceptionistPage from '../../presentation/pages/apply/ApplyReceptionistPage';
+import ApplyStatusPage from '../../presentation/pages/apply/ApplyStatusPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -55,4 +58,8 @@ export const routes: RouteConfig[] = [
   { path: '/receptionist/dashboard', element: <ReceptionistDashboard />, layout: true, roles: [UserRole.RECEPTIONIST] },
   { path: '/receptionist/statistics', element: <ReceptionistStatistics />, layout: true, roles: [UserRole.RECEPTIONIST] },
 
+  // Apply routes
+  { path: '/apply/doctor', element: <ApplyDoctorPage />, layout: true, roles: ['PATIENT'] },
+  { path: '/apply/receptionist', element: <ApplyReceptionistPage />, layout: true, roles: ['PATIENT'] },
+  { path: '/apply/status', element: <ApplyStatusPage />, layout: true, isPublic: false },
 ];

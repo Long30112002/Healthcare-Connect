@@ -8,13 +8,16 @@ interface InputProps {
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: string;
     required?: boolean;
-    disabled?: boolean;  // ← THÊM DÒNG NÀY
+    disabled?: boolean;
     icon?: React.ReactNode;
     rightElement?: React.ReactNode;
     size?: 'sm' | 'md' | 'lg';
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
     fullWidth?: boolean;
     className?: string;
+    min?: number;    
+    max?: number;    
+    step?: number;   
 }
 
 const Input = ({
@@ -25,13 +28,16 @@ const Input = ({
     onChange,
     error,
     required = false,
-    disabled = false,  // ← THÊM DÒNG NÀY (mặc định false)
+    disabled = false,
     icon,
     rightElement,
     size = 'md',
     rounded = 'md',
     fullWidth = true,
     className = '',
+    min,           
+    max,           
+    step,          
 }: InputProps) => {
     const [isFocused, setIsFocused] = useState(false);
 
@@ -91,7 +97,10 @@ const Input = ({
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     required={required}
-                    disabled={disabled}  // ← THÊM DÒNG NÀY
+                    disabled={disabled}
+                    min={min}      // 👈 THÊM
+                    max={max}      // 👈 THÊM
+                    step={step}    // 👈 THÊM
                     className={`
                         ${sizes[size]} 
                         ${roundedStyles[rounded]} 

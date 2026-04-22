@@ -43,7 +43,7 @@ const PAYMENT_OPTIONS: Array<{
     ];
 
 const CreateOfflineAppointmentModal = ({ isOpen, onClose, onSuccess }: CreateOfflineAppointmentModalProps) => {
-    const { t, currentLanguage } = useAppTranslation();
+    const { t } = useAppTranslation();
 
     // States
     const [step, setStep] = useState(1);
@@ -424,7 +424,7 @@ const CreateOfflineAppointmentModal = ({ isOpen, onClose, onSuccess }: CreateOff
                 showConfirm={false}
                 showCancel={true}
                 cancelText={t('common.close')}
-                size="lg" 
+                size="lg"
             >
                 <div className="flex flex-col items-center p-2">
                     <iframe

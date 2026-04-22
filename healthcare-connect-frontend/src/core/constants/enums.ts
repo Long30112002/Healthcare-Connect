@@ -63,6 +63,16 @@ export const DoctorStatus = {
 } as const;
 export type DoctorStatus = (typeof DoctorStatus)[keyof typeof DoctorStatus];
 
+export const ReceptionistStatus = {
+    PENDING: 'PENDING',    // 1. Mới nộp hồ sơ, chờ Admin kiểm tra bằng cấp
+    VERIFIED: 'VERIFIED',   // 2. Admin đã xác thực hồ sơ xong, chờ Bệnh viện tiếp nhận
+    APPROVED: 'APPROVED',   // 3. Bệnh viện đã duyệt, bác sĩ chính thức hoạt động (Chốt Role)
+    REJECTED: 'REJECTED',   // 4. Hồ sơ bị từ chối (bởi Admin hoặc Manager)
+    INACTIVE: 'INACTIVE',    // 5. Bác sĩ đã nghỉ việc hoặc bị khóa tài khoản
+    ARCHIVED: 'ARCHIVED'    // 5. Bác sĩ đã nghỉ việc hoặc bị khóa tài khoản
+} as const;
+export type ReceptionistStatus = (typeof ReceptionistStatus)[keyof typeof ReceptionistStatus];
+
 export const HospitalStatus = {
     PENDING_CONFIRMATION: 'PENDING_CONFIRMATION',
     ACTIVE: 'ACTIVE',
@@ -73,7 +83,9 @@ export type HospitalStatus = (typeof HospitalStatus)[keyof typeof HospitalStatus
 
 export const RejectionReason = {
     INVALID_CERTIFICATE: 'INVALID_CERTIFICATE',
+    MISSING_DOCUMENTS: 'MISSING_DOCUMENTS',
     INSUFFICIENT_EXPERIENCE: 'INSUFFICIENT_EXPERIENCE',
+    PROFILE_MISMATCH: 'PROFILE_MISMATCH',
     OTHER: 'OTHER',
 
 } as const;

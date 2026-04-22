@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import toast from 'react-hot-toast';
 import { PaymentMethod, RefundMethod } from '../../../core/constants/enums';
-import Modal from '../../components/shared/Modal';
 import Input from '../../components/shared/Input';
+import Modal from '../../components/shared/Modal';
 
 interface CancelAppointmentModalProps {
     isOpen: boolean;
@@ -12,6 +12,7 @@ interface CancelAppointmentModalProps {
     appointmentPrice: number;
     paymentMethod: PaymentMethod;
     patientName: string;
+    isPaid: boolean; 
     loading?: boolean;
 }
 
@@ -22,6 +23,7 @@ const CancelAppointmentModal = ({
     appointmentPrice,
     paymentMethod,
     patientName,
+    isPaid, 
     loading = false
 }: CancelAppointmentModalProps) => {
     const { t } = useAppTranslation();
@@ -31,9 +33,7 @@ const CancelAppointmentModal = ({
     const [isPartialRefund, setIsPartialRefund] = useState(false);
     
     const isMomo = paymentMethod === PaymentMethod.MOMO;
-    
-    // Xác định refundMethod dựa trên paymentMethod
-    const refundMethod: RefundMethod = isMomo ? RefundMethod.MOMO : RefundMethod.CASH;
+    const refundMethod = isMomo ? RefundMethod.MOMO : RefundMethod.CASH;
     
     const handleConfirm = () => {
         if (!reason) {
@@ -46,8 +46,8 @@ const CancelAppointmentModal = ({
             refundMethod,
         };
         
-        // Chỉ gửi refundAmount nếu là CASH và chọn hoàn một phần
-        if (!isMomo && isPartialRefund && refundAmount && refundAmount > 0) {
+        // Chỉ gửi refundAmount nếu là CASH và chọn hoàn một phần VÀ ĐÃ THANH TOÁN
+        if (isPaid && !isMomo && isPartialRefund && refundAmount && refundAmount > 0) {
             if (refundAmount > appointmentPrice) {
                 toast.error(t('cancel.amountExceeds'));
                 return;
@@ -83,6 +83,10 @@ const CancelAppointmentModal = ({
                                 <p className={`text-lg font-bold ${isMomo ? 'text-purple-600' : 'text-green-600'}`}>
                                     {isMomo ? t('cancel.momo') : t('cancel.cash')}
                                 </p>
+                                {/* HIỂN THỊ TRẠNG THÁI THANH TOÁN */}
+                                <p className={`text-xs mt-1 ${isPaid ? 'text-green-600' : 'text-red-500'}`}>
+                                    {isPaid ? '✅ Đã thanh toán' : '❌ Chưa thanh toán'}
+                                </p>
                             </div>
                         </div>
                         <div className="text-right">
@@ -111,81 +115,94 @@ const CancelAppointmentModal = ({
                     </select>
                 </div>
                 
-                {/* Phần hoàn tiền - Hiển thị khác nhau theo phương thức */}
-                {isMomo ? (
-                    // MOMO: Chỉ hiển thị thông báo
-                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
-                        <div className="flex items-start gap-3">
-                            <span className="text-xl">💡</span>
-                            <div>
-                                <p className="font-semibold text-purple-700 dark:text-purple-300">
-                                    {t('cancel.momoRefundTitle')}
-                                </p>
-                                <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
-                                    {t('cancel.momoRefundNote')}
-                                </p>
-                                <p className="text-sm font-medium text-purple-700 dark:text-purple-300 mt-2">
-                                    {t('cancel.refundAmount')}: <span className="font-bold">{appointmentPrice.toLocaleString()}đ</span>
-                                </p>
+                {/* ========== PHẦN HOÀN TIỀN ========== */}
+                {isPaid ? (
+                    // ĐÃ THANH TOÁN - Hiển thị phần hoàn tiền
+                    isMomo ? (
+                        // MOMO đã thanh toán
+                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-start gap-3">
+                                <span className="text-xl">💡</span>
+                                <div>
+                                    <p className="font-semibold text-purple-700 dark:text-purple-300">
+                                        {t('cancel.momoRefundTitle')}
+                                    </p>
+                                    <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
+                                        {t('cancel.momoRefundNote')}
+                                    </p>
+                                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300 mt-2">
+                                        {t('cancel.refundAmount')}: <span className="font-bold">{appointmentPrice.toLocaleString()}đ</span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        // CASH đã thanh toán
+                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                            <div className="flex gap-4 mb-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="refundType"
+                                        checked={!isPartialRefund}
+                                        onChange={() => {
+                                            setIsPartialRefund(false);
+                                            setRefundAmount(undefined);
+                                        }}
+                                        className="w-4 h-4 text-primary"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        💰 {t('cancel.fullRefund')}
+                                    </span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="refundType"
+                                        checked={isPartialRefund}
+                                        onChange={() => setIsPartialRefund(true)}
+                                        className="w-4 h-4 text-primary"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        🔄 {t('cancel.partialRefund')}
+                                    </span>
+                                </label>
+                            </div>
+                            
+                            {isPartialRefund ? (
+                                <div>
+                                    <Input
+                                        type="number"
+                                        value={refundAmount?.toString() || ''}
+                                        onChange={(e) => setRefundAmount(Number(e.target.value))}
+                                        placeholder={t('cancel.enterAmount')}
+                                        className="text-center"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-2 text-center">
+                                        {t('cancel.maxRefund')}: {appointmentPrice.toLocaleString()}đ
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="text-center p-3 bg-white dark:bg-gray-700 rounded-lg">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        {t('cancel.fullRefundAmount')}
+                                    </p>
+                                    <p className="text-2xl font-bold text-primary">
+                                        {appointmentPrice.toLocaleString()}đ
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )
                 ) : (
-                    // CASH: Cho phép chọn hoàn toàn bộ hoặc một phần
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
-                        <div className="flex gap-4 mb-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="refundType"
-                                    checked={!isPartialRefund}
-                                    onChange={() => {
-                                        setIsPartialRefund(false);
-                                        setRefundAmount(undefined);
-                                    }}
-                                    className="w-4 h-4 text-primary"
-                                />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    💰 {t('cancel.fullRefund')}
-                                </span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    name="refundType"
-                                    checked={isPartialRefund}
-                                    onChange={() => setIsPartialRefund(true)}
-                                    className="w-4 h-4 text-primary"
-                                />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    🔄 {t('cancel.partialRefund')}
-                                </span>
-                            </label>
-                        </div>
-                        
-                        {isPartialRefund ? (
-                            <div>
-                                <Input
-                                    type="number"
-                                    value={refundAmount?.toString() || ''}
-                                    onChange={(e) => setRefundAmount(Number(e.target.value))}
-                                    placeholder={t('cancel.enterAmount')}
-                                    className="text-center"
-                                />
-                                <p className="text-xs text-gray-500 mt-2 text-center">
-                                    {t('cancel.maxRefund')}: {appointmentPrice.toLocaleString()}đ
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="text-center p-3 bg-white dark:bg-gray-700 rounded-lg">
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {t('cancel.fullRefundAmount')}
-                                </p>
-                                <p className="text-2xl font-bold text-primary">
-                                    {appointmentPrice.toLocaleString()}đ
-                                </p>
-                            </div>
-                        )}
+                    // ========== CHƯA THANH TOÁN ==========
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            ℹ️ {t('cancel.notPaidYet')}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {t('cancel.noRefundNeeded')}
+                        </p>
                     </div>
                 )}
                 
