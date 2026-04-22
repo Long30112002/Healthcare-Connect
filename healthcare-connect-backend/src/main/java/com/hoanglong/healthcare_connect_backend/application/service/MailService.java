@@ -15,8 +15,12 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -211,6 +215,95 @@ public class MailService {
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, message);
     }
 
+    // NGHIỆP VỤ THÔNG BÁO BỆNH ÁN MỚI ĐƯỢC TẠO
+    public void sendMedicalRecordCreatedEmail(MedicalRecord medicalRecord) {
+        try {
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("patientName", medicalRecord.getPatient().getFullName());
+            variables.put("doctorName", medicalRecord.getDoctor().getUser().getFullName());
+            variables.put("hospitalName", medicalRecord.getHospital().getName());
+            variables.put("diagnosis", medicalRecord.getDiagnosis());
+            variables.put("followUpDate", formatDate(medicalRecord.getFollowUpDate()));
+            variables.put("prescriptionCount", medicalRecord.getPrescriptions() != null ?
+                    medicalRecord.getPrescriptions().size() : 0);
+
+            // Tính tổng tiền thuốc
+            BigDecimal totalMedicinePrice = BigDecimal.ZERO;
+            List<Map<String, Object>> medicineList = new ArrayList<>();
+
+            if (medicalRecord.getPrescriptions() != null) {
+                for (var prescription : medicalRecord.getPrescriptions()) {
+                    if (prescription.getItems() != null) {
+                        for (PrescriptionItem item : prescription.getItems()) {
+                            totalMedicinePrice = totalMedicinePrice.add(item.getTotalPrice());
+
+                            Map<String, Object> medicineInfo = new HashMap<>();
+                            medicineInfo.put("name", item.getMedicine().getName());
+                            medicineInfo.put("dosage", item.getDosage());
+                            medicineInfo.put("frequency", item.getFrequency());
+                            medicineInfo.put("quantity", item.getQuantity());
+                            medicineList.add(medicineInfo);
+                        }
+                    }
+                }
+            }
+
+            variables.put("totalMedicinePrice", String.format("%,.0f", totalMedicinePrice));
+            variables.put("medicines", medicineList);
+            variables.put("url", "http://localhost:3000/my-medical-records/" + medicalRecord.getId());
+            variables.put("btnText", "Xem bệnh án chi tiết");
+
+            NotificationMessage message = NotificationMessage.builder()
+                    .recipientEmail(medicalRecord.getPatient().getEmail())
+                    .subject("Bệnh án mới được tạo - Healthcare Connect")
+                    .templateName("medical-record-template")
+                    .variables(variables)
+                    .appointmentId(medicalRecord.getAppointment().getId())
+                    .paymentType("MEDICAL_RECORD")
+                    .build();
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
+                    RabbitMQConfig.ROUTING_KEY,
+                    message);
+
+            log.info("Đã gửi thông báo bệnh án đến email: {}", medicalRecord.getPatient().getEmail());
+        } catch (Exception e) {
+            log.error("Lỗi gửi thông báo bệnh án: {}", e.getMessage());
+        }
+    }
+
+    // NGHIỆP VỤ NHẮC LỊCH TÁI KHÁM
+    public void sendFollowUpReminderEmail(MedicalRecord medicalRecord) {
+        try {
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("patientName", medicalRecord.getPatient().getFullName());
+            variables.put("doctorName", medicalRecord.getDoctor().getUser().getFullName());
+            variables.put("hospitalName", medicalRecord.getHospital().getName());
+            variables.put("hospitalAddress", medicalRecord.getHospital().getAddress());
+            variables.put("followUpDate", formatDate(medicalRecord.getFollowUpDate()));
+            variables.put("diagnosis", medicalRecord.getDiagnosis());
+            variables.put("url", "http://localhost:3000/appointments/book?doctorId=" + medicalRecord.getDoctor().getId());
+            variables.put("btnText", "Đặt lịch tái khám");
+
+            NotificationMessage message = NotificationMessage.builder()
+                    .recipientEmail(medicalRecord.getPatient().getEmail())
+                    .subject("Nhắc lịch tái khám - Healthcare Connect")
+                    .templateName("followup-reminder-template")
+                    .variables(variables)
+                    .appointmentId(medicalRecord.getAppointment().getId())
+                    .paymentType("FOLLOW_UP_REMINDER")
+                    .build();
+
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME,
+                    RabbitMQConfig.ROUTING_KEY,
+                    message);
+
+            log.info("Đã gửi nhắc lịch tái khám đến email: {}", medicalRecord.getPatient().getEmail());
+        } catch (Exception e) {
+            log.error("Lỗi gửi nhắc lịch tái khám: {}", e.getMessage());
+        }
+    }
+
     // --- HÀM GỬI MAIL VẬT LÝ ---
     public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
         try {
@@ -236,5 +329,11 @@ public class MailService {
     @PostConstruct
     public void checkConfig() {
         log.info("==> [CONFIG] Mail Service khởi tạo thành công với email: {}", mailFrom);
+    }
+
+    private String formatDate(LocalDate date) {
+        if (date == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return date.format(formatter);
     }
 }
