@@ -11,7 +11,7 @@ import Select from '../../components/shared/Select';
 import toast from 'react-hot-toast';
 import type { Hospital } from '../../../core/types';
 import { commonApi } from '../../../infrastructure/api/commonApi';
-import type { DepartmentResponse, SpecialtyResponse } from '../../../core/types/api.request';
+import type { DepartmentResponse, SpecialtyResponse } from '../../../core/types/api.response';
 
 const ApplyDoctorPage = () => {
     const { t } = useAppTranslation();

@@ -172,28 +172,6 @@ export interface HospitalResponse {
     imageUrl: string;
 }
 
-// export interface WalkInAppointmentResponse {
-//     appointment: {
-//         id: string;
-//         patientName: string | null;
-//         doctorName: string;
-//         hospitalName: string;
-//         startTime: number[];
-//         endTime: number[];
-//         price: number;
-//         status: string;
-//         paid: boolean;
-//         patientPhone: string;
-//         bookingType: string;
-//     };
-//     paymentStatus: PaymentStatus;
-//     payUrl?: string;
-//     qrCodeUrl?: string;
-//     deeplink?: string;
-//     needPayment: boolean;
-//     message: string;
-// }
-
 export interface WalkInAppointmentResponse {
     appointment: Appointment;
     paymentStatus: PaymentStatus;
@@ -221,3 +199,25 @@ export interface ApplicationResponse {
     createdAt: string;
     updatedAt: string;
 }
+
+// export interface WalkInAppointmentResponse {
+//     appointment: {
+//         id: string;
+//         patientName: string | null;
+//         doctorName: string;
+//         hospitalName: string;
+//         startTime: number[];
+//         endTime: number[];
+//         price: number;
+//         status: string;
+//         paid: boolean;
+//         patientPhone: string;
+//         bookingType: string;
+//     };
+//     paymentStatus: PaymentStatus;
+//     payUrl?: string;
+//     qrCodeUrl?: string;
+//     deeplink?: string;
+//     needPayment: boolean;
+//     message: string;
+// }

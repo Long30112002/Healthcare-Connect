@@ -1,7 +1,6 @@
 import type { VisitedDoctor } from '../../../core/types';
 import { getAvatarUrl, getSpecialtyIcon } from '../../../shared/utils/avatarUtils';
 
-
 interface DoctorVisitedCardProps {
     doctor: VisitedDoctor;
     onBookAgain: (id: string) => void;

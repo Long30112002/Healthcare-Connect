@@ -9,6 +9,7 @@ interface UseMinLoadingActionOptions<T> {
     onError?: (error: any) => void;
 }
 
+
 export const useMinLoadingAction = <T = any>(options: UseMinLoadingActionOptions<T> = {}) => {
     const {
         minLoadingTime = 1000,
