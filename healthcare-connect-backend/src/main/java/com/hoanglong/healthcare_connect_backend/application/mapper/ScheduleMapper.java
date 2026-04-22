@@ -1,7 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.mapper;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Schedule;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,9 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.application.mapper;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.RoomResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

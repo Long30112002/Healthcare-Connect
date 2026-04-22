@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.SpecialtyRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.SpecialtyResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.SpecialtyRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.SpecialtyResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.SpecialtyService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreateSpecialtyUseCase;
 import jakarta.validation.Valid;

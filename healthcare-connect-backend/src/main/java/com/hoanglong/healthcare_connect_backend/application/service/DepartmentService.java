@@ -1,9 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.DepartmentRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
-import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DepartmentRepository;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DepartmentMapper;

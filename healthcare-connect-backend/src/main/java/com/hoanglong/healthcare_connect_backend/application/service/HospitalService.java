@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.HospitalRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.HospitalResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.HospitalMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;

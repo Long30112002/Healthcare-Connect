@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ScheduleMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.RoomService;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;

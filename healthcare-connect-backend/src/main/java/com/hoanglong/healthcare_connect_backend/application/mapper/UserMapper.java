@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.application.mapper;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.LoginResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.auth.LoginResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.auth.UserRegistrationRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

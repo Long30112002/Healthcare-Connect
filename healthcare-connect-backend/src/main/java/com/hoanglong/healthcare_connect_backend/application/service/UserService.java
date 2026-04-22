@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.ApplicationResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.UserRegistrationRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.invitation.ApplicationResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.auth.UserRegistrationRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;

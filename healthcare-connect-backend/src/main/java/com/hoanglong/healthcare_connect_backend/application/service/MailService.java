@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
+import com.hoanglong.healthcare_connect_backend.application.dto.notification.NotificationMessage;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import jakarta.annotation.PostConstruct;

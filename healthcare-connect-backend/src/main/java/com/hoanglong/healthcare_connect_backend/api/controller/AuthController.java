@@ -1,7 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.auth.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.AuthenticationService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.ForgotPasswordUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.VerifyUserUseCase;

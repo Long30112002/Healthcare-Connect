@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.RejectReceptionistRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.RejectReceptionistRequest;
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveReceptionistUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RejectReceptionistUseCase;
 import jakarta.servlet.http.HttpServletRequest;

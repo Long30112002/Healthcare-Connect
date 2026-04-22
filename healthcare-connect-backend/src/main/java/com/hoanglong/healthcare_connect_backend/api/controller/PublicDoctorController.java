@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorProfileRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorProfileRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterDoctorProfileUseCase;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;

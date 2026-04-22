@@ -1,9 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorDetailResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorListResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.VisitedDoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorDetailResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorListResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.VisitedDoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.service.QRCodeService;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;

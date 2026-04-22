@@ -1,10 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.DepartmentRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DepartmentService;
-import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

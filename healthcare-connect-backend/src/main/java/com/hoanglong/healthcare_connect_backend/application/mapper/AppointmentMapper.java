@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.mapper;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,6 +11,7 @@ public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentRe
     @Mapping(source = "schedule.doctor.user.fullName", target = "doctorName")
     @Mapping(source = "schedule.doctor.hospital.name", target = "hospitalName")
     @Mapping(source = "schedule.doctor.id", target = "doctorId")
+    @Mapping(source = "payment.paymentMethod", target = "paymentMethod")
     @Mapping(source = "schedule.date", target = "appointmentDate")
     @Mapping(source = "schedule.startTime", target = "startTime")
     @Mapping(source = "schedule.endTime", target = "endTime")

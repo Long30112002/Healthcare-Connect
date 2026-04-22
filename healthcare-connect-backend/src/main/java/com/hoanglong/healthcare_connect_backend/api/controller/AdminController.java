@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.UserResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

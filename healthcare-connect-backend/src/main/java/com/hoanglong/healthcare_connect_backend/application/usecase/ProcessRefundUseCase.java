@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.ReceptionistCancelRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistCancelRequest;
 import com.hoanglong.healthcare_connect_backend.application.service.NotificationService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;

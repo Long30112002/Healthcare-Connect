@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.HospitalResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;

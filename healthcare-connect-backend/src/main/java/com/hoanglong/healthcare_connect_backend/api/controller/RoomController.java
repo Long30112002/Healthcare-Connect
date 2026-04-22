@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.RoomRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.RoomResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

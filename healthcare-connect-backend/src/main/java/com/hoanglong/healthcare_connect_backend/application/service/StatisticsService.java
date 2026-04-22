@@ -1,8 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.*;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.StatisticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

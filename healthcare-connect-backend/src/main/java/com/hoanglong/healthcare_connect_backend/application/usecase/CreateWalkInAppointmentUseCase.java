@@ -1,9 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.WalkInAppointmentRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.WalkInAppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.payment.MomoPaymentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
 import com.hoanglong.healthcare_connect_backend.core.constant.*;

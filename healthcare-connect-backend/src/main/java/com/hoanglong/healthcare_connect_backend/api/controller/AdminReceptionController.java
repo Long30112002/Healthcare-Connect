@@ -2,8 +2,8 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.ReceptionistListResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.RejectReceptionistRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistListResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.RejectReceptionistRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ReceptionistMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveReceptionistUseCase;

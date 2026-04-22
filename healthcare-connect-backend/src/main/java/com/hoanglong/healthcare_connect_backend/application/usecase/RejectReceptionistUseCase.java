@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.RejectReceptionistRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.RejectReceptionistRequest;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistApplicationStatus;

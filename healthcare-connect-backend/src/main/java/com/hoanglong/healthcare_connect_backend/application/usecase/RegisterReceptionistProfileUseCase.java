@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.ReceptionistProfileRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.ReceptionistResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistProfileRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ReceptionistMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;

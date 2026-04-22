@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.MomoPaymentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.payment.MomoPaymentResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;

@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.RoomRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.RoomResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.RoomMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;

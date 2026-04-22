@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.mapper;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.DepartmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.DepartmentResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.Department;
 import org.mapstruct.Mapper;
 

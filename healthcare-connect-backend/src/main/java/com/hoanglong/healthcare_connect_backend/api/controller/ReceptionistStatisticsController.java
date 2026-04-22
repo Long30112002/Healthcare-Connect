@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.*;
 import com.hoanglong.healthcare_connect_backend.application.service.CurrentUserService;
 import com.hoanglong.healthcare_connect_backend.application.service.StatisticsService;
 import lombok.RequiredArgsConstructor;

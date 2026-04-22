@@ -1,9 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.AppointmentResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;

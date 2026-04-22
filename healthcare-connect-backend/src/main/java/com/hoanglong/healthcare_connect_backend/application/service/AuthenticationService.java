@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.auth.*;
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
 import com.hoanglong.healthcare_connect_backend.core.entity.InvalidatedToken;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;

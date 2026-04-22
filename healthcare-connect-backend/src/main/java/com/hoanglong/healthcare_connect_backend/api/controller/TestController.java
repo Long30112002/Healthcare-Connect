@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.NotificationMessage;
+import com.hoanglong.healthcare_connect_backend.application.dto.notification.NotificationMessage;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorProfileRequest;
-import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorProfileRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
 import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
