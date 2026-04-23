@@ -108,6 +108,7 @@ public class MedicalRecordService {
                         .status(PrescriptionStatus.ACTIVE)
                         .build();
 
+
                 // Tạo PrescriptionItems
                 List<PrescriptionItem> items = new ArrayList<>();
                 if (prescriptionDTO.getItems() != null) {
@@ -115,7 +116,7 @@ public class MedicalRecordService {
                         Medicine medicine = medicineRepository.findById(itemDTO.getMedicineId())
                                 .orElseThrow(() -> new AppException(ErrorCode.MEDICINE_NOT_FOUND));
 
-                        // 🟢 KIỂM TRA THUỐC CÓ THUỘC BỆNH VIỆN HIỆN TẠI KHÔNG
+                        // KIỂM TRA THUỐC CÓ THUỘC BỆNH VIỆN HIỆN TẠI KHÔNG
                         if (medicine.getHospital() != null &&
                                 !medicine.getHospital().getId().equals(currentHospitalId)) {
                             throw new AppException(ErrorCode.MEDICINE_NOT_IN_HOSPITAL);
@@ -204,20 +205,49 @@ public class MedicalRecordService {
             }
         }
 
+        UUID patientId = null;
+        String patientName = null;
+        String patientPhone = null;
+        String patientEmail = null;
+
+        if (record.getPatient() != null) {
+            // Bệnh nhân có tài khoản
+            patientId = record.getPatient().getId();
+            patientName = record.getPatient().getFullName();
+            patientPhone = record.getPatient().getPhone();
+            patientEmail = record.getPatient().getEmail();
+        } else if (record.getAppointment() != null) {
+            // Walk-in patient (không có tài khoản)
+            patientName = record.getAppointment().getPatientName();
+            patientPhone = record.getAppointment().getPatientPhone();
+            patientEmail = null;  // Walk-in không có email
+        }
+
+        // ✅ Lấy thông tin doctor (luôn có, không null)
+        UUID doctorId = record.getDoctor() != null ? record.getDoctor().getId() : null;
+        String doctorName = record.getDoctor() != null && record.getDoctor().getUser() != null
+                ? record.getDoctor().getUser().getFullName() : null;
+        String doctorCode = record.getDoctor() != null ? record.getDoctor().getDoctorCode() : null;
+
+        // ✅ Lấy thông tin hospital (luôn có)
+        UUID hospitalId = record.getHospital() != null ? record.getHospital().getId() : null;
+        String hospitalName = record.getHospital() != null ? record.getHospital().getName() : null;
+        String hospitalAddress = record.getHospital() != null ? record.getHospital().getAddress() : null;
+
         // Build response
         return MedicalRecordResponse.builder()
                 .id(record.getId())
-                .appointmentId(record.getAppointment().getId())
-                .patientId(record.getPatient().getId())
-                .patientName(record.getPatient().getFullName())
-                .patientPhone(record.getPatient().getPhone())
-                .patientEmail(record.getPatient().getEmail())
-                .doctorId(record.getDoctor().getId())
-                .doctorName(record.getDoctor().getUser().getFullName())
-                .doctorCode(record.getDoctor().getDoctorCode())
-                .hospitalId(record.getHospital().getId())
-                .hospitalName(record.getHospital().getName())
-                .hospitalAddress(record.getHospital().getAddress())
+                .appointmentId(record.getAppointment() != null ? record.getAppointment().getId() : null)
+                .patientId(patientId)
+                .patientName(patientName)
+                .patientPhone(patientPhone)
+                .patientEmail(patientEmail)
+                .doctorId(doctorId)
+                .doctorName(doctorName)
+                .doctorCode(doctorCode)
+                .hospitalId(hospitalId)
+                .hospitalName(hospitalName)
+                .hospitalAddress(hospitalAddress)
                 .diagnosis(record.getDiagnosis())
                 .symptoms(record.getSymptoms())
                 .notes(record.getNotes())

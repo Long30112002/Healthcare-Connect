@@ -39,25 +39,30 @@ public class MedicineService {
     public MedicineResponse createMedicine(MedicineRequest request) {
         log.info("Tạo thuốc mới với code: {}", request.getCode());
 
-        // 1. Kiểm tra quyền
+        // Kiểm tra quyền
         checkAdminOrManagerPermission();
 
-        // 2. Kiểm tra mã thuốc đã tồn tại
-        if (medicineRepository.existsByCodeAndDeletedFalse(request.getCode())) {
-            throw new AppException(ErrorCode.MEDICINE_ALREADY_EXISTS);
+        // Kiểm tra mã thuốc đã tồn tại trong BỆNH VIỆN NÀY chưa
+        boolean exists = medicineRepository.existsByCodeAndHospitalIdAndDeletedFalse(
+                request.getCode(),
+                request.getHospitalId()
+        );
+
+        if (exists) {
+            throw new AppException(ErrorCode.MEDICINE_ALREADY_EXISTS_IN_HOSPITAL);
         }
 
-        // 3. Lấy hospital
+        // Lấy hospital
         Hospital hospital = getHospitalById(request.getHospitalId());
 
-        // 4. Kiểm tra hospital thuộc quyền quản lý (nếu là MANAGER)
+        // Kiểm tra hospital thuộc quyền quản lý (nếu là MANAGER)
         checkHospitalOwnership(hospital.getId());
 
-        // 5. Convert request -> entity
+        // Convert request -> entity
         Medicine medicine = medicineMapper.toEntity(request);
         medicine.setHospital(hospital);
 
-        // 6. Lưu vào database
+        // lưu vào database
         Medicine savedMedicine = medicineRepository.save(medicine);
         log.info("Đã tạo thuốc thành công với ID: {}", savedMedicine.getId());
 

@@ -217,7 +217,7 @@ public enum ErrorCode {
     MEDICINE_OUT_OF_STOCK(8014, "Thuốc đã hết hàng!", HttpStatus.BAD_REQUEST),
     MEDICINE_CODE_INVALID(8015, "Mã thuốc không hợp lệ!", HttpStatus.BAD_REQUEST),
     MEDICINE_NAME_INVALID(8016, "Tên thuốc không hợp lệ!", HttpStatus.BAD_REQUEST),
-
+    MEDICINE_ALREADY_EXISTS_IN_HOSPITAL(8006, "Mã thuốc đã tồn tại trong bệnh viện của bạn!", HttpStatus.BAD_REQUEST),
     // =============================================================================
     // 9xxx: PHÒNG KHÁM (ROOM)
     // =============================================================================

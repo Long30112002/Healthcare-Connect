@@ -27,8 +27,6 @@ public class MedicineController {
 
     private final MedicineService medicineService;
 
-    // ==================== CREATE ====================
-
     /**
      * Tạo thuốc mới
      * POST /api/medicines
@@ -49,8 +47,6 @@ public class MedicineController {
                 .data(response)
                 .build();
     }
-
-    // ==================== READ ====================
 
     /**
      * Lấy danh sách thuốc (phân trang)
@@ -255,8 +251,6 @@ public class MedicineController {
                 .build();
     }
 
-    // ==================== UPDATE ====================
-
     /**
      * Cập nhật thuốc
      * PUT /api/medicines/{id}
@@ -321,8 +315,6 @@ public class MedicineController {
                 .data(hasStock)
                 .build();
     }
-
-    // ==================== DELETE ====================
 
     /**
      * Xóa thuốc

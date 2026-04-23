@@ -89,4 +89,14 @@ public interface MedicineRepository extends JpaRepository<Medicine, UUID>
     @Query("UPDATE Medicine m SET m.deleted = true, m.deletedAt = CURRENT_TIMESTAMP " +
             "WHERE m.id = :id")
     void softDeleteById(@Param("id") UUID id);
+
+    boolean existsByCodeAndHospitalIdAndDeletedFalse(String code, UUID hospitalId);
+
+    // Hoặc dùng @Query
+    @Query("SELECT CASE WHEN COUNT(m) > 0 THEN true ELSE false END " +
+            "FROM Medicine m WHERE m.code = :code " +
+            "AND m.hospital.id = :hospitalId " +
+            "AND m.deleted = false")
+    boolean existsByCodeAndHospitalId(@Param("code") String code,
+            @Param("hospitalId") UUID hospitalId);
 }

@@ -1,6 +1,6 @@
 //package com.hoanglong.healthcare_connect_backend.core.repository;
 //
-//import com.hoanglong.healthcare_connect_backend.application.dto.DoctorResponse;
+//import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 //import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 //import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 //import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
