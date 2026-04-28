@@ -3,7 +3,8 @@ interface StatCardProps {
     label: string;
     color?: 'blue' | 'green' | 'yellow' | 'red' | 'gray' | 'purple';
     loading?: boolean;
-    suffix?: string; 
+    suffix?: string;
+    size?: 'sm' | 'md';  
 }
 
 const colorClasses = {
@@ -15,17 +16,39 @@ const colorClasses = {
     purple: 'text-purple-600 dark:text-purple-400',
 };
 
-const StatCard = ({ value, label, color = 'blue', loading = false, suffix = '' }: StatCardProps) => {
+const StatCard = ({ 
+    value, 
+    label, 
+    color = 'blue', 
+    loading = false, 
+    suffix = '',
+    size = 'md' 
+}: StatCardProps) => {
+    const sizeClasses = {
+        sm: {
+            wrapper: 'p-3 sm:p-4',
+            value: 'text-xl sm:text-2xl',
+            label: 'text-[10px] sm:text-xs',
+        },
+        md: {
+            wrapper: 'p-4',
+            value: 'text-2xl',
+            label: 'text-sm',
+        },
+    };
+
+    const currentSize = sizeClasses[size];
+
     return (
-        <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-sm">
+        <div className={`bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl ${currentSize.wrapper} text-center shadow-sm`}>
             {loading ? (
-                <div className="text-xl sm:text-2xl font-bold animate-pulse">...</div>
+                <div className={`${currentSize.value} font-bold animate-pulse`}>...</div>
             ) : (
-                <div className={`text-xl sm:text-2xl font-bold ${colorClasses[color]}`}>
+                <div className={`${currentSize.value} font-bold ${colorClasses[color]}`}>
                     {value}{suffix}
                 </div>
             )}
-            <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">{label}</div>
+            <div className={`${currentSize.label} text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1`}>{label}</div>
         </div>
     );
 };

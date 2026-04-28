@@ -17,7 +17,7 @@ interface InputProps {
     className?: string;
     min?: number;    
     max?: number;    
-    step?: number;   
+    step?: number | string;   
 }
 
 const Input = ({
@@ -98,9 +98,9 @@ const Input = ({
                     onBlur={() => setIsFocused(false)}
                     required={required}
                     disabled={disabled}
-                    min={min}      // 👈 THÊM
-                    max={max}      // 👈 THÊM
-                    step={step}    // 👈 THÊM
+                    min={min}     
+                    max={max}     
+                    step={step}   
                     className={`
                         ${sizes[size]} 
                         ${roundedStyles[rounded]} 

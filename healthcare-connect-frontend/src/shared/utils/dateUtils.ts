@@ -52,6 +52,26 @@ export const formatDateTime = (
 };
 
 /**
+ * @param dateArray Mảng [year, month, day] hoặc [year, month, day, hour, minute]
+ * @param format 'date' | 'datetime'
+ * @returns Chuỗi ngày đã format
+ */
+export const formatDateArray = (
+    dateArray: number[] | undefined, 
+    format: 'date' | 'datetime' = 'date'
+): string => {
+    if (!dateArray || dateArray.length < 3) return '---';
+    
+    if (format === 'datetime' && dateArray.length >= 5) {
+        const [year, month, day, hour, minute] = dateArray;
+        return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    }
+    
+    const [year, month, day] = dateArray;
+    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+};
+
+/**
  * Format giá tiền sang VND
  */
 export const formatPrice = (price: number): string => {

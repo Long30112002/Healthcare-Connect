@@ -4,12 +4,12 @@ import { useAppTranslation } from "../../../application/hooks/useAppTranslation"
 import useFetch from "../../../application/hooks/useFetch";
 import { AppointmentStatus } from "../../../core/constants/enums";
 import type { Appointment, VisitedDoctor } from "../../../core/types";
-import DataWrapper from "../shared/DataWrapper";
 import AISuggestionCard from "./AISuggestionCard";
 import DoctorVisitedCard from "./DoctorVisitedCard";
 import SectionHeader from "./SectionHeader";
 import StatCard from "./StatCard";
 import UpcomingAppointmentCard from "./UpcomingAppointmentCard";
+import DataWrapper from "../../components/shared/DataWrapper";
 
 
 const PatientDashboard = () => {
