@@ -49,7 +49,8 @@ export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus];
 export const ScheduleStatus = {
     AVAILABLE: 'AVAILABLE',
     FULL: 'FULL',
-    CANCELLED: 'CANCELLED'
+    CANCELLED: 'CANCELLED',
+    EXPIRED: 'EXPIRED',
 } as const;
 export type ScheduleStatus = (typeof ScheduleStatus)[keyof typeof ScheduleStatus];
 
@@ -101,3 +102,21 @@ export const RefundMethod = {
 } as const;
 export type RefundMethod = (typeof RefundMethod)[keyof typeof RefundMethod];
 
+export const MedicineCategory = {
+    ANALGESIC: 'ANALGESIC',
+    ANTIBIOTIC: 'ANTIBIOTIC',
+    ANTIHYPERTENSIVE: 'ANTIHYPERTENSIVE',
+    ANTIDIABETIC: 'ANTIDIABETIC',
+    ANTIHISTAMINE: 'ANTIHISTAMINE',
+    ANTIVIRAL: 'ANTIVIRAL',
+    ANTIFUNGAL: 'ANTIFUNGAL',
+    VACCINE: 'VACCINE',
+    VITAMIN: 'VITAMIN',
+    HORMONE: 'HORMONE',
+    GASTROINTESTINAL: 'GASTROINTESTINAL',
+    RESPIRATORY: 'RESPIRATORY',
+    CARDIOVASCULAR: 'CARDIOVASCULAR',
+    OTHER: 'OTHER'
+
+} as const;
+export type MedicineCategory = (typeof MedicineCategory)[keyof typeof MedicineCategory];

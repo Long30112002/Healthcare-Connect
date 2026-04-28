@@ -1,3 +1,4 @@
+import type { VitalSigns } from ".";
 import type { PaymentMethod, RefundMethod } from "../constants/enums";
 
 export interface BookingRequest {
@@ -31,4 +32,29 @@ export interface WalkInAppointmentRequest {
     symptoms?: string;
     scheduleId: string;
     paymentMethod: PaymentMethod;
+}
+
+export interface PrescriptionItemRequest {
+    medicineId: string;
+    quantity: number;
+    dosage: string;
+    frequency: string;
+    duration: number;
+    instructions?: string;
+}
+
+export interface PrescriptionRequest {
+    note?: string;
+    validUntil?: string;  // ISO date
+    items: PrescriptionItemRequest[];
+}
+
+export interface CreateMedicalRecordRequest {
+    appointmentId: string;
+    diagnosis: string;
+    symptoms?: string;
+    notes?: string;
+    vitalSigns?: VitalSigns;
+    followUpDate?: string;  // ISO date
+    prescriptions?: PrescriptionRequest[];
 }

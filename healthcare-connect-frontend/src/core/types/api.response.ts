@@ -1,5 +1,5 @@
-import type { Appointment, User } from ".";
-import type { AppointmentStatus, DoctorStatus, PaymentMethod, PaymentStatus, ReceptionistStatus, RejectionReason, UserRole } from "../constants/enums";
+import type { Appointment, User, VitalSigns } from ".";
+import type { AppointmentStatus, DoctorStatus, MedicineCategory, PaymentMethod, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, UserRole } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string;
@@ -17,35 +17,117 @@ export interface LoginResponse {
     user: User;
 }
 
-export interface Pageable {
-    pageNumber: number;
-    pageSize: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    offset: number;
-    paged: boolean;
-    unpaged: boolean;
+// export interface Pageable {
+//     pageNumber: number;
+//     pageSize: number;
+//     sort: {
+//         empty: boolean;
+//         sorted: boolean;
+//         unsorted: boolean;
+//     };
+//     offset: number;
+//     paged: boolean;
+//     unpaged: boolean;
+// }
+
+// export interface PaginatedResponse<T> {
+//     content: T[];
+//     pageable: Pageable;
+//     last: boolean;
+//     totalPages: number;
+//     totalElements: number;
+//     size: number;
+//     number: number;
+//     sort: {
+//         empty: boolean;
+//         sorted: boolean;
+//         unsorted: boolean;
+//     };
+//     first: boolean;
+//     numberOfElements: number;
+//     empty: boolean;
+// }
+
+export interface MedicineResponse {
+    id: string;
+    code: string;
+    name: string;
+    activeIngredient: string;
+    category: MedicineCategory;
+    categoryDisplayName: string;
+    dosageForm: string;
+    dosageFormDisplayName: string;
+    unit: string;
+    price: number;
+    formattedPrice: string;
+    stockQuantity: number;
+    minStock: number;
+    expiryDate: string;
+    manufacturer: string;
+    manufacturerCountry: string;
+    requiresPrescription: boolean;
+    contraindications: string;
+    sideEffects: string;
+    description: string;
+    usageInstructions: string;
+    hospitalId: string;
+    hospitalName: string;
+    lowStock: boolean;
+    expired: boolean;
 }
 
-export interface PaginatedResponse<T> {
-    content: T[];
-    pageable: Pageable;
-    last: boolean;
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-    };
-    first: boolean;
-    numberOfElements: number;
-    empty: boolean;
+export interface PrescriptionItemResponse {
+    id: string;
+    medicineId: string;
+    medicineName: string;
+    medicineCode: string;
+    medicineUnit: string;
+    quantity: number;
+    dosage: string;
+    frequency: string;
+    duration: number;
+    instructions: string;
+    unitPrice: number;
+    totalPrice: number;
+}
+
+export interface PrescriptionResponse {
+    id: string;
+    prescriptionDate: number[];  // [year, month, day]
+    note: string;
+    totalAmount: number;
+    status: string;
+    validUntil: number[];
+    valid: boolean;
+    items: PrescriptionItemResponse[];
+}
+
+export interface MedicalRecordResponse {
+    id: string;
+    appointmentId: string;
+    patientId: string | null;
+    patientName: string;
+    patientPhone: string;
+    patientEmail: string | null;
+    doctorId: string;
+    doctorName: string;
+    doctorCode: string;
+    hospitalId: string;
+    hospitalName: string;
+    hospitalAddress: string;
+    diagnosis: string;
+    symptoms: string;
+    notes: string;
+    vitalSigns: VitalSigns | null;
+    followUpDate: number[];
+    status: string;
+    prescriptionCount: number;
+    prescriptions: PrescriptionResponse[];
+    createdAt: string | null;
+    updatedAt: string | null;
+    patientBirthYear?: string;
+    patientAddress?: string;
+    doctorAdvice?: string;
 }
 
 export interface PageResponse<T> {
@@ -67,6 +149,22 @@ export interface PageResponse<T> {
     sort: { empty: boolean; sorted: boolean; unsorted: boolean };
     numberOfElements: number;
     empty: boolean;
+}
+
+export interface ScheduleRespone {
+    id: string;
+    doctorId: string;
+    doctorName: string;
+    date: number[];
+    startTime: number[];
+    endTime: number[];
+    maxPatients: number;
+    currentBookings: number;
+    status: ScheduleStatus;
+    price: number;
+    roomId?: string;
+    roomNumber?: string;
+    roomFloor?: number;
 }
 
 export interface AppointmentResponse {
@@ -193,11 +291,51 @@ export interface ApplicationResponse {
     type: UserRole;
     hospitalName: string;
     hospitalId: string;
-    status: DoctorStatus | ReceptionistStatus; 
-    rejectionReason?: RejectionReason;         
+    status: DoctorStatus | ReceptionistStatus;
+    rejectionReason?: RejectionReason;
     rejectionNote?: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface WalkInAppointmentItem {
+    id: string;                      
+    patientName: string;
+    patientPhone: string;
+    appointmentDate: number[];       
+    doctorName: string;
+    doctorId: string;
+    symptoms: string;
+    hasMedicalRecord: boolean;       
+}
+
+export interface PatientResponse {
+    id: string;
+    patientId: string | null;
+    appointmentId: string;
+    patientName: string;
+    patientPhone: string;
+    patientEmail?: string | null;
+    lastVisitDate: number[];
+    lastDiagnosis: string;
+    totalVisits: number;
+    isWalkIn: boolean;
+}
+
+export interface DoctorRespone {
+    id: string;
+    doctorCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    degree: string;
+    experienceYears: number;
+    biography: string;
+    specialtyName: string;
+    departmentName: string;
+    hospitalId: string;
+    hospitalName: string;
+    hospitalAddress: string;
 }
 
 // export interface WalkInAppointmentResponse {

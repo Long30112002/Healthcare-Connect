@@ -1,5 +1,5 @@
 import type { Hospital } from '../../core/types';
-import type { ApplicationResponse, DepartmentResponse, SpecialtyResponse } from '../../core/types/api.response';
+import type { ApplicationResponse, DepartmentResponse, RoomResponse, SpecialtyResponse } from '../../core/types/api.response';
 import axiosClient from './axiosClient';
 
 
@@ -24,4 +24,9 @@ export const commonApi = {
         const response = await axiosClient.get('/users/my-applications');
         return response.data.data;
     },
+
+    getAvailableRooms: async (): Promise<RoomResponse[]> => {
+        const response = await axiosClient.get('/rooms/available');
+        return response.data.data;
+    }
 };

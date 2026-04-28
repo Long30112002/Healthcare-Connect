@@ -1,4 +1,4 @@
-import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus } from '../constants/enums';
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory } from '../constants/enums';
 
 export interface User {
     id: string;
@@ -99,8 +99,12 @@ export interface Appointment {
     paymentMethod: PaymentMethod;
     id: string;
     patientName: string;
+    hasMedicalRecord?: boolean;
+    patientId?: string;
+    patientPhone?: string;
+    patientEmail?: string;
     doctorName: string;
-    doctorId?: string;  
+    doctorId?: string;
     hospitalName: string;
     specialtyName?: string;
     startTime: number[];
@@ -109,8 +113,8 @@ export interface Appointment {
     status: AppointmentStatus;
     price: number;
     paid: boolean;
-    phone?: string;      
-    roomNumber?: string;  
+    phone?: string;
+    roomNumber?: string;
     roomFloor?: number;
     checkInTime?: number[];
 }
@@ -136,5 +140,34 @@ export interface DoctorListItem {
     rating: number;
     avatar: string | null;
     availableSchedules: number;
+}
+
+export interface Medicine {
+    id: string;
+    code: string;
+    name: string;
+    activeIngredient: string;
+    category: MedicineCategory;
+    unit: string;
+    price: number;
+    stockQuantity: number;
+    requiresPrescription: boolean;
+    dosageForm: string;
+    manufacturer: string;
+    expiryDate: string;
+    description: string;
+    usageInstructions: string;
+    contraindications: string;
+    sideEffects: string;
+}
+
+export interface VitalSigns {
+    bloodPressure?: string;  // VD: "120/80"
+    heartRate?: number;
+    temperature?: number;
+    weight?: number;
+    height?: number;
+    bmi?: number;
+    note?: string;
 }
 
