@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalResponse;
+import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
@@ -32,6 +33,11 @@ public class CurrentUserService
                 .orElseThrow(() -> new AppException(ErrorCode.RECEPTIONIST_NO_HOSPITAL));
     }
 
+    public Doctor getCurrentDoctor() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        return doctorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+    }
 
     public Receptionist getCurrentReceptionist() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
@@ -76,6 +82,9 @@ public class CurrentUserService
                 .address(hospital.getAddress())
                 .description(hospital.getDescription())
                 .imageUrl(hospital.getImageUrl())
+                .hotline(hospital.getHotline())
+                .email(hospital.getEmail())
+                .website(hospital.getWebsite())
                 .createdAt(hospital.getCreatedAt())
                 .updatedAt(hospital.getUpdatedAt())
                 .build();

@@ -15,7 +15,6 @@ import java.util.UUID;
 public class AppointmentResponse
 {
     UUID id;
-    UUID patientId;
     String patientName;
     String doctorName;
     String hospitalName;

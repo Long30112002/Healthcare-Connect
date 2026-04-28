@@ -27,4 +27,13 @@ public class HospitalRequest {
     @NotBlank(message = "MANAGER_EMAIL_REQUIRED")
     @Email(message = "EMAIL_INVALID")
     String managerEmail;
+
+    @Size(max = 20, message = "PHONE_TOO_LONG")
+    String hotline;
+
+    @Email(message = "EMAIL_INVALID")
+    String email;
+
+    @Size(max = 255, message = "WEBSITE_TOO_LONG")
+    String website;
 }

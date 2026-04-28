@@ -17,18 +17,18 @@ public class WalkInAppointmentRequest {
 
     @NotBlank(message = "NAME_INVALID")
     @Size(min = 2, max = 100, message = "NAME_INVALID")
-    private String patientName;
+    String patientName;
 
     @NotBlank(message = "PHONE_INVALID")
     @Pattern(regexp = "^(0|\\+84)[0-9]{9,10}$", message = "PHONE_INVALID")
-    private String patientPhone;
+    String patientPhone;
 
     @Size(max = 500, message = "SYMPTOMS_TOO_LONG")
-    private String symptoms;
+    String symptoms;
 
     @NotNull(message = "SCHEDULE_ID_REQUIRED")
-    private UUID scheduleId;
+    UUID scheduleId;
 
     @NotNull(message = "PAYMENT_METHOD_REQUIRED")
-    private PaymentMethod paymentMethod;
+    PaymentMethod paymentMethod;
 }

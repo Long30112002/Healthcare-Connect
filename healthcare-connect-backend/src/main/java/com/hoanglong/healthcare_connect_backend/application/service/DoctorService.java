@@ -1,6 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentDto;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.patient.PatientResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
@@ -10,20 +12,22 @@ import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DoctorService {
     private final DoctorRepository doctorRepository;
@@ -32,11 +36,68 @@ public class DoctorService {
     private final DoctorHistoryRepository doctorHistoryRepository;
     private final DoctorMapper doctorMapper;
     private final ScheduleRepository scheduleRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
 
-        public Doctor getDoctorById(UUID doctorId) {
-            return doctorRepository.findById(doctorId)
-                    .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+    public Doctor getDoctorById(UUID doctorId) {
+        return doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+    }
+
+    public DoctorResponse getMyInfo() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        Doctor doctor = doctorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        return doctorMapper.toDoctorResponse(doctor);
+    }
+
+    public List<Map<String, Object>> getAllMyPatients() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        Doctor doctor = doctorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        List<Object[]> results = appointmentRepository.findAllAppointmentsByDoctor(doctor.getId());
+
+        // Gom nhóm theo patientId hoặc phone
+        Map<String, Map<String, Object>> patientMap = new LinkedHashMap<>();
+
+        for (Object[] row : results) {
+            UUID patientId = (UUID) row[0];
+            UUID appointmentId = (UUID) row[1];
+            String patientName = (String) row[2];
+            String patientPhone = (String) row[3];
+            String patientEmail = (String) row[4];
+            LocalDateTime visitDate = (LocalDateTime) row[5];
+            String diagnosis = (String) row[6];
+
+            String key = patientId != null ? patientId.toString() : patientPhone;
+
+            if (!patientMap.containsKey(key)) {
+                Map<String, Object> patient = new HashMap<>();
+                patient.put("id", patientId != null ? patientId : appointmentId);
+                patient.put("patientId", patientId);
+                patient.put("patientName", patientName);
+                patient.put("patientPhone", patientPhone);
+                patient.put("patientEmail", patientEmail);
+                patient.put("lastVisitDate", visitDate);
+                patient.put("lastDiagnosis", diagnosis);
+                patient.put("totalVisits", 1);
+                patient.put("isWalkIn", patientId == null);
+                patientMap.put(key, patient);
+            } else {
+                Map<String, Object> existing = patientMap.get(key);
+                existing.put("totalVisits", (Integer) existing.get("totalVisits") + 1);
+                // Cập nhật lastVisitDate nếu mới hơn
+                LocalDateTime existingDate = (LocalDateTime) existing.get("lastVisitDate");
+                if (visitDate != null && (existingDate == null || visitDate.isAfter(existingDate))) {
+                    existing.put("lastVisitDate", visitDate);
+                    existing.put("lastDiagnosis", diagnosis);
+                }
+            }
         }
+
+        return new ArrayList<>(patientMap.values());
+    }
 
     public DoctorDetailResponse getDoctorDetailForReceptionist(UUID doctorId, UUID hospitalId) {
         Doctor doctor = doctorRepository.findById(doctorId)
@@ -186,6 +247,26 @@ public class DoctorService {
         return doctorRepository.findAllByHospitalId(hospital.getId())
                 .stream()
                 .map(doctorMapper::toDoctorResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<WalkInAppointmentDto> getWalkInAppointments(String phone) {
+        List<Appointment> appointments = appointmentRepository.findByPatientPhone(phone);
+
+        return appointments.stream()
+                .map(apt -> {
+                    boolean hasMedicalRecord = medicalRecordRepository.existsByAppointmentId(apt.getId());
+                    return WalkInAppointmentDto.builder()
+                            .id(apt.getId())
+                            .patientName(apt.getPatientName())
+                            .patientPhone(apt.getPatientPhone())
+                            .appointmentDate(apt.getAppointmentDate())
+                            .doctorName(apt.getSchedule().getDoctor().getUser().getFullName())
+                            .doctorId(apt.getSchedule().getDoctor().getId())
+                            .symptoms(apt.getSymptoms())
+                            .hasMedicalRecord(hasMedicalRecord)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 

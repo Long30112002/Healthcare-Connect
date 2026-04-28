@@ -42,7 +42,7 @@ public class MedicineService {
         // Kiểm tra quyền
         checkAdminOrManagerPermission();
 
-        // Kiểm tra mã thuốc đã tồn tại trong BỆNH VIỆN NÀY chưa
+        // Kiểm tra mã thuốc đã tồn tại trongC BỆNH VIỆN NÀY chưa
         boolean exists = medicineRepository.existsByCodeAndHospitalIdAndDeletedFalse(
                 request.getCode(),
                 request.getHospitalId()

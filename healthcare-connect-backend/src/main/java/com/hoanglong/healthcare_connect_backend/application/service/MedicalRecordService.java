@@ -15,6 +15,7 @@ import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.MedicalRecordRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.MedicineRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class MedicalRecordService {
     private final ObjectMapper objectMapper;
     private final CurrentUserService currentUserService;
     private final MailService emailService;
+    private final UserRepository userRepository;
 
     /**
      * Tạo bệnh án mới
@@ -106,6 +108,10 @@ public class MedicalRecordService {
                         .note(prescriptionDTO.getNote())
                         .validUntil(prescriptionDTO.getValidUntil())
                         .status(PrescriptionStatus.ACTIVE)
+                        .hospital(medicalRecord.getHospital())
+                        .doctor(medicalRecord.getDoctor())
+                        .patient(medicalRecord.getPatient())
+                        .createdBy(getCurrentUser())
                         .build();
 
 
@@ -223,13 +229,13 @@ public class MedicalRecordService {
             patientEmail = null;  // Walk-in không có email
         }
 
-        // ✅ Lấy thông tin doctor (luôn có, không null)
+        // Lấy thông tin doctor (luôn có, không null)
         UUID doctorId = record.getDoctor() != null ? record.getDoctor().getId() : null;
         String doctorName = record.getDoctor() != null && record.getDoctor().getUser() != null
                 ? record.getDoctor().getUser().getFullName() : null;
         String doctorCode = record.getDoctor() != null ? record.getDoctor().getDoctorCode() : null;
 
-        // ✅ Lấy thông tin hospital (luôn có)
+        // Lấy thông tin hospital (luôn có)
         UUID hospitalId = record.getHospital() != null ? record.getHospital().getId() : null;
         String hospitalName = record.getHospital() != null ? record.getHospital().getName() : null;
         String hospitalAddress = record.getHospital() != null ? record.getHospital().getAddress() : null;
@@ -376,5 +382,14 @@ public class MedicalRecordService {
 
         medicalRecordRepository.softDeleteById(id);
         log.info("Đã xóa bệnh án ID: {}", id);
+    }
+
+    /**
+     * Lấy current user từ SecurityContext
+     */
+    private User getCurrentUser() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        return userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }

@@ -65,6 +65,7 @@ public class AppointmentService {
                 appointment.getPatient() != null ? appointment.getPatient().getFullName() : appointment.getPatientName());
     }
 
+
     @Transactional
     public Appointment checkInByToken(UUID appointmentId) {
         // 1. Kiểm tra lịch hẹn tồn tại

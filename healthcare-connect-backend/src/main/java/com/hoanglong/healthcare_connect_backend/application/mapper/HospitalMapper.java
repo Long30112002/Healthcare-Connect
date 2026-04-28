@@ -12,14 +12,23 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface HospitalMapper {
 
-    // Ánh xạ từ Request sang Entity để lưu vào DB
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "manager", ignore = true) // Manager sẽ được set thủ công trong Service
+    @Mapping(target = "manager", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Hospital swallowRequestToHospital(HospitalRequest request); // Đổi tên cho rõ nghĩa hoặc để toHospital
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "invitationToken", ignore = true)
+    @Mapping(target = "tokenExpiry", ignore = true)
+    @Mapping(target = "tempManagerEmail", ignore = true)
+    @Mapping(source = "hotline", target = "hotline")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "website", target = "website")
+    Hospital swallowRequestToHospital(HospitalRequest request);
 
     @Mapping(source = "manager.fullName", target = "managerEmail")
+    @Mapping(source = "hotline", target = "hotline")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "website", target = "website")
     HospitalResponse toHospitalResponse(Hospital hospital);
 
     List<HospitalResponse> toHospitalResponseList(List<Hospital> hospitals);
@@ -28,5 +37,12 @@ public interface HospitalMapper {
     @Mapping(target = "manager", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "invitationToken", ignore = true)
+    @Mapping(target = "tokenExpiry", ignore = true)
+    @Mapping(target = "tempManagerEmail", ignore = true)
+    @Mapping(source = "hotline", target = "hotline")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "website", target = "website")
     void updateHospital(@MappingTarget Hospital hospital, HospitalRequest request);
 }

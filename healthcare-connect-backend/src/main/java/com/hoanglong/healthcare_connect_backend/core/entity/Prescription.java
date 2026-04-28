@@ -47,6 +47,22 @@ public class Prescription {
     @Column(name = "valid_until")
     LocalDate validUntil;  // Đơn thuốc có hiệu lực đến
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hospital_id")
+    Hospital hospital;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
+    User patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    User createdBy;
+
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL,
             fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default

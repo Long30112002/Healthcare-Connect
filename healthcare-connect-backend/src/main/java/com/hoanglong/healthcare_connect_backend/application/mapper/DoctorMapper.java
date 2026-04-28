@@ -16,6 +16,8 @@ public interface DoctorMapper {
     @Mapping(source = "specialty.name", target = "specialtyName")
     @Mapping(source = "department.name", target = "departmentName")
     @Mapping(source = "hospital.name", target = "hospitalName")
+    @Mapping(source = "hospital.id", target = "hospitalId")
+    @Mapping(source = "hospital.address", target = "hospitalAddress")
     DoctorResponse toDoctorResponse(Doctor doctor);
 
     List<DoctorResponse> toDoctorResponseList(List<Doctor> doctors);

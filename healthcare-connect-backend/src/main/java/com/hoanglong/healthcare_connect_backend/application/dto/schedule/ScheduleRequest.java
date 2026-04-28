@@ -23,7 +23,7 @@ public class ScheduleRequest {
     @NotNull(message = "END_TIME_REQUIRED")
     LocalTime endTime;
 
-    @Min(value = 0, message = "PRICE_INVALID")
+    @Min(value = 0, message = "PRICE_INVALID")  
     BigDecimal price;
 
     @Min(value = 1, message = "MAX_PATIENTS_INVALID")

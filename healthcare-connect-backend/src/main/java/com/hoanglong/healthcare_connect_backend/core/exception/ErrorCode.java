@@ -33,6 +33,7 @@ public enum ErrorCode {
     UNSUPPORTED_PAYMENT_METHOD(1025, "Phương thức thanh toán không được hỗ trợ!", HttpStatus.BAD_REQUEST),
     ADMIN_CANNOT_BE_RECEPTIONIST(1027, "Admin không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
     USER_ALREADY_HAS_ROLE(1028, "Người dùng đã có role!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_HAS_BOOKINGS(7029, "Không thể xóa lịch đã có bệnh nhân đặt!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 2xxx: NGƯỜI DÙNG (USER)
@@ -129,6 +130,8 @@ public enum ErrorCode {
     RECEPTIONIST_CANNOT_BE_DOCTOR(6039, "Lễ tân không thể đăng ký làm bác sĩ!", HttpStatus.BAD_REQUEST),
     DOCTOR_NOT_IN_HOSPITAL(6040, "Bác sĩ không thuộc bệnh viện của bạn!", HttpStatus.BAD_REQUEST),
     MEDICINE_NOT_IN_HOSPITAL(6041, "Loại thuốc này không có ở bệnh viện!", HttpStatus.BAD_REQUEST),
+    PHONE_TOO_LONG(6042, "Số điện thoại không hợp lệ!", HttpStatus.BAD_REQUEST),
+    WEBSITE_TOO_LONG(6043, "Website không hợp lệ!", HttpStatus.BAD_REQUEST),
 
 
 

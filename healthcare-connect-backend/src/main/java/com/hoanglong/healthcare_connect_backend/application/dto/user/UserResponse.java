@@ -14,7 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class UserResponse {
     UUID id;
     String fullName;

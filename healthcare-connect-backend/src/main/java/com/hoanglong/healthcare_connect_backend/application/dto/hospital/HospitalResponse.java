@@ -20,4 +20,7 @@ public class HospitalResponse {
     String managerEmail;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String hotline;
+    String email;
+    String website;
 }

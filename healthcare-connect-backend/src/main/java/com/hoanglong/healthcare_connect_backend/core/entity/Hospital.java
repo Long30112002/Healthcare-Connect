@@ -29,11 +29,19 @@ public class Hospital {
 
     String imageUrl;
 
+    @Column(length = 20)
+    String hotline;
+
+    String email;
+
+    String website;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     HospitalStatus status = HospitalStatus.PENDING_CONFIRMATION; // Mặc định là chờ
 
     String invitationToken;
+
     LocalDateTime tokenExpiry;
 
     @Column(name = "temp_manager_email")

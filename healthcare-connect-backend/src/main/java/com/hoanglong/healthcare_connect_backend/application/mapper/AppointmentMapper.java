@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentResponse> {
 //    @Mapping(source = "patient.fullName", target = "patientName")
+    @Mapping(source = "patient.id", target = "patientId")
     @Mapping(source = "schedule.doctor.user.fullName", target = "doctorName")
     @Mapping(source = "schedule.doctor.hospital.name", target = "hospitalName")
     @Mapping(source = "schedule.doctor.id", target = "doctorId")
@@ -23,6 +24,7 @@ public interface AppointmentMapper extends BaseMapper<Appointment, AppointmentRe
     @Mapping(source = "room.floor", target = "roomFloor")
     @Mapping(source = "patientPhone", target = "patientPhone")
     @Mapping(source = "bookingType", target = "bookingType")
+    @Mapping(target = "hasMedicalRecord", expression = "java(appointment.getMedicalRecord() != null)")
     AppointmentResponse toResponse(Appointment appointment);
 
     @Override

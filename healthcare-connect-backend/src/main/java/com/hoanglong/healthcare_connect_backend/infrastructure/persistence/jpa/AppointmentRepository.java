@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa;
 
+import com.hoanglong.healthcare_connect_backend.application.dto.patient.PatientResponse;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import jakarta.persistence.LockModeType;
@@ -44,6 +45,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
             @Param("excludedStatuses") Collection<String> excludedStatuses
     );
 
+    List<Appointment> findByPatientIdAndDoctorId(UUID patientId, UUID doctorId);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "WHERE a.patientPhone = :phone " +
+            "AND a.patient IS NULL " +
+            "ORDER BY a.appointmentDate DESC")
+    List<Appointment> findByPatientPhone(@Param("phone") String phone);
+
     boolean existsByPatientIdAndScheduleIdAndStatusNot(UUID patientId, UUID scheduleId, AppointmentStatus appointmentStatus);
     
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -51,6 +62,30 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
     Optional<Appointment> findByIdWithLock(@Param("id") UUID id);
 
     Page<Appointment> findAllByPatientId(UUID patientId, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(*) FROM appointments a WHERE a.doctor_id = :doctorId", nativeQuery = true)
+    int countByDoctorId(@Param("doctorId") UUID doctorId);
+
+    @Query("SELECT " +
+            "a.patient.id, " +
+            "a.id, " +
+            "COALESCE(a.patient.fullName, a.patientName), " +
+            "COALESCE(a.patient.phone, a.patientPhone), " +
+            "a.patient.email, " +
+            "a.appointmentDate, " +
+            "a.symptoms " +
+            "FROM Appointment a " +
+            "LEFT JOIN a.patient " +
+            "WHERE a.schedule.doctor.id = :doctorId " +
+            "ORDER BY a.appointmentDate DESC")
+    List<Object[]> findAllAppointmentsByDoctor(@Param("doctorId") UUID doctorId);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "WHERE a.patient.id = :patientId " +
+            "ORDER BY a.appointmentDate DESC")
+    List<Appointment> findAllByPatientId(@Param("patientId") UUID patientId);
 
     @Query("SELECT a FROM Appointment a " +
             "JOIN a.schedule s " +
@@ -126,4 +161,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
             "JOIN FETCH d.user du " +
             "WHERE a.id = :id")
     Optional<Appointment> findByIdWithMedicalDetails(@Param("id") UUID id);
+
 }

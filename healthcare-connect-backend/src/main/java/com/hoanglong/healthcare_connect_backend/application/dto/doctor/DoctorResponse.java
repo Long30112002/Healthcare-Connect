@@ -27,4 +27,6 @@ public class DoctorResponse {
     String specialtyName;
     String departmentName;
     String hospitalName;
+    UUID hospitalId;
+    String hospitalAddress;
 }
