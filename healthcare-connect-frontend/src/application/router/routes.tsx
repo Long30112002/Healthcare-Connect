@@ -5,6 +5,16 @@ import ReceptionistStatistics from '../../presentation/pages/receptionist/Recept
 import ApplyDoctorPage from '../../presentation/pages/apply/ApplyDoctorPage';
 import ApplyReceptionistPage from '../../presentation/pages/apply/ApplyReceptionistPage';
 import ApplyStatusPage from '../../presentation/pages/apply/ApplyStatusPage';
+import CreateMedicalRecordPage from '../../presentation/pages/doctor/CreateMedicalRecordPage';
+import ViewMedicalRecordPage from '../../presentation/pages/doctor/ViewMedicalRecordPage';
+import PatientDetailPage from '../../presentation/pages/doctor/PatientDetailPage';
+import MyPatientsPage from '../../presentation/pages/doctor/MyPatientsPage';
+import CreateSchedulePage from '../../presentation/components/medical-dashboard/CreateSchedulePage';
+import MySchedulePage from '../../presentation/pages/doctor/MySchedulePage';
+import PatientDashboard from '../../presentation/pages/patient-user-dashboard/PatientDashboard';
+import ScheduleDetailPage from '../../presentation/pages/doctor/ScheduleDetailPage';
+import ScheduleEditPage from '../../presentation/pages/doctor/ScheduleEditPage';
+// import AppointmentDetailPage from '../../presentation/pages/doctor/AppointmentDetailPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -14,7 +24,6 @@ const ForgotPasswordPage = lazy(() => import('../../presentation/pages/ForgotPas
 const ResetPasswordPage = lazy(() => import('../../presentation/pages/ResetPasswordPage'));
 const VerifyEmailPage = lazy(() => import('../../presentation/pages/VerifyEmailPage'));
 const AppointmentListPage = lazy(() => import('../../presentation/pages/patient/AppointmentListPage'));
-const PatientDashboard = lazy(() => import('../../presentation/components/dashboard/PatientDashboard'));
 const DoctorDashboard = lazy(() => import('../../presentation/pages/doctor/DoctorDashboard'));
 const DoctorsPage = lazy(() => import('../../presentation/pages/patient/DoctorsPage'));
 const DoctorDetailPage = lazy(() => import('../../presentation/pages/patient/DoctorDetailPage'));
@@ -62,4 +71,20 @@ export const routes: RouteConfig[] = [
   { path: '/apply/doctor', element: <ApplyDoctorPage />, layout: true, roles: ['PATIENT'] },
   { path: '/apply/receptionist', element: <ApplyReceptionistPage />, layout: true, roles: ['PATIENT'] },
   { path: '/apply/status', element: <ApplyStatusPage />, layout: true, isPublic: false },
+
+  // Doctor routes
+  { path: '/doctor/medical-records/create/:appointmentId', element: <CreateMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/medical-records/create/:appointmentId', element: <CreateMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+
+  { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR, UserRole.PATIENT] },
+  { path: '/my-patients', element: <MyPatientsPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/my-patients/:patientId', element: <PatientDetailPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/medical-records/create/:appointmentId', element: <CreateMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/schedules/create', element: <CreateSchedulePage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/my-schedule', element: <MySchedulePage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/schedules/:id/detail', element: <ScheduleDetailPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/schedules/:id/edit', element: <ScheduleEditPage />, layout: true, roles: [UserRole.DOCTOR] },
+  // { path: '/doctor/appointments/:appointmentId/detail', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.DOCTOR] }
 ];

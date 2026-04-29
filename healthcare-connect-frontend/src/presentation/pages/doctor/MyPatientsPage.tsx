@@ -43,6 +43,8 @@ const MyPatientsPage = () => {
     const [showAppointmentSelectModal, setShowAppointmentSelectModal] = useState(false);
     const [appointmentList, setAppointmentList] = useState<WalkInAppointmentItem[]>([]);
     const [selectedWalkInPhone, setSelectedWalkInPhone] = useState<string>('');
+    const [showConfirmCreateModal, setShowConfirmCreateModal] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState<WalkInAppointmentItem | null>(null);
 
     const { activeTab, setActiveTab } = useTabWithUrl({
         paramName: 'filter',
@@ -134,17 +136,28 @@ const MyPatientsPage = () => {
     };
 
     const handleSelectAppointment = (appointment: WalkInAppointmentItem) => {
-        setShowAppointmentSelectModal(false);
         if (appointment.hasMedicalRecord) {
+            setShowAppointmentSelectModal(false);
             navigate(`/doctor/medical-records/view/${appointment.id}`);
         } else {
-            // Dùng window.confirm tạm thời, có thể thay bằng Modal sau
-            if (window.confirm(t('myPatients.confirmCreateMedicalRecord', { 
-                name: appointment.patientName, 
-                date: formatDateTime(appointment.appointmentDate, 'dd/mm/yyyy') 
-            }))) {
-                navigate(`/doctor/medical-records/create/${appointment.id}`);
-            }
+            // Đóng modal chọn lịch hẹn, mở modal xác nhận tạo
+            setShowAppointmentSelectModal(false);
+            setSelectedAppointment(appointment);
+            setShowConfirmCreateModal(true);
+        }
+    };
+
+    const handleCloseConfirmCreateModal = () => {
+        setShowConfirmCreateModal(false);
+        setSelectedAppointment(null);
+        setShowAppointmentSelectModal(true);
+    };
+
+    const handleConfirmCreateMedicalRecord = () => {
+        if (selectedAppointment) {
+            setShowConfirmCreateModal(false);
+            setSelectedAppointment(null);
+            navigate(`/doctor/medical-records/create/${selectedAppointment.id}`);
         }
     };
 
@@ -320,18 +333,20 @@ const MyPatientsPage = () => {
                                             </div>
                                         )}
 
-                                        {patient.lastDiagnosis && (
-                                            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                <p className="text-xs text-blue-600 dark:text-blue-400">
-                                                    <span className="font-medium">📝 {t('myPatients.lastDiagnosis')}:</span> {patient.lastDiagnosis}
-                                                </p>
-                                            </div>
-                                        )}
+
                                     </div>
 
                                     {/* Warning + Button cùng hàng */}
                                     <div className="flex justify-between items-center mt-3">
                                         <div className="flex flex-wrap gap-2">
+                                            {patient.lastDiagnosis && (
+                                                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                                                        <span className="font-medium">📝 {t('myPatients.lastDiagnosis')}:</span> {patient.lastDiagnosis}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            
                                             {patient.isWalkIn && (
                                                 <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-lg">
                                                     🚶 {t('myPatients.warningWalkIn')}
@@ -401,13 +416,16 @@ const MyPatientsPage = () => {
                 </div>
             </div>
 
-            {/* Modal xác nhận tạo bệnh án */}
+            {/* Modal xác nhận tạo bệnh án từ patient list */}
             <Modal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 onConfirm={handleCreateMedicalRecord}
                 title={t('myPatients.createMedicalRecordTitle')}
-                message={t('myPatients.createMedicalRecordMessage', { name: selectedPatient?.patientName || '' })}
+                message={currentLanguage === 'vi'
+                    ? `Bệnh nhân ${selectedPatient?.patientName || ''} chưa có bệnh án. Bạn có muốn tạo bệnh án mới không?`
+                    : `Patient ${selectedPatient?.patientName || ''} has no medical record. Do you want to create one?`
+                }
                 variant="primary"
                 confirmText={t('myPatients.createNow')}
                 cancelText={t('common.cancel')}
@@ -417,7 +435,10 @@ const MyPatientsPage = () => {
             <Modal
                 isOpen={showAppointmentSelectModal}
                 onClose={closeAppointmentModal}
-                title={t('myPatients.selectAppointmentTitle', { phone: selectedWalkInPhone })}
+                title={currentLanguage === 'vi'
+                    ? `Chọn lần khám cho số điện thoại ${selectedWalkInPhone}`
+                    : `Select appointment for phone ${selectedWalkInPhone}`
+                }
                 showConfirm={false}
                 size="lg"
             >
@@ -457,12 +478,23 @@ const MyPatientsPage = () => {
                         </div>
                     ))}
                 </div>
-                <div className="mt-4 flex justify-end">
-                    <Button variant="outline" onClick={closeAppointmentModal}>
-                        {t('common.close')}
-                    </Button>
-                </div>
             </Modal>
+
+            {/* Modal xác nhận tạo bệnh án từ danh sách lịch hẹn */}
+            <Modal
+                isOpen={showConfirmCreateModal}
+                onClose={handleCloseConfirmCreateModal}  // 🟢 Dùng handler riêng
+                onConfirm={handleConfirmCreateMedicalRecord}
+                title={t('myPatients.createMedicalRecordTitle')}
+                message={selectedAppointment ? (
+                    currentLanguage === 'vi'
+                        ? `Bệnh nhân ${selectedAppointment.patientName} (ngày ${formatDateTime(selectedAppointment.appointmentDate, 'dd/mm/yyyy')}) chưa có bệnh án. Bạn có muốn tạo mới không?`
+                        : `Patient ${selectedAppointment.patientName} (date ${formatDateTime(selectedAppointment.appointmentDate, 'dd/mm/yyyy')}) has no medical record. Do you want to create one?`
+                ) : ''}
+                variant="primary"
+                confirmText={t('myPatients.createNow')}
+                cancelText={t('common.cancel')}
+            />
         </div>
     );
 };

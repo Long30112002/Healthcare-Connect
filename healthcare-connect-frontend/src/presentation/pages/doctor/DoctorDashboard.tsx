@@ -128,13 +128,6 @@ const DoctorDashboard = () => {
     const renderActions = (apt: Appointment) => {
         const actions = [];
 
-        if (apt.status === 'CONFIRMED') {
-            actions.push(
-                <Button key="checkin" size="sm" variant="primary" onClick={() => handleCheckIn(apt.id)} loading={updatingId === apt.id}>
-                    ✅ {t('doctor.checkIn')}
-                </Button>
-            );
-        }
 
         if (apt.status === 'IN_PROGRESS') {
             actions.push(
