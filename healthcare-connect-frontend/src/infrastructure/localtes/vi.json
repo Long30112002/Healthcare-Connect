@@ -552,6 +552,25 @@
     "reviews": "Đánh giá",
     "reviewsDesc": "Xem đánh giá từ bệnh nhân"
   },
+  "review": {
+    "title": "Đánh giá bác sĩ",
+    "editTitle": "Chỉnh sửa đánh giá",
+    "subtitle": "Chia sẻ trải nghiệm của bạn về buổi khám",
+    "appointmentInfo": "Thông tin lịch hẹn",
+    "rating": "Đánh giá của bạn",
+    "comment": "Nhận xét của bạn",
+    "commentPlaceholder": "Chia sẻ cảm nhận của bạn về bác sĩ...",
+    "anonymous": "Đánh giá ẩn danh (tên của bạn sẽ không hiển thị công khai)",
+    "note": "Đánh giá của bạn sẽ giúp bác sĩ cải thiện chất lượng dịch vụ và giúp bệnh nhân khác có lựa chọn tốt hơn.",
+    "submit": "Gửi đánh giá",
+    "update": "Cập nhật đánh giá",
+    "submitSuccess": "Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.",
+    "updateSuccess": "Đánh giá của bạn đã được cập nhật.",
+    "submitError": "Gửi đánh giá thất bại. Vui lòng thử lại.",
+    "selectRating": "Vui lòng chọn số sao đánh giá",
+    "selectRatingHint": "Chọn số sao để đánh giá",
+    "cannotReview": "Lịch hẹn này chưa hoàn thành. Bạn chỉ có thể đánh giá sau khi kết thúc khám."
+  },
   "statistics": {
     "title": "Thống kê",
     "subtitle": "Báo cáo hoạt động quầy lễ tân",

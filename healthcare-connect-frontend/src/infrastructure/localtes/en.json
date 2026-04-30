@@ -575,6 +575,25 @@
     "reviews": "Reviews",
     "reviewsDesc": "View patient reviews"
   },
+  "review": {
+    "title": "Review Doctor",
+    "editTitle": "Edit Review",
+    "subtitle": "Share your experience about the appointment",
+    "appointmentInfo": "Appointment Info",
+    "rating": "Your Rating",
+    "comment": "Your Comment",
+    "commentPlaceholder": "Share your thoughts about the doctor...",
+    "anonymous": "Review anonymously (your name will not be shown publicly)",
+    "note": "Your review helps doctors improve service quality and helps other patients make better choices.",
+    "submit": "Submit Review",
+    "update": "Update Review",
+    "submitSuccess": "Thank you! Your review has been submitted successfully.",
+    "updateSuccess": "Your review has been updated.",
+    "submitError": "Failed to submit review. Please try again.",
+    "selectRating": "Please select a rating",
+    "selectRatingHint": "Select star rating",
+    "cannotReview": "This appointment is not completed yet. You can only review after the appointment is finished."
+  },
   "statistics": {
     "title": "Statistics",
     "subtitle": "Receptionist activity report",

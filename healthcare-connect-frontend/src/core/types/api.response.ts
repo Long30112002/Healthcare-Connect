@@ -331,6 +331,19 @@ export interface DoctorReviewResponse {
     createdAt: string;
 }
 
+export interface ReviewResponse {
+    id: string;
+    appointmentId: string;
+    patientId: string;
+    patientName: string;
+    rating: number;
+    comment: string;
+    isAnonymous: boolean;
+    isEdited: boolean;
+    canEdit: boolean;
+    createdAt: string;
+}
+
 export interface DoctorRatingResponse {
     averageRating: number;
     totalReviews: number;

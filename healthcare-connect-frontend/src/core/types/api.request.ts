@@ -58,3 +58,17 @@ export interface CreateMedicalRecordRequest {
     followUpDate?: string;  // ISO date
     prescriptions?: PrescriptionRequest[];
 }
+
+export interface CreateReviewRequest {
+    appointmentId: string;
+    rating: number;
+    comment?: string;
+    isAnonymous?: boolean;
+}
+
+export interface UpdateReviewRequest {
+    rating: number;
+    comment?: string;
+    isAnonymous?: boolean;
+    appointmentId: string;
+}

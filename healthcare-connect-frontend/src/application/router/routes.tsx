@@ -15,6 +15,7 @@ import PatientDashboard from '../../presentation/pages/patient-user-dashboard/Pa
 import ScheduleDetailPage from '../../presentation/pages/doctor/ScheduleDetailPage';
 import ScheduleEditPage from '../../presentation/pages/doctor/ScheduleEditPage';
 import DoctorReviewsPage from '../../presentation/pages/doctor/DoctorReviewsPage';
+import PatientReviewForm from '../../presentation/pages/patient-user-dashboard/PatientReviewForm';
 // import AppointmentDetailPage from '../../presentation/pages/doctor/AppointmentDetailPage';
 
 // Lazy load components để tối ưu performance
@@ -87,6 +88,7 @@ export const routes: RouteConfig[] = [
   { path: '/my-schedule', element: <MySchedulePage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/schedules/:id/detail', element: <ScheduleDetailPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/schedules/:id/edit', element: <ScheduleEditPage />, layout: true, roles: [UserRole.DOCTOR] },
-  { path: '/doctor/reviews', element: <DoctorReviewsPage />, layout: true, roles: [UserRole.DOCTOR] }
+  { path: '/doctor/reviews', element: <DoctorReviewsPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/appointments/:appointmentId/review', element: <PatientReviewForm />, layout: true, roles: [UserRole.PATIENT] }
   // { path: '/doctor/appointments/:appointmentId/detail', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.DOCTOR] }
 ];

@@ -185,9 +185,9 @@ const AppointmentListPage = () => {
                         <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => toastInfo(t('appointment.reviewComingSoon'))}
+                            onClick={() => navigate(`/appointments/${appointment.id}/review`)}
                         >
-                            {t('appointment.review')}
+                            ⭐ {t('appointment.review')}
                         </Button>
                     </div>
                 );
