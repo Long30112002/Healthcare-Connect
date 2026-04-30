@@ -322,6 +322,25 @@ export interface PatientResponse {
     isWalkIn: boolean;
 }
 
+export interface DoctorReviewResponse {
+    id: string;
+    appointmentId: string;
+    patientName: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+}
+
+export interface DoctorRatingResponse {
+    averageRating: number;
+    totalReviews: number;
+    rating1Count: number;
+    rating2Count: number;
+    rating3Count: number;
+    rating4Count: number;
+    rating5Count: number;
+}
+
 export interface DoctorRespone {
     id: string;
     doctorCode: string;

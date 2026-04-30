@@ -203,13 +203,24 @@
     "createMedicalRecordTitle": "Create Medical Record",
     "createMedicalRecordMessage": "Patient {{name}} has no medical record. Do you want to create one?",
     "createNow": "Create Now",
-        "noWalkInHistory": "No medical history found for this phone number",
+    "noWalkInHistory": "No medical history found for this phone number",
     "loadWalkInHistoryError": "Failed to load medical history",
     "cannotViewDetail": "Cannot view patient details",
     "confirmCreateMedicalRecord": "Patient {name} (date {date}) has no medical record. Do you want to create one?",
     "selectAppointmentTitle": "Select appointment for phone {phone}",
     "hasMedicalRecord": "Has medical record",
     "noMedicalRecord": "No medical record"
+  },
+  "doctorReviews": {
+    "title": "My Reviews",
+    "subtitle": "View reviews from patients",
+    "averageRating": "Average Rating",
+    "ratingDistribution": "Rating Distribution",
+    "reviewsList": "Reviews List",
+    "noReviews": "No reviews yet",
+    "noReviewsDesc": "You have no reviews from patients yet",
+    "totalReviews": "{count} reviews",
+    "appointment": "Appointment"
   },
   "patient": {
     "detailTitle": "Patient Details",
@@ -560,7 +571,9 @@
     "applyReceptionist": "Apply as Receptionist",
     "applyReceptionistDesc": "Support patients at the counter",
     "trackApplication": "Track Application",
-    "trackApplicationDesc": "Check your application status"
+    "trackApplicationDesc": "Check your application status",
+    "reviews": "Reviews",
+    "reviewsDesc": "View patient reviews"
   },
   "statistics": {
     "title": "Statistics",

@@ -210,6 +210,17 @@
     "hasMedicalRecord": "Có bệnh án",
     "noMedicalRecord": "Chưa có bệnh án"
   },
+  "doctorReviews": {
+    "title": "Đánh giá của tôi",
+    "subtitle": "Xem những đánh giá từ bệnh nhân",
+    "averageRating": "Đánh giá trung bình",
+    "ratingDistribution": "Phân bố đánh giá",
+    "reviewsList": "Danh sách đánh giá",
+    "noReviews": "Chưa có đánh giá nào",
+    "noReviewsDesc": "Bạn chưa có đánh giá nào từ bệnh nhân",
+    "totalReviews": "{count} đánh giá",
+    "appointment": "Lịch hẹn"
+  },
   "patient": {
     "detailTitle": "Chi tiết bệnh nhân",
     "personalInfo": "Thông tin cá nhân",
@@ -537,7 +548,9 @@
     "applyReceptionist": "Đăng ký làm lễ tân",
     "applyReceptionistDesc": "Hỗ trợ bệnh nhân tại quầy",
     "trackApplication": "Theo dõi hồ sơ",
-    "trackApplicationDesc": "Xem trạng thái hồ sơ của bạn"
+    "trackApplicationDesc": "Xem trạng thái hồ sơ của bạn",
+    "reviews": "Đánh giá",
+    "reviewsDesc": "Xem đánh giá từ bệnh nhân"
   },
   "statistics": {
     "title": "Thống kê",

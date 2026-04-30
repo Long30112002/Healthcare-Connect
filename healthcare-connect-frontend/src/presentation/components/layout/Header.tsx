@@ -83,7 +83,7 @@ const Header = () => {
     { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
   ];
 
-  const privateMenuItems = user && user.role !== 'RECEPTIONIST' ? [
+  const privateMenuItems = user && user.role !== 'RECEPTIONIST' && user.role !== 'DOCTOR' ? [
     { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: '📋' },
   ] : [];
 
@@ -95,6 +95,7 @@ const Header = () => {
     DOCTOR: [
       { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
       { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },
+      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },  
     ],
     HOSPITAL_MANAGER: [
       { path: '/manage-doctors', label: t('nav.manageDoctors'), shortLabel: '📋', icon: '👨‍⚕️' },
