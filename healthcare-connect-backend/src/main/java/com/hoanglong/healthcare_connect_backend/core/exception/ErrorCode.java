@@ -132,7 +132,7 @@ public enum ErrorCode {
     MEDICINE_NOT_IN_HOSPITAL(6041, "Loại thuốc này không có ở bệnh viện!", HttpStatus.BAD_REQUEST),
     PHONE_TOO_LONG(6042, "Số điện thoại không hợp lệ!", HttpStatus.BAD_REQUEST),
     WEBSITE_TOO_LONG(6043, "Website không hợp lệ!", HttpStatus.BAD_REQUEST),
-
+    RECEPTIONIST_NOT_IN_HOSPITAL(6033, "Lễ tân không thuộc bệnh viện này!", HttpStatus.FORBIDDEN),
 
 
     // =============================================================================
@@ -229,6 +229,13 @@ public enum ErrorCode {
     ROOM_IS_OCCUPIED(9003, "Phòng đang được sử dụng", HttpStatus.BAD_REQUEST),
     ROOM_NOT_AVAILABLE(9004, "Phòng không khả dụng", HttpStatus.BAD_REQUEST),
     ROOM_NOT_DELETED(9005, "Phòng chưa bị xóa", HttpStatus.BAD_REQUEST),
+    REVIEW_NOT_FOUND(9006, "Không tìm thấy đánh giá!", HttpStatus.NOT_FOUND),
+    REVIEW_ALREADY_EXISTS(9007, "Bạn đã đánh giá lịch hẹn này rồi!", HttpStatus.BAD_REQUEST),
+    REVIEW_EXPIRED(9008, "Đã quá 30 ngày kể từ khi khám, không thể đánh giá!", HttpStatus.BAD_REQUEST),
+    REVIEW_CANNOT_EDIT(9009, "Đã quá 7 ngày kể từ khi đánh giá, không thể chỉnh sửa!", HttpStatus.BAD_REQUEST),
+    REVIEW_ALREADY_DELETED(9010, "Đánh giá này đã bị xóa trước đó!", HttpStatus.BAD_REQUEST),
+    REVIEW_NOT_DELETED(9011, "Đánh giá này chưa bị xóa!", HttpStatus.BAD_REQUEST),
+
     ;
 
     private final int code;
