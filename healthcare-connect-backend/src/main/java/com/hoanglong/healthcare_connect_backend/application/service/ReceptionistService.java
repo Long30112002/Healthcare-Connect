@@ -36,6 +36,7 @@ public class ReceptionistService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
     private final ReceptionistAuditLogService receptionistAuditLogService;
+    private final CurrentUserService currentUserService;
 
     //Admin: Lấy tất cả receptionists
     public Page<ReceptionistListResponse> getAllReceptionists(ReceptionistStatus status, String keyword, Pageable pageable) {
@@ -94,15 +95,25 @@ public class ReceptionistService {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
-        // Chỉ được check-in khi đang ở trạng thái CONFIRMED
+        // 1. Kiểm tra đã check-in chưa
+        if (appointment.getCheckInTime() != null) {
+            throw new AppException(ErrorCode.ALREADY_CHECKED_IN);
+        }
+
+        // 2. Kiểm tra receptionist có thuộc đúng bệnh viện không
+        UUID currentHospitalId = currentUserService.getCurrentHospitalId();
+        if (!appointment.getHospital().getId().equals(currentHospitalId)) {
+            throw new AppException(ErrorCode.RECEPTIONIST_NOT_IN_HOSPITAL);
+        }
+
+        // 3. Kiểm tra trạng thái phải là CONFIRMED
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new AppException(ErrorCode.INVALID_CHECKIN_STATUS);
         }
 
-        // Kiểm tra có đúng ngày khám không
+        // 4. Kiểm tra có đúng ngày khám không
         LocalDate today = LocalDate.now();
         LocalDate appointmentDate = appointment.getSchedule().getDate().toLocalDate();
-
         if (!appointmentDate.equals(today)) {
             throw new AppException(ErrorCode.WRONG_CHECKIN_DATE);
         }

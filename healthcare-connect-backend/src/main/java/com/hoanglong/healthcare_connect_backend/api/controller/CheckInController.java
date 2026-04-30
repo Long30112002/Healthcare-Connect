@@ -3,6 +3,8 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
+import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
+import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,7 +28,9 @@ public class CheckInController {
     public ResponseEntity<ApiResponse<Map<String, String>>> checkIn(@RequestParam String token) {
         try {
             UUID appointmentId = UUID.fromString(token);
-            Appointment appointment = appointmentService.checkInByToken(appointmentId);
+            UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+            Appointment appointment = appointmentService.checkInByToken(appointmentId, currentUserId);
 
             Map<String, String> result = new HashMap<>();
             result.put("appointmentId", appointment.getId().toString());
@@ -39,10 +43,15 @@ public class CheckInController {
                     .message("Check-in thành công")
                     .data(result)
                     .build());
-        } catch (Exception e) {
+        } catch (AppException e) {
             return ResponseEntity.badRequest().body(ApiResponse.<Map<String, String>>builder()
                     .status("error")
                     .message(e.getMessage())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.<Map<String, String>>builder()
+                    .status("error")
+                    .message("Token không hợp lệ")
                     .build());
         }
     }

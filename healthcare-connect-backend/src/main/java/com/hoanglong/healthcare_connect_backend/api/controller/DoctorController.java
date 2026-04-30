@@ -143,26 +143,12 @@ public class DoctorController
                 .build();
     }
 
-    @PatchMapping("/{appointmentId}/check-in")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST')")
-    public ApiResponse<String> checkIn(
-            @PathVariable UUID appointmentId,
-            HttpServletRequest httpRequest) {
-        {
-            receptionistService.checkIn(appointmentId, httpRequest);
-            return ApiResponse.<String>builder()
-                    .status("success")
-                    .code(200)
-                    .message("Check-in thành công!")
-                    .data("Bệnh nhân đã được check-in")
-                    .build();
-        }
-    }
-
     @PatchMapping("/{appointmentId}/complete")
     @PreAuthorize("hasRole('DOCTOR')")
     public ApiResponse<String> completeExam(@PathVariable UUID appointmentId) {
-        appointmentService.completeExam(appointmentId);
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        appointmentService.completeExam(appointmentId, currentUserId);
+
         return ApiResponse.<String>builder()
                 .status("success")
                 .code(200)

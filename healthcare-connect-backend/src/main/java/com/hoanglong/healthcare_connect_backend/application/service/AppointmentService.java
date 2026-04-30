@@ -27,6 +27,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final NotificationService notificationService;
     private final AppointmentMapper appointmentMapper;
+    private final CurrentUserService currentUserService;
 
     @Transactional(readOnly = true)
     public Page<AppointmentResponse> getPatientAppointments(UUID patientId, Pageable pageable) {
@@ -49,7 +50,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void completeExam(UUID appointmentId) {
+    public void completeExam(UUID appointmentId, UUID currentUserId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
@@ -57,6 +58,16 @@ public class AppointmentService {
         if (appointment.getStatus() != AppointmentStatus.IN_PROGRESS) {
             throw new AppException(ErrorCode.INVALID_COMPLETE_STATUS);
         }
+
+        UUID doctorUserId = appointment.getSchedule().getDoctor().getUser().getId();
+        if (!doctorUserId.equals(currentUserId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+         UUID currentHospitalId = currentUserService.getCurrentHospitalId();
+         if (!appointment.getHospital().getId().equals(currentHospitalId)) {
+             throw new AppException(ErrorCode.DOCTOR_NOT_IN_HOSPITAL);
+         }
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment);
@@ -67,29 +78,35 @@ public class AppointmentService {
 
 
     @Transactional
-    public Appointment checkInByToken(UUID appointmentId) {
+    public Appointment checkInByToken(UUID appointmentId, UUID currentUserId) {
         // 1. Kiểm tra lịch hẹn tồn tại
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND));
 
-        // 2. Kiểm tra đã check-in chưa
+        // 2. Kiểm tra: chỉ patient của appointment mới được check-in
+        if (appointment.getPatient() == null ||
+                !appointment.getPatient().getId().equals(currentUserId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        // 3. Kiểm tra đã check-in chưa
         if (appointment.getCheckInTime() != null) {
             throw new AppException(ErrorCode.ALREADY_CHECKED_IN);
         }
 
-        // 3. Kiểm tra trạng thái phải là CONFIRMED
+        // 4. Kiểm tra trạng thái phải là CONFIRMED
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new AppException(ErrorCode.INVALID_CHECKIN_STATUS);
         }
 
-        // 4. Kiểm tra ngày khám
+        // 5. Kiểm tra ngày khám
         LocalDate today = LocalDate.now();
         LocalDate appointmentDate = appointment.getSchedule().getDate().toLocalDate();
         if (!appointmentDate.equals(today)) {
             throw new AppException(ErrorCode.WRONG_CHECKIN_DATE);
         }
 
-        // 5. Kiểm tra khung giờ check-in (30 phút trước đến 30 phút sau)
+        // 6. Kiểm tra khung giờ check-in (30 phút trước đến 30 phút sau)
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startTime = appointment.getSchedule().getStartTime();
         LocalDateTime checkInStart = startTime.minusMinutes(30);
@@ -99,29 +116,31 @@ public class AppointmentService {
             throw new AppException(ErrorCode.CHECKIN_TIME_INVALID);
         }
 
-        // 6. Kiểm tra QR code đã hết hạn chưa (sau giờ khám)
+        // 7. Kiểm tra QR code đã hết hạn chưa (sau giờ khám)
         if (now.isAfter(startTime)) {
             throw new AppException(ErrorCode.QR_CODE_EXPIRED);
         }
 
-        // 7. Cập nhật check-in
+        // 8. Cập nhật check-in
         appointment.setCheckInTime(now);
         appointment.setStatus(AppointmentStatus.IN_PROGRESS);
         appointmentRepository.save(appointment);
 
-        // 8. Gửi WebSocket thông báo
-        notificationService.sendRealtimeNotification(
-                "/topic/doctor/" + appointment.getSchedule().getDoctor().getId(),
-                Map.of(
-                        "appointmentId", appointment.getId(),
-                        "patientName", appointment.getPatient().getFullName(),
-                        "status", "CHECKED_IN",
-                        "message", "Bệnh nhân đã check-in"
-                )
-        );
+        // 9. Gửi WebSocket thông báo
+        if (appointment.getPatient() != null) {
+            notificationService.sendRealtimeNotification(
+                    "/topic/doctor/" + appointment.getSchedule().getDoctor().getId(),
+                    Map.of(
+                            "appointmentId", appointment.getId(),
+                            "patientName", appointment.getPatient().getFullName(),
+                            "status", "CHECKED_IN",
+                            "message", "Bệnh nhân đã check-in"
+                    )
+            );
+        }
 
         log.info("==> [CHECK-IN] Bệnh nhân {} đã check-in lúc {}",
-                appointment.getPatient().getFullName(), now);
+                appointment.getPatient() != null ? appointment.getPatient().getFullName() : appointment.getPatientName(), now);
 
         return appointment;
     }

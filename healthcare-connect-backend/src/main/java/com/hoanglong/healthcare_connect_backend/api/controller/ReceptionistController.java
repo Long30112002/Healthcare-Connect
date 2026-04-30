@@ -68,6 +68,22 @@ public class ReceptionistController {
                 .build();
     }
 
+    // Check-in bệnh nhân (thủ công)
+    @PatchMapping("/appointments/{appointmentId}/check-in")
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    public ApiResponse<String> manualCheckIn(
+            @PathVariable UUID appointmentId,
+            HttpServletRequest httpRequest) {
+        // Tái sử dụng method checkIn đã có
+        receptionistService.checkIn(appointmentId, httpRequest);
+        return ApiResponse.<String>builder()
+                .status("success")
+                .code(200)
+                .message("Check-in thành công!")
+                .data("Bệnh nhân đã được check-in")
+                .build();
+    }
+
     @GetMapping("/current-hospital")
     @PreAuthorize("hasRole('RECEPTIONIST')")
     public ApiResponse<HospitalResponse> getCurrentHospital() {
@@ -169,21 +185,7 @@ public class ReceptionistController {
                 .build();
     }
 
-    // Check-in bệnh nhân (thủ công)
-    @PatchMapping("/appointments/{appointmentId}/check-in")
-    @PreAuthorize("hasRole('RECEPTIONIST')")
-    public ApiResponse<String> manualCheckIn(
-            @PathVariable UUID appointmentId,
-            HttpServletRequest httpRequest) {
-        // Tái sử dụng method checkIn đã có
-        receptionistService.checkIn(appointmentId, httpRequest);
-        return ApiResponse.<String>builder()
-                .status("success")
-                .code(200)
-                .message("Check-in thành công!")
-                .data("Bệnh nhân đã được check-in")
-                .build();
-    }
+
 
     @GetMapping("/doctors/available")
     @PreAuthorize("hasRole('RECEPTIONIST')")
