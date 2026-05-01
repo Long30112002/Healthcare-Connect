@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 
@@ -74,6 +74,7 @@ const Header = () => {
     }
   };
 
+  // Menu công khai (khi chưa login)
   const publicMenuItems = !isAuthenticated ? [
     { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
     { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
@@ -83,10 +84,12 @@ const Header = () => {
     { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
   ];
 
-  const privateMenuItems = user && user.role !== 'RECEPTIONIST' && user.role !== 'DOCTOR' ? [
+  // Menu riêng tư (thêm vào khi đã login) - KHÔNG hiển thị cho RECEPTIONIST
+  const privateMenuItems = user && user.role !== 'RECEPTIONIST' ? [
     { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: '📋' },
   ] : [];
 
+  // Menu theo role
   const roleBasedItems: Record<string, typeof publicMenuItems> = {
     PATIENT: [
       { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: '🔍' },
@@ -95,7 +98,7 @@ const Header = () => {
     DOCTOR: [
       { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
       { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },
-      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },  
+      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },
     ],
     HOSPITAL_MANAGER: [
       { path: '/manage-doctors', label: t('nav.manageDoctors'), shortLabel: '📋', icon: '👨‍⚕️' },
@@ -114,11 +117,13 @@ const Header = () => {
   const roleMenu = user?.role ? roleBasedItems[user.role] || [] : [];
   const menuItems = [...publicMenuItems, ...privateMenuItems, ...roleMenu];
 
+  // KIỂM TRA CÓ HIỂN THỊ MENU "APPLY" KHÔNG (CHỈ PATIENT MỚI THẤY)
+  const showApplyMenu = user?.role === 'PATIENT';
+
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-300">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
-
           {/* Logo + Brand */}
           <div className="flex-shrink-0">
             <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-1.5 sm:gap-2 group">
@@ -148,7 +153,7 @@ const Header = () => {
                       className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
                         ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
+                      }`}
                       title={item.label}
                     >
                       <span className="text-base xl:text-lg">{item.icon}</span>
@@ -165,7 +170,7 @@ const Header = () => {
                     className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
                       ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
+                    }`}
                     title={item.label}
                   >
                     <span className="text-base xl:text-lg">{item.icon}</span>
@@ -195,6 +200,7 @@ const Header = () => {
                   </svg>
                 </button>
 
+                {/* Dropdown Profile - Desktop */}
                 {isProfileDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsProfileDropdownOpen(false)} />
@@ -206,47 +212,49 @@ const Header = () => {
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{user?.email}</p>
                       </div>
 
-                      {/* 👉 PHẦN ĐĂNG KÝ */}
-                      <div className="border-b border-gray-200 dark:border-gray-700">
-                        <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
-                          {t('nav.apply').toUpperCase()}
-                        </p>
-                        <Link
-                          to="/apply/doctor"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">👨‍⚕️</span>
-                          <div>
-                            <p className="font-medium">{t('nav.applyDoctor')}</p>
-                            <p className="text-xs text-gray-400">{t('nav.applyDoctorDesc')}</p>
-                          </div>
-                        </Link>
-                        <Link
-                          to="/apply/receptionist"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">👩‍💼</span>
-                          <div>
-                            <p className="font-medium">{t('nav.applyReceptionist')}</p>
-                            <p className="text-xs text-gray-400">{t('nav.applyReceptionistDesc')}</p>
-                          </div>
-                        </Link>
-                        <Link
-                          to="/apply/status"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">📋</span>
-                          <div>
-                            <p className="font-medium">{t('nav.trackApplication')}</p>
-                            <p className="text-xs text-gray-400">{t('nav.trackApplicationDesc')}</p>
-                          </div>
-                        </Link>
-                      </div>
+                      {/* PHẦN ĐĂNG KÝ - CHỈ HIỂN THỊ CHO PATIENT */}
+                      {showApplyMenu && (
+                        <div className="border-b border-gray-200 dark:border-gray-700">
+                          <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                            {t('nav.apply').toUpperCase()}
+                          </p>
+                          <Link
+                            to="/apply/doctor"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">👨‍⚕️</span>
+                            <div>
+                              <p className="font-medium">{t('nav.applyDoctor')}</p>
+                              <p className="text-xs text-gray-400">{t('nav.applyDoctorDesc')}</p>
+                            </div>
+                          </Link>
+                          <Link
+                            to="/apply/receptionist"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">👩‍💼</span>
+                            <div>
+                              <p className="font-medium">{t('nav.applyReceptionist')}</p>
+                              <p className="text-xs text-gray-400">{t('nav.applyReceptionistDesc')}</p>
+                            </div>
+                          </Link>
+                          <Link
+                            to="/apply/status"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">📋</span>
+                            <div>
+                              <p className="font-medium">{t('nav.trackApplication')}</p>
+                              <p className="text-xs text-gray-400">{t('nav.trackApplicationDesc')}</p>
+                            </div>
+                          </Link>
+                        </div>
+                      )}
 
-                      {/* Profile & Settings */}
+                      {/* Profile & Settings - Luôn hiển thị */}
                       <Link
                         to="/profile"
                         className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -289,10 +297,7 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm"
-              >
+              <Link to="/login" className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm">
                 {t('common.login')}
               </Link>
             )}
@@ -308,46 +313,51 @@ const Header = () => {
                 >
                   {user?.fullName?.charAt(0) || 'U'}
                 </button>
+
+                {/* Dropdown Profile - Mobile */}
                 {isProfileDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsProfileDropdownOpen(false)} />
                     <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+                      {/* User Info */}
                       <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">{user?.fullName}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{getRole(user?.role || '')}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{user?.email}</p>
                       </div>
 
-                      {/* Apply menu trên mobile */}
-                      <div className="border-b border-gray-200 dark:border-gray-700">
-                        <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
-                          {t('nav.apply').toUpperCase()}
-                        </p>
-                        <Link
-                          to="/apply/doctor"
-                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">👨‍⚕️</span>
-                          <span>{t('nav.applyDoctor')}</span>
-                        </Link>
-                        <Link
-                          to="/apply/receptionist"
-                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">👩‍💼</span>
-                          <span>{t('nav.applyReceptionist')}</span>
-                        </Link>
-                        <Link
-                          to="/apply/status"
-                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
-                          onClick={() => setIsProfileDropdownOpen(false)}
-                        >
-                          <span className="text-xl">📋</span>
-                          <span>{t('nav.trackApplication')}</span>
-                        </Link>
-                      </div>
+                      {/* PHẦN ĐĂNG KÝ - CHỈ HIỂN THỊ CHO PATIENT */}
+                      {showApplyMenu && (
+                        <div className="border-b border-gray-200 dark:border-gray-700">
+                          <p className="px-4 pt-2 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                            {t('nav.apply').toUpperCase()}
+                          </p>
+                          <Link
+                            to="/apply/doctor"
+                            className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">👨‍⚕️</span>
+                            <span>{t('nav.applyDoctor')}</span>
+                          </Link>
+                          <Link
+                            to="/apply/receptionist"
+                            className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">👩‍💼</span>
+                            <span>{t('nav.applyReceptionist')}</span>
+                          </Link>
+                          <Link
+                            to="/apply/status"
+                            className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition border-t border-gray-100 dark:border-gray-700"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">📋</span>
+                            <span>{t('nav.trackApplication')}</span>
+                          </Link>
+                        </div>
+                      )}
 
                       <Link to="/profile" className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition" onClick={() => setIsProfileDropdownOpen(false)}>
                         <span className="text-xl">👤</span>
@@ -368,7 +378,6 @@ const Header = () => {
             ) : (
               <Link to="/login" className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm">Login</Link>
             )}
-
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -399,7 +408,7 @@ const Header = () => {
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition w-full text-left ${isActive(item.path)
                       ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
+                    }`}
                   >
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
@@ -413,7 +422,7 @@ const Header = () => {
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${isActive(item.path)
                     ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span>{item.icon}</span>
