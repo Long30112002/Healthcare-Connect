@@ -101,7 +101,9 @@
       "total": "Tổng số lịch hẹn",
       "completed": "Đã hoàn thành",
       "inProgress": "Đang khám"
-    }
+    },
+    "noRatingYet": "Chưa có đánh giá",
+    "reviews": "đánh giá"
   },
   "mySchedule": {
     "title": "Lịch làm việc của tôi",

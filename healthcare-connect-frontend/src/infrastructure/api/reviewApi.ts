@@ -37,4 +37,9 @@ export const reviewApi = {
         const response = await axiosClient.get(`/reviews/appointment/${appointmentId}/exists`);
         return response.data.data;
     },
+
+    getDoctorRating: async (doctorId: string): Promise<DoctorRatingResponse> => {
+        const response = await axiosClient.get(`/reviews/doctor/${doctorId}/rating`);
+        return response.data.data;
+    },
 };

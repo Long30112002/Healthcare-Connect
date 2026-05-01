@@ -6,7 +6,7 @@ import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
 import toast from 'react-hot-toast';
 import type { Appointment } from '../../../core/types';
 import type { DoctorRespone, PageResponse } from '../../../core/types/api.response';
-import { DashboardHeader, DashboardStats, DashboardSearch, AppointmentCard } from '../../../presentation/components/medical-dashboard';
+import { DashboardHeader, DashboardStats, DashboardSearch, AppointmentCard } from '../../components/medical-dashboard';
 import FilterTabs from '../../../presentation/components/shared/FilterTabs';
 import Pagination from '../../../presentation/components/shared/Pagination';
 import Button from '../../../presentation/components/shared/Button';

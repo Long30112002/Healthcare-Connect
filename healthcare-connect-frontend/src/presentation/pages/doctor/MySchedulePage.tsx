@@ -10,7 +10,7 @@ import Pagination from '../../../presentation/components/shared/Pagination';
 import Modal from '../../../presentation/components/shared/Modal';
 import FilterTabs from '../../../presentation/components/shared/FilterTabs';
 import StatusBadge from '../../../presentation/components/shared/StatusBadge';
-import { DashboardHeader, DashboardStats } from '../../../presentation/components/medical-dashboard';
+import { DashboardHeader, DashboardStats } from '../../components/medical-dashboard';
 import { doctorApi } from '../../../infrastructure/api/doctorApi';
 import { formatDateShort, formatTimeOnly, formatPrice } from '../../../shared/utils/dateUtils';
 import useFetch from '../../../application/hooks/useFetch';

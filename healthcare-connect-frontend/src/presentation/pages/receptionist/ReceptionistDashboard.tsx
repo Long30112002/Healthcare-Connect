@@ -4,7 +4,7 @@ import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { receptionistApi } from '../../../infrastructure/api/receptionistApi';
 import { formatDateTime } from '../../../shared/utils/dateUtils';
 import toast from 'react-hot-toast';
-import { DashboardHeader, DashboardStats, DashboardSearch, AppointmentCard } from '../../../presentation/components/medical-dashboard';
+import { DashboardHeader, DashboardStats, DashboardSearch, AppointmentCard } from '../../components/medical-dashboard';
 import FilterTabs from '../../../presentation/components/shared/FilterTabs';
 import Pagination from '../../../presentation/components/shared/Pagination';
 import Button from '../../../presentation/components/shared/Button';

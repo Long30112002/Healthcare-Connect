@@ -139,7 +139,9 @@
       "total": "Total Appointments",
       "completed": "Completed",
       "inProgress": "In Progress"
-    }
+    },
+    "noRatingYet": "No reviews yet",
+    "reviews": "reviews"
   },
   "mySchedule": {
     "title": "My Schedule",
