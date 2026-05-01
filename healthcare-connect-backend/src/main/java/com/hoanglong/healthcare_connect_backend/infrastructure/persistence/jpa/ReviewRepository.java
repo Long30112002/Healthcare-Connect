@@ -20,6 +20,11 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Query("SELECT r FROM Review r WHERE r.appointment.id = :appointmentId AND r.deleted = false")
     Optional<Review> findByAppointmentId(@Param("appointmentId") UUID appointmentId);
 
+    @Query("SELECT r.doctor.id, AVG(r.rating) FROM Review r " +
+            "WHERE r.doctor.id IN :doctorIds AND r.deleted = false " +
+            "GROUP BY r.doctor.id")
+    List<Object[]> getAverageRatingsByDoctorIds(@Param("doctorIds") List<UUID> doctorIds);
+
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Review r " +
             "WHERE r.appointment.id = :appointmentId AND r.deleted = false")
     boolean existsByAppointmentId(@Param("appointmentId") UUID appointmentId);
