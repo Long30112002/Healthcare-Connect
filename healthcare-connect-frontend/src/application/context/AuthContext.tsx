@@ -9,6 +9,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     login: (userData: User) => void;
     logout: () => void;
+    updateUser: (userData: User) => void;
     loading: boolean;
 }
 
@@ -53,8 +54,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const updateUser = (userData: User) => {
+        setUser(userData);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateUser, loading }}>
             {loading ? (
                 <LoadingSpinner
                     fullScreen

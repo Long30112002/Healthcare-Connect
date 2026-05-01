@@ -1,6 +1,7 @@
 import axiosClient from './axiosClient';
 import type { Schedule, VisitedDoctor } from '../../core/types';
-import type { DoctorRespone, PageResponse } from '../../core/types/api.response';
+import type { DoctorResponse, PageResponse } from '../../core/types/api.response';
+import type { UpdateDoctorInfoRequest } from '../../core/types/api.request';
 
 
 export const doctorApi = {
@@ -13,6 +14,11 @@ export const doctorApi = {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         return response.data;
+    },
+
+    updateMyInfo: async (data: UpdateDoctorInfoRequest): Promise<DoctorResponse> => {
+        const response = await axiosClient.put('/doctor/my-info', data);
+        return response.data.data;
     },
 
     createSchedule: async (data: { date: string; startTime: string; endTime: string; price: number; maxPatients: number; roomId?: string; }): Promise<any> => {
@@ -38,8 +44,8 @@ export const doctorApi = {
         const response = await axiosClient.put(`/doctor/schedules/${scheduleId}`, data);
         return response.data.data;
     },
-    
-    getMyInfo: async (): Promise<DoctorRespone> => {
+
+    getMyInfo: async (): Promise<DoctorResponse> => {
         const response = await axiosClient.get('/doctor/my-info');
         return response.data.data;
     }

@@ -72,3 +72,20 @@ export interface UpdateReviewRequest {
     isAnonymous?: boolean;
     appointmentId: string;
 }
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  phone: string;
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface UpdateDoctorInfoRequest {
+    degree?: string;
+    experienceYears?: number;
+    biography?: string;
+    consultationFee?: number;
+}
