@@ -38,6 +38,7 @@ public class DoctorService {
     private final ScheduleRepository scheduleRepository;
     private final AppointmentRepository appointmentRepository;
     private final MedicalRecordRepository medicalRecordRepository;
+    private final ReviewRepository reviewRepository;
 
     public Doctor getDoctorById(UUID doctorId) {
         return doctorRepository.findById(doctorId)
@@ -119,6 +120,22 @@ public class DoctorService {
 
         List<Doctor> doctors = doctorRepository.findVisitedDoctorsByPatientId(patientId, statuses);
 
+        if (doctors.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<UUID> doctorIds = doctors.stream()
+                .map(Doctor::getId)
+                .collect(Collectors.toList());
+
+        List<Object[]> ratings = reviewRepository.getAverageRatingsByDoctorIds(doctorIds);
+        Map<UUID, Double> ratingMap = ratings.stream()
+                .collect(Collectors.toMap(
+                        row -> (UUID) row[0],
+                        row -> row[1] != null ? (Double) row[1] : 0.0,
+                        (existing, replacement) -> existing
+                ));
+
         return doctors.stream()
                 .map(doctor -> VisitedDoctorResponse.builder()
                         .id(doctor.getId())
@@ -126,7 +143,7 @@ public class DoctorService {
                         .specialtyName(doctor.getSpecialty().getName())
                         .experienceYears(doctor.getExperienceYears())
                         .consultationFee(doctor.getConsultationFee())
-                        .rating(0.0)
+                        .rating(ratingMap.getOrDefault(doctor.getId(), 0.0))
                         .avatar(null)
                         .build())
                 .collect(Collectors.toList());
@@ -161,6 +178,8 @@ public class DoctorService {
     }
 
     private DoctorListResponse toDoctorListResponse(Doctor doctor) {
+        Double averageRating = getAverageRating(doctor.getId());
+
         return DoctorListResponse.builder()
                 .id(doctor.getId())
                 .fullName(doctor.getUser().getFullName())
@@ -168,11 +187,16 @@ public class DoctorService {
                 .hospitalName(doctor.getHospital().getName())
                 .experienceYears(doctor.getExperienceYears())
                 .consultationFee(doctor.getConsultationFee())
-                .rating(0.0)
+                .rating(averageRating != null ? averageRating : 0.0)
                 .avatar(null)
                 .availableSchedules(doctor.getSchedules().size())
                 .build();
     }
+
+    private Double getAverageRating(UUID doctorId) {
+        return reviewRepository.getAverageRatingByDoctorId(doctorId);
+    }
+
 
     public DoctorDetailResponse getDoctorDetail(UUID doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
@@ -184,6 +208,8 @@ public class DoctorService {
                 doctorId, ScheduleStatus.AVAILABLE, now, next30Days
         );
 
+        Double averageRating = getAverageRating(doctorId);
+
         return DoctorDetailResponse.builder()
                 .id(doctor.getId())
                 .fullName(doctor.getUser().getFullName())
@@ -194,7 +220,7 @@ public class DoctorService {
                 .degree(doctor.getDegree())
                 .biography(doctor.getBiography())
                 .consultationFee(doctor.getConsultationFee())
-                .rating(0.0)
+                .rating(averageRating != null ? averageRating : 0.0)
                 .avatar(null)
                 .schedules(availableSchedules.stream()
                         .map(s -> ScheduleResponse.builder()
