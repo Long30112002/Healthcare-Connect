@@ -33,7 +33,8 @@ public enum ErrorCode {
     UNSUPPORTED_PAYMENT_METHOD(1025, "Phương thức thanh toán không được hỗ trợ!", HttpStatus.BAD_REQUEST),
     ADMIN_CANNOT_BE_RECEPTIONIST(1027, "Admin không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
     USER_ALREADY_HAS_ROLE(1028, "Người dùng đã có role!", HttpStatus.BAD_REQUEST),
-    SCHEDULE_HAS_BOOKINGS(7029, "Không thể xóa lịch đã có bệnh nhân đặt!", HttpStatus.BAD_REQUEST),
+    INVALID_OLD_PASSWORD(1029, "Mật khẩu cũ không chính xác!", HttpStatus.BAD_REQUEST),
+
 
     // =============================================================================
     // 2xxx: NGƯỜI DÙNG (USER)
@@ -201,6 +202,7 @@ public enum ErrorCode {
     PRESCRIPTION_ITEMS_EMPTY(7127, "Đơn thuốc không được để trống!", HttpStatus.BAD_REQUEST),
     MEDICINE_NOT_FOUND(7128, "Không tìm thấy thuốc!", HttpStatus.NOT_FOUND),
     INSUFFICIENT_STOCK(7129, "Số lượng thuốc trong kho không đủ!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_HAS_BOOKINGS(7030, "Không thể xóa lịch đã có bệnh nhân đặt!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 8xxx: THANH TOÁN (PAYMENT)

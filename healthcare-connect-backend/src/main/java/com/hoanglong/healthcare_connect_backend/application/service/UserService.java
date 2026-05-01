@@ -2,6 +2,8 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.invitation.ApplicationResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.auth.UserRegistrationRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.ChangePasswordRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.BaseMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
@@ -17,7 +19,10 @@ import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.R
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +79,34 @@ public class UserService extends BaseService<User, UserRegistrationRequest, User
                     });
         }
         return response;
+    }
+
+    @Transactional
+    public User updateProfile(UUID userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(UUID userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_OLD_PASSWORD);
+        }
+
+        // Mã hóa và lưu mật khẩu mới
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     public List<ApplicationResponse> getMyApplications(UUID userId) {
