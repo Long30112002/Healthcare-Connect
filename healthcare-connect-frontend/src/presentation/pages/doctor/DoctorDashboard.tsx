@@ -5,7 +5,7 @@ import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
 import toast from 'react-hot-toast';
 import type { Appointment } from '../../../core/types';
-import type { DoctorRespone, PageResponse } from '../../../core/types/api.response';
+import type { DoctorResponse, PageResponse } from '../../../core/types/api.response';
 import { DashboardHeader, DashboardStats, DashboardSearch, AppointmentCard } from '../../components/medical-dashboard';
 import FilterTabs from '../../../presentation/components/shared/FilterTabs';
 import Pagination from '../../../presentation/components/shared/Pagination';
@@ -22,7 +22,7 @@ const DoctorDashboard = () => {
     const { t } = useAppTranslation();
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [doctorInfo, setDoctorInfo] = useState<DoctorRespone | null>(null);
+    const [doctorInfo, setDoctorInfo] = useState<DoctorResponse | null>(null);
     const [loadingInfo, setLoadingInfo] = useState(true);
 
     const { activeTab, setActiveTab, page, setPage, apiPage } = useTabWithUrl({

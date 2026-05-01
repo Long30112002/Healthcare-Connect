@@ -838,6 +838,25 @@
     "HOSPITAL_MANAGER": "Hospital Manager",
     "RECEPTIONIST": "Receptionist"
   },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your account information",
+    "basicInfo": "Basic Information",
+    "changePassword": "Change Password",
+    "oldPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "doctorInfo": "Professional Information",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Failed to update profile!",
+    "passwordChangeSuccess": "Password changed successfully!",
+    "passwordChangeError": "Failed to change password!",
+    "requiredOldPassword": "Please enter current password",
+    "requiredNewPassword": "Please enter new password",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match"
+  },
   "appointment": {
     "payNow": "Pay Now",
     "cancel": "Cancel Appointment",

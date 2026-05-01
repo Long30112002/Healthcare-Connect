@@ -9,8 +9,8 @@ import LanguageToggle from '../components/shared/LanguageToggle';
 
 const SettingsPage = () => {
     const { user } = useAuth();
-    const { theme, toggleTheme } = useTheme();
-    const { t, currentLanguage, changeLanguage } = useAppTranslation();
+    const { theme } = useTheme();
+    const { t } = useAppTranslation();
 
     // State cho form thông tin cá nhân
     const [fullName, setFullName] = useState(user?.fullName || '');

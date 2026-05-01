@@ -16,6 +16,7 @@ import ScheduleEditPage from '../../presentation/pages/doctor/ScheduleEditPage';
 import DoctorReviewsPage from '../../presentation/pages/doctor/DoctorReviewsPage';
 import PatientDashboard from '../../presentation/pages/patient/PatientDashboard';
 import PatientReviewForm from '../../presentation/pages/patient/PatientReviewForm';
+import ProfilePage from '../../presentation/pages/profile/ProfilePage';
 // import AppointmentDetailPage from '../../presentation/pages/doctor/AppointmentDetailPage';
 
 // Lazy load components để tối ưu performance
@@ -68,6 +69,9 @@ export const routes: RouteConfig[] = [
   { path: '/payment-result', element: <PaymentResultPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/receptionist/dashboard', element: <ReceptionistDashboard />, layout: true, roles: [UserRole.RECEPTIONIST] },
   { path: '/receptionist/statistics', element: <ReceptionistStatistics />, layout: true, roles: [UserRole.RECEPTIONIST] },
+
+  // Array profile
+  { path: '/profile', element: <ProfilePage />, layout: true, roles: Object.values(UserRole) },
 
   // Apply routes
   { path: '/apply/doctor', element: <ApplyDoctorPage />, layout: true, roles: ['PATIENT'] },

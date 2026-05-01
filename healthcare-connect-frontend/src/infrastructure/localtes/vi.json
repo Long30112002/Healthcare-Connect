@@ -849,6 +849,25 @@
       "info": "Vui lòng kiểm tra lại thông tin."
     }
   },
+  "profile": {
+    "title": "Thông tin cá nhân",
+    "subtitle": "Quản lý thông tin tài khoản của bạn",
+    "basicInfo": "Thông tin cơ bản",
+    "changePassword": "Đổi mật khẩu",
+    "oldPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "updatePassword": "Cập nhật mật khẩu",
+    "doctorInfo": "Thông tin chuyên môn",
+    "updateSuccess": "Cập nhật thông tin thành công!",
+    "updateError": "Cập nhật thông tin thất bại!",
+    "passwordChangeSuccess": "Đổi mật khẩu thành công!",
+    "passwordChangeError": "Đổi mật khẩu thất bại!",
+    "requiredOldPassword": "Vui lòng nhập mật khẩu hiện tại",
+    "requiredNewPassword": "Vui lòng nhập mật khẩu mới",
+    "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
+    "passwordMismatch": "Mật khẩu xác nhận không khớp"
+  },
   "appointment": {
     "payNow": "Thanh toán ngay",
     "cancel": "Hủy lịch",
