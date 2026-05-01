@@ -9,7 +9,6 @@ import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
 import type { Appointment } from '../../../core/types';
 import { formatDateTime, formatPrice } from '../../../shared/utils/dateUtils';
 import toast from 'react-hot-toast';
-import { toastInfo } from '../../shared/CustomToast';
 
 type TabKey = 'all' | 'awaiting_payment' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
 

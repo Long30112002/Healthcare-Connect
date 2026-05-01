@@ -4,11 +4,11 @@ import { useAppTranslation } from "../../../application/hooks/useAppTranslation"
 import useFetch from "../../../application/hooks/useFetch";
 import { AppointmentStatus } from "../../../core/constants/enums";
 import type { Appointment, VisitedDoctor } from "../../../core/types";
-import AISuggestionCard from "./AISuggestionCard";
-import DoctorVisitedCard from "./DoctorVisitedCard";
+import AISuggestionCard from "../../components/patient/AISuggestionCard";
+import DoctorVisitedCard from "../../components/patient/DoctorVisitedCard";
 import SectionHeader from "./SectionHeader";
 import StatCard from "./StatCard";
-import UpcomingAppointmentCard from "./UpcomingAppointmentCard";
+import UpcomingAppointmentCard from "../../components/patient/UpcomingAppointmentCard";
 import DataWrapper from "../../components/shared/DataWrapper";
 
 

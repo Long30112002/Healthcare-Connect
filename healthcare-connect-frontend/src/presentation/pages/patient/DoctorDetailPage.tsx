@@ -1,23 +1,26 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import useFetch from '../../../application/hooks/useFetch';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import Button from '../../components/shared/Button';
-import type { DoctorDetail, ScheduleSlot } from '../../../core/types';
-import { formatDateTime, formatTimeOnly } from '../../../shared/utils/dateUtils';
-import toast from 'react-hot-toast';
-import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
 import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
-import type { AppointmentResponse } from '../../../core/types/api.response';
+import Button from '../../../presentation/components/shared/Button';
+import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
+import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
+import { formatDateTime, formatTimeOnly, formatPrice } from '../../../shared/utils/dateUtils';
+import toast from 'react-hot-toast';
+import useFetch from '../../../application/hooks/useFetch';
+import type { ScheduleSlot, DoctorDetail } from '../../../core/types';
+import type { DoctorRatingResponse } from '../../../core/types/api.response';
+import { reviewApi } from '../../../infrastructure/api/reviewApi';
 
 const DoctorDetailPage = () => {
-    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
     const { t } = useAppTranslation();
+    
     const [selectedSchedule, setSelectedSchedule] = useState<ScheduleSlot | null>(null);
     const [symptoms, setSymptoms] = useState('');
-
+    const [rating, setRating] = useState<DoctorRatingResponse | null>(null);
+    const [ratingLoading, setRatingLoading] = useState(true);
 
     const { data: doctor, loading } = useFetch<DoctorDetail>(
         `/patients/doctors/${id}`,
@@ -25,7 +28,24 @@ const DoctorDetailPage = () => {
         { immediate: true }
     );
 
-    const { execute: bookAppointment, loading: bookingLoading } = useMinLoadingAction<AppointmentResponse>({
+    // 🟢 Lấy rating của bác sĩ
+    useEffect(() => {
+        const fetchRating = async () => {
+            if (!id) return;
+            setRatingLoading(true);
+            try {
+                const ratingData = await reviewApi.getDoctorRating(id);
+                setRating(ratingData);
+            } catch (error) {
+                console.error('Failed to fetch rating:', error);
+            } finally {
+                setRatingLoading(false);
+            }
+        };
+        fetchRating();
+    }, [id]);
+
+    const { execute: bookAppointment, loading: bookingLoading } = useMinLoadingAction({
         minLoadingTime: 1500,
         onSuccess: (result) => {
             toast.success(t('booking.successMessage'));
@@ -41,15 +61,67 @@ const DoctorDetailPage = () => {
             toast.error(t('booking.selectScheduleFirst'));
             return;
         }
-
         bookAppointment(() => appointmentApi.bookAppointment(selectedSchedule.id, symptoms));
     };
 
+    // 🟢 Hiển thị số sao dạng ★
+    const renderStars = (ratingValue: number) => {
+        const fullStars = Math.floor(ratingValue);
+        const hasHalfStar = ratingValue % 1 !== 0;
+        const emptyStars = 5 - Math.ceil(ratingValue);
+
+        return (
+            <div className="flex items-center gap-0.5">
+                {[...Array(fullStars)].map((_, i) => (
+                    <span key={`full-${i}`} className="text-yellow-400">★</span>
+                ))}
+                {hasHalfStar && (
+                    <span className="text-yellow-400">½</span>
+                )}
+                {[...Array(emptyStars)].map((_, i) => (
+                    <span key={`empty-${i}`} className="text-gray-300 dark:text-gray-600">☆</span>
+                ))}
+            </div>
+        );
+    };
+
+    // 🟢 Hiển thị rating summary
+    const renderRatingSummary = () => {
+        if (ratingLoading) {
+            return (
+                <div className="flex items-center gap-2">
+                    <div className="w-20 h-5 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                </div>
+            );
+        }
+
+        if (!rating || rating.totalReviews === 0) {
+            return (
+                <div className="flex items-center gap-2">
+                    <span className="text-gray-400">⭐</span>
+                    <span className="text-sm text-gray-500">{t('doctor.noRatingYet')}</span>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1">
+                    {renderStars(rating.averageRating)}
+                </div>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {rating.averageRating.toFixed(1)}/5
+                </span>
+                <span className="text-sm text-gray-500">
+                    ({rating.totalReviews} {t('doctor.reviews')})
+                </span>
+            </div>
+        );
+    };
 
     if (loading) {
         return <LoadingSpinner size="lg" />;
     }
-
 
     if (!doctor) {
         return (
@@ -79,12 +151,19 @@ const DoctorDetailPage = () => {
                             <div className="flex-1 text-center md:text-left">
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{doctor.fullName}</h1>
                                 <p className="text-primary font-medium mt-1">{doctor.specialtyName}</p>
+                                
+                                {/* 🟢 RATING DISPLAY */}
+                                <div className="mt-2">
+                                    {renderRatingSummary()}
+                                </div>
+
                                 <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
                                     <span className="text-yellow-500">⭐</span>
                                     <span className="text-gray-600 dark:text-gray-400">
                                         {doctor.rating > 0 ? doctor.rating.toFixed(1) : t('doctor.noRating')}
                                     </span>
                                 </div>
+
                                 <div className="mt-4 space-y-2 text-gray-600 dark:text-gray-400">
                                     <p>🏥 {doctor.hospitalName}</p>
                                     <p>📍 {doctor.address}</p>
@@ -124,7 +203,6 @@ const DoctorDetailPage = () => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         {t('booking.selectSchedule')}
                     </h3>
-
                     {doctor.schedules.length === 0 ? (
                         <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                             {t('booking.noSchedules')}
@@ -138,7 +216,7 @@ const DoctorDetailPage = () => {
                                     className={`p-3 rounded-lg border-2 transition text-left ${selectedSchedule?.id === schedule.id
                                         ? 'border-primary bg-primary/10 dark:bg-primary/20'
                                         : 'border-gray-200 dark:border-gray-700 hover:border-primary'
-                                        }`}
+                                    }`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -150,7 +228,7 @@ const DoctorDetailPage = () => {
                                             </p>
                                         </div>
                                         <p className="text-sm font-semibold text-primary">
-                                            {schedule.price.toLocaleString()}đ
+                                            {formatPrice(schedule.price)}
                                         </p>
                                     </div>
                                     <p className="text-xs text-gray-400 mt-1">
