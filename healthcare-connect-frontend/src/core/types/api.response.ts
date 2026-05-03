@@ -371,6 +371,12 @@ export interface DoctorResponse {
     hospitalAddress: string;
 }
 
+export interface PaymentStatusResponse {
+    status: string;
+    paid: boolean;
+    payUrl?: string;  
+}
+
 
 // export interface WalkInAppointmentResponse {
 //     appointment: {

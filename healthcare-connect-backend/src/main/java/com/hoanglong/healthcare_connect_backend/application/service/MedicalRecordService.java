@@ -281,13 +281,26 @@ public class MedicalRecordService {
     }
 
     /**
+     * Lấy bệnh án theo ID (medical record id)
+     */
+    public MedicalRecordResponse getById(UUID id) {
+        MedicalRecord record = medicalRecordRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MEDICAL_RECORD_NOT_FOUND));
+
+        // KIỂM TRA QUYỀN TRUY CẬP
+        checkAccessPermission(record);
+
+        return convertToResponse(record);
+    }
+
+    /**
      * Lấy danh sách bệnh án theo patient ID
      */
     public List<MedicalRecordResponse> getByPatientId(UUID patientId) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         String currentRole = SecurityUtils.getCurrentUserRole();
 
-        // 🟢 KIỂM TRA QUYỀN: Chỉ patient đó hoặc doctor/manager/admin mới xem được
+        // KIỂM TRA QUYỀN: Chỉ patient đó hoặc doctor/manager/admin mới xem được
         if (!currentRole.equals("ROLE_ADMIN") &&
                 !currentRole.equals("ROLE_DOCTOR") &&
                 !currentRole.equals("ROLE_HOSPITAL_MANAGER") &&

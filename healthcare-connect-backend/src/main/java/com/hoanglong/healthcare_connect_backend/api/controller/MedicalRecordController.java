@@ -23,10 +23,6 @@ public class MedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
 
-    /**
-     * Tạo bệnh án mới (Chỉ DOCTOR)
-     * POST /api/medical-records
-     */
     @PostMapping
     @PreAuthorize("hasRole('DOCTOR')")
     public ApiResponse<MedicalRecordResponse> createMedicalRecord(
@@ -44,10 +40,6 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Lấy bệnh án theo appointment ID
-     * GET /api/medical-records/appointment/{appointmentId}
-     */
     @GetMapping("/appointment/{appointmentId}")
     @PreAuthorize("hasAnyRole('DOCTOR', 'PATIENT', 'HOSPITAL_MANAGER', 'RECEPTIONIST', 'ADMIN')")
     public ApiResponse<MedicalRecordResponse> getByAppointmentId(
@@ -65,17 +57,14 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Lấy bệnh án theo ID
-     * GET /api/medical-records/{id}
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('DOCTOR', 'PATIENT', 'HOSPITAL_MANAGER', 'RECEPTIONIST', 'ADMIN')")
     public ApiResponse<MedicalRecordResponse> getById(@PathVariable UUID id) {
         log.info("API: Lấy bệnh án theo ID: {}", id);
 
-        // TODO: Thêm method getById vào service nếu cần
-        MedicalRecordResponse response = medicalRecordService.getByAppointmentId(id);
+        // TODO: Thêm method getById vào service
+//MedicalRecordResponse response = medicalRecordService.getByAppointmentId(id);
+        MedicalRecordResponse response = medicalRecordService.getById(id);
 
         return ApiResponse.<MedicalRecordResponse>builder()
                 .status("success")
@@ -85,10 +74,6 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Lấy danh sách bệnh án của bệnh nhân hiện tại
-     * GET /api/medical-records/my-records
-     */
     @GetMapping("/my-records")
     @PreAuthorize("hasRole('PATIENT')")
     public ApiResponse<List<MedicalRecordResponse>> getMyMedicalRecords() {
@@ -105,10 +90,6 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Lấy danh sách bệnh án theo patient ID (Cho DOCTOR)
-     * GET /api/medical-records/patient/{patientId}
-     */
     @GetMapping("/patient/{patientId}")
     @PreAuthorize("hasAnyRole('DOCTOR', 'HOSPITAL_MANAGER', 'ADMIN')")
     public ApiResponse<List<MedicalRecordResponse>> getByPatientId(
@@ -126,10 +107,6 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Cập nhật bệnh án
-     * PUT /api/medical-records/{id}
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('DOCTOR')")
     public ApiResponse<MedicalRecordResponse> updateMedicalRecord(
@@ -148,10 +125,6 @@ public class MedicalRecordController {
                 .build();
     }
 
-    /**
-     * Xóa bệnh án (Soft delete)
-     * DELETE /api/medical-records/{id}
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public ApiResponse<Void> deleteMedicalRecord(@PathVariable UUID id) {

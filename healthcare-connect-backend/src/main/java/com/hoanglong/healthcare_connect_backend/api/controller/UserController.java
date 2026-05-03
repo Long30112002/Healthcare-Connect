@@ -2,10 +2,11 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.invitation.ApplicationResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.ChangePasswordRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.user.UserResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
-import com.hoanglong.healthcare_connect_backend.application.service.UserService; // Giả sử bạn có UserService
+import com.hoanglong.healthcare_connect_backend.application.service.UserService;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
@@ -35,6 +36,18 @@ public class UserController {
                 .status("success")
                 .code(200)
                 .data(userService.getMyInfo())
+                .build();
+    }
+
+    @PostMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        userService.changePassword(currentUserId, request);
+        return ApiResponse.<Void>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Đổi mật khẩu thành công!")
                 .build();
     }
 

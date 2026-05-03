@@ -85,7 +85,7 @@ const Header = () => {
   ];
 
   // Menu riêng tư (thêm vào khi đã login) - KHÔNG hiển thị cho RECEPTIONIST
-  const privateMenuItems = user && user.role !== 'RECEPTIONIST' ? [
+  const privateMenuItems = user && user.role === 'PATIENT' ? [
     { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: '📋' },
   ] : [];
 
@@ -153,7 +153,7 @@ const Header = () => {
                       className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
                         ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                      }`}
+                        }`}
                       title={item.label}
                     >
                       <span className="text-base xl:text-lg">{item.icon}</span>
@@ -170,7 +170,7 @@ const Header = () => {
                     className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap text-sm xl:text-base ${isActive(item.path)
                       ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                      }`}
                     title={item.label}
                   >
                     <span className="text-base xl:text-lg">{item.icon}</span>
@@ -408,7 +408,7 @@ const Header = () => {
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition w-full text-left ${isActive(item.path)
                       ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                      }`}
                   >
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
@@ -422,7 +422,7 @@ const Header = () => {
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${isActive(item.path)
                     ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-medium'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span>{item.icon}</span>

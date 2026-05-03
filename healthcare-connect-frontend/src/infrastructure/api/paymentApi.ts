@@ -1,14 +1,9 @@
+import type { PaymentQRResponse, PaymentStatusResponse } from '../../core/types/api.response';
 import axiosClient from './axiosClient';
-
-export interface PaymentStatusResponse {
-    status: string;
-    paid: boolean;
-    payUrl?: string;  
-}
 
 
 export const paymentApi = {
-    createPayment: async (appointmentId: string): Promise<string> => {
+    createPayment: async (appointmentId: string): Promise<PaymentQRResponse> => {
         const response = await axiosClient.post(`/payments/momo/create-payment/${appointmentId}`);
         return response.data?.data;
     },

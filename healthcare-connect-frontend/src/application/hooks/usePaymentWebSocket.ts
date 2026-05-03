@@ -15,7 +15,7 @@ const usePaymentWebSocket = (appointmentId: string, onPaymentSuccess: () => void
             debug: (str) => console.log('WebSocket:', str),
             reconnectDelay: 5000,
             onConnect: () => {
-                console.log('WebSocket connected');
+                // console.log('WebSocket connected');
                 client.subscribe(`/topic/payment/${appointmentId}`, (message) => {
                     const data = JSON.parse(message.body);
                     console.log('📨 Payment notification:', data);

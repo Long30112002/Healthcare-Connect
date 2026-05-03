@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.appointment.Walk
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.*;
 import com.hoanglong.healthcare_connect_backend.application.dto.patient.PatientResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateDoctorInfoRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
@@ -19,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +52,27 @@ public class DoctorService {
         Doctor doctor = doctorRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
         return doctorMapper.toDoctorResponse(doctor);
+    }
+
+    @Transactional
+    public Doctor updateMyInfo(UUID currentUserId, UpdateDoctorInfoRequest request) {
+        Doctor doctor = doctorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        if (request.getDegree() != null) {
+            doctor.setDegree(request.getDegree());
+        }
+        if (request.getExperienceYears() != null) {
+            doctor.setExperienceYears(request.getExperienceYears());
+        }
+        if (request.getBiography() != null) {
+            doctor.setBiography(request.getBiography());
+        }
+        if (request.getConsultationFee() != null) {
+            doctor.setConsultationFee(request.getConsultationFee());
+        }
+
+        return doctorRepository.save(doctor);
     }
 
     public List<Map<String, Object>> getAllMyPatients() {

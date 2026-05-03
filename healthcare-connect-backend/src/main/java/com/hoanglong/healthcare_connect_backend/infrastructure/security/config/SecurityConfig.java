@@ -67,6 +67,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request -> request
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/doctors/public/**").permitAll()
                 .requestMatchers("/api/auth/**", "/api/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/verify").permitAll()
                 .requestMatchers("/api/payments/momo/**").permitAll()
@@ -179,17 +180,17 @@ public class SecurityConfig {
         };
     }
 
-    @Bean
-    public Filter corsFilter() {
-        return (request, response, chain) -> {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setHeader("Access-Control-Allow-Origin", frontendUrl);
-            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
-            httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-            httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-            chain.doFilter(request, response);
-        };
-    }
+//    @Bean
+//    public Filter corsFilter() {
+//        return (request, response, chain) -> {
+//            HttpServletResponse httpResponse = (HttpServletResponse) response;
+//            httpResponse.setHeader("Access-Control-Allow-Origin", frontendUrl);   
+//            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+//            httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+//            httpResponse.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+//            chain.doFilter(request, response);
+//        };
+//    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

@@ -6,6 +6,7 @@ import Button from '../../components/shared/Button';
 import toast from 'react-hot-toast';
 import { paymentApi } from '../../../infrastructure/api/paymentApi';
 import usePaymentWebSocket from '../../../application/hooks/usePaymentWebSocket';
+import type { PaymentQRResponse } from '../../../core/types/api.response';
 
 const PaymentPage = () => {
     const { appointmentId } = useParams<{ appointmentId: string }>();
@@ -42,9 +43,9 @@ const PaymentPage = () => {
                 if (existingPayment.payUrl) {
                     setPaymentUrl(existingPayment.payUrl);
                 } else {
-                    const payUrl = await paymentApi.createPayment(appointmentId);
-                    if (payUrl && payUrl.startsWith('http')) {
-                        setPaymentUrl(payUrl);
+                    const paymentResponse: PaymentQRResponse = await paymentApi.createPayment(appointmentId);
+                    if (paymentResponse.payUrl && paymentResponse.payUrl.startsWith('http')) {
+                        setPaymentUrl(paymentResponse.payUrl);
                     } else {
                         toast.error(t('payment.createFailed'));
                     }

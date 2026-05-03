@@ -3,11 +3,12 @@ package com.hoanglong.healthcare_connect_backend.api.controller;
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentDto;
-import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateDoctorInfoRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
+import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ScheduleMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
@@ -22,7 +23,6 @@ import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,12 +47,12 @@ public class DoctorController
     private final CreateScheduleUseCase createScheduleUseCase;
     private final DoctorService doctorService;
     private final AppointmentService appointmentService;
-    private final ReceptionistService receptionistService;
     private final ScheduleService scheduleService;
     private final ScheduleMapper scheduleMapper;
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final DoctorMapper doctorMapper;
 
     @GetMapping("/my-info")
     @PreAuthorize("hasRole('DOCTOR')")
@@ -63,6 +63,19 @@ public class DoctorController
                 .code(HttpStatus.OK.value())
                 .message("Lấy thông tin bác sĩ thành công!")
                 .data(response)
+                .build();
+    }
+
+    @PutMapping("/my-info")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ApiResponse<DoctorResponse> updateMyInfo(@RequestBody @Valid UpdateDoctorInfoRequest request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        Doctor updatedDoctor = doctorService.updateMyInfo(currentUserId, request);
+        return ApiResponse.<DoctorResponse>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Cập nhật thông tin bác sĩ thành công!")
+                .data(doctorMapper.toDoctorResponse(updatedDoctor))
                 .build();
     }
 
