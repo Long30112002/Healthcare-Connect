@@ -142,6 +142,34 @@ export interface DoctorListItem {
     availableSchedules: number;
 }
 
+
+export interface PrescriptionItem {
+    id: string;
+    medicineId: string;
+    medicineName: string;
+    medicineCode: string;
+    medicineUnit: string;
+    quantity: number;
+    dosage: string;
+    frequency: string;
+    duration: number;
+    instructions: string;
+    unitPrice: number;
+    totalPrice: number;
+}
+
+export interface Prescription {
+    id: string;
+    prescriptionDate: number[];
+    note: string;
+    totalAmount: number;
+    status: string;
+    validUntil: number[];
+    valid: boolean;
+    items: PrescriptionItem[];
+}
+
+
 export interface Medicine {
     id: string;
     code: string;

@@ -29,21 +29,20 @@ const Header = () => {
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
+    if (path === '/doctors') {
+      return currentPath === '/doctors';
+    }
     if (path === '/') {
       if (isAuthenticated) {
         const dashboardPaths = [
-          '/dashboard',
-          '/doctor/dashboard',
-          '/receptionist/dashboard',
-          '/admin/dashboard',
-          '/manager/dashboard',
+          '/dashboard', '/doctor/dashboard', '/receptionist/dashboard',
+          '/admin/dashboard', '/manager/dashboard'
         ];
-        if (dashboardPaths.includes(currentPath)) {
-          return true;
-        }
+        if (dashboardPaths.includes(currentPath)) return true;
       }
       return currentPath === '/';
     }
+
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 

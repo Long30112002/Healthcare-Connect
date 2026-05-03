@@ -9,6 +9,7 @@ import LanguageToggle from '../components/shared/LanguageToggle';
 import toast from 'react-hot-toast';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import type { LoginResponse } from '../../core/types/api.response';
+import axiosClient from '../../infrastructure/api/axiosClient';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -40,6 +41,7 @@ const LoginPage = () => {
     }, [searchParams, t]);
 
     const { execute: handleLogin, loading } = useMinLoadingAction<LoginResponse>({
+
         minLoadingTime: 1000,
         errorMessage: (error) => {
             const errorKey = error.response?.data?.errorKey;
@@ -58,6 +60,11 @@ const LoginPage = () => {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        console.log('=== LOGIN DEBUG ===');
+        console.log('Email:', email);
+        console.log('Password:', password ? '***' : 'empty');
+        console.log('Base URL:', axiosClient.defaults.baseURL);
 
         if (!email.trim()) {
             toast.error(t('error.EMAIL_REQUIRED'));

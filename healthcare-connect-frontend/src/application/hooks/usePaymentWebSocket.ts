@@ -5,7 +5,7 @@ import SockJS from 'sockjs-client';
 const usePaymentWebSocket = (appointmentId: string, onPaymentSuccess: () => void) => {
     const clientRef = useRef<Client | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const hasNotifiedRef = useRef(false);  // 👈 Thêm ref để tránh gọi nhiều lần
+    const hasNotifiedRef = useRef(false);  
 
     useEffect(() => {
         if (!appointmentId) return;
@@ -18,10 +18,10 @@ const usePaymentWebSocket = (appointmentId: string, onPaymentSuccess: () => void
                 // console.log('WebSocket connected');
                 client.subscribe(`/topic/payment/${appointmentId}`, (message) => {
                     const data = JSON.parse(message.body);
-                    console.log('📨 Payment notification:', data);
+                    // console.log('📨 Payment notification:', data);
 
                     if ((data.status === 'PAID' || data.status === 'SUCCESS') && !hasNotifiedRef.current) {
-                        hasNotifiedRef.current = true;  // 👈 Chỉ gọi 1 lần
+                        hasNotifiedRef.current = true;  
                         setIsProcessing(true);
                         setTimeout(() => {
                             onPaymentSuccess();
