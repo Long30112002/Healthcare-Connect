@@ -261,8 +261,8 @@ const Header = () => {
                       >
                         <span className="text-xl">👤</span>
                         <div>
-                          <p className="font-medium">{t('nav.profile')}</p>
-                          <p className="text-xs text-gray-400">Quản lý thông tin cá nhân</p>
+                          <p className="font-medium">{t('profile.title')}</p>
+                          <p className="text-xs text-gray-400">{t('profile.subtitle')}</p>
                         </div>
                       </Link>
                       <Link
@@ -272,8 +272,8 @@ const Header = () => {
                       >
                         <span className="text-xl">⚙️</span>
                         <div>
-                          <p className="font-medium">{t('nav.settings')}</p>
-                          <p className="text-xs text-gray-400">Cài đặt ứng dụng</p>
+                          <p className="font-medium">{t('settings.title')}</p>
+                          <p className="text-xs text-gray-400">{t('settings.appearance')}</p>
                         </div>
                       </Link>
 

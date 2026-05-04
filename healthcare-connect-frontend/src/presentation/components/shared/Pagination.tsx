@@ -50,7 +50,7 @@ const Pagination = ({
         lg: 'px-3 py-2 text-base'
     };
 
-    // 👉 NẾU LÀ MOBILE HOẶC VARIANT=SIMPLE -> HIỂN THỊ ĐƠN GIẢN
+    // NẾU LÀ MOBILE HOẶC VARIANT=SIMPLE -> HIỂN THỊ ĐƠN GIẢN
     if (isMobile || variant === 'simple') {
         return (
             <div className={`flex items-center justify-center gap-3 p-3 border-t border-gray-200 dark:border-gray-700 ${className}`}>

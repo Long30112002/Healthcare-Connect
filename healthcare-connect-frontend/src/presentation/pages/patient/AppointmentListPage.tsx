@@ -69,6 +69,7 @@ const AppointmentListPage = () => {
 
     // MỞ MODAL HỦY LỊCH
     const openCancelModal = (appointment: Appointment) => {
+
         setCancelModal({
             open: true,
             appointmentId: appointment.id,

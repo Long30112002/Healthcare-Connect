@@ -931,6 +931,7 @@
     "requiredNewPassword": "Please enter new password",
     "passwordMinLength": "Password must be at least 8 characters",
     "passwordMismatch": "Passwords do not match"
+
   },
   "appointment": {
     "payNow": "Pay Now",

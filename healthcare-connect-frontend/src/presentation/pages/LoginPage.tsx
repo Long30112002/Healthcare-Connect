@@ -61,11 +61,6 @@ const LoginPage = () => {
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log('=== LOGIN DEBUG ===');
-        console.log('Email:', email);
-        console.log('Password:', password ? '***' : 'empty');
-        console.log('Base URL:', axiosClient.defaults.baseURL);
-
         if (!email.trim()) {
             toast.error(t('error.EMAIL_REQUIRED'));
             return;

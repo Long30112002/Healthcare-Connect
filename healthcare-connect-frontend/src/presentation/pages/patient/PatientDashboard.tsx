@@ -1,45 +1,71 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../application/context/AuthContext";
-import { useAppTranslation } from "../../../application/hooks/useAppTranslation";
-import useFetch from "../../../application/hooks/useFetch";
-import { AppointmentStatus } from "../../../core/constants/enums";
-import type { Appointment, VisitedDoctor } from "../../../core/types";
-import AISuggestionCard from "../../components/patient/AISuggestionCard";
-import DoctorVisitedCard from "../../components/patient/DoctorVisitedCard";
-import SectionHeader from "./SectionHeader";
-import StatCard from "./StatCard";
-import UpcomingAppointmentCard from "../../components/patient/UpcomingAppointmentCard";
-import DataWrapper from "../../components/shared/DataWrapper";
-
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
+import { useAuth } from '../../../application/context/AuthContext';
+import useFetch from '../../../application/hooks/useFetch';
+import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
+import { formatDateTime, formatPrice } from '../../../shared/utils/dateUtils';
+import toast from 'react-hot-toast';
+import UpcomingAppointmentCard from '../../components/patient/UpcomingAppointmentCard';
+import DoctorVisitedCard from '../../components/patient/DoctorVisitedCard';
+import AISuggestionCard from '../../components/patient/AISuggestionCard';
+import DataWrapper from '../../components/shared/DataWrapper';
+import Modal from '../../components/shared/Modal';
+import type { Appointment, VisitedDoctor } from '../../../core/types';
+import { AppointmentStatus } from '../../../core/constants/enums';
+import SectionHeader from './SectionHeader';
+import StatCard from './StatCard';
+import axiosClient from '../../../infrastructure/api/axiosClient';
 
 const PatientDashboard = () => {
     const { user } = useAuth();
     const { t } = useAppTranslation();
     const navigate = useNavigate();
 
-    const { 
-        data: appointmentsData, 
-        loading: appointmentsLoading, 
+    // State cho Modal hủy lịch
+    const [cancelModal, setCancelModal] = useState<{
+        open: boolean;
+        appointmentId: string | null;
+        doctorName: string;
+        appointmentDate: string;
+        appointmentPrice: number;
+    }>({
+        open: false,
+        appointmentId: null,
+        doctorName: '',
+        appointmentDate: '',
+        appointmentPrice: 0
+    });
+    const [cancellingId, setCancellingId] = useState<string | null>(null);
+    const [modalLoading, setModalLoading] = useState(false); 
+
+    // Fetch appointments
+    const {
+        data: appointmentsData,
+        loading: appointmentsLoading,
         error: appointmentsError,
-        execute: refreshAppointments 
+        execute: refreshAppointments
     } = useFetch<{ content: Appointment[]; totalElements: number }>(
-        '/appointments/my-bookings', 
-        'GET', 
+        '/appointments/my-bookings',
+        'GET',
         { immediate: true }
     );
 
-    const { 
-        data: visitedDoctors, 
-        loading: doctorsLoading, 
+    // Fetch visited doctors
+    const {
+        data: visitedDoctors,
+        loading: doctorsLoading,
         error: doctorsError,
-        execute: refreshDoctors 
+        execute: refreshDoctors
     } = useFetch<VisitedDoctor[]>(
-        '/patients/visited-doctors', 
-        'GET', 
+        '/patients/visited-doctors',
+        'GET',
         { immediate: true }
     );
 
     const appointments = appointmentsData?.content || [];
+
+    // Lọc 3 lịch hẹn sắp tới
     const upcomingAppointments = appointments
         .filter(apt => apt.status !== AppointmentStatus.CANCELLED && apt.status !== AppointmentStatus.COMPLETED)
         .slice(0, 3);
@@ -50,26 +76,92 @@ const PatientDashboard = () => {
         totalPrescriptions: 0,
     };
 
+    // MỞ MODAL HỦY LỊCH
+    const handleOpenCancelModal = async (appointmentId: string) => {
+        if (!appointmentId) {
+            toast.error(t('common.invalidData'));
+            return;
+        }
+
+        setModalLoading(true);
+        try {
+            const response = await axiosClient.get(`/appointments/${appointmentId}`);
+            const detail = response.data.data;
+
+            if (!detail || !detail.doctorName) {
+                toast.error(t('common.invalidData'));
+                return;
+            }
+
+            setCancelModal({
+                open: true,
+                appointmentId: detail.id,
+                doctorName: detail.doctorName,
+                appointmentDate: formatDateTime(detail.startTime, 'dd/mm/yyyy HH:MM'),
+                appointmentPrice: detail.price
+            });
+        } catch (error) {
+            toast.error(t('common.invalidData'));
+        } finally {
+            setModalLoading(false);
+        }
+    };
+
+    // XỬ LÝ XÁC NHẬN HỦY LỊCH
+    const handleConfirmCancel = async () => {
+        if (!cancelModal.appointmentId) return;
+
+        setCancellingId(cancelModal.appointmentId);
+        try {
+            await appointmentApi.cancelAppointment(cancelModal.appointmentId);
+            toast.success(t('appointment.cancelSuccess'));
+            refreshAppointments();
+            setCancelModal({
+                open: false,
+                appointmentId: null,
+                doctorName: '',
+                appointmentDate: '',
+                appointmentPrice: 0
+            });
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || t('appointment.cancelFailed'));
+        } finally {
+            setCancellingId(null);
+        }
+    };
+
+    // Đóng modal
+    const handleCloseCancelModal = () => {
+        setCancelModal({
+            open: false,
+            appointmentId: null,
+            doctorName: '',
+            appointmentDate: '',
+            appointmentPrice: 0
+        });
+    };
+
+    // Thanh toán
     const handlePay = (appointmentId: string) => {
         navigate(`/payment/${appointmentId}`);
     };
 
-    const handleCancel = (appointmentId: string) => {
-        console.log('Cancel appointment:', appointmentId);
-    };
-
+    // Xem chi tiết
     const handleViewAppointment = (appointmentId: string) => {
         navigate(`/appointments/${appointmentId}`);
     };
 
+    // Đặt lại lịch
     const handleBookAgain = (doctorId: string) => {
-        navigate(`/doctors/${doctorId}/book`);
+        navigate(`/doctors/${doctorId}`);
     };
 
+    // AI gợi ý
     const handleAISuggestion = (suggestion: string) => {
         navigate('/doctors', { state: { suggestedSpecialty: suggestion } });
     };
 
+    // Lời chào theo giờ
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return '🌅 ' + t('dashboard.morning');
@@ -88,12 +180,11 @@ const PatientDashboard = () => {
             </div>
 
             <div className="relative z-10 container mx-auto px-4 py-6 space-y-8">
-                
-                {/* Welcome Section - Đẹp hơn */}
+                {/* Welcome Section */}
                 <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-2xl shadow-xl">
                     <div className="absolute top-0 right-0 opacity-10">
                         <svg className="w-64 h-64" fill="white" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" />
                         </svg>
                     </div>
                     <div className="relative z-10 p-6 md:p-8">
@@ -119,7 +210,6 @@ const PatientDashboard = () => {
                             </div>
                         </div>
                     </div>
-                    {/* Wave decoration */}
                     <div className="absolute bottom-0 left-0 right-0">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" className="w-full h-8">
                             <path fill="#f0f9ff" fillOpacity="1" d="M0,32L80,37.3C160,43,320,53,480,48C640,43,800,21,960,21C1120,21,1280,43,1360,53.3L1440,64L1440,60L1360,60C1280,60,1120,60,960,60C800,60,640,60,480,60C320,60,160,60,80,60L0,60Z"></path>
@@ -127,7 +217,7 @@ const PatientDashboard = () => {
                     </div>
                 </div>
 
-                {/* Stats Cards - Gradient màu */}
+                {/* Stats Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     <StatCard
                         icon="📋"
@@ -180,7 +270,7 @@ const PatientDashboard = () => {
                                         key={appointment.id}
                                         appointment={appointment}
                                         onPay={handlePay}
-                                        onCancel={handleCancel}
+                                        onCancel={handleOpenCancelModal}
                                         onView={handleViewAppointment}
                                         payText={t('dashboard.pay')}
                                         cancelText={t('dashboard.cancel')}
@@ -242,6 +332,35 @@ const PatientDashboard = () => {
                     />
                 </div>
             </div>
+
+            {/* MODAL XÁC NHẬN HỦY LỊCH */}
+            <Modal
+                isOpen={cancelModal.open}
+                onClose={handleCloseCancelModal}
+                onConfirm={handleConfirmCancel}
+                title={t('appointment.cancelConfirmTitle')}
+                variant="danger"
+                confirmText={t('appointment.cancel')}
+                cancelText={t('common.cancel')}
+                loading={cancellingId !== null || modalLoading}
+            >
+                <div className="space-y-4">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            👨‍⚕️ <span className="font-medium">{cancelModal.doctorName}</span>
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            📅 {cancelModal.appointmentDate}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            💰 {formatPrice(cancelModal.appointmentPrice)}
+                        </p>
+                    </div>
+                    <p className="text-xs text-yellow-600 dark:text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg">
+                        ⚠️ {t('appointment.cancelWarning')}
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };

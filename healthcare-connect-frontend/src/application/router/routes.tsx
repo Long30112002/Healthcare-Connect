@@ -21,7 +21,7 @@ import VisitedDoctorsPage from '../../presentation/pages/patient/VisitedDoctorsP
 import MyHealthPage from '../../presentation/pages/patient/MyHealthPage';
 import MedicalRecordDetailPage from '../../presentation/pages/patient/MedicalRecordDetailPage';
 import PrescriptionsPage from '../../presentation/pages/patient/PrescriptionsPage';
-// import AppointmentDetailPage from '../../presentation/pages/doctor/AppointmentDetailPage';
+import AppointmentDetailPage from '../../presentation/pages/patient/AppointmentDetailPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -76,6 +76,7 @@ export const routes: RouteConfig[] = [
   { path: '/my-health', element: <MyHealthPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/medical-records/:id', element: <MedicalRecordDetailPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/prescriptions', element: <PrescriptionsPage />, layout: true, roles: [UserRole.PATIENT] },
+  { path: '/appointments/:id', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.PATIENT] },
 
   { path: '/receptionist/dashboard', element: <ReceptionistDashboard />, layout: true, roles: [UserRole.RECEPTIONIST] },
   { path: '/receptionist/statistics', element: <ReceptionistStatistics />, layout: true, roles: [UserRole.RECEPTIONIST] },
