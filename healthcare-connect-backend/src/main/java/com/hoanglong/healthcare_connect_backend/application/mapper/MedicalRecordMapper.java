@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.mapper;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.medicine.MedicalRecordResponse;
 import com.hoanglong.healthcare_connect_backend.core.entity.MedicalRecord;
+import com.hoanglong.healthcare_connect_backend.core.entity.Prescription;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -27,15 +28,15 @@ public abstract class MedicalRecordMapper {
     @Mapping(source = "hospital.id", target = "hospitalId")
     @Mapping(source = "hospital.name", target = "hospitalName")
     @Mapping(source = "hospital.address", target = "hospitalAddress")
-    @Mapping(target = "vitalSigns", ignore = true) // Xử lý riêng
-    @Mapping(target = "prescriptions", ignore = true) // Xử lý riêng
+    @Mapping(target = "vitalSigns", ignore = true)
+    @Mapping(target = "prescriptions", ignore = true)
     @Mapping(source = "prescriptions", target = "prescriptionCount", qualifiedByName = "countPrescriptions")
     public abstract MedicalRecordResponse toResponse(MedicalRecord entity);
 
     public abstract List<MedicalRecordResponse> toResponseList(List<MedicalRecord> entities);
 
     @Named("countPrescriptions")
-    protected Integer countPrescriptions(List<com.hoanglong.healthcare_connect_backend.core.entity.Prescription> prescriptions) {
+    protected Integer countPrescriptions(List<Prescription> prescriptions) {
         return prescriptions != null ? prescriptions.size() : 0;
     }
 

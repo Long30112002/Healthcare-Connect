@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axiosClient from '../../infrastructure/api/axiosClient';
 
 interface UseFetchOptions<T> {
@@ -6,7 +6,7 @@ interface UseFetchOptions<T> {
     initialData?: T | null;
     onSuccess?: (data: T) => void;
     onError?: (error: any) => void;
-    deps?: any[];  
+    deps?: any[];
 }
 
 interface UseFetchReturn<T> {
@@ -32,19 +32,23 @@ function useFetch<T = any>(
         setError(null);
     }, [options?.initialData]);
 
-    const execute = useCallback(async (customUrl?: string) => {
+    const methodRef = useRef(method);
+    useEffect(() => {
+        methodRef.current = method;
+    }, [method]);
+
+    const execute = useCallback(async (customUrl?: string, requestData?: any, config?: any) => {
         const finalUrl = customUrl || url;
         if (!finalUrl) return;
-        
+
         setLoading(true);
         setError(null);
 
         try {
             let response;
-            const requestData = arguments[1];
-            const config = arguments[2];
+            const currentMethod = methodRef.current;
 
-            switch (method) {
+            switch (currentMethod) {
                 case 'GET':
                     response = await axiosClient.get(finalUrl, config);
                     break;
@@ -61,7 +65,7 @@ function useFetch<T = any>(
                     response = await axiosClient.delete(finalUrl, config);
                     break;
                 default:
-                    throw new Error(`Unsupported method: ${method}`);
+                    throw new Error(`Unsupported method: ${currentMethod}`);
             }
 
             const responseData = response.data?.data ?? response.data;
@@ -74,13 +78,12 @@ function useFetch<T = any>(
         } finally {
             setLoading(false);
         }
-    }, [method, options]);
+    }, [url, options]);
 
     const refetch = useCallback(() => {
         execute();
     }, [execute]);
 
-    //Tự động gọi khi url hoặc deps thay đổi
     useEffect(() => {
         if (options?.immediate !== false && url) {
             execute();

@@ -5,7 +5,7 @@ interface UseTabWithUrlOptions<T extends string> {
     paramName: string;
     validValues: T[];
     defaultValue: T;
-    pageZeroBased?: boolean;  // 🟢 THÊM DÒNG NÀY
+    pageZeroBased?: boolean; 
 }
 
 interface UseTabWithUrlReturn<T extends string> {
@@ -20,7 +20,7 @@ export const useTabWithUrl = <T extends string>({
     paramName,
     validValues,
     defaultValue,
-    pageZeroBased = true  // 🟢 THÊM DÒNG NÀY, mặc định là true (bắt đầu từ 0)
+    pageZeroBased = true 
 }: UseTabWithUrlOptions<T>): UseTabWithUrlReturn<T> => {
     const navigate = useNavigate();
     const location = useLocation();

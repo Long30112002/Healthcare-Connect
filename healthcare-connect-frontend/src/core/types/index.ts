@@ -117,6 +117,7 @@ export interface Appointment {
     roomNumber?: string;
     roomFloor?: number;
     checkInTime?: number[];
+    cancelReason?: string;
 }
 
 export interface VisitedDoctor {
