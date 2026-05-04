@@ -237,7 +237,8 @@
     "noReviews": "Chưa có đánh giá nào",
     "noReviewsDesc": "Bạn chưa có đánh giá nào từ bệnh nhân",
     "totalReviews": "{count} đánh giá",
-    "appointment": "Lịch hẹn"
+    "appointment": "Lịch hẹn",
+    "noReviewsYet": "Chưa có đánh giá nào, hãy cố gắng khám bệnh tốt để nhận được đánh giá từ bệnh nhân!"
   },
   "patient": {
     "detailTitle": "Chi tiết bệnh nhân",
@@ -303,7 +304,8 @@
     "noSearchResult": "Không tìm thấy bệnh án",
     "noSearchResultDesc": "Vui lòng thử lại với từ khóa khác",
     "clearSearch": "Xóa tìm kiếm",
-    "viewDetail": "Xem chi tiết"
+    "viewDetail": "Xem chi tiết",
+    "bookNow": "Đặt lịch khám"
   },
   "payment": {
     "title": "Thanh toán",

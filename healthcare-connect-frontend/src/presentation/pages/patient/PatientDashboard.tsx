@@ -70,6 +70,7 @@ const PatientDashboard = () => {
         .filter(apt => apt.status !== AppointmentStatus.CANCELLED && apt.status !== AppointmentStatus.COMPLETED)
         .slice(0, 3);
 
+        
     const stats = {
         totalAppointments: appointmentsData?.totalElements || 0,
         totalDoctors: visitedDoctors?.length || 0,

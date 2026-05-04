@@ -238,7 +238,8 @@
     "noReviews": "No reviews yet",
     "noReviewsDesc": "You have no reviews from patients yet",
     "totalReviews": "{count} reviews",
-    "appointment": "Appointment"
+    "appointment": "Appointment",
+    "noReviewsYet": "No reviews yet, keep providing great care to receive feedback from patients!"
   },
   "patient": {
     "detailTitle": "Patient Details",
@@ -285,7 +286,8 @@
     "noSearchResult": "No medical records found",
     "noSearchResultDesc": "Please try a different keyword",
     "clearSearch": "Clear search",
-    "viewDetail": "View Details"
+    "viewDetail": "View Details",
+    "bookNow": "Book an appointment"
   },
   "visitedDoctors": {
     "title": "Visited Doctors",
