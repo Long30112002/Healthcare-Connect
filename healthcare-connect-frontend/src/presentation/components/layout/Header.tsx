@@ -21,6 +21,12 @@ const Header = () => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
+  const shouldShowContact = () => {
+    if (!isAuthenticated) return true;
+    if (user?.role === 'PATIENT') return true;
+    return false;
+  };
+
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);
     setIsMobileMenuOpen(false);
@@ -74,14 +80,23 @@ const Header = () => {
   };
 
   // Menu công khai (khi chưa login)
-  const publicMenuItems = !isAuthenticated ? [
+  const publicMenuItems = [
     { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
-    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
-    { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
-  ] : [
-    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
-    { path: '/contact', label: t('nav.contact'), shortLabel: '📞', icon: '📞' },
   ];
+
+  if (shouldShowContact()) {
+    publicMenuItems.push({
+      path: '/contact',
+      label: t('nav.contact'),
+      shortLabel: '📞',
+      icon: '📞'
+    });
+  }
+
+  // Menu chỉ hiển thị khi chưa login
+  const unauthenticatedMenuItems = !isAuthenticated ? [
+    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
+  ] : [];
 
   // Menu riêng tư (thêm vào khi đã login) - KHÔNG hiển thị cho RECEPTIONIST
   const privateMenuItems = user && user.role === 'PATIENT' ? [
@@ -114,7 +129,7 @@ const Header = () => {
   };
 
   const roleMenu = user?.role ? roleBasedItems[user.role] || [] : [];
-  const menuItems = [...publicMenuItems, ...privateMenuItems, ...roleMenu];
+  const menuItems = [...publicMenuItems, ...unauthenticatedMenuItems, ...privateMenuItems, ...roleMenu];
 
   // KIỂM TRA CÓ HIỂN THỊ MENU "APPLY" KHÔNG (CHỈ PATIENT MỚI THẤY)
   const showApplyMenu = user?.role === 'PATIENT';

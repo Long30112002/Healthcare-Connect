@@ -22,6 +22,7 @@ import MyHealthPage from '../../presentation/pages/patient/MyHealthPage';
 import MedicalRecordDetailPage from '../../presentation/pages/patient/MedicalRecordDetailPage';
 import PrescriptionsPage from '../../presentation/pages/patient/PrescriptionsPage';
 import AppointmentDetailPage from '../../presentation/pages/patient/AppointmentDetailPage';
+import ContactPage from '../../presentation/pages/ContactPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -59,8 +60,9 @@ export const routes: RouteConfig[] = [
   { path: '/about', element: <div>Về chúng tôi</div>, layout: true, isPublic: true },
   { path: '/privacy-policy', element: <div>Chính sách bảo mật</div>, layout: true, isPublic: true },
   { path: '/terms', element: <div>Điều khoản sử dụng</div>, layout: true, isPublic: true },
-  { path: '/contact', element: <div>Liên hệ</div>, layout: true, isPublic: true },
   { path: '/doctors/public', element: <div>Danh sách bác sĩ</div>, layout: true, isPublic: true },
+  { path: '/contact', element: <ContactPage />, layout: true, isPublic: true },
+
 
   // Private routes (require login)
   { path: '/dashboard', element: <PatientDashboard />, layout: true, roles: [UserRole.PATIENT] },
