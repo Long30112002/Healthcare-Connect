@@ -58,7 +58,47 @@
     "birthYear": "Year of birth",
     "paid": "Paid",
     "unpaid": "Unpaid",
-    "home": "Home"
+    "home": "Home",
+    "approve": "Approve",
+    "reject": "Reject",
+    "viewAll": "View all"
+  },
+  "manager": {
+    "dashboard": {
+      "title": "Hospital Management",
+      "subtitle": "Hospital activity overview"
+    },
+    "stats": {
+      "totalDoctors": "Doctors",
+      "totalReceptionists": "Receptionists",
+      "todayAppointments": "Today's Appointments",
+      "revenueThisMonth": "Revenue This Month",
+      "comparedToLastMonth": "vs last month",
+      "comparedToYesterday": "vs yesterday"
+    },
+    "doctors": {
+      "title": "Doctor Management",
+      "subtitle": "View and Browse Doctor List",
+      "list": "Doctor List",
+      "noDoctors": "No Doctors Found"
+    },
+    "pendingDoctors": "Pending Doctors",
+    "noPendingDoctors": "No pending doctors",
+    "todayAppointments": "Today's Appointments",
+    "noAppointmentsToday": "No appointments today",
+    "weeklyStatistics": "Weekly Statistics",
+    "topDoctors": "Top Doctors",
+    "approveDoctorSuccess": "Doctor approved successfully!",
+    "approveDoctorError": "Failed to approve doctor!",
+    "approveReceptionistSuccess": "Receptionist approved successfully!",
+    "rejectDoctorSuccess": "Doctor rejected successfully!",
+    "rejectReceptionistSuccess": "Receptionist rejected successfully!",
+    "rejectError": "Failed to reject!",
+    "rejectTitle": "Reject {{name}}",
+    "rejectReason": "Rejection reason",
+    "rejectNote": "Note (optional)",
+    "rejectNotePlaceholder": "Enter additional notes...",
+    "yourHospital": "Your Hospital"
   },
   "prescriptions": {
     "title": "My Prescriptions",
@@ -182,7 +222,21 @@
       "year": "This Year"
     },
     "noRatingYet": "No reviews yet",
-    "reviews": "reviews"
+    "reviews": "reviews",
+    "status": {
+      "all": "All",
+      "pending": "Pending",
+      "verified": "Verified",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "rejectionReason": {
+    "invalidCertificate": "Invalid certificate",
+    "missingDocuments": "Missing documents",
+    "insufficientExperience": "Insufficient experience",
+    "profileMismatch": "Profile mismatch",
+    "other": "Other"
   },
   "confirmInvitation": {
     "successTitle": "Success!",
@@ -724,7 +778,9 @@
     "trackApplication": "Track Application",
     "trackApplicationDesc": "Check your application status",
     "reviews": "Reviews",
-    "reviewsDesc": "View patient reviews"
+    "reviewsDesc": "View patient reviews",
+    "dashboard": "Dashboard",
+    "manageReceptionists": "Manage Receptionists"
   },
   "review": {
     "title": "Review Doctor",
@@ -1189,7 +1245,6 @@
     "ADMIN_CANNOT_BE_RECEPTIONIST": "Admin cannot register as a receptionist!",
     "USER_ALREADY_HAS_ROLE": "User already has this role!",
     "INVALID_OLD_PASSWORD": "Old password is incorrect!",
-
     "//": "--- 2xxx: USER ---",
     "USER_EXISTED": "User already exists!",
     "USER_NOT_FOUND": "User not found!",
@@ -1199,7 +1254,6 @@
     "EMAIL_REQUIRED": "Email is required!",
     "PASSWORD_REQUIRED": "Password is required!",
     "PHONE_INVALID": "Phone number is required!",
-
     "//": "--- 3xxx: VALIDATION ---",
     "DEGREE_REQUIRED": "Please enter professional degree!",
     "FEE_REQUIRED": "Consultation fee is required!",
@@ -1221,7 +1275,6 @@
     "SYMPTOMS_TOO_LONG": "Symptoms must not exceed 500 characters!",
     "SCHEDULE_ID_REQUIRED": "Please select a schedule!",
     "PAYMENT_METHOD_REQUIRED": "Please select a payment method!",
-
     "//": "--- 4xxx: DEPARTMENT & SPECIALTY ---",
     "DEPARTMENT_NOT_FOUND": "Department not found!",
     "DEPARTMENT_EXISTED": "Department name or code already exists!",
@@ -1229,11 +1282,9 @@
     "SPECIALTY_EXISTED": "Specialty already exists!",
     "SPECIALTY_CATEGORY_MISMATCH": "Specialty does not belong to this department's category!",
     "INVALID_SPECIALTY_CODE": "Specialty code does not match department code!",
-
     "//": "--- 5xxx: GENERAL DATA ---",
     "DATA_NOT_FOUND": "Data does not exist in the system!",
     "DATA_CONSTRAINT_VIOLATION": "Data constraint violation, please try again!",
-
     "//": "--- 6xxx: HOSPITAL & DOCTOR ---",
     "HOSPITAL_NOT_FOUND": "Hospital not found!",
     "HOSPITAL_ALREADY_EXISTS": "Hospital already exists!",
@@ -1278,7 +1329,6 @@
     "PHONE_TOO_LONG": "Invalid phone number!",
     "WEBSITE_TOO_LONG": "Invalid website URL!",
     "RECEPTIONIST_NOT_IN_HOSPITAL": "Receptionist does not belong to this hospital!",
-
     "//": "--- 7xxx: BOOKING & SCHEDULE ---",
     "BOOKING_ALREADY_EXISTS": "This slot has already been booked!",
     "BOOKING_NOT_FOUND": "Booking not found!",
@@ -1313,7 +1363,6 @@
     "WALK_IN_SCHEDULE_FULL": "Schedule is full!",
     "APPOINTMENT_NOT_COMPLETED": "Appointment is not completed, cannot create medical record!",
     "SCHEDULE_HAS_BOOKINGS": "Cannot delete schedule with existing bookings!",
-
     "//": "--- 71xx: MEDICAL RECORD & PRESCRIPTION ---",
     "MEDICAL_RECORD_ALREADY_EXISTS": "Medical record already exists for this appointment!",
     "MEDICAL_RECORD_NOT_FOUND": "Medical record not found!",
@@ -1344,7 +1393,6 @@
     "PRESCRIPTION_ITEMS_EMPTY": "Prescription cannot be empty!",
     "MEDICINE_NOT_FOUND": "Medicine not found!",
     "INSUFFICIENT_STOCK": "Insufficient medicine stock!",
-
     "//": "--- 8xxx: PAYMENT & WORKING HOURS ---",
     "PAYMENT_ERROR": "Payment failed!",
     "REFUND_FAILED": "Refund failed!",
@@ -1375,7 +1423,6 @@
     "SCHEDULE_LUNCH_BREAK": "Cannot create schedule during lunch break!",
     "SCHEDULE_TOO_SHORT": "Slot duration is too short!",
     "SCHEDULE_TOO_LONG": "Slot duration is too long!",
-
     "//": "--- 9xxx: ROOM & REVIEW ---",
     "ROOM_NOT_FOUND": "Room not found!",
     "ROOM_ALREADY_EXISTS": "Room number already exists!",

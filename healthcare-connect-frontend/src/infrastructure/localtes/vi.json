@@ -57,7 +57,10 @@
     "birthYear": "Năm sinh",
     "paid": "Đã thanh toán",
     "unpaid": "Chưa thanh toán",
-    "home": "Trang chủ"
+    "home": "Trang chủ",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "viewAll": "Xem tất cả"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -141,7 +144,21 @@
       "year": "Năm nay"
     },
     "noRatingYet": "Chưa có đánh giá",
-    "reviews": "đánh giá"
+    "reviews": "đánh giá",
+    "status": {
+      "all": "Tất cả",
+      "pending": "Chờ xác thực",
+      "verified": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "rejected": "Từ chối"
+    }
+  },
+  "rejectionReason": {
+    "invalidCertificate": "Bằng cấp không hợp lệ",
+    "missingDocuments": "Thiếu giấy tờ",
+    "insufficientExperience": "Chưa đủ kinh nghiệm",
+    "profileMismatch": "Thông tin không khớp",
+    "other": "Lý do khác"
   },
   "confirmInvitation": {
     "successTitle": "Thành công!",
@@ -701,7 +718,9 @@
     "trackApplication": "Theo dõi hồ sơ",
     "trackApplicationDesc": "Xem trạng thái hồ sơ của bạn",
     "reviews": "Đánh giá",
-    "reviewsDesc": "Xem đánh giá từ bệnh nhân"
+    "reviewsDesc": "Xem đánh giá từ bệnh nhân",
+    "dashboard": "Dashboard",
+    "manageReceptionists": "Quản lý lễ tân"
   },
   "review": {
     "title": "Đánh giá bác sĩ",
@@ -1165,6 +1184,43 @@
     "FULL": "Đã kín lịch",
     "NO_SHOW": "Không đến",
     "RESCHEDULED": "Lên lịch lại"
+  },
+  "manager": {
+    "dashboard": {
+      "title": "Quản lý bệnh viện",
+      "subtitle": "Tổng quan hoạt động bệnh viện"
+    },
+    "stats": {
+      "totalDoctors": "Bác sĩ",
+      "totalReceptionists": "Lễ tân",
+      "todayAppointments": "Lịch hẹn hôm nay",
+      "revenueThisMonth": "Doanh thu tháng này",
+      "comparedToLastMonth": "so với tháng trước",
+      "comparedToYesterday": "so với hôm qua"
+    },
+    "doctors": {
+      "title": "Quản lý bác sĩ",
+      "subtitle": "Xem danh sách và duyệt bác sĩ",
+      "list": "Danh sách bác sĩ",
+      "noDoctors": "Không có bác sĩ nào"
+    },
+    "pendingDoctors": "Bác sĩ chờ duyệt",
+    "noPendingDoctors": "Không có bác sĩ nào chờ duyệt",
+    "todayAppointments": "Lịch hẹn hôm nay",
+    "noAppointmentsToday": "Không có lịch hẹn nào hôm nay",
+    "weeklyStatistics": "Thống kê theo tuần",
+    "topDoctors": "Top bác sĩ",
+    "approveDoctorSuccess": "Duyệt bác sĩ thành công!",
+    "approveDoctorError": "Duyệt bác sĩ thất bại!",
+    "approveReceptionistSuccess": "Duyệt lễ tân thành công!",
+    "rejectDoctorSuccess": "Từ chối bác sĩ thành công!",
+    "rejectReceptionistSuccess": "Từ chối lễ tân thành công!",
+    "rejectError": "Từ chối thất bại!",
+    "rejectTitle": "Từ chối {{name}}",
+    "rejectReason": "Lý do từ chối",
+    "rejectNote": "Ghi chú (không bắt buộc)",
+    "rejectNotePlaceholder": "Nhập ghi chú thêm...",
+    "yourHospital": "Bệnh viện của bạn"
   },
   "error": {
     "//": "--- 1xxx: HỆ THỐNG & BẢO MẬT (SYSTEM & AUTH) ---",

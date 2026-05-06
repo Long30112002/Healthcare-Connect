@@ -18,21 +18,21 @@ export interface LoginResponse {
 }
 
 export interface WorkingHoursResponse {
-  config: any;
-  id: string;
-  hospitalId: string;
-  hospitalName: string;
-  dayOfWeek: number;
-  dayName: string;          // "Thứ 2", "Thứ 3", ...
-  startTime: string;
-  endTime: string;
-  lunchStart: string | null;
-  lunchEnd: string | null;
-  minSlotMinutes: number;
-  maxSlotMinutes: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+    config: any;
+    id: string;
+    hospitalId: string;
+    hospitalName: string;
+    dayOfWeek: number;
+    dayName: string;          // "Thứ 2", "Thứ 3", ...
+    startTime: string;
+    endTime: string;
+    lunchStart: string | null;
+    lunchEnd: string | null;
+    minSlotMinutes: number;
+    maxSlotMinutes: number;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface MedicineResponse {
@@ -286,14 +286,14 @@ export interface ApplicationResponse {
 }
 
 export interface WalkInAppointmentItem {
-    id: string;                      
+    id: string;
     patientName: string;
     patientPhone: string;
-    appointmentDate: number[];       
+    appointmentDate: number[];
     doctorName: string;
     doctorId: string;
     symptoms: string;
-    hasMedicalRecord: boolean;       
+    hasMedicalRecord: boolean;
 }
 
 export interface PatientResponse {
@@ -350,16 +350,21 @@ export interface DoctorResponse {
     degree: string;
     experienceYears: number;
     biography: string;
-    consultationFee: number;    
+    consultationFee: number;
     specialtyName: string;
     departmentName: string;
     hospitalId: string;
     hospitalName: string;
     hospitalAddress: string;
+    status: DoctorStatus;
+    rejectionReason?: string;
+    rejectionNote?: string;
+    createdAt?: string;      
+    updatedAt?: string;      
 }
 
 export interface PaymentStatusResponse {
     status: string;
     paid: boolean;
-    payUrl?: string;  
+    payUrl?: string;
 }

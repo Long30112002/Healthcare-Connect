@@ -1,5 +1,5 @@
 import type { VitalSigns } from ".";
-import type { PaymentMethod, RefundMethod } from "../constants/enums";
+import type { PaymentMethod, RefundMethod, RejectionReason } from "../constants/enums";
 
 export interface BookingRequest {
     scheduleId: string;
@@ -99,4 +99,15 @@ export interface WorkingHoursRequest {
   minSlotMinutes: number;
   maxSlotMinutes: number;
   isActive?: boolean;
+}
+
+// Reject Requests
+export interface RejectDoctorRequest {
+  reasonCode: RejectionReason;
+  note?: string;
+}
+
+export interface RejectReceptionistRequest {
+  reasonCode: RejectionReason;
+  note?: string;
 }

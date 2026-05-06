@@ -1,4 +1,4 @@
-import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory } from '../constants/enums';
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory, ReceptionistStatus } from '../constants/enums';
 
 export interface User {
     id: string;
@@ -198,5 +198,77 @@ export interface VitalSigns {
     height?: number;
     bmi?: number;
     note?: string;
+}
+
+// Dashboard Stats
+export interface ManagerDashboardStats {
+  totalDoctors: number;
+  totalDoctorsChange: number;
+  totalReceptionists: number;
+  totalReceptionistsChange: number;
+  totalAppointmentsToday: number;
+  totalAppointmentsTodayChange: number;
+  revenueThisMonth: number;
+  revenueThisMonthChange: number;
+}
+
+// Receptionist for Manager
+export interface ReceptionistForManager {
+  id: string;
+  receptionistCode: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  status: ReceptionistStatus;
+  cvUrl: string;
+  rejectionReason?: string;
+  rejectionNote?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Appointment Today
+export interface AppointmentTodayResponse {
+  id: string;
+  patientName: string;
+  patientPhone: string;
+  doctorName: string;
+  doctorId: string;
+  startTime: string;
+  endTime: string;
+  appointmentDate: string;
+  symptoms: string;
+  status: AppointmentStatus;
+  isPaid: boolean;
+  price: number;
+  roomNumber?: string;
+}
+
+// Weekly Statistics
+export interface WeeklyStatResponse {
+  day: string;
+  dayOfWeek: number;
+  count: number;
+}
+
+// Top Doctors
+export interface TopDoctorResponse {
+  doctorId: string;
+  doctorName: string;
+  specialtyName: string;
+  totalPatients: number;
+  totalRevenue: number;
+  averageRating: number;
+  rank: number;
+}
+
+// Alert
+export interface AlertResponse {
+  id: string;
+  type: 'warning' | 'danger' | 'info';
+  title: string;
+  message: string;
+  link?: string;
+  createdAt: string;
 }
 
