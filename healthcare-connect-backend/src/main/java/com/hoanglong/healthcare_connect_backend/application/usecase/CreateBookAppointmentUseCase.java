@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.usecase;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalWorkingHours;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
@@ -13,6 +14,7 @@ import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalWorkingHoursRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +38,7 @@ public class CreateBookAppointmentUseCase
     private final UserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
     private final MailService mailService;
+    private final HospitalWorkingHoursRepository workingHoursRepository;
 
     @Transactional
     public AppointmentResponse execute(UUID patientId, UUID scheduleId, String symptoms) {
@@ -64,7 +69,7 @@ public class CreateBookAppointmentUseCase
             throw new AppException(ErrorCode.SCHEDULE_CANCELLED);
         }
 
-        // 3b. Kiểm tra thời gian đặt 
+        // 3b. Kiểm tra thời gian đặt
         LocalDateTime minBookingTime = LocalDateTime.now().plusMinutes(30);
         if (schedule.getStartTime().isBefore(minBookingTime)) {
             throw new AppException(ErrorCode.BOOKING_TOO_LATE);
@@ -87,11 +92,17 @@ public class CreateBookAppointmentUseCase
             throw new AppException(ErrorCode.SCHEDULE_FULL);
         }
 
-        // 3e. Kiểm tra bệnh nhân có lịch trùng giờ không
+        // 3e. KIỂM TRA GIỜ LÀM VIỆC CỦA BỆNH VIỆN (THÊM MỚI)
+        validateWorkingHours(schedule.getDoctor().getHospital().getId(),
+                schedule.getDate().toLocalDate(),
+                schedule.getStartTime().toLocalTime(),
+                schedule.getEndTime().toLocalTime());
+
+        // 3f. Kiểm tra bệnh nhân có lịch trùng giờ không
         boolean hasOverlap = appointmentRepository.existsByPatientOverlap(
                 patientId,
-                schedule.getDate().toLocalDate().toString(),  // "2026-04-10"
-                schedule.getStartTime().toLocalTime().toString(),  // "08:00:00"
+                schedule.getDate().toLocalDate().toString(),
+                schedule.getStartTime().toLocalTime().toString(),
                 List.of(AppointmentStatus.CANCELLED.name(), AppointmentStatus.COMPLETED.name())
         );
 
@@ -99,7 +110,7 @@ public class CreateBookAppointmentUseCase
             throw new AppException(ErrorCode.PATIENT_HAS_OVERLAP_APPOINTMENT);
         }
 
-        // 3f. Kiểm tra đặt trùng lịch
+        // 3g. Kiểm tra đặt trùng lịch
         boolean alreadyBooked = appointmentRepository.existsByPatientIdAndScheduleIdAndStatusNot(
                 patientId, scheduleId, AppointmentStatus.CANCELLED
         );
@@ -143,5 +154,73 @@ public class CreateBookAppointmentUseCase
                 patient.getEmail(), scheduleId, newBookingCount);
 
         return appointmentMapper.toResponse(savedAppointment);
+    }
+
+    // ✅ THÊM METHOD VALIDATE GIỜ LÀM VIỆC (giống hệt trong CreateScheduleUseCase)
+    private void validateWorkingHours(UUID hospitalId, LocalDate date,
+            LocalTime startTime, LocalTime endTime) {
+        int dayOfWeek = getDayOfWeekNumber(date);
+
+        HospitalWorkingHours config = workingHoursRepository
+                .findByHospitalIdAndDayOfWeekAndIsActiveTrue(hospitalId, dayOfWeek)
+                .orElse(null);
+
+        if (config == null) {
+            log.warn("Chưa có cấu hình giờ làm việc cho bệnh viện {} ngày {}. Dùng giá trị mặc định.",
+                    hospitalId, dayOfWeek);
+            config = getDefaultWorkingHours(dayOfWeek);
+        }
+
+        // Kiểm tra trong giờ làm việc
+        if (startTime.isBefore(config.getStartTime()) || endTime.isAfter(config.getEndTime())) {
+            throw new AppException(ErrorCode.SCHEDULE_OUTSIDE_WORKING_HOURS);
+        }
+
+        // Kiểm tra giờ nghỉ trưa
+        if (config.getLunchStart() != null && config.getLunchEnd() != null) {
+            boolean isOverLunch = startTime.isBefore(config.getLunchEnd())
+                    && endTime.isAfter(config.getLunchStart());
+            if (isOverLunch) {
+                throw new AppException(ErrorCode.SCHEDULE_LUNCH_BREAK);
+            }
+        }
+
+        // Kiểm tra thời lượng ca
+        long minutes = java.time.Duration.between(startTime, endTime).toMinutes();
+        if (minutes < config.getMinSlotMinutes()) {
+            throw new AppException(ErrorCode.SCHEDULE_TOO_SHORT);
+        }
+        if (minutes > config.getMaxSlotMinutes()) {
+            throw new AppException(ErrorCode.SCHEDULE_TOO_LONG);
+        }
+    }
+
+    private int getDayOfWeekNumber(LocalDate date) {
+        int day = date.getDayOfWeek().getValue();
+        return day == 1 ? 8 : day + 1;
+    }
+
+    private HospitalWorkingHours getDefaultWorkingHours(int dayOfWeek) {
+        HospitalWorkingHours defaultConfig = HospitalWorkingHours.builder()
+                .startTime(LocalTime.of(7, 30))
+                .endTime(LocalTime.of(17, 0))
+                .lunchStart(LocalTime.of(12, 0))
+                .lunchEnd(LocalTime.of(13, 30))
+                .minSlotMinutes(15)
+                .maxSlotMinutes(120)
+                .build();
+
+        if (dayOfWeek == 6) {  // Thứ 7
+            defaultConfig.setEndTime(LocalTime.of(12, 0));
+            defaultConfig.setLunchStart(null);
+            defaultConfig.setLunchEnd(null);
+        } else if (dayOfWeek == 7) {  // Chủ nhật
+            defaultConfig.setStartTime(LocalTime.of(8, 0));
+            defaultConfig.setEndTime(LocalTime.of(11, 0));
+            defaultConfig.setLunchStart(null);
+            defaultConfig.setLunchEnd(null);
+        }
+
+        return defaultConfig;
     }
 }
