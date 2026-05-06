@@ -7,8 +7,9 @@ import Input from '../../../presentation/components/shared/Input';
 import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
 import { doctorApi } from '../../../infrastructure/api/doctorApi';
 import { commonApi } from '../../../infrastructure/api/commonApi';
+import { workingHoursApi } from '../../../infrastructure/api/workingHoursApi';
 import toast from 'react-hot-toast';
-import type { RoomResponse } from '../../../core/types/api.response';
+import type { RoomResponse, WorkingHoursResponse } from '../../../core/types/api.response';
 import { formatTimeOnly } from '../../../shared/utils/dateUtils';
 
 interface ScheduleFormData {
@@ -26,6 +27,12 @@ const ScheduleEditPage = () => {
     const { t } = useAppTranslation();
     const [loading, setLoading] = useState(true);
     const [rooms, setRooms] = useState<RoomResponse[]>([]);
+    const [workingHours, setWorkingHours] = useState<WorkingHoursResponse[]>([]);
+    const [availableStartTimes, setAvailableStartTimes] = useState<string[]>([]);
+    const [availableEndTimes, setAvailableEndTimes] = useState<string[]>([]);
+    const [minSlot, setMinSlot] = useState(15);
+    const [maxSlot, setMaxSlot] = useState(120);
+    
     const [formData, setFormData] = useState<ScheduleFormData>({
         date: '',
         startTime: '',
@@ -36,23 +43,84 @@ const ScheduleEditPage = () => {
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Helper: Chuyển đổi ngày (giống backend)
+    const getDayOfWeekNumber = (date: Date): number => {
+        const day = date.getDay(); // 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
+        if (day === 0) return 7;      // Chủ nhật -> 7
+        if (day === 1) return 8;      // Thứ 2 -> 8
+        return day + 1;               // T3->2, T4->3, T5->4, T6->5, T7->6
+    };
+
+    // Tạo danh sách giờ hợp lệ dựa trên cấu hình
+    const generateTimeSlots = (config?: WorkingHoursResponse) => {
+        let startTime = '07:30';
+        let endTime = '17:00';
+        let lunchStart: string | null = '12:00';
+        let lunchEnd: string | null = '13:30';
+        let minSlotVal = 15;
+        let maxSlotVal = 120;
+
+        if (config) {
+            startTime = formatTimeOnly(config.startTime as unknown as number[]);
+            endTime = formatTimeOnly(config.endTime as unknown as number[]);
+            lunchStart = config.lunchStart ? formatTimeOnly(config.lunchStart as unknown as number[]) : null;
+            lunchEnd = config.lunchEnd ? formatTimeOnly(config.lunchEnd as unknown as number[]) : null;
+            minSlotVal = config.minSlotMinutes;
+            maxSlotVal = config.maxSlotMinutes;
+        }
+
+        if (startTime >= endTime) {
+            setAvailableStartTimes([]);
+            setAvailableEndTimes([]);
+            return;
+        }
+
+        const slots: string[] = [];
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const lunchStartTime = lunchStart ? new Date(`2000-01-01T${lunchStart}`) : null;
+        const lunchEndTime = lunchEnd ? new Date(`2000-01-01T${lunchEnd}`) : null;
+
+        let current = new Date(start);
+        let count = 0;
+        const maxSlots = 50;
+
+        while (current < end && count < maxSlots) {
+            const timeStr = current.toTimeString().slice(0, 5);
+
+            if (lunchStartTime && lunchEndTime && current >= lunchStartTime && current < lunchEndTime) {
+                current = new Date(lunchEndTime);
+                continue;
+            }
+
+            slots.push(timeStr);
+            current = new Date(current.getTime() + 30 * 60000);
+            count++;
+        }
+
+        setAvailableStartTimes(slots);
+        setAvailableEndTimes(slots);
+        setMinSlot(minSlotVal);
+        setMaxSlot(maxSlotVal);
+    };
+
+    // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [scheduleData, roomsData] = await Promise.all([
+                const [scheduleData, roomsData, workingHoursData] = await Promise.all([
                     doctorApi.getScheduleDetail(id!),
-                    commonApi.getAvailableRooms()
+                    commonApi.getAvailableRooms(),
+                    workingHoursApi.getHospitalWorkingHours().catch(() => [])
                 ]);
 
-                // formatDateArray để lấy ngày dạng YYYY-MM-DD
                 let dateStr = '';
                 if (scheduleData.date && Array.isArray(scheduleData.date)) {
                     const [year, month, day] = scheduleData.date;
                     dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
                 }
 
-                // formatTimeOnly để lấy giờ:phút từ mảng [year,month,day,hour,minute]
                 const startTimeStr = formatTimeOnly(scheduleData.startTime);
                 const endTimeStr = formatTimeOnly(scheduleData.endTime);
 
@@ -65,6 +133,7 @@ const ScheduleEditPage = () => {
                     roomId: scheduleData.roomId || ''
                 });
                 setRooms(roomsData);
+                setWorkingHours(workingHoursData);
             } catch (error) {
                 toast.error(t('common.loadError'));
                 navigate('/my-schedule');
@@ -74,6 +143,25 @@ const ScheduleEditPage = () => {
         };
         fetchData();
     }, [id, navigate, t]);
+
+    // Khi chọn ngày hoặc có workingHours, cập nhật danh sách giờ hợp lệ
+    useEffect(() => {
+        if (!formData.date || workingHours.length === 0) {
+            setAvailableStartTimes([]);
+            setAvailableEndTimes([]);
+            return;
+        }
+
+        const selectedDate = new Date(formData.date);
+        const dayOfWeek = getDayOfWeekNumber(selectedDate);
+        const config = workingHours.find(w => w.dayOfWeek === dayOfWeek);
+        generateTimeSlots(config);
+        
+        // Reset giờ nếu không còn hợp lệ
+        if (formData.startTime && !availableStartTimes.includes(formData.startTime)) {
+            setFormData(prev => ({ ...prev, startTime: '', endTime: '' }));
+        }
+    }, [formData.date, workingHours]);
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -101,6 +189,38 @@ const ScheduleEditPage = () => {
             if (formData.startTime >= formData.endTime) {
                 newErrors.endTime = t('schedule.endTimeAfterStartTime');
             }
+
+            const start = new Date(`2000-01-01T${formData.startTime}`);
+            const end = new Date(`2000-01-01T${formData.endTime}`);
+            
+            const selectedDate = new Date(formData.date);
+            const dayOfWeek = getDayOfWeekNumber(selectedDate);
+            const config = workingHours.find(w => w.dayOfWeek === dayOfWeek);
+            
+            if (config?.lunchStart && config?.lunchEnd) {
+                const lunchStartTimeStr = formatTimeOnly(config.lunchStart as unknown as number[]);
+                const lunchEndTimeStr = formatTimeOnly(config.lunchEnd as unknown as number[]);
+                const lunchStart = new Date(`2000-01-01T${lunchStartTimeStr}`);
+                const lunchEnd = new Date(`2000-01-01T${lunchEndTimeStr}`);
+                
+                // Kiểm tra nếu ca khám bao phủ giờ nghỉ trưa
+                const isOverLunch = start < lunchEnd && end > lunchStart;
+                if (isOverLunch) {
+                    newErrors.endTime = t('schedule.noAvailableSlots', {
+                        lunchStart: lunchStartTimeStr,
+                        lunchEnd: lunchEndTimeStr
+                    });
+                }
+            }
+
+            // Kiểm tra thời lượng ca
+            const diffMinutes = (end.getTime() - start.getTime()) / 60000;
+            if (diffMinutes < minSlot) {
+                newErrors.endTime = t('schedule.slotTooShort', { min: minSlot });
+            }
+            if (diffMinutes > maxSlot) {
+                newErrors.endTime = t('schedule.slotTooLong', { max: maxSlot });
+            }
         }
 
         if (formData.price <= 0) {
@@ -115,18 +235,40 @@ const ScheduleEditPage = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const timeOptions = () => {
-        const options = [];
-        for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-                const hourStr = hour.toString().padStart(2, '0');
-                const minuteStr = minute.toString().padStart(2, '0');
-                options.push({ value: `${hourStr}:${minuteStr}`, label: `${hourStr}:${minuteStr}` });
+    // Giới hạn time options theo giờ làm việc
+    const startTimeOptions = availableStartTimes.map(time => ({ value: time, label: time }));
+    
+    // Lọc endTimeOptions: không cho chọn endTime vượt quá lunchStart nếu startTime < lunchStart
+    const getEndTimeOptions = () => {
+        let filteredTimes = [...availableEndTimes];
+        
+        // Lọc giờ > startTime
+        if (formData.startTime) {
+            filteredTimes = filteredTimes.filter(time => time > formData.startTime);
+        }
+        
+        // Lọc theo giờ nghỉ trưa
+        if (formData.date && formData.startTime) {
+            const selectedDate = new Date(formData.date);
+            const dayOfWeek = getDayOfWeekNumber(selectedDate);
+            const config = workingHours.find(w => w.dayOfWeek === dayOfWeek);
+            
+            if (config?.lunchStart && config?.lunchEnd) {
+                const lunchStartTimeStr = formatTimeOnly(config.lunchStart as unknown as number[]);
+                const lunchEndTimeStr = formatTimeOnly(config.lunchEnd as unknown as number[]);
+                
+                // Nếu startTime < lunchStart, không cho chọn endTime > lunchStart
+                if (formData.startTime < lunchStartTimeStr) {
+                    filteredTimes = filteredTimes.filter(time => time <= lunchStartTimeStr);
+                }
+                // Nếu startTime >= lunchEnd, cho phép tất cả
             }
         }
-        return options;
+        
+        return filteredTimes.map(time => ({ value: time, label: time }));
     };
 
+    const endTimeOptions = getEndTimeOptions();
     const roomOptions = rooms.map(room => ({
         value: room.id,
         label: `${room.roomNumber} - ${room.building || ''} (${room.status === 'AVAILABLE' ? t('schedule.available') : t('schedule.occupied')})`
@@ -154,6 +296,19 @@ const ScheduleEditPage = () => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+
+        // Nếu đổi startTime, tự động gợi ý endTime (+30 phút)
+        if (field === 'startTime' && typeof value === 'string' && value) {
+            const nextSlot = new Date(`2000-01-01T${value}`);
+            nextSlot.setMinutes(nextSlot.getMinutes() + 30);
+            const nextTimeStr = nextSlot.toTimeString().slice(0, 5);
+            
+            // Kiểm tra xem nextTimeStr có trong danh sách endTimeOptions không
+            const endTimeValues = endTimeOptions.map(opt => opt.value);
+            if (endTimeValues.includes(nextTimeStr)) {
+                setFormData(prev => ({ ...prev, endTime: nextTimeStr }));
+            }
         }
     };
 
@@ -195,7 +350,7 @@ const ScheduleEditPage = () => {
                                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.date
                                     ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
                                     : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                    }`}
+                                }`}
                             />
                             {errors.date && (
                                 <p className="mt-1 text-sm text-red-500">{errors.date}</p>
@@ -214,10 +369,11 @@ const ScheduleEditPage = () => {
                                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.startTime
                                         ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
                                         : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                        }`}
+                                    }`}
+                                    disabled={availableStartTimes.length === 0}
                                 >
                                     <option value="">{t('schedule.selectTime')}</option>
-                                    {timeOptions().map(opt => (
+                                    {startTimeOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
@@ -236,10 +392,11 @@ const ScheduleEditPage = () => {
                                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.endTime
                                         ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
                                         : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                        }`}
+                                    }`}
+                                    disabled={!formData.startTime || endTimeOptions.length === 0}
                                 >
                                     <option value="">{t('schedule.selectTime')}</option>
-                                    {timeOptions().map(opt => (
+                                    {endTimeOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
@@ -248,6 +405,16 @@ const ScheduleEditPage = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Cảnh báo không có khung giờ khả dụng */}
+                        {formData.date && availableStartTimes.length === 0 && workingHours.length > 0 && (
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
+                                <p className="text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
+                                    <span className="text-lg">⚠️</span>
+                                    <span>{t('schedule.noAvailableSlots') || 'Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc.'}</span>
+                                </p>
+                            </div>
+                        )}
 
                         {/* Price & Max Patients */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

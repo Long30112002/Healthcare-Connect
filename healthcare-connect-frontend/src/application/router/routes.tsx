@@ -25,6 +25,7 @@ import AppointmentDetailPage from '../../presentation/pages/patient/AppointmentD
 import ContactPage from '../../presentation/pages/ContactPage';
 import DoctorStatisticsPage from '../../presentation/pages/doctor/DoctorStatisticsPage';
 import ConfirmInvitationPage from '../../presentation/pages/ConfirmInvitationPage';
+import HospitalWorkingHoursPage from '../../presentation/pages/manager/HospitalWorkinggHoursPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -57,7 +58,7 @@ export const routes: RouteConfig[] = [
   { path: '/reset-password', element: <ResetPasswordPage />, layout: false, isPublic: true },
   { path: '/verify', element: <VerifyEmailPage />, layout: false, isPublic: true },
   { path: '/confirm-invitation', element: <ConfirmInvitationPage />, layout: false, isPublic: true },
-  
+
   // Public routes (with layout)
   { path: '/', element: <PublicHomePage />, layout: true, isPublic: true },
   { path: '/about', element: <div>Về chúng tôi</div>, layout: true, isPublic: true },
@@ -99,6 +100,9 @@ export const routes: RouteConfig[] = [
   { path: '/doctor/medical-records/create/:appointmentId', element: <CreateMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/medical-records/create/:appointmentId', element: <CreateMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR] },
+
+  // Manager routes
+  { path: '/manager/working-hours', element: <HospitalWorkingHoursPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
 
   { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR, UserRole.PATIENT] },
   { path: '/my-patients', element: <MyPatientsPage />, layout: true, roles: [UserRole.DOCTOR] },

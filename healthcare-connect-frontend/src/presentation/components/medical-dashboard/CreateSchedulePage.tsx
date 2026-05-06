@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
@@ -7,8 +7,10 @@ import Input from '../shared/Input';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import { doctorApi } from '../../../infrastructure/api/doctorApi';
 import { commonApi } from '../../../infrastructure/api/commonApi';
+import { workingHoursApi } from '../../../infrastructure/api/workingHoursApi';
 import toast from 'react-hot-toast';
-import type { RoomResponse } from '../../../core/types/api.response';
+import type { RoomResponse, WorkingHoursResponse } from '../../../core/types/api.response';
+import { formatTimeOnly } from '../../../shared/utils/dateUtils';
 
 interface ScheduleFormData {
     date: string;
@@ -24,7 +26,12 @@ const CreateSchedulePage = () => {
     const { t } = useAppTranslation();
     const [loading, setLoading] = useState(true);
     const [rooms, setRooms] = useState<RoomResponse[]>([]);
-    
+    const [workingHours, setWorkingHours] = useState<WorkingHoursResponse[]>([]);
+    const [availableStartTimes, setAvailableStartTimes] = useState<string[]>([]);
+    const [availableEndTimes, setAvailableEndTimes] = useState<string[]>([]);
+    const [minSlot, setMinSlot] = useState(15);
+    const [maxSlot, setMaxSlot] = useState(120);
+
     const [formData, setFormData] = useState<ScheduleFormData>({
         date: '',
         startTime: '',
@@ -36,21 +43,110 @@ const CreateSchedulePage = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Lấy danh sách phòng khám
+    // Helper: Chuyển đổi ngày (giống backend)
+    const getDayOfWeekNumber = (date: Date): number => {
+        const day = date.getDay(); // 0=CN, 1=T2, 2=T3, 3=T4, 4=T5, 5=T6, 6=T7
+        if (day === 0) return 7;      // Chủ nhật -> 7
+        if (day === 1) return 8;      // Thứ 2 -> 8
+        return day + 1;               // T3->2, T4->3, T5->4, T6->5, T7->6
+    };
+
+    // Tạo danh sách giờ hợp lệ dựa trên cấu hình
+    const generateTimeSlots = (config?: WorkingHoursResponse) => {
+        // FALLBACK MẶC ĐỊNH
+        let startTime = '07:30';
+        let endTime = '17:00';
+        let lunchStart: string | null = '12:00';
+        let lunchEnd: string | null = '13:30';
+        let minSlot = 15;
+        let maxSlot = 120;
+
+        if (config) {
+            startTime = formatTimeOnly(config.startTime as unknown as number[]);
+            endTime = formatTimeOnly(config.endTime as unknown as number[]);
+            lunchStart = config.lunchStart ? formatTimeOnly(config.lunchStart as unknown as number[]) : null;
+            lunchEnd = config.lunchEnd ? formatTimeOnly(config.lunchEnd as unknown as number[]) : null;
+            minSlot = config.minSlotMinutes;
+            maxSlot = config.maxSlotMinutes;
+        }
+
+        // Kiểm tra startTime < endTime
+        if (startTime >= endTime) {
+            console.error('Invalid time range:', startTime, endTime);
+            setAvailableStartTimes([]);
+            setAvailableEndTimes([]);
+            return;
+        }
+
+        const slots: string[] = [];
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const lunchStartTime = lunchStart ? new Date(`2000-01-01T${lunchStart}`) : null;
+        const lunchEndTime = lunchEnd ? new Date(`2000-01-01T${lunchEnd}`) : null;
+
+        let current = new Date(start);
+        let count = 0;
+        const maxSlots = 50;
+
+        while (current < end && count < maxSlots) {
+            const timeStr = current.toTimeString().slice(0, 5);
+
+            // Bỏ qua giờ nghỉ trưa
+            if (lunchStartTime && lunchEndTime && current >= lunchStartTime && current < lunchEndTime) {
+                current = new Date(lunchEndTime);
+                continue;
+            }
+
+            slots.push(timeStr);
+            current = new Date(current.getTime() + 30 * 60000);
+            count++;
+        }
+
+        setAvailableStartTimes(slots);
+        setAvailableEndTimes(slots);
+        setMinSlot(minSlot);
+        setMaxSlot(maxSlot);
+    };
+
+    // Lấy danh sách phòng + cấu hình giờ làm việc
     useEffect(() => {
-        const fetchRooms = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
-                const roomsData = await commonApi.getAvailableRooms();
+                const [roomsData, workingHoursData] = await Promise.all([
+                    commonApi.getAvailableRooms(),
+                    workingHoursApi.getHospitalWorkingHours().catch(() => [])
+                ]);
                 setRooms(roomsData);
+                setWorkingHours(workingHoursData);
             } catch (error) {
                 toast.error(t('schedule.loadRoomsError'));
             } finally {
                 setLoading(false);
             }
         };
-        fetchRooms();
+        fetchData();
     }, []);
+
+    // Khi chọn ngày, cập nhật danh sách giờ hợp lệ
+    useEffect(() => {
+        if (!formData.date || workingHours.length === 0) {
+            setAvailableStartTimes([]);
+            setAvailableEndTimes([]);
+            return;
+        }
+
+        const selectedDate = new Date(formData.date);
+        const dayOfWeek = getDayOfWeekNumber(selectedDate);
+        const config = workingHours.find(w => w.dayOfWeek === dayOfWeek);
+
+        generateTimeSlots(config);
+
+        // Reset giờ nếu không còn hợp lệ
+        if (formData.startTime && !availableStartTimes.includes(formData.startTime)) {
+            setFormData(prev => ({ ...prev, startTime: '', endTime: '' }));
+        }
+    }, [formData.date, workingHours]);
 
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -77,6 +173,17 @@ const CreateSchedulePage = () => {
         if (formData.startTime && formData.endTime) {
             if (formData.startTime >= formData.endTime) {
                 newErrors.endTime = t('schedule.endTimeAfterStartTime');
+            }
+
+            const start = new Date(`2000-01-01T${formData.startTime}`);
+            const end = new Date(`2000-01-01T${formData.endTime}`);
+            const diffMinutes = (end.getTime() - start.getTime()) / 60000;
+
+            if (diffMinutes < minSlot) {
+                newErrors.endTime = t('schedule.slotTooShort', { min: minSlot });
+            }
+            if (diffMinutes > maxSlot) {
+                newErrors.endTime = t('schedule.slotTooLong', { max: maxSlot });
             }
         }
 
@@ -112,25 +219,26 @@ const CreateSchedulePage = () => {
 
     const handleChange = (field: keyof ScheduleFormData, value: string | number) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        // Xóa lỗi của field đó khi người dùng sửa
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
-    };
 
-    // Tạo options cho thời gian (từ 00:00 đến 23:30, mỗi 30 phút)
-    const timeOptions = () => {
-        const options = [];
-        for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += 30) {
-                const hourStr = hour.toString().padStart(2, '0');
-                const minuteStr = minute.toString().padStart(2, '0');
-                const value = `${hourStr}:${minuteStr}`;
-                options.push({ value, label: value });
+        // Nếu đổi startTime, tự động gợi ý endTime (+30 phút)
+        if (field === 'startTime' && typeof value === 'string' && value) {
+            const nextSlot = new Date(`2000-01-01T${value}`);
+            nextSlot.setMinutes(nextSlot.getMinutes() + 30);
+            const nextTimeStr = nextSlot.toTimeString().slice(0, 5);
+            if (availableEndTimes.includes(nextTimeStr)) {
+                setFormData(prev => ({ ...prev, endTime: nextTimeStr }));
             }
         }
-        return options;
     };
+
+    // timeOptions chỉ lấy giờ hợp lệ
+    const startTimeOptions = availableStartTimes.map(time => ({ value: time, label: time }));
+    const endTimeOptions = availableEndTimes
+        .filter(time => !formData.startTime || time > formData.startTime)
+        .map(time => ({ value: time, label: time }));
 
     const roomOptions = rooms.map(room => ({
         value: room.id,
@@ -172,11 +280,10 @@ const CreateSchedulePage = () => {
                                 value={formData.date}
                                 onChange={(e) => handleChange('date', e.target.value)}
                                 min={new Date().toISOString().split('T')[0]}
-                                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
-                                    errors.date 
-                                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                }`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.date
+                                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                                    : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                                    }`}
                             />
                             {errors.date && (
                                 <p className="mt-1 text-sm text-red-500">{errors.date}</p>
@@ -192,14 +299,14 @@ const CreateSchedulePage = () => {
                                 <select
                                     value={formData.startTime}
                                     onChange={(e) => handleChange('startTime', e.target.value)}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
-                                        errors.startTime 
-                                            ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                                            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                    }`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.startTime
+                                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                                        }`}
+                                    disabled={availableStartTimes.length === 0}
                                 >
                                     <option value="">{t('schedule.selectTime')}</option>
-                                    {timeOptions().map(opt => (
+                                    {startTimeOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
@@ -215,14 +322,14 @@ const CreateSchedulePage = () => {
                                 <select
                                     value={formData.endTime}
                                     onChange={(e) => handleChange('endTime', e.target.value)}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
-                                        errors.endTime 
-                                            ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                                            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
-                                    }`}
+                                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${errors.endTime
+                                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
+                                        }`}
+                                    disabled={!formData.startTime || endTimeOptions.length === 0}
                                 >
                                     <option value="">{t('schedule.selectTime')}</option>
-                                    {timeOptions().map(opt => (
+                                    {endTimeOptions.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
@@ -273,12 +380,25 @@ const CreateSchedulePage = () => {
                             <p className="mt-1 text-xs text-gray-500">{t('schedule.roomNote')}</p>
                         </div>
 
-                        {/* Lưu ý */}
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800">
-                            <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-start gap-2">
-                                <span className="text-lg">⚠️</span>
-                                <span>{t('schedule.note')}</span>
-                            </p>
+                        {/* Cảnh báo + Lưu ý gộp chung */}
+                        <div className="space-y-3">
+                            {/* Cảnh báo không có khung giờ khả dụng */}
+                            {formData.date && availableStartTimes.length === 0 && workingHours.length > 0 && (
+                                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
+                                    <p className="text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
+                                        <span className="text-lg">⚠️</span>
+                                        <span>{t('schedule.noAvailableSlots') || 'Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc.'}</span>
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Lưu ý chung */}
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800">
+                                <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-start gap-2">
+                                    <span className="text-lg">⚠️</span>
+                                    <span>{t('schedule.note')}</span>
+                                </p>
+                            </div>
                         </div>
 
                         {/* Buttons */}
