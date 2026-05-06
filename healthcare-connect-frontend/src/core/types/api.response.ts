@@ -17,36 +17,23 @@ export interface LoginResponse {
     user: User;
 }
 
-// export interface Pageable {
-//     pageNumber: number;
-//     pageSize: number;
-//     sort: {
-//         empty: boolean;
-//         sorted: boolean;
-//         unsorted: boolean;
-//     };
-//     offset: number;
-//     paged: boolean;
-//     unpaged: boolean;
-// }
-
-// export interface PaginatedResponse<T> {
-//     content: T[];
-//     pageable: Pageable;
-//     last: boolean;
-//     totalPages: number;
-//     totalElements: number;
-//     size: number;
-//     number: number;
-//     sort: {
-//         empty: boolean;
-//         sorted: boolean;
-//         unsorted: boolean;
-//     };
-//     first: boolean;
-//     numberOfElements: number;
-//     empty: boolean;
-// }
+export interface WorkingHoursResponse {
+  config: any;
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  dayOfWeek: number;
+  dayName: string;          // "Thứ 2", "Thứ 3", ...
+  startTime: string;
+  endTime: string;
+  lunchStart: string | null;
+  lunchEnd: string | null;
+  minSlotMinutes: number;
+  maxSlotMinutes: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface MedicineResponse {
     id: string;
@@ -376,26 +363,3 @@ export interface PaymentStatusResponse {
     paid: boolean;
     payUrl?: string;  
 }
-
-
-// export interface WalkInAppointmentResponse {
-//     appointment: {
-//         id: string;
-//         patientName: string | null;
-//         doctorName: string;
-//         hospitalName: string;
-//         startTime: number[];
-//         endTime: number[];
-//         price: number;
-//         status: string;
-//         paid: boolean;
-//         patientPhone: string;
-//         bookingType: string;
-//     };
-//     paymentStatus: PaymentStatus;
-//     payUrl?: string;
-//     qrCodeUrl?: string;
-//     deeplink?: string;
-//     needPayment: boolean;
-//     message: string;
-// }

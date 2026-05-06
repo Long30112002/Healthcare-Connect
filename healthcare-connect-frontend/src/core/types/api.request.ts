@@ -89,3 +89,14 @@ export interface UpdateDoctorInfoRequest {
     biography?: string;
     consultationFee?: number;
 }
+
+export interface WorkingHoursRequest {
+  dayOfWeek: number;        // 2=T3,3=T4,4=T5,5=T6,6=T7,7=CN,8=T2
+  startTime: string;        // "07:30"
+  endTime: string;          // "17:00"
+  lunchStart: string | null;
+  lunchEnd: string | null;
+  minSlotMinutes: number;
+  maxSlotMinutes: number;
+  isActive?: boolean;
+}
