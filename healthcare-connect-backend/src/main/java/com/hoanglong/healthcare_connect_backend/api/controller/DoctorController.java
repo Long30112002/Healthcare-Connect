@@ -4,15 +4,17 @@ import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.WalkInAppointmentDto;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalWorkingHours;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.WorkingHoursResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateDoctorInfoRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ScheduleMapper;
+import com.hoanglong.healthcare_connect_backend.application.mapper.WorkingHoursMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
-import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;
 import com.hoanglong.healthcare_connect_backend.application.service.ScheduleService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.CreateScheduleUseCase;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
@@ -22,6 +24,7 @@ import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalWorkingHoursRepository;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +56,8 @@ public class DoctorController
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
     private final DoctorMapper doctorMapper;
+    private final HospitalWorkingHoursRepository workingHoursRepository;
+    private final WorkingHoursMapper workingHoursMapper;
 
     @GetMapping("/my-info")
     @PreAuthorize("hasRole('DOCTOR')")
@@ -76,6 +81,26 @@ public class DoctorController
                 .code(HttpStatus.OK.value())
                 .message("Cập nhật thông tin bác sĩ thành công!")
                 .data(doctorMapper.toDoctorResponse(updatedDoctor))
+                .build();
+    }
+
+    @GetMapping("/hospital-working-hours")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ApiResponse<List<WorkingHoursResponse>> getHospitalWorkingHours() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        Doctor doctor = doctorRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        UUID hospitalId = doctor.getHospital().getId();
+        List<HospitalWorkingHours> workingHours = workingHoursRepository
+                .findByHospitalIdAndIsActiveTrueOrderByDayOfWeekAsc(hospitalId);
+
+        List<WorkingHoursResponse> response = workingHoursMapper.toResponseList(workingHours);
+
+        return ApiResponse.<List<WorkingHoursResponse>>builder()
+                .status("success")
+                .code(200)
+                .data(response)
                 .build();
     }
 
