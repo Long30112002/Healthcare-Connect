@@ -11,8 +11,12 @@ SELECT
     15,
     120
 FROM hospitals h
-         CROSS JOIN (VALUES (2), (3), (4), (5), (6)) AS days(day)  -- Thứ 2 -> Thứ 6
-WHERE h.status = 'ACTIVE';
+         CROSS JOIN (VALUES (2), (3), (4), (5), (6)) AS days(day)
+WHERE h.status = 'ACTIVE'
+  AND NOT EXISTS (
+    SELECT 1 FROM hospital_working_hours
+    WHERE hospital_id = h.id AND day_of_week = days.day
+);
 
 -- Thứ 7 (day_of_week = 7) - chỉ làm sáng, không nghỉ trưa
 INSERT INTO hospital_working_hours (id, hospital_id, day_of_week, start_time, end_time, lunch_start, lunch_end, min_slot_minutes, max_slot_minutes)
@@ -27,7 +31,11 @@ SELECT
     15,
     120
 FROM hospitals h
-WHERE h.status = 'ACTIVE';
+WHERE h.status = 'ACTIVE'
+  AND NOT EXISTS (
+    SELECT 1 FROM hospital_working_hours
+    WHERE hospital_id = h.id AND day_of_week = 7
+);
 
 -- Chủ nhật (day_of_week = 8) - làm ít giờ
 INSERT INTO hospital_working_hours (id, hospital_id, day_of_week, start_time, end_time, lunch_start, lunch_end, min_slot_minutes, max_slot_minutes)
@@ -42,4 +50,8 @@ SELECT
     15,
     120
 FROM hospitals h
-WHERE h.status = 'ACTIVE';
+WHERE h.status = 'ACTIVE'
+  AND NOT EXISTS (
+    SELECT 1 FROM hospital_working_hours
+    WHERE hospital_id = h.id AND day_of_week = 8
+);

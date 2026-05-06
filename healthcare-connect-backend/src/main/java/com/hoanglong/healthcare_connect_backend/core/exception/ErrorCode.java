@@ -223,6 +223,20 @@ public enum ErrorCode {
     MEDICINE_CODE_INVALID(8015, "Mã thuốc không hợp lệ!", HttpStatus.BAD_REQUEST),
     MEDICINE_NAME_INVALID(8016, "Tên thuốc không hợp lệ!", HttpStatus.BAD_REQUEST),
     MEDICINE_ALREADY_EXISTS_IN_HOSPITAL(8006, "Mã thuốc đã tồn tại trong bệnh viện của bạn!", HttpStatus.BAD_REQUEST),
+    TIME_REQUIRED(8001, "Thời gian bắt đầu và kết thúc là bắt buộc!", HttpStatus.BAD_REQUEST),
+    INVALID_WORKING_HOURS(8002, "Giờ bắt đầu phải trước giờ kết thúc!", HttpStatus.BAD_REQUEST),
+    INVALID_LUNCH_TIME(8003, "Giờ bắt đầu nghỉ trưa phải trước giờ kết thúc nghỉ trưa!", HttpStatus.BAD_REQUEST),
+    LUNCH_OUTSIDE_WORKING_HOURS(8004, "Giờ nghỉ trưa phải nằm trong khung giờ làm việc!", HttpStatus.BAD_REQUEST),
+    INVALID_SLOT_DURATION(8005, "Thời lượng ca tối thiểu phải nhỏ hơn thời lượng ca tối đa!", HttpStatus.BAD_REQUEST),
+    MIN_SLOT_TOO_SMALL(8006, "Thời lượng ca tối thiểu phải từ 5 phút trở lên!", HttpStatus.BAD_REQUEST),
+    MAX_SLOT_TOO_LARGE(8007, "Thời lượng ca tối đa không được vượt quá 240 phút (4 tiếng)!", HttpStatus.BAD_REQUEST),
+    INVALID_DAY_OF_WEEK(8008, "Ngày trong tuần không hợp lệ (phải từ 2 đến 8)!", HttpStatus.BAD_REQUEST),
+    WORKING_HOURS_NOT_CONFIGURED(8009, "Bệnh viện chưa cấu hình giờ làm việc cho ngày này!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_OUTSIDE_WORKING_HOURS(8010, "Giờ khám nằm ngoài khung giờ làm việc của bệnh viện!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_LUNCH_BREAK(8011, "Không thể tạo lịch vào giờ nghỉ trưa!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_TOO_SHORT(8012, "Thời gian mỗi ca khám quá ngắn (tối thiểu {min} phút)!", HttpStatus.BAD_REQUEST),
+    SCHEDULE_TOO_LONG(8013, "Thời gian mỗi ca khám quá dài (tối đa {max} phút)!", HttpStatus.BAD_REQUEST),
+
     // =============================================================================
     // 9xxx: PHÒNG KHÁM (ROOM)
     // =============================================================================
