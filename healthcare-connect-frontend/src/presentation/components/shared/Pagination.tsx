@@ -31,7 +31,6 @@ const Pagination = ({
     const [jumpToPage, setJumpToPage] = useState('');
     const [isMobile, setIsMobile] = useState(false);
 
-    // 👉 KIỂM TRA KÍCH THƯỚC MÀN HÌNH
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 640);

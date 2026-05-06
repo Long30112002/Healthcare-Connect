@@ -11,6 +11,7 @@ import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.text.ParseException;
 
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 @RequiredArgsConstructor
 public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
@@ -46,6 +48,9 @@ public class AuthController {
 
         // Thêm cookie vào header Set-Cookie
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        log.info("Login successful for user: {}", request.getEmail());
+        log.info("Set-Cookie: {}", cookie.toString());
 
         return ApiResponse.<LoginResponse>builder()
                 .status("success")

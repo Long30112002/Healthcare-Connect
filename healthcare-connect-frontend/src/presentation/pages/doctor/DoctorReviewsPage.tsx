@@ -9,7 +9,7 @@ import useFetch from '../../../application/hooks/useFetch';
 import { reviewApi } from '../../../infrastructure/api/reviewApi';
 
 const DoctorReviewsPage = () => {
-    const { t, currentLanguage } = useAppTranslation();
+    const { t } = useAppTranslation();
     const [currentPage, setCurrentPage] = useState(1);
     const [rating, setRating] = useState<DoctorRatingResponse | null>(null);
     const pageSize = 10;

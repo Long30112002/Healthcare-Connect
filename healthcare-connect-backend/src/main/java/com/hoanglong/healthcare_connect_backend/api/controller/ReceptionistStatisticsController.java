@@ -1,9 +1,9 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.receptionist.*;
 import com.hoanglong.healthcare_connect_backend.application.service.CurrentUserService;
-import com.hoanglong.healthcare_connect_backend.application.service.StatisticsService;
+import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistStatisticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 public class ReceptionistStatisticsController {
 
-    private final StatisticsService statisticsService;
+    private final ReceptionistStatisticsService receptionistStatisticsService;
     private final CurrentUserService currentUserService;
 
     @GetMapping("/dashboard")
@@ -29,7 +29,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(defaultValue = "today") String filter
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        DashboardStatistics response = statisticsService.getDashboardStatistics(filter, hospitalId);
+        DashboardStatistics response = receptionistStatisticsService.getDashboardStatistics(filter, hospitalId);
         return ApiResponse.<DashboardStatistics>builder()
                 .status("success")
                 .code(200)
@@ -45,7 +45,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        StatisticsResponse response = statisticsService.getSummaryStatistics(startDate, endDate, hospitalId);
+        StatisticsResponse response = receptionistStatisticsService.getSummaryStatistics(startDate, endDate, hospitalId);
         return ApiResponse.<StatisticsResponse>builder()
                 .status("success")
                 .code(200)
@@ -60,7 +60,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(defaultValue = "month") String period
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        StatisticsResponse response = statisticsService.getStatisticsByPeriod(period, hospitalId);
+        StatisticsResponse response = receptionistStatisticsService.getStatisticsByPeriod(period, hospitalId);
         return ApiResponse.<StatisticsResponse>builder()
                 .status("success")
                 .code(200)
@@ -76,7 +76,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        List<HourlyStatistic> response = statisticsService.getHourlyStatistics(startDate, endDate, hospitalId);
+        List<HourlyStatistic> response = receptionistStatisticsService.getHourlyStatistics(startDate, endDate, hospitalId);
         return ApiResponse.<List<HourlyStatistic>>builder()
                 .status("success")
                 .code(200)
@@ -92,7 +92,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        List<DoctorStatistic> response = statisticsService.getDoctorStatistics(startDate, endDate, hospitalId);
+        List<DoctorStatistic> response = receptionistStatisticsService.getDoctorStatistics(startDate, endDate, hospitalId);
         return ApiResponse.<List<DoctorStatistic>>builder()
                 .status("success")
                 .code(200)
@@ -108,7 +108,7 @@ public class ReceptionistStatisticsController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         UUID hospitalId = currentUserService.getCurrentReceptionistHospitalId();
-        List<DailyStatistic> response = statisticsService.getDailyStatistics(startDate, endDate, hospitalId);
+        List<DailyStatistic> response = receptionistStatisticsService.getDailyStatistics(startDate, endDate, hospitalId);
         return ApiResponse.<List<DailyStatistic>>builder()
                 .status("success")
                 .code(200)

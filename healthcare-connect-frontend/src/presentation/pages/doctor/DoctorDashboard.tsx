@@ -25,7 +25,7 @@ const DoctorDashboard = () => {
     const [doctorInfo, setDoctorInfo] = useState<DoctorResponse | null>(null);
     const [loadingInfo, setLoadingInfo] = useState(true);
 
-    const { activeTab, setActiveTab, page, setPage, apiPage } = useTabWithUrl({
+    const { activeTab, setActiveTab, page = 0, setPage, apiPage = 0 } = useTabWithUrl({
         paramName: 'tab',
         validValues: ['confirmed', 'in_progress', 'completed', 'cancelled'],
         defaultValue: 'confirmed'
@@ -82,22 +82,9 @@ const DoctorDashboard = () => {
 
     // Filter appointments theo search term
     const filteredAppointments = appointments.filter(apt =>
-        apt.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        apt.patientPhone?.includes(searchTerm)
+        (apt.patientName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (apt.patientPhone || '').includes(searchTerm)
     );
-
-    const handleCheckIn = async (appointmentId: string) => {
-        setUpdatingId(appointmentId);
-        try {
-            await appointmentApi.checkIn(appointmentId);
-            toast.success(t('doctor.checkInSuccess'));
-            refetch();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || t('doctor.checkInFailed'));
-        } finally {
-            setUpdatingId(null);
-        }
-    };
 
     const handleCompleteExam = async (appointmentId: string) => {
         setUpdatingId(appointmentId);
@@ -118,7 +105,9 @@ const DoctorDashboard = () => {
     };
 
     const handlePageChange = (newPage: number) => {
-        setPage(newPage);
+        if (setPage) {
+            setPage(newPage);
+        }
     };
 
     if (loading && page === 0) {

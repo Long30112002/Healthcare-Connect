@@ -1,6 +1,5 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.patient.PatientResponse;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
 import jakarta.persistence.LockModeType;
@@ -162,4 +161,77 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
             "WHERE a.id = :id")
     Optional<Appointment> findByIdWithMedicalDetails(@Param("id") UUID id);
 
+    /**
+     * Đếm số lượng bệnh nhân riêng biệt của một bác sĩ trong khoảng thời gian
+     * (bao gồm cả online và walk-in patient) - Dùng NATIVE QUERY
+     */
+    @Query(value = "SELECT COUNT(DISTINCT COALESCE(a.patient_id::text, a.patient_phone)) " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE s.doctor_id = :doctorId " +
+            "AND a.status = :status " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate",
+            nativeQuery = true)
+    Long countDistinctPatientByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") String status);
+
+    /**
+     * Tính tổng doanh thu của bác sĩ trong khoảng thời gian
+     * (chỉ tính appointment đã thanh toán) - Dùng NATIVE QUERY
+     */
+    @Query(value = "SELECT COALESCE(SUM(s.price), 0) " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE s.doctor_id = :doctorId " +
+            "AND a.status = :status " +
+            "AND a.is_paid = true " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate",
+            nativeQuery = true)
+    Long sumRevenueByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") String status);
+
+    /**
+     * Lấy số lượng bệnh nhân theo tháng của bác sĩ trong 12 tháng gần nhất - Dùng NATIVE QUERY
+     */
+    @Query(value = "SELECT EXTRACT(YEAR FROM a.appointment_date) as year, " +
+            "EXTRACT(MONTH FROM a.appointment_date) as month, " +
+            "COUNT(DISTINCT COALESCE(a.patient_id::text, a.patient_phone)) as count " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE s.doctor_id = :doctorId " +
+            "AND a.status = :status " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY EXTRACT(YEAR FROM a.appointment_date), EXTRACT(MONTH FROM a.appointment_date) " +
+            "ORDER BY year ASC, month ASC",
+            nativeQuery = true)
+    List<Object[]> getMonthlyPatientCountByDoctorId(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") String status);
+
+    /**
+     * Lấy bảng xếp hạng các bác sĩ trong cùng bệnh viện - Dùng NATIVE QUERY
+     */
+    @Query(value = "SELECT d.id, u.full_name, " +
+            "COUNT(DISTINCT COALESCE(a.patient_id::text, a.patient_phone)) as total_patients, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true THEN s.price ELSE 0 END), 0) as revenue, " +
+            "COALESCE(AVG(r.rating), 0) as avg_rating " +
+            "FROM doctors d " +
+            "JOIN users u ON d.user_id = u.id " +
+            "LEFT JOIN schedules s ON s.doctor_id = d.id " +
+            "LEFT JOIN appointments a ON a.schedule_id = s.id AND a.status = :status " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate " +
+            "LEFT JOIN reviews r ON r.doctor_id = d.id AND r.deleted = false " +
+            "WHERE d.hospital_id = :hospitalId " +
+            "GROUP BY d.id, u.full_name " +
+            "ORDER BY total_patients DESC",
+            nativeQuery = true)
+    List<Object[]> getDoctorRankingByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") String status);
 }

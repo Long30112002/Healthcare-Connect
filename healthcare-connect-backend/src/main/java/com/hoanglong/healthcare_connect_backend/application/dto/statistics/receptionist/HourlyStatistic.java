@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.application.dto.statistics;
+package com.hoanglong.healthcare_connect_backend.application.dto.statistics.receptionist;
 
 import lombok.Builder;
 import lombok.Data;

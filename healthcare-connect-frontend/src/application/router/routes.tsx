@@ -23,6 +23,8 @@ import MedicalRecordDetailPage from '../../presentation/pages/patient/MedicalRec
 import PrescriptionsPage from '../../presentation/pages/patient/PrescriptionsPage';
 import AppointmentDetailPage from '../../presentation/pages/patient/AppointmentDetailPage';
 import ContactPage from '../../presentation/pages/ContactPage';
+import DoctorStatisticsPage from '../../presentation/pages/doctor/DoctorStatisticsPage';
+import ConfirmInvitationPage from '../../presentation/pages/ConfirmInvitationPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -54,7 +56,8 @@ export const routes: RouteConfig[] = [
   { path: '/forgot-password', element: <ForgotPasswordPage />, layout: false, isPublic: true },
   { path: '/reset-password', element: <ResetPasswordPage />, layout: false, isPublic: true },
   { path: '/verify', element: <VerifyEmailPage />, layout: false, isPublic: true },
-
+  { path: '/confirm-invitation', element: <ConfirmInvitationPage />, layout: false, isPublic: true },
+  
   // Public routes (with layout)
   { path: '/', element: <PublicHomePage />, layout: true, isPublic: true },
   { path: '/about', element: <div>Về chúng tôi</div>, layout: true, isPublic: true },
@@ -79,6 +82,7 @@ export const routes: RouteConfig[] = [
   { path: '/medical-records/:id', element: <MedicalRecordDetailPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/prescriptions', element: <PrescriptionsPage />, layout: true, roles: [UserRole.PATIENT] },
   { path: '/appointments/:id', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.PATIENT] },
+
 
   { path: '/receptionist/dashboard', element: <ReceptionistDashboard />, layout: true, roles: [UserRole.RECEPTIONIST] },
   { path: '/receptionist/statistics', element: <ReceptionistStatistics />, layout: true, roles: [UserRole.RECEPTIONIST] },
@@ -106,5 +110,6 @@ export const routes: RouteConfig[] = [
   { path: '/doctor/schedules/:id/detail', element: <ScheduleDetailPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/schedules/:id/edit', element: <ScheduleEditPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/doctor/reviews', element: <DoctorReviewsPage />, layout: true, roles: [UserRole.DOCTOR] },
+  { path: '/doctor/statistics', element: <DoctorStatisticsPage />, layout: true, roles: [UserRole.DOCTOR] },
   // { path: '/doctor/appointments/:appointmentId/detail', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.DOCTOR] }
 ];  

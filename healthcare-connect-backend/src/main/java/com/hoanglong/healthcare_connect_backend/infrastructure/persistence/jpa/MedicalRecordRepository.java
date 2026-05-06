@@ -84,4 +84,15 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, UU
     // Tìm cả deleted (cho admin)
     @Query("SELECT m FROM MedicalRecord m WHERE m.id = :id")
     Optional<MedicalRecord> findByIdIncludingDeleted(@Param("id") UUID id);
+
+    @Query("SELECT m.diagnosis, COUNT(m.id) as count " +
+            "FROM MedicalRecord m " +
+            "WHERE m.doctor.id = :doctorId " +
+            "AND m.deleted = false " +
+            "AND m.createdAt BETWEEN :startDate AND :endDate " +
+            "GROUP BY m.diagnosis " +
+            "ORDER BY count DESC")
+    List<Object[]> getTopDiagnosesByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

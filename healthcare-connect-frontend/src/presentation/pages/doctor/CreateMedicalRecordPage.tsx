@@ -47,7 +47,7 @@ const CreateMedicalRecordPage: React.FC = () => {
     const [symptoms, setSymptoms] = useState('');
     const [notes, setNotes] = useState('');
     const [followUpDate, setFollowUpDate] = useState('');
-    
+
     // Vital signs
     const [vitalSigns, setVitalSigns] = useState<VitalSigns>({
         bloodPressure: '',
@@ -60,7 +60,7 @@ const CreateMedicalRecordPage: React.FC = () => {
 
     // Prescriptions
     const [prescriptions, setPrescriptions] = useState<PrescriptionForm[]>([
-        { id: crypto.randomUUID(), note: '', validUntil: '', items: [] }
+        { id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, note: '', validUntil: '', items: [] }
     ]);
 
     // Search medicines
@@ -77,13 +77,13 @@ const CreateMedicalRecordPage: React.FC = () => {
     const addMedicineToPrescription = (prescriptionId: string, medicine: MedicineResponse) => {
         setPrescriptions(prev => prev.map(pres => {
             if (pres.id !== prescriptionId) return pres;
-            
+
             const existingItem = pres.items.find(item => item.medicineId === medicine.id);
             if (existingItem) {
                 toast.error(t('medicine.alreadyAdded'));
                 return pres;
             }
-            
+
             const newItem: PrescriptionItemForm = {
                 id: crypto.randomUUID(),
                 medicineId: medicine.id,
@@ -112,7 +112,7 @@ const CreateMedicalRecordPage: React.FC = () => {
             if (pres.id !== prescriptionId) return pres;
             return {
                 ...pres,
-                items: pres.items.map(item => 
+                items: pres.items.map(item =>
                     item.id === itemId ? { ...item, [field]: value } : item
                 )
             };
@@ -120,7 +120,7 @@ const CreateMedicalRecordPage: React.FC = () => {
     };
 
     const updatePrescription = (prescriptionId: string, field: keyof PrescriptionForm, value: any) => {
-        setPrescriptions(prev => prev.map(pres => 
+        setPrescriptions(prev => prev.map(pres =>
             pres.id === prescriptionId ? { ...pres, [field]: value } : pres
         ));
     };

@@ -57,7 +57,8 @@
     "viewDetail": "View Details",
     "birthYear": "Year of birth",
     "paid": "Paid",
-    "unpaid": "Unpaid"
+    "unpaid": "Unpaid",
+    "home": "Home"
   },
   "prescriptions": {
     "title": "My Prescriptions",
@@ -152,12 +153,42 @@
     "symptoms": "Symptoms",
     "searchPlaceholder": "Search by name or phone...",
     "stats": {
+      "title": "My Statistics",
+      "subtitle": "Your medical appointment statistics",
       "total": "Total Appointments",
       "completed": "Completed",
-      "inProgress": "In Progress"
+      "inProgress": "In Progress",
+      "totalPatients": "Patients",
+      "revenue": "Revenue",
+      "averageRating": "Rating",
+      "totalPrescriptions": "Prescriptions",
+      "comparedToLastMonth": "vs last month",
+      "monthlyTrend": "Monthly Patient Trend",
+      "topDiagnoses": "Top Diagnoses",
+      "topMedicines": "Top Prescribed Medicines",
+      "ratingDistribution": "Rating Distribution from Patients",
+      "doctorRanking": "Comparison with Colleagues",
+      "rank": "Rank",
+      "times": "times",
+      "prescriptions": "prescriptions",
+      "reportGeneratedAt": "Report generated at",
+      "exportExcel": "Export Excel",
+      "exportPDF": "Export PDF",
+      "week": "This Week",
+      "month": "This Month",
+      "year": "This Year"
     },
     "noRatingYet": "No reviews yet",
     "reviews": "reviews"
+  },
+  "confirmInvitation": {
+    "successTitle": "Success!",
+    "successMessage": "Congratulations! You have become the Manager of {{hospitalName}}",
+    "hospitalNameDefault": "Hospital",
+    "redirecting": "Redirecting to login page...",
+    "errorTitle": "Error!",
+    "errorMessage": "Invalid or expired link!",
+    "invalidLink": "Invalid or expired link!"
   },
   "mySchedule": {
     "title": "My Schedule",

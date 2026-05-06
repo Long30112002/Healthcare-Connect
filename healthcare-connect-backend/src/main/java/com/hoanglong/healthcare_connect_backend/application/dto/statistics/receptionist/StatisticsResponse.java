@@ -1,5 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.application.dto.statistics;
-
+package com.hoanglong.healthcare_connect_backend.application.dto.statistics.receptionist;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,12 +8,11 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DashboardStatistics {
-    long upcoming;
-    long waiting;
+public class StatisticsResponse {
+    long totalAppointments;
     long checkedIn;
-    long completed;
+    long waiting;
     long cancelled;
     long noShow;
-    long total;
+    double checkInRate;
 }

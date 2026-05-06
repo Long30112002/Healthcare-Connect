@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 import type { MedicalRecordResponse } from '../../../core/types/api.response';
 import { medicalRecordApi } from '../../../infrastructure/api/medicalRecordApi';
 import { exportMedicalRecordPDF } from '../../../shared/utils/pdfExport';
-import axiosClient from '../../../infrastructure/api/axiosClient';
 
 const ViewMedicalRecordPage: React.FC = () => {
     const navigate = useNavigate();
@@ -22,23 +21,15 @@ const ViewMedicalRecordPage: React.FC = () => {
     const handleExportPDF = async () => {
         if (!medicalRecord) return;
 
-        try {
-            const hospitalResponse = await axiosClient.get(`/hospitals/${medicalRecord.hospitalId}`);
-            const hospitalData = hospitalResponse.data.data;
+        const hospitalInfo = {
+            name: medicalRecord.hospitalName || 'Healthcare Connect',
+            address: medicalRecord.hospitalAddress || '',
+            phone: '',
+            email: '',
+            website: ''
+        };
 
-            const hospitalInfo = {
-                name: hospitalData.name,
-                address: hospitalData.address,
-                phone: hospitalData.hotline,
-                email: hospitalData.email,
-                website: hospitalData.website
-            };
-
-            exportMedicalRecordPDF(medicalRecord, hospitalInfo, currentLanguage as 'vi' | 'en');
-        } catch (error) {
-            console.error('Failed to fetch hospital info:', error);
-            exportMedicalRecordPDF(medicalRecord, undefined, currentLanguage as 'vi' | 'en');
-        }
+        exportMedicalRecordPDF(medicalRecord, hospitalInfo, currentLanguage as 'vi' | 'en');
     };
 
     // Load medical record
@@ -94,7 +85,7 @@ const ViewMedicalRecordPage: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                       
+
                     </div>
                 </div>
 

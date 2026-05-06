@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,4 +74,30 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, UUID
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * Đếm tổng số đơn thuốc của bác sĩ trong khoảng thời gian
+     */
+    @Query("SELECT COUNT(p.id) " +
+            "FROM Prescription p " +
+            "WHERE p.doctor.id = :doctorId " +
+            "AND p.createdAt BETWEEN :startDate AND :endDate")
+    Long countByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Lấy top 5 thuốc được kê nhiều nhất của bác sĩ trong khoảng thời gian
+     */
+    @Query("SELECT m.name, SUM(pi.quantity) as totalQuantity " +
+            "FROM PrescriptionItem pi " +
+            "JOIN pi.prescription p " +
+            "JOIN pi.medicine m " +
+            "WHERE p.doctor.id = :doctorId " +
+            "AND p.createdAt BETWEEN :startDate AND :endDate " +
+            "GROUP BY m.id, m.name " +
+            "ORDER BY totalQuantity DESC")
+    List<Object[]> getTopMedicinesByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

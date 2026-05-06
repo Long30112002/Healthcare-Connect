@@ -60,4 +60,27 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     @Modifying
     @Query("UPDATE Review r SET r.deleted = true WHERE r.id = :id")
     void softDeleteById(@Param("id") UUID id);
+
+    /**
+     * Lấy đánh giá trung bình của bác sĩ trong khoảng thời gian
+     */
+    @Query("SELECT AVG(r.rating) " +
+            "FROM Review r " +
+            "WHERE r.doctor.id = :doctorId " +
+            "AND r.deleted = false " +
+            "AND r.createdAt BETWEEN :startDate AND :endDate")
+    Double getAverageRatingByDoctorIdAndDateRange(@Param("doctorId") UUID doctorId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Lấy phân bố số sao đánh giá của bác sĩ (tất cả thời gian)
+     */
+    @Query("SELECT r.rating, COUNT(r.id) " +
+            "FROM Review r " +
+            "WHERE r.doctor.id = :doctorId " +
+            "AND r.deleted = false " +
+            "GROUP BY r.rating " +
+            "ORDER BY r.rating DESC")
+    List<Object[]> getRatingDistributionByDoctorId(@Param("doctorId") UUID doctorId);
 }

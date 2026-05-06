@@ -55,6 +55,12 @@ public class SecurityConfig {
     @Value("${app.frontend.url.host}")
     private String frontendLan;
 
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${app.frontend.public-url}")
+    private String publicFrontendUrl;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
@@ -131,28 +137,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 1. Cho phép nguồn từ Frontend của bạn
-        configuration.setAllowedOrigins(List.of(frontendUrl, frontendLan));
+        // Dùng allowedOrigins từ properties
+        configuration.setAllowedOrigins(allowedOrigins);
 
-        // 2. Cho phép các phương thức HTTP phổ biến
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-
-        // 3. Cho phép các Header quan trọng để gửi JWT và JSON
-        configuration.setAllowedHeaders(List.of(
-                "Authorization",
-                "Content-Type",
-                "Cache-Control",
-                "X-Requested-With"
-        ));
-
-        // 4. Cho phép gửi kèm Credentials
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
         configuration.setAllowCredentials(true);
-
-        // 5. Cache kết quả Preflight trong 1 tiếng để tăng tốc độ cho Frontend
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các API (/api/**, /ws/**, ...)
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 

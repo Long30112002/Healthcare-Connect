@@ -26,7 +26,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-
 public class MailService {
     private final JavaMailSender mailSender;
     private final RabbitTemplate rabbitTemplate;
@@ -35,6 +34,9 @@ public class MailService {
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
+
+    @Value("${app.frontend.public-url:${app.frontend.url}}")
+    private String publicFrontendUrl;
 
     @Value("${spring.mail.username}")
     private String mailFrom;
@@ -58,7 +60,7 @@ public class MailService {
 
     // NGHIỆP VỤ XÁC THỰC
     public void sendVerificationEmail(User user) {
-        String verifyUrl = frontendUrl + "/verify?code=" + user.getVerificationCode();
+        String verifyUrl = publicFrontendUrl + "/verify?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
         variables.put("url", verifyUrl);
@@ -81,7 +83,7 @@ public class MailService {
 
     // NGHIỆP VỤ QUÊN MẬT KHẨU
     public void sendForgotPasswordEmail(User user) {
-        String resetUrl = frontendUrl + "/reset-password?code=" + user.getVerificationCode();
+        String resetUrl = publicFrontendUrl + "/reset-password?code=" + user.getVerificationCode();
         Map<String, Object> variables = new HashMap<>();
         variables.put("name", user.getFullName());
         variables.put("url", resetUrl);
@@ -111,7 +113,7 @@ public class MailService {
         variables.put("role", role); // "bác sĩ" hoặc "lễ tân"
         variables.put("message", "Hồ sơ của bạn đã được Admin xác thực thành công. Vui lòng chờ " +
                 (role.equals("bác sĩ") ? "bệnh viện" : "bệnh viện") + " tiếp nhận.");
-        variables.put("url", frontendUrl + urlPath);
+        variables.put("url", publicFrontendUrl + urlPath);
         variables.put("btnText", "Xem hồ sơ");
 
         pushToQueue(user.getEmail(), "Hồ sơ " + role + " đã được xác thực", "profile-verified-template", variables);
@@ -127,7 +129,7 @@ public class MailService {
         variables.put("message", "Chúc mừng! Hồ sơ của bạn đã được " +
                 (role.equals("bác sĩ") ? "bệnh viện tiếp nhận" : "bệnh viện tiếp nhận") +
                 ". Bạn chính thức là " + role + " của hệ thống.");
-        variables.put("url", frontendUrl + urlPath);
+        variables.put("url", publicFrontendUrl + urlPath);
         variables.put("btnText", "Vào Dashboard ngay");
 
         pushToQueue(user.getEmail(), "Chúc mừng! Bạn đã trở thành " + role, "profile-approval-template", variables);
@@ -139,7 +141,7 @@ public class MailService {
         variables.put("name", user.getFullName());
         variables.put("role", role);
         variables.put("message", "Hồ sơ đăng ký làm " + role + " của bạn đã bị từ chối với lý do: " + reason);
-        variables.put("url", frontendUrl + "/support");
+        variables.put("url", publicFrontendUrl + "/support");
         variables.put("btnText", "Liên hệ hỗ trợ");
 
         pushToQueue(user.getEmail(), "Thông báo kết quả hồ sơ " + role, "profile-rejection-template", variables);
@@ -165,7 +167,7 @@ public class MailService {
         variables.put("price", formattedPrice);
         variables.put("address", schedule.getDoctor().getHospital().getAddress());
 
-        variables.put("url", frontendUrl + "/my-appointments");
+        variables.put("url", publicFrontendUrl + "/my-appointments");
         variables.put("btnText", "Xem lịch khám của tôi");
 
         pushToQueue(patient.getEmail(), "Xác nhận đặt lịch khám thành công", "booking-confirmation-template", variables);
@@ -173,7 +175,7 @@ public class MailService {
 
     // NGHIỆP VỤ LỜI MỜI
     public void sendManagerInvitation(User user, Hospital hospital, String token) {
-        String confirmationUrl = frontendUrl + "/confirm-invitation?token=" + token
+        String confirmationUrl = publicFrontendUrl + "/confirm-invitation?token=" + token
                 + "&hospitalId=" + hospital.getId();
 
         Map<String, Object> variables = new HashMap<>();

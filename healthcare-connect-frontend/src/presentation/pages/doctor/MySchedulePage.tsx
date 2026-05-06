@@ -36,7 +36,7 @@ const MySchedulePage = () => {
     const navigate = useNavigate();
     const { t } = useAppTranslation();
 
-    const { activeTab, setActiveTab, page, setPage, apiPage } = useTabWithUrl({
+    const { activeTab, setActiveTab, page = 0, setPage, apiPage = 0 } = useTabWithUrl({
         paramName: 'status',
         validValues: ['all', 'available', 'full', 'cancelled', 'expired'],
         defaultValue: 'all',
@@ -61,7 +61,7 @@ const MySchedulePage = () => {
 
     const filteredSchedules = useMemo(() => {
         if (activeTab === 'all') return schedules;
-        
+
         const statusMap: Record<string, string> = {
             available: 'AVAILABLE',
             full: 'FULL',
@@ -72,7 +72,7 @@ const MySchedulePage = () => {
         return schedules.filter(s => s.status === targetStatus);
     }, [schedules, activeTab]);
 
-    // 🟢 Stats data cho DashboardStats
+    // Stats data cho DashboardStats
     const stats = [
         { value: schedules.filter(s => s.status === 'AVAILABLE').length, label: t('schedule.available'), color: 'green' as const, loading },
         { value: schedules.filter(s => s.status === 'FULL').length, label: t('schedule.full'), color: 'red' as const, loading },
@@ -142,7 +142,7 @@ const MySchedulePage = () => {
     const isModifiable = (schedule: ScheduleRespone): boolean => {
         if (schedule.status === 'CANCELLED' || schedule.status === 'EXPIRED') return false;
         if (schedule.currentBookings > 0) return false;
-        
+
         const scheduleDate = new Date(schedule.date[0], schedule.date[1] - 1, schedule.date[2]);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -157,7 +157,9 @@ const MySchedulePage = () => {
     };
 
     const handlePageChange = (newPage: number) => {
-        setPage(newPage - 1);
+        if (setPage) {
+            setPage(newPage);
+        }
     };
 
     if (loading && page === 0) {
@@ -167,14 +169,14 @@ const MySchedulePage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="container mx-auto px-4 py-6">
-                    <DashboardHeader
-                        icon="📅"
-                        title={t('mySchedule.title')}
-                        subtitle={t('mySchedule.subtitle')}
-                        showCreateButton={true}
-                        onCreateClick={() => navigate('/doctor/schedules/create')}
-                        createButtonText={t('mySchedule.createNew')}
-                    />
+                <DashboardHeader
+                    icon="📅"
+                    title={t('mySchedule.title')}
+                    subtitle={t('mySchedule.subtitle')}
+                    showCreateButton={true}
+                    onCreateClick={() => navigate('/doctor/schedules/create')}
+                    createButtonText={t('mySchedule.createNew')}
+                />
 
 
                 {/* Filter Tabs */}
@@ -194,7 +196,7 @@ const MySchedulePage = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 <DashboardStats stats={stats} />
 
                 {/* Schedule List */}

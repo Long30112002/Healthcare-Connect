@@ -5,27 +5,28 @@ interface UseTabWithUrlOptions<T extends string> {
     paramName: string;
     validValues: T[];
     defaultValue: T;
-    pageZeroBased?: boolean; 
+    includePage?: boolean; 
+    pageZeroBased?: boolean;
 }
 
 interface UseTabWithUrlReturn<T extends string> {
     activeTab: T;
     setActiveTab: (tab: T) => void;
-    page: number;
-    setPage: (page: number) => void;
-    apiPage: number;
+    page?: number;          
+    setPage?: (page: number) => void; 
+    apiPage?: number;    
 }
 
 export const useTabWithUrl = <T extends string>({
     paramName,
     validValues,
     defaultValue,
-    pageZeroBased = true 
+    includePage = true, 
+    pageZeroBased = true
 }: UseTabWithUrlOptions<T>): UseTabWithUrlReturn<T> => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Parse URL params
     const searchParams = new URLSearchParams(location.search);
     
     const getTabFromUrl = (): T => {
@@ -34,6 +35,7 @@ export const useTabWithUrl = <T extends string>({
     };
     
     const getPageFromUrl = (): number => {
+        if (!includePage) return pageZeroBased ? 0 : 1;
         const pageParam = searchParams.get('page');
         const defaultPage = pageZeroBased ? 0 : 1;
         if (!pageParam) return defaultPage;
@@ -44,31 +46,34 @@ export const useTabWithUrl = <T extends string>({
     const [activeTab, setActiveTabState] = useState<T>(getTabFromUrl);
     const [page, setPageState] = useState<number>(getPageFromUrl);
 
-    // Cập nhật URL khi state thay đổi
     const updateUrl = (tab: T, newPage: number) => {
         const params = new URLSearchParams();
         params.set(paramName, tab);
-        params.set('page', newPage.toString());
+        if (includePage) {
+            params.set('page', newPage.toString());
+        }
         navigate(`${location.pathname}?${params.toString()}`, { replace: true });
     };
 
-    // Set tab và update URL (reset page về mặc định)
     const setActiveTab = (tab: T) => {
         const defaultPage = pageZeroBased ? 0 : 1;
         setActiveTabState(tab);
-        setPageState(defaultPage);
-        updateUrl(tab, defaultPage);
+        if (includePage) {
+            setPageState(defaultPage);
+            updateUrl(tab, defaultPage);
+        } else {
+            updateUrl(tab, 0);
+        }
     };
 
-    // Set page và update URL
     const setPage = (newPage: number) => {
+        if (!includePage) return;
         const minPage = pageZeroBased ? 0 : 1;
         if (newPage < minPage) return;
         setPageState(newPage);
         updateUrl(activeTab, newPage);
     };
 
-    // Lắng nghe URL thay đổi (back/forward)
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const tab = params.get(paramName) as T;
@@ -78,7 +83,7 @@ export const useTabWithUrl = <T extends string>({
             setActiveTabState(tab);
         }
         
-        if (pageParam) {
+        if (includePage && pageParam) {
             const newPage = parseInt(pageParam);
             const minPage = pageZeroBased ? 0 : 1;
             if (!isNaN(newPage) && newPage !== page && newPage >= minPage) {
@@ -87,14 +92,13 @@ export const useTabWithUrl = <T extends string>({
         }
     }, [location.search]);
 
-    // API page = page - 1 (nếu pageZeroBased = false) hoặc page (nếu pageZeroBased = true)
-    const apiPage = pageZeroBased ? page : page - 1;
+    const apiPage = includePage ? (pageZeroBased ? page : page - 1) : undefined;
 
     return {
         activeTab,
         setActiveTab,
-        page,
-        setPage,
+        page: includePage ? page : undefined,
+        setPage: includePage ? setPage : undefined,
         apiPage
     };
 };

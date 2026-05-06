@@ -124,13 +124,11 @@ export const exportMedicalRecordPDF = async (
     const doc = new jsPDF();
     const info = hospitalInfo || fallbackHospital;
     const content = language === 'vi' ? viContent : enContent;
-    // const formatDateFn = (date: Date) => language === 'vi' ? formatDateVI(date) : formatDateEN(date);
     
-    // Điều chỉnh font size cho tiếng Anh (chữ dài hơn)
     const titleFontSize = language === 'vi' ? 18 : 14;
     const headerFontSize = language === 'vi' ? 16 : 14;
 
-    // ✅ LOAD FONT
+    // LOAD FONT
     doc.addFileToVFS('Roboto.ttf', RobotoFont);
     doc.addFont('Roboto.ttf', 'Roboto', 'normal');
     doc.addFont('Roboto.ttf', 'Roboto', 'bold');
@@ -139,7 +137,7 @@ export const exportMedicalRecordPDF = async (
     const pageWidth = doc.internal.pageSize.getWidth();
     const marginLeft = 15;
     const marginRight = pageWidth - 15;
-    let y = 20;
+    let y: number = 20;
 
     // ===== HEADER =====
     doc.setFont('Roboto', 'bold');
@@ -257,7 +255,8 @@ export const exportMedicalRecordPDF = async (
         margin: { left: marginLeft, right: marginLeft }
     });
 
-    y = (doc as any).lastAutoTable.finalY + 12;
+    const lastY = (doc as any).lastAutoTable?.finalY;
+    y = (typeof lastY === 'number' && !isNaN(lastY)) ? lastY + 12 : y + 50;
 
     // ===== TOTAL AMOUNT =====
     const total = record.prescriptions?.reduce((s, p) => s + (p.totalAmount || 0), 0) || 0;
@@ -269,6 +268,11 @@ export const exportMedicalRecordPDF = async (
     y += 20;
 
     // ===== SIGNATURE SECTION =====
+    // Kiểm tra y hợp lệ
+    if (typeof y !== 'number' || isNaN(y)) {
+        y = (doc as any).internal.pageSize.getHeight() - 80;
+    }
+
     const signatureWidth = 55;
     const signatureStart1 = 20;
     const signatureStart2 = 78;
@@ -298,11 +302,13 @@ export const exportMedicalRecordPDF = async (
     y += 15;
 
     // ===== FOOTER =====
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(8);
-    doc.text(content.footer, pageWidth / 2, y, { align: 'center' });
+    if (typeof y === 'number' && !isNaN(y)) {
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(8);
+        doc.text(content.footer, pageWidth / 2, y, { align: 'center' });
+    }
 
-    // ===== LƯU FILE VỚI TÊN DỄ NHẬN BIẾT =====
+    // ===== LƯU FILE =====
     const fileName = generateFileName(record, language);
     doc.save(fileName);
 };

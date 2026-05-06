@@ -21,12 +21,6 @@ const Header = () => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
-  const shouldShowContact = () => {
-    if (!isAuthenticated) return true;
-    if (user?.role === 'PATIENT') return true;
-    return false;
-  };
-
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);
     setIsMobileMenuOpen(false);
@@ -48,7 +42,6 @@ const Header = () => {
       }
       return currentPath === '/';
     }
-
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 
@@ -79,17 +72,25 @@ const Header = () => {
     }
   };
 
-  // Menu công khai (khi chưa login)
+  // Helper: Kiểm tra có nên hiển thị Contact không
+  const shouldShowContact = () => {
+    if (!isAuthenticated) return true;
+    if (user?.role === 'PATIENT') return true;
+    return false;
+  };
+
+  // Menu công khai (hiển thị cho cả login và chưa login)
   const publicMenuItems = [
     { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
   ];
 
+  // Thêm Contact vào publicMenuItems nếu được phép
   if (shouldShowContact()) {
-    publicMenuItems.push({
-      path: '/contact',
-      label: t('nav.contact'),
-      shortLabel: '📞',
-      icon: '📞'
+    publicMenuItems.push({ 
+      path: '/contact', 
+      label: t('nav.contact'), 
+      shortLabel: '📞', 
+      icon: '📞' 
     });
   }
 
@@ -112,6 +113,7 @@ const Header = () => {
     DOCTOR: [
       { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
       { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },
+      { path: '/doctor/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' }, // 👈 THÊM MỚI
       { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },
     ],
     HOSPITAL_MANAGER: [

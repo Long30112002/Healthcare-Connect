@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.receptionist.*;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.StatisticsRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StatisticsService {
+public class ReceptionistStatisticsService
+{
 
     private final StatisticsRepository statisticsRepository;
     // XỬ LÝ NGÀY THÁNG

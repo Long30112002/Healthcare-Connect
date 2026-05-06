@@ -56,7 +56,8 @@
     "viewDetail": "Xem chi tiết",
     "birthYear": "Năm sinh",
     "paid": "Đã thanh toán",
-    "unpaid": "Chưa thanh toán"
+    "unpaid": "Chưa thanh toán",
+    "home": "Trang chủ"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -114,13 +115,43 @@
     "symptoms": "Triệu chứng",
     "searchPlaceholder": "Tìm kiếm theo tên hoặc số điện thoại...",
     "stats": {
+      "title": "Thống kê của tôi",
+      "subtitle": "Thống kê số liệu khám bệnh của bạn",
       "total": "Tổng số lịch hẹn",
       "completed": "Đã hoàn thành",
-      "inProgress": "Đang khám"
+      "inProgress": "Đang khám",
+      "totalPatients": "Bệnh nhân",
+      "revenue": "Doanh thu",
+      "averageRating": "Đánh giá",
+      "totalPrescriptions": "Đơn thuốc",
+      "comparedToLastMonth": "so với tháng trước",
+      "monthlyTrend": "Xu hướng bệnh nhân theo tháng",
+      "topDiagnoses": "Top chẩn đoán",
+      "topMedicines": "Top thuốc đã kê",
+      "ratingDistribution": "Phân bố đánh giá từ bệnh nhân",
+      "doctorRanking": "So sánh với đồng nghiệp",
+      "rank": "Hạng",
+      "times": "lần",
+      "prescriptions": "đơn",
+      "reportGeneratedAt": "Báo cáo được tạo lúc",
+      "exportExcel": "Xuất Excel",
+      "exportPDF": "Xuất PDF",
+      "week": "Tuần này",
+      "month": "Tháng này",
+      "year": "Năm nay"
     },
     "noRatingYet": "Chưa có đánh giá",
     "reviews": "đánh giá"
   },
+  "confirmInvitation": {
+  "successTitle": "Thành công!",
+  "successMessage": "Chúc mừng! Bạn đã trở thành Quản lý của {{hospitalName}}",
+  "hospitalNameDefault": "Bệnh viện",
+  "redirecting": "Chuyển hướng đến trang đăng nhập...",
+  "errorTitle": "Lỗi!",
+  "errorMessage": "Link không hợp lệ hoặc đã hết hạn!",
+  "invalidLink": "Link không hợp lệ hoặc đã hết hạn!"
+},
   "mySchedule": {
     "title": "Lịch làm việc của tôi",
     "subtitle": "Quản lý lịch khám bệnh của bạn",
@@ -294,7 +325,7 @@
     "clearSearch": "Xóa tìm kiếm",
     "visitedCount": "Đã khám {count} lần"
   },
-    "contact": {
+  "contact": {
     "title": "Liên hệ",
     "subtitle": "Chúng tôi luôn sẵn sàng hỗ trợ bạn",
     "infoTitle": "Thông tin liên hệ",
