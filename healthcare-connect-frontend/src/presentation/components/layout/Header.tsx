@@ -86,11 +86,11 @@ const Header = () => {
 
   // Thêm Contact vào publicMenuItems nếu được phép
   if (shouldShowContact()) {
-    publicMenuItems.push({ 
-      path: '/contact', 
-      label: t('nav.contact'), 
-      shortLabel: '📞', 
-      icon: '📞' 
+    publicMenuItems.push({
+      path: '/contact',
+      label: t('nav.contact'),
+      shortLabel: '📞',
+      icon: '📞'
     });
   }
 
@@ -117,8 +117,10 @@ const Header = () => {
       { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },
     ],
     HOSPITAL_MANAGER: [
-      { path: '/manage-doctors', label: t('nav.manageDoctors'), shortLabel: '📋', icon: '👨‍⚕️' },
-      { path: '/hospital-dashboard', label: t('nav.myHospital'), shortLabel: '🏥', icon: '🏥' },
+      { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
+      { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: '👩‍💼' },
+      { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: '⏰' },
+      { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' },
     ],
     ADMIN: [
       { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: '👥' },
