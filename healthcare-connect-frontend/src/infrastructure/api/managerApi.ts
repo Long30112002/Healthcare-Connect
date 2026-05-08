@@ -82,7 +82,7 @@ export const managerApi = {
             return fetchMockPendingReceptionists();
         }
         // const response = await axiosClient.get('/manager/receptionists/pending');
-        const response = await axiosClient.get('/manager/receptionist', { params: { status: 'VERIFIED', page: 0, size: 100 } });
+        const response = await axiosClient.get('/manager/receptionists', { params: { status: 'VERIFIED', page: 0, size: 100 } });
         return response.data.data.content;
     },
 

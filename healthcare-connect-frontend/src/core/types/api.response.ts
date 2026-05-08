@@ -364,6 +364,20 @@ export interface DoctorResponse {
     updatedAt?: string;      
 }
 
+export interface ReceptionistForManager {
+    id: string;
+    receptionistCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    status: ReceptionistStatus;
+    cvUrl: string;
+    rejectionReason?: string;
+    rejectionNote?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface PaymentStatusResponse {
     status: string;
     paid: boolean;

@@ -1,5 +1,3 @@
-// presentation/pages/manager/ManagerReceptionistsPage.tsx
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
@@ -9,22 +7,20 @@ import Button from '../../components/shared/Button';
 import Modal from '../../components/shared/Modal';
 import Pagination from '../../components/shared/Pagination';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
-
-import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
-import toast from 'react-hot-toast';
-import type { ReceptionistForManager } from '../../../core/types';
-import type { PageResponse } from '../../../core/types/api.response';
-import { t } from 'i18next';
 import { managerApi } from '../../../infrastructure/api/managerApi';
+import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
+import type { ReceptionistForManager } from '../../../core/types/api.response';
+import toast from 'react-hot-toast';
+import { t } from 'i18next';
 
 type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
 
 const statusOptions: { value: StatusFilter; label: string; icon: string }[] = [
-    { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
-    { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
-    { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
-    { value: 'APPROVED', label: t('doctor.status.approved'), icon: '✅' },
-    { value: 'REJECTED', label: t('doctor.status.rejected'), icon: '❌' },
+  { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
+  { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
+  { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
+  { value: 'APPROVED', label: t('doctor.status.approved'), icon: '✅' },
+  { value: 'REJECTED', label: t('doctor.status.rejected'), icon: '❌' },
 ];
 
 const ManagerReceptionistsPage = () => {
@@ -34,7 +30,6 @@ const ManagerReceptionistsPage = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [receptionists, setReceptionists] = useState<ReceptionistForManager[]>([]);
-  const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   
   // Lấy filter và page từ URL
@@ -72,37 +67,32 @@ const ManagerReceptionistsPage = () => {
   };
 
   // Fetch data
-  useEffect(() => {
-    const fetchReceptionists = async () => {
-      setLoading(true);
-      try {
-        const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-        const response: PageResponse<ReceptionistForManager> = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
-        setReceptionists(response.content);
-        setTotalPages(response.totalPages);
-        setTotalElements(response.totalElements);
-      } catch (error) {
-        console.error('Failed to fetch receptionists:', error);
-        toast.error(t('common.loadError'));
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchReceptionists();
-  }, [currentPage, statusFilter, t]);
+  const fetchReceptionists = async () => {
+    setLoading(true);
+    try {
+      const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
+      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
+      setReceptionists(response.content);
+      setTotalElements(response.totalElements);
+    } catch (error) {
+      console.error('Failed to fetch receptionists:', error);
+      toast.error(t('common.loadError'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Approve
+  useEffect(() => {
+    fetchReceptionists();
+  }, [currentPage, statusFilter]);
+
+  // Approve receptionist
   const handleApprove = async (receptionistId: string) => {
     setApprovingId(receptionistId);
     try {
       await managerApi.approveReceptionist(receptionistId);
       toast.success(t('manager.approveReceptionistSuccess'));
-      // Refresh list
-      const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
-      setReceptionists(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      fetchReceptionists();
     } catch (error) {
       toast.error(t('manager.approveReceptionistError'));
     } finally {
@@ -125,12 +115,7 @@ const ManagerReceptionistsPage = () => {
       await managerApi.rejectReceptionist(receptionistId, { reasonCode: rejectReason, note: rejectNote });
       toast.success(t('manager.rejectReceptionistSuccess'));
       setRejectModal({ open: false, receptionistId: '', receptionistName: '' });
-      // Refresh list
-      const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
-      setReceptionists(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      fetchReceptionists();
     } catch (error) {
       toast.error(t('manager.rejectError'));
     } finally {
@@ -167,6 +152,7 @@ const ManagerReceptionistsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-6">
+        {/* Header */}
         <DashboardHeader
           icon="👩‍💼"
           title={t('manager.receptionists.title')}
@@ -219,14 +205,19 @@ const ManagerReceptionistsPage = () => {
                           {getStatusBadge(receptionist.status)}
                         </div>
                         <p className="text-sm text-gray-500 mt-1">
-                          Mã: {receptionist.receptionistCode}
+                          {t('manager.receptionists.code')}: {receptionist.receptionistCode}
                         </p>
                         <p className="text-sm text-gray-500">
                           📧 {receptionist.email} - 📞 {receptionist.phone}
                         </p>
                         <p className="text-xs text-gray-400">
-                          📅 Đăng ký: {formatDate(receptionist.createdAt)}
+                          📅 {t('manager.receptionists.registeredDate')}: {formatDate(receptionist.createdAt)}
                         </p>
+                        {receptionist.status === ReceptionistStatus.REJECTED && receptionist.rejectionReason && (
+                          <p className="text-sm text-red-600 mt-1">
+                            ❌ {t('common.reason')}: {receptionist.rejectionNote || receptionist.rejectionReason}
+                          </p>
+                        )}
                       </div>
                       <div className="flex gap-2 flex-wrap">
                         {receptionist.status === ReceptionistStatus.VERIFIED && (
@@ -264,11 +255,11 @@ const ManagerReceptionistsPage = () => {
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {totalElements > 10 && (
               <div className="mt-6">
                 <Pagination
                   currentPage={currentPage + 1}
-                  totalPages={totalPages}
+                  totalPages={Math.ceil(totalElements / 10)}
                   onPageChange={handlePageChange}
                   showJumpToPage={true}
                   showFirstLast={true}

@@ -62,7 +62,8 @@
     "reject": "Từ chối",
     "viewAll": "Xem tất cả",
     "download": "Tải xuống",
-    "notAvailable": "Chưa cập nhật"
+    "notAvailable": "Chưa cập nhật",
+    "reason": "Lý do"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -1235,7 +1236,9 @@
       "title": "Quản lý lễ tân",
       "subtitle": "Xem danh sách và duyệt lễ tân",
       "list": "Danh sách lễ tân",
-      "noReceptionists": "Không có lễ tân nào"
+      "noReceptionists": "Không có lễ tân nào",
+      "code": "Mã",
+      "registeredDate": "Ngày đăng ký"
     },
     "doctorDetail": {
       "title": "Chi tiết bác sĩ",
@@ -1250,6 +1253,21 @@
       "profileSubmitted": "Nộp hồ sơ đăng ký",
       "pendingApproval": "Chờ duyệt",
       "waitingForManager": "Đang chờ quản lý bệnh viện duyệt"
+    },
+    "approveReceptionistError": "Duyệt lễ tân thất bại!",
+    "receptionistDetail": {
+      "title": "Chi tiết lễ tân",
+      "subtitle": "Thông tin chi tiết của lễ tân {{name}}",
+      "personalInfo": "Thông tin cá nhân",
+      "receptionistCode": "Mã lễ tân",
+      "registeredDate": "Ngày đăng ký",
+      "attachments": "Tài liệu đính kèm",
+      "approvalHistory": "Lịch sử duyệt hồ sơ",
+      "submitted": "Đã nộp hồ sơ",
+      "profileSubmitted": "Nộp hồ sơ đăng ký",
+      "pendingApproval": "Chờ duyệt",
+      "waitingForManager": "Đang chờ quản lý bệnh viện duyệt",
+      "noCV": "Lễ tân chưa tải lên CV"
     }
   },
   "error": {

@@ -63,7 +63,8 @@
     "reject": "Reject",
     "viewAll": "View all",
     "download": "Download",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "reason": "Reason"
   },
   "manager": {
     "dashboard": {
@@ -102,10 +103,12 @@
     "rejectNotePlaceholder": "Enter additional notes...",
     "yourHospital": "Your Hospital",
     "receptionists": {
-      "title": "Receptionist Manager",
-      "subtitle": "View and approve Receptionists",
-      "list": "List of Receptionists",
-      "noReceptionists": "No Receptionists"
+      "title": "Manage Receptionists",
+      "subtitle": "View and approve receptionists",
+      "list": "Receptionists List",
+      "noReceptionists": "No receptionists found",
+      "code": "Code",
+      "registeredDate": "Registered Date"
     },
     "doctorDetail": {
       "title": "Doctor Details",
@@ -120,6 +123,21 @@
       "profileSubmitted": "Profile submitted",
       "pendingApproval": "Pending Approval",
       "waitingForManager": "Waiting for hospital manager approval"
+    },
+    "approveReceptionistError": "Failed to approve receptionist!",
+    "receptionistDetail": {
+      "title": "Receptionist Details",
+      "subtitle": "Detailed information of receptionist {{name}}",
+      "personalInfo": "Personal Information",
+      "receptionistCode": "Receptionist Code",
+      "registeredDate": "Registered Date",
+      "attachments": "Attachments",
+      "approvalHistory": "Approval History",
+      "submitted": "Submitted",
+      "profileSubmitted": "Profile submitted",
+      "pendingApproval": "Pending Approval",
+      "waitingForManager": "Waiting for hospital manager approval",
+      "noCV": "Receptionist has not uploaded CV"
     }
   },
   "prescriptions": {
