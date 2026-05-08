@@ -4,12 +4,12 @@
  */
 const parseToDate = (input: string | number[] | Date): Date => {
     if (input instanceof Date) return input;
-    
+
     if (Array.isArray(input)) {
         const [year, month, day, hour = 0, minute = 0] = input;
         return new Date(year, month - 1, day, hour, minute);
     }
-    
+
     return new Date(input);
 };
 
@@ -20,21 +20,21 @@ const parseToDate = (input: string | number[] | Date): Date => {
  * @returns Chuỗi ngày giờ đã định dạng
  */
 export const formatDateTime = (
-    input: string | number[], 
+    input: string | number[],
     format: 'dd/mm/yyyy HH:MM' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'HH:MM' | 'HH:MM:ss' | 'dd/MM/yyyy' = 'dd/mm/yyyy HH:MM'
 ): string => {
     if (!input) return 'N/A';
-    
+
     const date = parseToDate(input);
     if (isNaN(date.getTime())) return 'N/A';
-    
+
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     const hour = date.getHours().toString().padStart(2, '0');
     const minute = date.getMinutes().toString().padStart(2, '0');
     const second = date.getSeconds().toString().padStart(2, '0');
-    
+
     switch (format) {
         case 'dd/mm/yyyy':
             return `${day}/${month}/${year}`;
@@ -57,16 +57,16 @@ export const formatDateTime = (
  * @returns Chuỗi ngày đã format
  */
 export const formatDateArray = (
-    dateArray: number[] | undefined, 
+    dateArray: number[] | undefined,
     format: 'date' | 'datetime' = 'date'
 ): string => {
     if (!dateArray || dateArray.length < 3) return '---';
-    
+
     if (format === 'datetime' && dateArray.length >= 5) {
         const [year, month, day, hour, minute] = dateArray;
         return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     }
-    
+
     const [year, month, day] = dateArray;
     return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
 };
@@ -77,6 +77,12 @@ export const formatDateArray = (
 export const formatPrice = (price: number): string => {
     if (!price && price !== 0) return '0đ';
     return price.toLocaleString('vi-VN') + 'đ';
+};
+
+// Format date
+export const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 };
 
 /**
@@ -90,13 +96,13 @@ export const formatTimeOnly = (input: number | number[] | string, minute?: numbe
         const min = input[4];
         return `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
     }
-    
+
     // Trường hợp 2: input là mảng [hour, minute] (cũ)
     if (Array.isArray(input) && input.length === 2) {
         const [hour, min] = input;
         return `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
     }
-    
+
     // Trường hợp 3: input là string ISO
     if (typeof input === 'string') {
         const date = new Date(input);
@@ -107,12 +113,12 @@ export const formatTimeOnly = (input: number | number[] | string, minute?: numbe
         }
         return 'N/A';
     }
-    
+
     // Trường hợp 4: input là hour (number), minute là number riêng
     if (typeof input === 'number' && minute !== undefined) {
         return `${input.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     }
-    
+
     return 'N/A';
 };
 
@@ -121,17 +127,17 @@ export const formatTimeOnly = (input: number | number[] | string, minute?: numbe
  */
 export const formatDateToVietnam = (input: string | number[], language: 'vi' | 'en' = 'vi'): string => {
     if (!input) return '';
-    
+
     const date = parseToDate(input);
     if (isNaN(date.getTime())) return '';
-    
+
     if (language === 'vi') {
         const day = date.getDate();
         const month = date.getMonth() + 1;
         const year = date.getFullYear();
         return `Ngày ${day} tháng ${month} năm ${year}`;
     }
-    
+
     return date.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -144,14 +150,14 @@ export const formatDateToVietnam = (input: string | number[], language: 'vi' | '
  */
 export const formatDateShort = (input: string | number[], language: 'vi' | 'en' = 'vi'): string => {
     if (!input) return '';
-    
+
     const date = parseToDate(input);
     if (isNaN(date.getTime())) return '';
-    
+
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
-    
+
     if (language === 'vi') {
         return `${day}/${month}/${year}`;
     }

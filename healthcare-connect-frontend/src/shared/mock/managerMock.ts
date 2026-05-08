@@ -1,7 +1,7 @@
 import { DoctorStatus, ReceptionistStatus, AppointmentStatus } from '../../core/constants/enums';
 import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse, TopDoctorResponse } from '../../core/types';
 
-export const USE_MOCK_MANAGER = true; // Sau này đổi thành false khi có API
+export const USE_MOCK_MANAGER = false; 
 
 // ==================== DASHBOARD STATS ====================
 export const mockDashboardStats: ManagerDashboardStats = {

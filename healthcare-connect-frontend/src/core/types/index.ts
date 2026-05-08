@@ -239,7 +239,7 @@ export interface AppointmentTodayResponse {
   appointmentDate: string;
   symptoms: string;
   status: AppointmentStatus;
-  isPaid: boolean;
+  paid: boolean;
   price: number;
   roomNumber?: string;
 }

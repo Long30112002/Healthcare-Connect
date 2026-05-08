@@ -60,7 +60,9 @@
     "home": "Trang chủ",
     "approve": "Duyệt",
     "reject": "Từ chối",
-    "viewAll": "Xem tất cả"
+    "viewAll": "Xem tất cả",
+    "download": "Tải xuống",
+    "notAvailable": "Chưa cập nhật"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -432,7 +434,9 @@
     "pleaseScanQR": "Vui lòng mở trang thanh toán để hiển thị QR",
     "openPaymentPage": "Mở trang thanh toán MoMo",
     "clickToOpenPaymentPage": "Nhấn vào nút trên để mở trang thanh toán",
-    "thenScanQR": "Sau đó cho bệnh nhân quét mã QR trên màn hình"
+    "thenScanQR": "Sau đó cho bệnh nhân quét mã QR trên màn hình",
+    "paid": "Đã thanh toán",
+    "unpaid": "Chưa thanh toán"
   },
   "dashboard": {
     "welcome": "Xin chào",
@@ -1130,7 +1134,13 @@
     "upcoming": "Sắp tới",
     "total": "Tổng số",
     "currentHospital": "Bệnh viện",
-    "yourHospital": "Bệnh viện của bạn"
+    "yourHospital": "Bệnh viện của bạn",
+    "status": {
+      "pending": "Chờ xác thực",
+      "verified": "Chờ duyệt",
+      "approved": "Đã duyệt",
+      "rejected": "Từ chối"
+    }
   },
   "cancel": {
     "title": "Xác nhận hủy lịch",
@@ -1220,7 +1230,27 @@
     "rejectReason": "Lý do từ chối",
     "rejectNote": "Ghi chú (không bắt buộc)",
     "rejectNotePlaceholder": "Nhập ghi chú thêm...",
-    "yourHospital": "Bệnh viện của bạn"
+    "yourHospital": "Bệnh viện của bạn",
+    "receptionists": {
+      "title": "Quản lý lễ tân",
+      "subtitle": "Xem danh sách và duyệt lễ tân",
+      "list": "Danh sách lễ tân",
+      "noReceptionists": "Không có lễ tân nào"
+    },
+    "doctorDetail": {
+      "title": "Chi tiết bác sĩ",
+      "subtitle": "Thông tin chi tiết của bác sĩ {{name}}",
+      "personalInfo": "Thông tin cá nhân",
+      "professionalInfo": "Thông tin chuyên môn",
+      "doctorCode": "Mã bác sĩ",
+      "registeredDate": "Ngày đăng ký",
+      "attachments": "Tài liệu đính kèm",
+      "approvalHistory": "Lịch sử duyệt hồ sơ",
+      "submitted": "Đã nộp hồ sơ",
+      "profileSubmitted": "Nộp hồ sơ đăng ký",
+      "pendingApproval": "Chờ duyệt",
+      "waitingForManager": "Đang chờ quản lý bệnh viện duyệt"
+    }
   },
   "error": {
     "//": "--- 1xxx: HỆ THỐNG & BẢO MẬT (SYSTEM & AUTH) ---",

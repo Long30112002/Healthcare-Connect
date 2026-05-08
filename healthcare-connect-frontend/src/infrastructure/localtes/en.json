@@ -61,7 +61,9 @@
     "home": "Home",
     "approve": "Approve",
     "reject": "Reject",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "download": "Download",
+    "notAvailable": "Not available"
   },
   "manager": {
     "dashboard": {
@@ -98,7 +100,27 @@
     "rejectReason": "Rejection reason",
     "rejectNote": "Note (optional)",
     "rejectNotePlaceholder": "Enter additional notes...",
-    "yourHospital": "Your Hospital"
+    "yourHospital": "Your Hospital",
+    "receptionists": {
+      "title": "Receptionist Manager",
+      "subtitle": "View and approve Receptionists",
+      "list": "List of Receptionists",
+      "noReceptionists": "No Receptionists"
+    },
+    "doctorDetail": {
+      "title": "Doctor Details",
+      "subtitle": "Detailed information of doctor {{name}}",
+      "personalInfo": "Personal Information",
+      "professionalInfo": "Professional Information",
+      "doctorCode": "Doctor Code",
+      "registeredDate": "Registered Date",
+      "attachments": "Attachments",
+      "approvalHistory": "Approval History",
+      "submitted": "Submitted",
+      "profileSubmitted": "Profile submitted",
+      "pendingApproval": "Pending Approval",
+      "waitingForManager": "Waiting for hospital manager approval"
+    }
   },
   "prescriptions": {
     "title": "My Prescriptions",
@@ -464,7 +486,9 @@
     "pleaseScanQR": "Please open the payment page to display the QR code",
     "openPaymentPage": "Open MoMo Payment Page",
     "clickToOpenPaymentPage": "Click the button above to open the payment page",
-    "thenScanQR": "Then ask the patient to scan the QR code on the screen"
+    "thenScanQR": "Then ask the patient to scan the QR code on the screen",
+    "paid": "Paid",
+    "unpaid": "Unpaid"
   },
   "toast": {
     "login_success": "Login successful!",
@@ -1156,7 +1180,13 @@
     "upcoming": "Upcoming",
     "total": "Total",
     "currentHospital": "Hospital",
-    "yourHospital": "Your Hospital"
+    "yourHospital": "Your Hospital",
+    "status": {
+      "pending": "Pending verification",
+      "verified": "Pending approval",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
   },
   "cancel": {
     "title": "Confirm Cancellation",

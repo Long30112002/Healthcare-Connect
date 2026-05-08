@@ -358,6 +358,7 @@ export interface DoctorResponse {
     hospitalAddress: string;
     status: DoctorStatus;
     rejectionReason?: string;
+    cvUrl?: string; 
     rejectionNote?: string;
     createdAt?: string;      
     updatedAt?: string;      
