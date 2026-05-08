@@ -4,11 +4,14 @@ import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.RejectDoctorRequest;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.DoctorDetailForManagerResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ReceptionistMapper;
+import com.hoanglong.healthcare_connect_backend.application.service.CurrentUserService;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveDoctorUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RejectDoctorUseCase;
+import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
@@ -38,61 +41,61 @@ public class ManagerDoctorController
     private final ApproveDoctorUseCase approveDoctorUseCase;
     private final RejectDoctorUseCase rejectDoctorUseCase;
     private final DoctorService doctorService;
-    private final HospitalRepository hospitalRepository;
-    private final ReceptionistService receptionistService;
     private final ReceptionistMapper receptionistMapper;
     private final ReceptionistRepository receptionistRepository;
+    private final CurrentUserService currentUserService;
 
     @GetMapping
     @PreAuthorize("hasRole('HOSPITAL_MANAGER')")
-    public ApiResponse<Page<ReceptionistListResponse>> getReceptionistsByHospital(
-            @RequestParam(required = false) ReceptionistStatus status,
-            @RequestParam(required = false) String keyword,
+    public ApiResponse<Page<DoctorResponse>> getDoctorsByManager(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) DoctorStatus status,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
-
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
         // Lấy hospitalId của manager hiện tại
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        Hospital hospital = hospitalRepository.findByManagerId(currentUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.MANAGER_NO_HOSPITAL));
+        UUID hospitalId = currentUserService.getCurrentHospitalId();
 
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
 
-        Page<ReceptionistListResponse> receptionists = receptionistService.getReceptionistsByHospital(
-                hospital.getId(), status, keyword, pageable);
+        // Gọi method có keyword
+        Page<DoctorResponse> doctors = doctorService.getDoctorsByHospital(hospitalId, status, keyword, pageable);
 
-        return ApiResponse.<Page<ReceptionistListResponse>>builder()
+        return ApiResponse.<Page<DoctorResponse>>builder()
                 .status("success")
                 .code(200)
-                .data(receptionists)
+                .data(doctors)
                 .build();
     }
 
-    @GetMapping("/{receptionistId}")
+    @GetMapping("/{doctorId}")
     @PreAuthorize("hasRole('HOSPITAL_MANAGER')")
-    public ApiResponse<ReceptionistListResponse> getReceptionistDetail(@PathVariable UUID receptionistId) {
-        // Cần thêm method getById trong service
-        Receptionist receptionist = receptionistRepository.findById(receptionistId)
-                .orElseThrow(() -> new AppException(ErrorCode.RECEPTIONIST_NOT_FOUND));
+    public ApiResponse<DoctorDetailForManagerResponse> getDoctorDetail(
+            @PathVariable UUID doctorId) {
 
-        return ApiResponse.<ReceptionistListResponse>builder()
-                .status("success")
-                .code(200)
-                .data(receptionistMapper.toListResponse(receptionist))
-                .build();
-    }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('HOSPITAL_MANAGER')")
-    public ApiResponse<DoctorResponse> getDoctorForManager(@PathVariable UUID id) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
-        return ApiResponse.<DoctorResponse>builder()
-                .data(doctorService.getDoctorForManager(id, currentUserId))
+        DoctorDetailForManagerResponse doctor = doctorService.getDoctorDetailForManager(doctorId, currentUserId);
+
+        return ApiResponse.<DoctorDetailForManagerResponse>builder()
+                .status("success")
+                .code(200)
+                .data(doctor)
                 .build();
     }
+
+//    @GetMapping("/{id}")
+//    @PreAuthorize("hasRole('HOSPITAL_MANAGER')")
+//    public ApiResponse<DoctorResponse> getDoctorForManager(@PathVariable UUID id) {
+//        UUID currentUserId = SecurityUtils.getCurrentUserId();
+//        return ApiResponse.<DoctorResponse>builder()
+//                .data(doctorService.getDoctorForManager(id, currentUserId))
+//                .build();
+//    }
 
     @GetMapping("/inHospital")
     @PreAuthorize("hasRole('HOSPITAL_MANAGER')")
@@ -127,5 +130,4 @@ public class ManagerDoctorController
                 .message("Đã từ chối hồ sơ bác sĩ thành công.")
                 .build();
     }
-
 }
