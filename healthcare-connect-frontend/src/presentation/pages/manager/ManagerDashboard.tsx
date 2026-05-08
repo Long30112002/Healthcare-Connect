@@ -11,14 +11,15 @@ import toast from 'react-hot-toast';
 import { RejectionReason } from '../../../core/constants/enums';
 import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse, TopDoctorResponse } from '../../../core/types';
 import type { DoctorResponse } from '../../../core/types/api.response';
-import { getManagerDashboardStats, getPendingDoctors, getPendingReceptionists, getTodayAppointments, getWeeklyStatistics, getTopDoctors, approveDoctor, approveReceptionist, rejectDoctor, rejectReceptionist } from '../patient/managerApi';
+import { formatPrice } from '../../../shared/utils/dateUtils';
+import { managerApi } from '../../../infrastructure/api/managerApi';
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const { t } = useAppTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  
+
   // States
   const [stats, setStats] = useState<ManagerDashboardStats | null>(null);
   const [pendingDoctors, setPendingDoctors] = useState<DoctorResponse[]>([]);
@@ -26,7 +27,7 @@ const ManagerDashboard = () => {
   const [todayAppointments, setTodayAppointments] = useState<AppointmentTodayResponse[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStatResponse[]>([]);
   const [topDoctors, setTopDoctors] = useState<TopDoctorResponse[]>([]);
-  
+
   // Modal states
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
@@ -36,7 +37,7 @@ const ManagerDashboard = () => {
   }>({ open: false, type: 'doctor', id: '', name: '' });
   const [rejectReason, setRejectReason] = useState<RejectionReason>(RejectionReason.OTHER);
   const [rejectNote, setRejectNote] = useState('');
-  
+
   // Loading states for actions
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -54,12 +55,12 @@ const ManagerDashboard = () => {
           weeklyData,
           topDoctorsData,
         ] = await Promise.all([
-          getManagerDashboardStats(),
-          getPendingDoctors(),
-          getPendingReceptionists(),
-          getTodayAppointments(),
-          getWeeklyStatistics(),
-          getTopDoctors(5),
+          managerApi.getManagerDashboardStats(),
+          managerApi.getPendingDoctors(),
+          managerApi.getPendingReceptionists(),
+          managerApi.getTodayAppointments(),
+          managerApi.getWeeklyStatistics(),
+          managerApi.getTopDoctors(5),
         ]);
         setStats(statsData);
         setPendingDoctors(doctorsData);
@@ -81,23 +82,11 @@ const ManagerDashboard = () => {
   const handleApproveDoctor = async (doctorId: string) => {
     setApprovingId(doctorId);
     try {
-      await approveDoctor(doctorId);
+      await managerApi.approveDoctor(doctorId);
       toast.success(t('manager.approveDoctorSuccess'));
       setPendingDoctors(prev => prev.filter(d => d.id !== doctorId));
     } catch (error) {
       toast.error(t('manager.approveDoctorError'));
-    } finally {
-      setApprovingId(null);
-    }
-  };
-
-  // Approve receptionist
-  const handleApproveReceptionist = async (receptionistId: string) => {
-    setApprovingId(receptionistId);
-    try {
-      await approveReceptionist(receptionistId);
-      toast.success(t('manager.approveReceptionistSuccess'));
-      setPendingReceptionists(prev => prev.filter(r => r.id !== receptionistId));
     } finally {
       setApprovingId(null);
     }
@@ -116,11 +105,11 @@ const ManagerDashboard = () => {
     setRejectingId(id);
     try {
       if (type === 'doctor') {
-        await rejectDoctor(id, { reasonCode: rejectReason, note: rejectNote });
+        await managerApi.rejectDoctor(id, { reasonCode: rejectReason, note: rejectNote });
         toast.success(t('manager.rejectDoctorSuccess'));
         setPendingDoctors(prev => prev.filter(d => d.id !== id));
       } else {
-        await rejectReceptionist(id, { reasonCode: rejectReason, note: rejectNote });
+        await managerApi.rejectReceptionist(id, { reasonCode: rejectReason, note: rejectNote });
         toast.success(t('manager.rejectReceptionistSuccess'));
         setPendingReceptionists(prev => prev.filter(r => r.id !== id));
       }
@@ -130,17 +119,6 @@ const ManagerDashboard = () => {
     } finally {
       setRejectingId(null);
     }
-  };
-
-  // Format price
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('vi-VN') + 'đ';
-  };
-
-  // Format date
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
   // Get max value for chart
@@ -300,8 +278,11 @@ const ManagerDashboard = () => {
                         </div>
                         <div className="text-right">
                           <StatusBadge status={apt.status} size="sm" />
-                          <p className={`text-xs mt-1 font-medium ${apt.isPaid ? 'text-green-600' : 'text-red-500'}`}>
-                            {apt.isPaid ? '✅ Đã thanh toán' : '❌ Chưa thanh toán'}
+                          {/* <p className={`text-xs mt-1 font-medium ${apt.isPaid ? 'text-green-600' : 'text-red-500'}`}>
+                            {apt.isPaid ? t('payment.paid') : t('payment.unpaid')}
+                          </p> */}
+                          <p className={`text-xs mt-1 font-medium ${apt.paid ? 'text-green-600' : 'text-red-500'}`}>
+                            {apt.paid ? t('payment.paid') : t('payment.unpaid')}
                           </p>
                           <p className="text-xs font-medium text-primary mt-1">{formatPrice(apt.price)}</p>
                         </div>

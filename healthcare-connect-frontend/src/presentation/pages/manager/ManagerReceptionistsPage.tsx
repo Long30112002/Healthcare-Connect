@@ -1,3 +1,5 @@
+// presentation/pages/manager/ManagerReceptionistsPage.tsx
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
@@ -8,126 +10,125 @@ import Modal from '../../components/shared/Modal';
 import Pagination from '../../components/shared/Pagination';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 
-import type { DoctorResponse, PageResponse } from '../../../core/types/api.response';
-import { DoctorStatus, RejectionReason } from '../../../core/constants/enums';
+import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
 import toast from 'react-hot-toast';
+import type { ReceptionistForManager } from '../../../core/types';
+import type { PageResponse } from '../../../core/types/api.response';
 import { t } from 'i18next';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 
-type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED' | 'INACTIVE';
+type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
 
 const statusOptions: { value: StatusFilter; label: string; icon: string }[] = [
-  { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
-  { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
-  { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
-  { value: 'APPROVED', label: t('doctor.status.approved'), icon: '✅' },
-  { value: 'REJECTED', label: t('doctor.status.rejected'), icon: '❌' },
+    { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
+    { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
+    { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
+    { value: 'APPROVED', label: t('doctor.status.approved'), icon: '✅' },
+    { value: 'REJECTED', label: t('doctor.status.rejected'), icon: '❌' },
 ];
 
-const ManagerDoctorsPage = () => {
+const ManagerReceptionistsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useAppTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [doctors, setDoctors] = useState<DoctorResponse[]>([]);
+  const [receptionists, setReceptionists] = useState<ReceptionistForManager[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-
+  
   // Lấy filter và page từ URL
   const searchParams = new URLSearchParams(location.search);
   const statusFilter = (searchParams.get('status') as StatusFilter) || 'ALL';
   const currentPage = parseInt(searchParams.get('page') || '0');
-
+  
   // Modal states
   const [rejectModal, setRejectModal] = useState<{
     open: boolean;
-    doctorId: string;
-    doctorName: string;
-  }>({ open: false, doctorId: '', doctorName: '' });
+    receptionistId: string;
+    receptionistName: string;
+  }>({ open: false, receptionistId: '', receptionistName: '' });
   const [rejectReason, setRejectReason] = useState<RejectionReason>(RejectionReason.OTHER);
   const [rejectNote, setRejectNote] = useState('');
-
+  
   // Loading states
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
-  // Hàm cập nhật URL
+  // Cập nhật URL
   const updateUrl = (status: string, page: number) => {
     const params = new URLSearchParams();
     params.set('status', status);
     params.set('page', page.toString());
-    navigate(`/manager/doctors?${params.toString()}`, { replace: true });
+    navigate(`/manager/receptionists?${params.toString()}`, { replace: true });
   };
 
-  // Hàm thay đổi filter
   const handleFilterChange = (status: string) => {
     updateUrl(status, 0);
   };
 
-  // Hàm thay đổi trang
   const handlePageChange = (newPage: number) => {
     updateUrl(statusFilter, newPage - 1);
   };
 
   // Fetch data
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchReceptionists = async () => {
       setLoading(true);
       try {
         const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-        const response: PageResponse<DoctorResponse> = await managerApi.getDoctorsByManager(currentPage, 10, statusParam);
-        setDoctors(response.content);
+        const response: PageResponse<ReceptionistForManager> = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
+        setReceptionists(response.content);
         setTotalPages(response.totalPages);
         setTotalElements(response.totalElements);
       } catch (error) {
-        console.error('Failed to fetch doctors:', error);
+        console.error('Failed to fetch receptionists:', error);
         toast.error(t('common.loadError'));
       } finally {
         setLoading(false);
       }
     };
-    fetchDoctors();
+    fetchReceptionists();
   }, [currentPage, statusFilter, t]);
 
-  // Approve doctor
-  const handleApprove = async (doctorId: string) => {
-    setApprovingId(doctorId);
+  // Approve
+  const handleApprove = async (receptionistId: string) => {
+    setApprovingId(receptionistId);
     try {
-      await managerApi.approveDoctor(doctorId);
-      toast.success(t('manager.approveDoctorSuccess'));
+      await managerApi.approveReceptionist(receptionistId);
+      toast.success(t('manager.approveReceptionistSuccess'));
       // Refresh list
       const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-      const response = await managerApi.getDoctorsByManager(currentPage, 10, statusParam);
-      setDoctors(response.content);
+      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
+      setReceptionists(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements);
     } catch (error) {
-      toast.error(t('manager.approveDoctorError'));
+      toast.error(t('manager.approveReceptionistError'));
     } finally {
       setApprovingId(null);
     }
   };
 
   // Open reject modal
-  const handleOpenReject = (doctorId: string, doctorName: string) => {
-    setRejectModal({ open: true, doctorId, doctorName });
+  const handleOpenReject = (receptionistId: string, receptionistName: string) => {
+    setRejectModal({ open: true, receptionistId, receptionistName });
     setRejectReason(RejectionReason.OTHER);
     setRejectNote('');
   };
 
   // Confirm reject
   const handleConfirmReject = async () => {
-    const { doctorId } = rejectModal;
-    setRejectingId(doctorId);
+    const { receptionistId } = rejectModal;
+    setRejectingId(receptionistId);
     try {
-      await managerApi.rejectDoctor(doctorId, { reasonCode: rejectReason, note: rejectNote });
-      toast.success(t('manager.rejectDoctorSuccess'));
-      setRejectModal({ open: false, doctorId: '', doctorName: '' });
+      await managerApi.rejectReceptionist(receptionistId, { reasonCode: rejectReason, note: rejectNote });
+      toast.success(t('manager.rejectReceptionistSuccess'));
+      setRejectModal({ open: false, receptionistId: '', receptionistName: '' });
       // Refresh list
       const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
-      const response = await managerApi.getDoctorsByManager(currentPage, 10, statusParam);
-      setDoctors(response.content);
+      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
+      setReceptionists(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements);
     } catch (error) {
@@ -140,22 +141,23 @@ const ManagerDoctorsPage = () => {
   // Get status badge
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case DoctorStatus.APPROVED:
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">✅ {t('doctor.status.approved')}</span>;
-      case DoctorStatus.VERIFIED:
-        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">🟡 {t('doctor.status.verified')}</span>;
-      case DoctorStatus.PENDING:
-        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">⏳ {t('doctor.status.pending')}</span>;
-      case DoctorStatus.REJECTED:
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">❌ {t('doctor.status.rejected')}</span>;
+      case ReceptionistStatus.APPROVED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">✅ {t('receptionist.status.approved')}</span>;
+      case ReceptionistStatus.VERIFIED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">🟡 {t('receptionist.status.verified')}</span>;
+      case ReceptionistStatus.PENDING:
+        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">⏳ {t('receptionist.status.pending')}</span>;
+      case ReceptionistStatus.REJECTED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">❌ {t('receptionist.status.rejected')}</span>;
       default:
         return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">{status}</span>;
     }
   };
 
-  // Format price
-  const formatPrice = (price: number) => {
-    return price?.toLocaleString('vi-VN') + 'đ' || '0đ';
+  // Format date
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
   if (loading && currentPage === 0) {
@@ -165,11 +167,10 @@ const ManagerDoctorsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-6">
-        {/* Header */}
         <DashboardHeader
-          icon="👨‍⚕️"
-          title={t('manager.doctors.title')}
-          subtitle={t('manager.doctors.subtitle')}
+          icon="👩‍💼"
+          title={t('manager.receptionists.title')}
+          subtitle={t('manager.receptionists.subtitle')}
           showHospital={true}
           hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
         />
@@ -181,10 +182,11 @@ const ManagerDoctorsPage = () => {
               <button
                 key={opt.value}
                 onClick={() => handleFilterChange(opt.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${statusFilter === opt.value
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  statusFilter === opt.value
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
+                }`}
               >
                 {opt.icon} {opt.label}
               </button>
@@ -192,59 +194,56 @@ const ManagerDoctorsPage = () => {
           </div>
         </div>
 
-        {/* Doctors List */}
+        {/* Receptionists List */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h2 className="font-semibold text-gray-900 dark:text-white">
-              📋 {t('manager.doctors.list')} ({totalElements})
+              📋 {t('manager.receptionists.list')} ({totalElements})
             </h2>
           </div>
 
           <div className="p-4">
-            {doctors.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">{t('manager.doctors.noDoctors')}</p>
+            {receptionists.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">{t('manager.receptionists.noReceptionists')}</p>
             ) : (
               <div className="space-y-4">
-                {doctors.map((doctor) => (
-                  <div key={doctor.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                {receptionists.map((receptionist) => (
+                  <div key={receptionist.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
                     <div className="flex justify-between items-start flex-wrap gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xl">👨‍⚕️</span>
+                          <span className="text-xl">👩‍💼</span>
                           <h3 className="font-semibold text-gray-900 dark:text-white">
-                            {doctor.fullName}
+                            {receptionist.fullName}
                           </h3>
-                          {getStatusBadge(doctor.status)}
+                          {getStatusBadge(receptionist.status)}
                         </div>
                         <p className="text-sm text-gray-500 mt-1">
-                          Mã: {doctor.doctorCode} - {doctor.departmentName} - {doctor.specialtyName}
+                          Mã: {receptionist.receptionistCode}
                         </p>
                         <p className="text-sm text-gray-500">
-                          📧 {doctor.email} - 📞 {doctor.phone}
+                          📧 {receptionist.email} - 📞 {receptionist.phone}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          🎓 {doctor.degree} - {doctor.experienceYears} {t('doctor.yearsExperience')}
-                        </p>
-                        <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-1">
-                          💰 {formatPrice(doctor.consultationFee)}
+                        <p className="text-xs text-gray-400">
+                          📅 Đăng ký: {formatDate(receptionist.createdAt)}
                         </p>
                       </div>
                       <div className="flex gap-2 flex-wrap">
-                        {doctor.status === DoctorStatus.VERIFIED && (
+                        {receptionist.status === ReceptionistStatus.VERIFIED && (
                           <>
                             <Button
                               size="sm"
                               variant="primary"
-                              onClick={() => handleApprove(doctor.id)}
-                              loading={approvingId === doctor.id}
+                              onClick={() => handleApprove(receptionist.id)}
+                              loading={approvingId === receptionist.id}
                             >
                               ✅ {t('common.approve')}
                             </Button>
                             <Button
                               size="sm"
                               variant="danger"
-                              onClick={() => handleOpenReject(doctor.id, doctor.fullName)}
-                              loading={rejectingId === doctor.id}
+                              onClick={() => handleOpenReject(receptionist.id, receptionist.fullName)}
+                              loading={rejectingId === receptionist.id}
                             >
                               ❌ {t('common.reject')}
                             </Button>
@@ -253,7 +252,7 @@ const ManagerDoctorsPage = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => navigate(`/manager/doctors/${doctor.id}`)}
+                          onClick={() => navigate(`/manager/receptionists/${receptionist.id}`)}
                         >
                           🔍 {t('common.viewDetail')}
                         </Button>
@@ -285,9 +284,9 @@ const ManagerDoctorsPage = () => {
       {/* Reject Modal */}
       <Modal
         isOpen={rejectModal.open}
-        onClose={() => setRejectModal({ open: false, doctorId: '', doctorName: '' })}
+        onClose={() => setRejectModal({ open: false, receptionistId: '', receptionistName: '' })}
         onConfirm={handleConfirmReject}
-        title={t('manager.rejectTitle', { name: rejectModal.doctorName })}
+        title={t('manager.rejectTitle', { name: rejectModal.receptionistName })}
         variant="danger"
         confirmText={t('common.confirm')}
         cancelText={t('common.cancel')}
@@ -328,4 +327,4 @@ const ManagerDoctorsPage = () => {
   );
 };
 
-export default ManagerDoctorsPage;
+export default ManagerReceptionistsPage;
