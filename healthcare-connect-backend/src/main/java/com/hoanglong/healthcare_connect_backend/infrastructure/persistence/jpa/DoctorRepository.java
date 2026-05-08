@@ -4,6 +4,8 @@ import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ScheduleStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,14 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
     List<Doctor> findAllByHospitalId(UUID hospitalId);
     List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
 
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.hospital.id = :hospitalId")
+    long countByHospitalId(@Param("hospitalId") UUID hospitalId);
+
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.hospital.id = :hospitalId AND d.createdAt BETWEEN :start AND :end")
+    long countByHospitalIdAndCreatedAtBetween(@Param("hospitalId") UUID hospitalId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
     @Query("SELECT DISTINCT d FROM Appointment a " +
             "JOIN a.schedule s " +
             "JOIN s.doctor d " +
@@ -28,6 +38,14 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
             "AND a.status IN :statuses")
     List<Doctor> findVisitedDoctorsByPatientId(@Param("patientId") UUID patientId,
             @Param("statuses") List<AppointmentStatus> statuses);
+
+    @Query("SELECT d FROM Doctor d WHERE d.hospital.id = :hospitalId AND " +
+            "(LOWER(d.user.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.doctorCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.specialty.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Doctor> searchByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 
     @Query("SELECT DISTINCT d FROM Doctor d " +
             "JOIN d.schedules s " +
@@ -57,4 +75,10 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
             @Param("endDate") LocalDateTime endDate,
             @Param("hospitalId") UUID hospitalId
     );
+
+    // Lấy danh sách bác sĩ của bệnh viện (có phân trang)
+    Page<Doctor> findByHospitalId(UUID hospitalId, Pageable pageable);
+
+    // Lấy danh sách bác sĩ của bệnh viện theo status (có phân trang)
+    Page<Doctor> findByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status, Pageable pageable);
 }

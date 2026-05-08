@@ -33,6 +33,37 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             @Param("waitingStatus") String waitingStatus
     );
 
+    @Query(value = "SELECT d.id, u.full_name, s.name as specialty_name, " +
+            "COUNT(DISTINCT a.id) as total_patients, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true THEN sched.price ELSE 0 END), 0) as total_revenue, " +
+            "COALESCE(AVG(r.rating), 0) as avg_rating " +
+            "FROM doctors d " +
+            "JOIN users u ON d.user_id = u.id " +
+            "JOIN specialties s ON d.specialty_id = s.id " +
+            "LEFT JOIN schedules sched ON d.id = sched.doctor_id " +
+            "LEFT JOIN appointments a ON sched.id = a.schedule_id " +
+            "LEFT JOIN reviews r ON d.id = r.doctor_id AND r.deleted = false " +
+            "WHERE d.hospital_id = CAST(:hospitalId AS uuid) " +
+            "AND d.status = 'APPROVED' " +
+            "GROUP BY d.id, u.full_name, s.name " +
+            "ORDER BY total_patients DESC " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Object[]> findTopDoctorsByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("limit") int limit);
+
+    @Query(value = "SELECT CAST(EXTRACT(DOW FROM a.appointment_date) AS INTEGER) as day_of_week, COUNT(a.id) " +
+            "FROM appointments a " +
+            "WHERE a.hospital_id = CAST(:hospitalId AS uuid) " +
+            "AND a.appointment_date BETWEEN :start AND :end " +
+            "AND a.status IN ('CONFIRMED', 'IN_PROGRESS', 'COMPLETED') " +
+            "GROUP BY CAST(EXTRACT(DOW FROM a.appointment_date) AS INTEGER) " +
+            "ORDER BY day_of_week",
+            nativeQuery = true)
+    List<Object[]> getWeeklyStatisticsByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
     @Query("SELECT COUNT(a) FROM Appointment a " +
             "WHERE a.hospital.id = :hospitalId " +
             "AND a.status = :status " +

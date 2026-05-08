@@ -1,0 +1,22 @@
+package com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Data
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class TopDoctorResponse {
+    UUID doctorId;
+    String doctorName;
+    String specialtyName;
+    long totalPatients;
+    BigDecimal totalRevenue;
+    double averageRating;
+    int rank;
+}

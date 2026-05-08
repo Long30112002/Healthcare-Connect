@@ -30,6 +30,28 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
     """)
     Optional<Appointment> findByIdWithDetails(@Param("id") UUID id);
 
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.hospital.id = :hospitalId AND DATE(a.appointmentDate) = :date")
+    long countByHospitalIdAndDate(@Param("hospitalId") UUID hospitalId, @Param("date") LocalDate date);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.schedule s " +
+            "JOIN FETCH s.doctor d " +
+            "JOIN FETCH d.user du " +
+            "LEFT JOIN FETCH a.patient p " +
+            "LEFT JOIN FETCH a.room r " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "AND FUNCTION('DATE', a.appointmentDate) = CURRENT_DATE " +
+            "ORDER BY s.startTime ASC")
+    List<Appointment> findTodayAppointmentsByHospital(@Param("hospitalId") UUID hospitalId);
+
+    @Query("SELECT COALESCE(SUM(a.schedule.price), 0) FROM Appointment a " +
+            "WHERE a.hospital.id = :hospitalId " +
+            "AND a.isPaid = true " +
+            "AND DATE(a.appointmentDate) BETWEEN :start AND :end")
+    long sumRevenueByHospitalIdAndDateRange(@Param("hospitalId") UUID hospitalId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
+
     @Query(value = "SELECT COUNT(*) > 0 FROM appointments a " +
             "JOIN schedules s ON a.schedule_id = s.id " +
             "WHERE a.patient_id = :patientId " +
