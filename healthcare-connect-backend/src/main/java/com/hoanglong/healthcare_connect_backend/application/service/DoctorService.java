@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.appointment.Walk
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.*;
 import com.hoanglong.healthcare_connect_backend.application.dto.patient.PatientResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.schedule.ScheduleResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.DoctorDetailForManagerResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.user.UpdateDoctorInfoRequest;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
@@ -121,6 +122,33 @@ public class DoctorService {
         }
 
         return new ArrayList<>(patientMap.values());
+    }
+
+//    public Page<DoctorResponse> getDoctorsByHospital(UUID hospitalId, DoctorStatus status, Pageable pageable) {
+//        Page<Doctor> doctorPage;
+//
+//        if (status != null) {
+//            doctorPage = doctorRepository.findByHospitalIdAndStatus(hospitalId, status, pageable);
+//        } else {
+//            doctorPage = doctorRepository.findByHospitalId(hospitalId, pageable);
+//        }
+//
+//        return doctorPage.map(doctorMapper::toDoctorResponse);
+//    }
+
+    // DoctorService.java
+    public Page<DoctorResponse> getDoctorsByHospital(UUID hospitalId, DoctorStatus status, String keyword, Pageable pageable) {
+        Page<Doctor> doctorPage;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            doctorPage = doctorRepository.searchByHospital(hospitalId, keyword, pageable);
+        } else if (status != null) {
+            doctorPage = doctorRepository.findByHospitalIdAndStatus(hospitalId, status, pageable);
+        } else {
+            doctorPage = doctorRepository.findByHospitalId(hospitalId, pageable);
+        }
+
+        return doctorPage.map(doctorMapper::toDoctorResponse);
     }
 
     public DoctorDetailResponse getDoctorDetailForReceptionist(UUID doctorId, UUID hospitalId) {
@@ -340,32 +368,32 @@ public class DoctorService {
                 .collect(Collectors.toList());
     }
 
-    public List<DoctorHistoryResponse> getDoctorHistory(UUID doctorId) {
-        return doctorHistoryRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId)
-                .stream()
-                .map(this::toHistoryResponse)
-                .collect(Collectors.toList());
-    }
+        public List<DoctorHistoryResponse> getDoctorHistory(UUID doctorId) {
+            return doctorHistoryRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId)
+                    .stream()
+                    .map(this::toHistoryResponse)
+                    .collect(Collectors.toList());
+        }
 
-    private DoctorHistoryResponse toHistoryResponse(DoctorHistory history) {
-        String actorName = userRepository.findById(history.getActorId())
-                .map(User ::getFullName)
-                .orElse("Unknown");
+        private DoctorHistoryResponse toHistoryResponse(DoctorHistory history) {
+            String actorName = userRepository.findById(history.getActorId())
+                    .map(User ::getFullName)
+                    .orElse("Unknown");
 
-        return DoctorHistoryResponse.builder()
-                .id(history.getId())
-                .doctorId(history.getDoctorId())
-                .actorName(actorName)
-                .actorRole(history.getActorRole())
-                .action(history.getAction())
-                .oldStatus(history.getOldStatus())
-                .newStatus(history.getNewStatus())
-                .rejectionReason(history.getRejectionReason())
-                .rejectionNote(history.getRejectionNote())
-                .note(history.getNote())
-                .createdAt(history.getCreatedAt())
-                .build();
-    }
+            return DoctorHistoryResponse.builder()
+                    .id(history.getId())
+                    .doctorId(history.getDoctorId())
+                    .actorName(actorName)
+                    .actorRole(history.getActorRole())
+                    .action(history.getAction())
+                    .oldStatus(history.getOldStatus())
+                    .newStatus(history.getNewStatus())
+                    .rejectionReason(history.getRejectionReason())
+                    .rejectionNote(history.getRejectionNote())
+                    .note(history.getNote())
+                    .createdAt(history.getCreatedAt())
+                    .build();
+        }
 
     public Optional<Doctor> getDoctorEntityByUserId(UUID userId) {
         return doctorRepository.findByUserId(userId);
@@ -395,5 +423,39 @@ public class DoctorService {
         return doctors.stream()
                 .map(this::toDoctorListResponse)
                 .collect(Collectors.toList());
+    }
+
+    public DoctorDetailForManagerResponse getDoctorDetailForManager(UUID doctorId, UUID managerId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+
+        // Kiểm tra bác sĩ có thuộc bệnh viện của manager không
+        if (doctor.getHospital() == null ||
+                !doctor.getHospital().getManager().getId().equals(managerId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        List<DoctorHistoryResponse> history = getDoctorHistory(doctorId);
+
+        return DoctorDetailForManagerResponse.builder()
+                .id(doctor.getId())
+                .doctorCode(doctor.getDoctorCode())
+                .fullName(doctor.getUser().getFullName())
+                .email(doctor.getUser().getEmail())
+                .phone(doctor.getUser().getPhone())
+                .status(doctor.getStatus())
+                .createdAt(doctor.getCreatedAt())
+                .degree(doctor.getDegree())
+                .experienceYears(doctor.getExperienceYears())
+                .biography(doctor.getBiography())
+                .consultationFee(doctor.getConsultationFee())
+                .specialtyName(doctor.getSpecialty() != null ? doctor.getSpecialty().getName() : null)
+                .departmentName(doctor.getDepartment() != null ? doctor.getDepartment().getName() : null)
+                .hospitalId(doctor.getHospital() != null ? doctor.getHospital().getId() : null)
+                .hospitalName(doctor.getHospital() != null ? doctor.getHospital().getName() : null)
+                .hospitalAddress(doctor.getHospital() != null ? doctor.getHospital().getAddress() : null)
+                .cvUrl(doctor.getCvUrl())
+                .history(history)
+                .build();
     }
 }

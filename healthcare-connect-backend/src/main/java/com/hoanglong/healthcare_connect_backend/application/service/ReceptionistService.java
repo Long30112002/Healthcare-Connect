@@ -53,6 +53,18 @@ public class ReceptionistService {
         return receptionistPage.map(receptionistMapper::toListResponse);
     }
 
+//    public Page<ReceptionistListResponse> getReceptionistsByHospital(UUID hospitalId, ReceptionistStatus status, Pageable pageable) {
+//        Page<Receptionist> receptionistPage;
+//
+//        if (status != null) {
+//            receptionistPage = receptionistRepository.findByHospitalIdAndStatus(hospitalId, status, pageable);
+//        } else {
+//            receptionistPage = receptionistRepository.findByHospitalId(hospitalId, pageable);
+//        }
+//
+//        return receptionistPage.map(receptionistMapper::toListResponse);
+//    }
+
     //Manager: Lấy receptionists của bệnh viện mình quản lý
     public Page<ReceptionistListResponse> getReceptionistsByHospital(UUID hospitalId,
             ReceptionistStatus status,

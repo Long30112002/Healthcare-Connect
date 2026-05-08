@@ -8,21 +8,39 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CloudinaryService {
     private final Cloudinary cloudinary;
 
+//    public String uploadFile(MultipartFile file) {
+//        try {
+//            Map data = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+//                    "resource_type", "auto",
+//                    "folder", "doctor_cvs" // Lưu vào thư mục này cho gọn
+//            ));
+//            return data.get("secure_url").toString(); // Trả về link https
+//        } catch (IOException e) {
+//            throw new RuntimeException("Lỗi khi upload file lên Cloudinary: " + e.getMessage());
+//        }
+//    }
+
     public String uploadFile(MultipartFile file) {
         try {
-            Map data = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "resource_type", "auto",
-                    "folder", "doctor_cvs" // Lưu vào thư mục này cho gọn
-            ));
-            return data.get("secure_url").toString(); // Trả về link https
+            Map data = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", "raw",
+                            "folder", "doctor_cvs",
+                            "public_id", UUID.randomUUID().toString() + ".pdf"
+                    )
+            );
+            return data.get("secure_url").toString();
+
         } catch (IOException e) {
-            throw new RuntimeException("Lỗi khi upload file lên Cloudinary: " + e.getMessage());
+            throw new RuntimeException("Lỗi upload file: " + e.getMessage());
         }
     }
 }

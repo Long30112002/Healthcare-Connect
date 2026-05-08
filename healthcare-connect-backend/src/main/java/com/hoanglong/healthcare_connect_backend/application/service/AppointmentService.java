@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.appointment.AppointmentResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.TodayAppointmentResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.AppointmentMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.*;
 import com.hoanglong.healthcare_connect_backend.core.entity.Appointment;
@@ -16,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -143,6 +146,32 @@ public class AppointmentService {
                 appointment.getPatient() != null ? appointment.getPatient().getFullName() : appointment.getPatientName(), now);
 
         return appointment;
+    }
+
+    public List<TodayAppointmentResponse> getTodayAppointmentsByHospital(UUID hospitalId) {
+        List<Appointment> appointments = appointmentRepository.findTodayAppointmentsByHospital(hospitalId);
+        return appointments.stream()
+                .map(this::convertToTodayResponse)
+                .collect(Collectors.toList());
+    }
+
+    private TodayAppointmentResponse convertToTodayResponse(Appointment appointment) {
+        return TodayAppointmentResponse.builder()
+                .id(appointment.getId())
+                .patientName(appointment.getPatient() != null ?
+                        appointment.getPatient().getFullName() : appointment.getPatientName())
+                .patientPhone(appointment.getPatient() != null ?
+                        appointment.getPatient().getPhone() : appointment.getPatientPhone())
+                .doctorName(appointment.getSchedule().getDoctor().getUser().getFullName())
+                .doctorId(appointment.getSchedule().getDoctor().getId())
+                .startTime(appointment.getSchedule().getStartTime().toLocalTime())
+                .endTime(appointment.getSchedule().getEndTime().toLocalTime())
+                .symptoms(appointment.getSymptoms())
+                .status(appointment.getStatus())
+                .isPaid(appointment.isPaid())
+                .price(appointment.getSchedule().getPrice().doubleValue())
+                .roomNumber(appointment.getRoom() != null ? appointment.getRoom().getRoomNumber() : null)
+                .build();
     }
 
 }
