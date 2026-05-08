@@ -1,4 +1,4 @@
-package com.hoanglong.healthcare_connect_backend.infrastructure.storage;
+package com.hoanglong.healthcare_connect_backend.infrastructure.storage.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
