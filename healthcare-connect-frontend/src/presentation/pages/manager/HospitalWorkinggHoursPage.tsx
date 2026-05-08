@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
@@ -11,6 +10,7 @@ import { workingHoursApi } from '../../../infrastructure/api/workingHoursApi';
 import toast from 'react-hot-toast';
 import type { WorkingHoursResponse } from '../../../core/types/api.response';
 import type { WorkingHoursRequest } from '../../../core/types/api.request';
+import { formatTimeOnly } from '../../../shared/utils/dateUtils';
 
 const DAYS = [
   { value: 8, label: 'Thứ 2', order: 1 },
@@ -33,6 +33,7 @@ const TIME_OPTIONS = () => {
   }
   return options;
 };
+
 
 const HospitalWorkingHoursPage = () => {
   const { t } = useAppTranslation();
@@ -68,6 +69,21 @@ const HospitalWorkingHoursPage = () => {
     }
   };
 
+  const getTimeOptionsInRange = (startTime: string, endTime: string) => {
+    const options = [];
+    const start = new Date(`2000-01-01T${startTime}`);
+    const end = new Date(`2000-01-01T${endTime}`);
+
+    let current = new Date(start);
+    while (current <= end) {
+      const hourStr = current.getHours().toString().padStart(2, '0');
+      const minuteStr = current.getMinutes().toString().padStart(2, '0');
+      options.push(`${hourStr}:${minuteStr}`);
+      current.setMinutes(current.getMinutes() + 30);
+    }
+    return options;
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -80,15 +96,23 @@ const HospitalWorkingHoursPage = () => {
   // Mở modal chỉnh sửa
   const handleEdit = (day: typeof DAYS[0]) => {
     const config = getConfigByDay(day.value);
+
+    console.log('=== EDIT WORKING HOURS ===');
+    console.log('Day:', day.label);
+    console.log('Config from API:', config);
+    console.log('lunchStart:', config?.lunchStart);
+    console.log('lunchEnd:', config?.lunchEnd);
+    console.log('==========================');
+
     setSelectedDay(day);
-    
+
     if (config) {
       setFormData({
         dayOfWeek: config.dayOfWeek,
-        startTime: config.startTime,
-        endTime: config.endTime,
-        lunchStart: config.lunchStart,
-        lunchEnd: config.lunchEnd,
+        startTime: formatTimeOnly(config.startTime as unknown as number[]),
+        endTime: formatTimeOnly(config.endTime as unknown as number[]),
+        lunchStart: config.lunchStart ? formatTimeOnly(config.lunchStart as unknown as number[]) : null,
+        lunchEnd: config.lunchEnd ? formatTimeOnly(config.lunchEnd as unknown as number[]) : null,
         minSlotMinutes: config.minSlotMinutes,
         maxSlotMinutes: config.maxSlotMinutes,
         isActive: config.isActive,
@@ -149,6 +173,13 @@ const HospitalWorkingHoursPage = () => {
       lunchStart: hasLunch ? formData.lunchStart : null,
       lunchEnd: hasLunch ? formData.lunchEnd : null,
     };
+    console.log('=== WORKING HOURS SUBMIT DATA ===');
+    console.log('hasLunch:', hasLunch);
+    console.log('formData.lunchStart:', formData.lunchStart);
+    console.log('formData.lunchEnd:', formData.lunchEnd);
+    console.log('submitData:', submitData);
+    console.log('================================');
+
     await saveConfig(() => workingHoursApi.save(submitData));
   };
 
@@ -227,16 +258,28 @@ const HospitalWorkingHoursPage = () => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {DAYS.map((day) => {
                   const config = getConfigByDay(day.value);
+
                   const hasConfig = !!config;
-                  const startTime = config?.startTime || (day.value === 7 ? '08:00' : '07:30');
-                  const endTime = config?.endTime || (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
+
+                  // const startTime = config?.startTime || (day.value === 7 ? '08:00' : '07:30');
+                  const startTime = config?.startTime
+                    ? formatTimeOnly(config.startTime as unknown as number[])
+                    : (day.value === 7 ? '08:00' : '07:30');
+
+                  // const endTime = config?.endTime || (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
+                  const endTime = config?.endTime
+                    ? formatTimeOnly(config.endTime as unknown as number[])
+                    : (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
+
                   const hasLunchBreak = config?.lunchStart && config?.lunchEnd;
-                  const lunchDisplay = hasLunchBreak 
-                    ? `${config.lunchStart} - ${config.lunchEnd}` 
-                    : 'Không nghỉ trưa';
-                  const slotDisplay = config 
-                    ? `${config.minSlotMinutes} - ${config.maxSlotMinutes} phút`
-                    : '15 - 120 phút';
+
+                  const lunchDisplay = hasLunchBreak
+                    ? `${formatTimeOnly(config.lunchStart as unknown as number[])} - ${formatTimeOnly(config.lunchEnd as unknown as number[])}`
+                    : t('workingHours.noLunchBreak');
+
+                  const slotDisplay = config
+                    ? `${config.minSlotMinutes} - ${config.maxSlotMinutes} ${t('workingHours.minutes')}`
+                    : `15 - 120 ${t('workingHours.minutes')}`;
 
                   return (
                     <tr key={day.value} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
@@ -358,7 +401,9 @@ const HospitalWorkingHoursPage = () => {
                   onChange={(e) => setFormData({ ...formData, lunchStart: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
                 >
-                  {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                  {getTimeOptionsInRange(formData.startTime, formData.lunchEnd || '23:30').map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -370,7 +415,9 @@ const HospitalWorkingHoursPage = () => {
                   onChange={(e) => setFormData({ ...formData, lunchEnd: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
                 >
-                  {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
+                  {getTimeOptionsInRange(formData.lunchStart || '00:00', formData.endTime).map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
                 </select>
               </div>
             </div>

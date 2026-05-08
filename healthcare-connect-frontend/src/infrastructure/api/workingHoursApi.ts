@@ -17,7 +17,15 @@ export const workingHoursApi = {
 
     // Tạo hoặc cập nhật cấu hình
     save: async (data: WorkingHoursRequest): Promise<WorkingHoursResponse> => {
+        console.log('=== API SAVE WORKING HOURS ===');
+        console.log('Request data:', data);
+        console.log('==============================');
+
         const response = await axiosClient.post('/manager/working-hours', data);
+
+        console.log('=== API RESPONSE ===');
+        console.log('Response:', response.data);
+        console.log('====================');
         return response.data.data;
     },
 

@@ -725,7 +725,8 @@
     "reviews": "Đánh giá",
     "reviewsDesc": "Xem đánh giá từ bệnh nhân",
     "dashboard": "Dashboard",
-    "manageReceptionists": "Quản lý lễ tân"
+    "manageReceptionists": "Quản lý lễ tân",
+    "workingHours": "Giờ làm việc"
   },
   "review": {
     "title": "Đánh giá bác sĩ",
@@ -1269,6 +1270,35 @@
       "waitingForManager": "Đang chờ quản lý bệnh viện duyệt",
       "noCV": "Lễ tân chưa tải lên CV"
     }
+  },
+  "workingHours": {
+    "title": "Giờ làm việc bệnh viện",
+    "subtitle": "Cấu hình khung giờ làm việc cho bệnh viện",
+    "note": "Cấu hình này áp dụng cho TẤT CẢ bác sĩ trong bệnh viện",
+    "day": "Ngày",
+    "startTime": "Giờ bắt đầu",
+    "endTime": "Giờ kết thúc",
+    "lunchBreak": "Nghỉ trưa",
+    "slotDuration": "Thời lượng ca (phút)",
+    "hasLunch": "Có nghỉ trưa",
+    "lunchStart": "Bắt đầu nghỉ trưa",
+    "lunchEnd": "Kết thúc nghỉ trưa",
+    "minSlot": "Ca tối thiểu",
+    "maxSlot": "Ca tối đa",
+    "minutes": "phút",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "resetDefault": "Khôi phục mặc định",
+    "saveSuccess": "Lưu cấu hình thành công!",
+    "saveError": "Lưu cấu hình thất bại!",
+    "deleteSuccess": "Xóa cấu hình thành công!",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa cấu hình này?",
+    "resetSuccess": "Đã khôi phục cấu hình mặc định!",
+    "invalidTime": "Giờ bắt đầu phải trước giờ kết thúc!",
+    "invalidLunch": "Giờ nghỉ trưa không hợp lệ!",
+    "lunchOutsideWorkingHours": "Giờ nghỉ trưa phải nằm trong giờ làm việc!",
+    "invalidSlotDuration": "Thời lượng ca không hợp lệ!",
+    "noLunchBreak": "Không nghỉ trưa"
   },
   "error": {
     "//": "--- 1xxx: HỆ THỐNG & BẢO MẬT (SYSTEM & AUTH) ---",
