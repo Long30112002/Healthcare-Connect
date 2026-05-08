@@ -49,6 +49,12 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     @Query("SELECT r FROM Room r WHERE r.status = 'AVAILABLE' AND r.deleted = false")
     List<Room> findAvailableRooms();
 
+    // Tìm phòng theo hospital_id và chưa bị xóa
+    List<Room> findByHospitalIdAndDeletedFalse(UUID hospitalId);
+
+    // Kiểm tra tồn tại theo số phòng và hospital_id
+    boolean existsByRoomNumberAndHospitalId(String roomNumber, UUID hospitalId);
+
     // Lấy phòng theo building
     List<Room> findByBuildingAndDeletedFalse(String building);
 

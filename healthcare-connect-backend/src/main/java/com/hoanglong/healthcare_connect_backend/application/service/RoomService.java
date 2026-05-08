@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomRequest
 import com.hoanglong.healthcare_connect_backend.application.dto.room.RoomResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.RoomMapper;
 import com.hoanglong.healthcare_connect_backend.core.constant.RoomStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
@@ -31,11 +32,10 @@ public class RoomService {
         return roomMapper.toResponseList(roomRepository.findAvailableRooms());
     }
 
-    // Sửa method getRoomsByStatus
+    //getRoomsByStatus
     public List<RoomResponse> getRoomsByStatus(RoomStatus status) {
         return roomMapper.toResponseList(roomRepository.findByStatusAndDeletedFalse(status));
     }
-
 
     // Lấy phòng theo ID
     public RoomResponse getRoomById(UUID id) {
@@ -192,6 +192,109 @@ public class RoomService {
         room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
 
+        log.info("==> [ROOM] Đã kích hoạt phòng: {}", room.getRoomNumber());
+    }
+
+    // Lấy danh sách phòng của bệnh viện (chưa xóa)
+    public List<RoomResponse> getRoomsByHospital(UUID hospitalId) {
+        List<Room> rooms = roomRepository.findByHospitalIdAndDeletedFalse(hospitalId);
+        return roomMapper.toResponseList(rooms);
+    }
+
+    // Tạo phòng mới cho bệnh viện
+    @Transactional
+    public RoomResponse createRoomForHospital(UUID hospitalId, RoomRequest request) {
+        if (roomRepository.existsByRoomNumberAndHospitalId(request.getRoomNumber(), hospitalId)) {
+            throw new AppException(ErrorCode.ROOM_ALREADY_EXISTS);
+        }
+
+        Room room = Room.builder()
+                .roomNumber(request.getRoomNumber().trim().toUpperCase())
+                .floor(request.getFloor())
+                .building(request.getBuilding())
+                .status(RoomStatus.AVAILABLE)
+                .hospital(Hospital.builder().id(hospitalId).build())
+                .deleted(false)
+                .build();
+
+        log.info("==> [ROOM] Tạo phòng mới cho bệnh viện {}: {}", hospitalId, room.getRoomNumber());
+        return roomMapper.toResponse(roomRepository.save(room));
+    }
+
+    // Cập nhật phòng của bệnh viện
+    @Transactional
+    public RoomResponse updateRoomForHospital(UUID roomId, UUID hospitalId, RoomRequest request) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+
+        // Kiểm tra phòng thuộc bệnh viện này không
+        if (room.getHospital() == null || !room.getHospital().getId().equals(hospitalId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        // Kiểm tra số phòng mới bị trùng không
+        if (!room.getRoomNumber().equals(request.getRoomNumber()) &&
+                roomRepository.existsByRoomNumberAndHospitalId(request.getRoomNumber(), hospitalId)) {
+            throw new AppException(ErrorCode.ROOM_ALREADY_EXISTS);
+        }
+
+        room.setRoomNumber(request.getRoomNumber().trim().toUpperCase());
+        room.setFloor(request.getFloor());
+        room.setBuilding(request.getBuilding());
+
+        return roomMapper.toResponse(roomRepository.save(room));
+    }
+
+    // Xóa phòng của bệnh viện
+    @Transactional
+    public void deleteRoomForHospital(UUID roomId, UUID hospitalId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getHospital() == null || !room.getHospital().getId().equals(hospitalId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
+            throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
+        }
+
+        room.setDeleted(true);
+        roomRepository.save(room);
+        log.info("==> [ROOM] Đã xóa phòng: {} trong bệnh viện {}", room.getRoomNumber(), hospitalId);
+    }
+
+    // Đưa phòng vào bảo trì (của bệnh viện)
+    @Transactional
+    public void setRoomMaintenance(UUID roomId, UUID hospitalId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getHospital() == null || !room.getHospital().getId().equals(hospitalId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
+            throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
+        }
+
+        room.setStatus(RoomStatus.MAINTENANCE);
+        roomRepository.save(room);
+        log.info("==> [ROOM] Phòng {} chuyển sang bảo trì", room.getRoomNumber());
+    }
+
+    // Kích hoạt phòng (của bệnh viện)
+    @Transactional
+    public void activateRoom(UUID roomId, UUID hospitalId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (room.getHospital() == null || !room.getHospital().getId().equals(hospitalId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        room.setStatus(RoomStatus.AVAILABLE);
+        roomRepository.save(room);
         log.info("==> [ROOM] Đã kích hoạt phòng: {}", room.getRoomNumber());
     }
 }

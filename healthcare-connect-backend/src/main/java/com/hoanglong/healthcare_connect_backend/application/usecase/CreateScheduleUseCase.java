@@ -79,6 +79,18 @@ public class CreateScheduleUseCase {
             if (!RoomStatus.AVAILABLE.equals(room.getStatus())) {
                 throw new AppException(ErrorCode.ROOM_NOT_AVAILABLE);
             }
+
+            // KIỂM TRA PHÒNG TRÙNG VỚI BÁC SĨ KHÁC
+            boolean isRoomOverlapped = scheduleRepository.existsOverlappingRoomSchedule(
+                    request.getRoomId(),
+                    request.getDate(),
+                    request.getStartTime(),
+                    request.getEndTime(),
+                    null  // Không có scheduleId cũ (vì đang tạo mới)
+            );
+            if (isRoomOverlapped) {
+                throw new AppException(ErrorCode.ROOM_ALREADY_BOOKED);
+            }
         }
 
         // 8. Kiểm tra trùng lịch

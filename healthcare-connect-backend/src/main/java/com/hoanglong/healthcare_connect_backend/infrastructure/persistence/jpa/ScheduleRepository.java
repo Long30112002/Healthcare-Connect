@@ -89,4 +89,33 @@ public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
             @Param("endTime") LocalTime endTime,
             @Param("scheduleId") UUID scheduleId
     );
+
+    @Query(value = "SELECT COUNT(*) > 0 FROM schedules s " +
+            "WHERE s.room_id = :roomId " +
+            "AND s.date::date = :date " +
+            "AND s.status != 'CANCELLED' " +
+            "AND (s.start_time::time < :endTime AND s.end_time::time > :startTime) " +
+            "AND (:excludeId IS NULL OR s.id != :excludeId)",
+            nativeQuery = true)
+    boolean existsOverlappingRoomSchedule(@Param("roomId") UUID roomId,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("excludeId") UUID excludeId);
+
+    @Query(value = "SELECT u.full_name FROM schedules s " +
+            "JOIN doctors d ON s.doctor_id = d.id " +
+            "JOIN users u ON d.user_id = u.id " +
+            "WHERE s.room_id = :roomId " +
+            "AND s.date::date = :date " +
+            "AND s.status != 'CANCELLED' " +
+            "AND (s.start_time::time < :endTime AND s.end_time::time > :startTime) " +
+            "AND (:excludeId IS NULL OR s.id != :excludeId) " +
+            "LIMIT 1",
+            nativeQuery = true)
+    String findConflictingDoctorName(@Param("roomId") UUID roomId,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("excludeId") UUID excludeId);
 }

@@ -251,6 +251,7 @@ public enum ErrorCode {
     REVIEW_CANNOT_EDIT(9009, "Đã quá 7 ngày kể từ khi đánh giá, không thể chỉnh sửa!", HttpStatus.BAD_REQUEST),
     REVIEW_ALREADY_DELETED(9010, "Đánh giá này đã bị xóa trước đó!", HttpStatus.BAD_REQUEST),
     REVIEW_NOT_DELETED(9011, "Đánh giá này chưa bị xóa!", HttpStatus.BAD_REQUEST),
+    ROOM_ALREADY_BOOKED(9006, "Phòng khám đã được đặt vào khung giờ này!", HttpStatus.BAD_REQUEST),
 
     ;
 

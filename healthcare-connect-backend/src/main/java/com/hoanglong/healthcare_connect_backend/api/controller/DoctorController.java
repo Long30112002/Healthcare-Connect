@@ -36,6 +36,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -258,5 +260,17 @@ public class DoctorController
                 .code(HttpStatus.OK.value())
                 .message("Xóa lịch làm việc thành công!")
                 .build();
+    }
+
+    @GetMapping("/check-room")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ApiResponse<Map<String, Object>> checkRoomAvailability(
+            @RequestParam UUID roomId,
+            @RequestParam LocalDate date,
+            @RequestParam LocalTime startTime,
+            @RequestParam LocalTime endTime
+    ) {
+        Map<String, Object> result = scheduleService.checkRoomAvailability(roomId, date, startTime, endTime);
+        return ApiResponse.<Map<String, Object>>builder().data(result).build();
     }
 }

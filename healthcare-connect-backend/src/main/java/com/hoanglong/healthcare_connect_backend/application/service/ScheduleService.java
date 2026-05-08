@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -130,5 +132,24 @@ public class ScheduleService {
         scheduleRepository.save(schedule);
 
         log.info("Đã xóa lịch làm việc ID: {} bởi bác sĩ ID: {}", scheduleId, currentUserId);
+    }
+
+    public Map<String, Object> checkRoomAvailability(UUID roomId, LocalDate date,
+            LocalTime startTime, LocalTime endTime) {
+        boolean isAvailable = !scheduleRepository.existsOverlappingRoomSchedule(
+                roomId, date, startTime, endTime, null
+        );
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("available", isAvailable);
+
+        if (!isAvailable) {
+            String doctorName = scheduleRepository.findConflictingDoctorName(
+                    roomId, date, startTime, endTime, null
+            );
+            result.put("conflictingDoctor", doctorName);
+        }
+
+        return result;
     }
 }

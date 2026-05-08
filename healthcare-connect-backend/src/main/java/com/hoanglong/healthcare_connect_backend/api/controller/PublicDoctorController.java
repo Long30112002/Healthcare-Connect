@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorService;
+import com.hoanglong.healthcare_connect_backend.application.service.ScheduleService;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RegisterDoctorProfileUseCase;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
@@ -13,8 +14,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -51,4 +56,6 @@ public class PublicDoctorController
                 .data(doctorService.getDoctorProfileForSelf(doctor.getId(), currentUserId))
                 .build();
     }
+
+
 }
