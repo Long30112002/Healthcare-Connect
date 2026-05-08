@@ -194,7 +194,9 @@
     "editNote": "Note: Only future schedules with no bookings can be edited.",
     "slotTooShort": "The appointment is too short (minimum {min} minutes)",
     "slotTooLong": "The appointment is too long (maximum {max} minutes)",
-    "noAvailableSlots": "No time slots are available for this day. Please choose a different day or contact hospital management for updated operating hours."
+    "noAvailableSlots": "No time slots are available for this day. Please choose a different day or contact hospital management for updated operating hours.",
+    "roomAlreadyBooked": "This room has been booked by Dr. {{doctorName}} at this time slot",
+    "checkingRoom": "Checking room availability..."
   },
   "pagination": {
     "firstPage": "First page",
@@ -823,7 +825,8 @@
     "reviewsDesc": "View patient reviews",
     "dashboard": "Dashboard",
     "manageReceptionists": "Manage Receptionists",
-    "workingHours": "Working Hours"
+    "workingHours": "Working Hours",
+    "rooms": "Rooms"
   },
   "review": {
     "title": "Review Doctor",
@@ -843,6 +846,48 @@
     "selectRating": "Please select a rating",
     "selectRatingHint": "Select star rating",
     "cannotReview": "This appointment is not completed yet. You can only review after the appointment is finished."
+  },
+  "room": {
+    "title": "Room Management",
+    "subtitle": "View and manage examination rooms",
+    "list": "Rooms List",
+    "noRooms": "No rooms found",
+    "searchPlaceholder": "🔍 Search by room number or building...",
+    "addRoom": "Add Room",
+    "roomNumber": "Room Number",
+    "floor": "Floor",
+    "building": "Building",
+    "status": {
+      "available": "Available",
+      "occupied": "Occupied",
+      "maintenance": "Maintenance"
+    },
+    "createTitle": "Add New Room",
+    "editTitle": "Edit Room",
+    "roomNumberPlaceholder": "Enter room number (e.g., 101, 102A...)",
+    "floorPlaceholder": "Enter floor number",
+    "buildingPlaceholder": "Enter building (e.g., A, B, C...)",
+    "validation": {
+      "roomNumberRequired": "Room number is required",
+      "floorInvalid": "Invalid floor number"
+    },
+    "createSuccess": "Room added successfully!",
+    "updateSuccess": "Room updated successfully!",
+    "deleteSuccess": "Room deleted successfully!",
+    "deleteConfirm": "Are you sure you want to delete room {{roomNumber}}?",
+    "deleteError": "Failed to delete room!",
+    "saveError": "Failed to save room!",
+    "maintenance": "Maintenance",
+    "maintenanceSuccess": "Room moved to maintenance mode!",
+    "maintenanceError": "Failed to move to maintenance!",
+    "maintenanceConfirm": "Are you sure you want to put this room into maintenance?",
+    "activate": "Activate",
+    "activateSuccess": "Room activated successfully!",
+    "activateError": "Failed to activate room!",
+    "activateConfirm": "Are you sure you want to activate this room?",
+    "deleteTitle": "Delete Room",
+    "maintenanceTitle": "Maintenance",
+    "activateTitle": "Activate Room"
   },
   "statistics": {
     "title": "Statistics",
@@ -1512,6 +1557,7 @@
     "REVIEW_EXPIRED": "Review period (30 days) has expired!",
     "REVIEW_CANNOT_EDIT": "Edit period (7 days) has expired!",
     "REVIEW_ALREADY_DELETED": "This review has been deleted!",
-    "REVIEW_NOT_DELETED": "This review has not been deleted!"
+    "REVIEW_NOT_DELETED": "This review has not been deleted!",
+    "ROOM_ALREADY_BOOKED": "This room has already been booked for this time slot!"
   }
 }

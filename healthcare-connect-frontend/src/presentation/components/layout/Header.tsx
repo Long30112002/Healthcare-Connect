@@ -120,6 +120,7 @@ const Header = () => {
       { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
       { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: '👩‍💼' },
       { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: '⏰' },
+      { path: '/manager/rooms', label: t('nav.rooms'), shortLabel: '🚪', icon: '🚪' },
       { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' },
     ],
     ADMIN: [

@@ -11,6 +11,7 @@ import { workingHoursApi } from '../../../infrastructure/api/workingHoursApi';
 import toast from 'react-hot-toast';
 import type { RoomResponse, WorkingHoursResponse } from '../../../core/types/api.response';
 import { formatTimeOnly } from '../../../shared/utils/dateUtils';
+import axiosClient from '../../../infrastructure/api/axiosClient';
 
 interface ScheduleFormData {
     date: string;
@@ -31,6 +32,8 @@ const CreateSchedulePage = () => {
     const [availableEndTimes, setAvailableEndTimes] = useState<string[]>([]);
     const [minSlot, setMinSlot] = useState(15);
     const [maxSlot, setMaxSlot] = useState(120);
+    const [roomWarning, setRoomWarning] = useState<string | null>(null);
+    const [checkingRoom, setCheckingRoom] = useState(false);
 
     const [formData, setFormData] = useState<ScheduleFormData>({
         date: '',
@@ -106,6 +109,36 @@ const CreateSchedulePage = () => {
         setAvailableEndTimes(slots);
         setMinSlot(minSlot);
         setMaxSlot(maxSlot);
+    };
+
+    const checkRoomAvailability = async (roomId: string) => {
+        if (!formData.date || !formData.startTime || !formData.endTime) {
+            setRoomWarning(null);
+            return;
+        }
+
+        setCheckingRoom(true);
+        try {
+            const response = await axiosClient.get('/doctor/check-room', {
+                params: {
+                    roomId,
+                    date: formData.date,
+                    startTime: formData.startTime,
+                    endTime: formData.endTime,
+                }
+            });
+
+            if (!response.data.data.available) {
+                const doctorName = response.data.data.conflictingDoctor;
+                setRoomWarning(t('schedule.roomAlreadyBooked', { doctorName }));
+            } else {
+                setRoomWarning(null);
+            }
+        } catch (error) {
+            console.error('Failed to check room:', error);
+        } finally {
+            setCheckingRoom(false);
+        }
     };
 
     // Lấy danh sách phòng + cấu hình giờ làm việc
@@ -369,7 +402,14 @@ const CreateSchedulePage = () => {
                             </label>
                             <select
                                 value={formData.roomId}
-                                onChange={(e) => handleChange('roomId', e.target.value)}
+                                onChange={(e) => {
+                                    handleChange('roomId', e.target.value);
+                                    if (e.target.value) {
+                                        checkRoomAvailability(e.target.value);
+                                    } else {
+                                        setRoomWarning(null);
+                                    }
+                                }}
                                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-gray-800"
                             >
                                 <option value="">{t('schedule.selectRoom')}</option>
@@ -378,27 +418,44 @@ const CreateSchedulePage = () => {
                                 ))}
                             </select>
                             <p className="mt-1 text-xs text-gray-500">{t('schedule.roomNote')}</p>
+
+                            {/* Chỉ giữ loading khi đang kiểm tra phòng */}
+                            {checkingRoom && (
+                                <p className="mt-2 text-sm text-gray-500">{t('schedule.checkingRoom')}</p>
+                            )}
                         </div>
 
-                        {/* Cảnh báo + Lưu ý gộp chung */}
+                        {/* Cảnh báo tổng hợp - ưu tiên theo thứ tự */}
                         <div className="space-y-3">
-                            {/* Cảnh báo không có khung giờ khả dụng */}
+                            {/* 1. Ưu tiên: Không có khung giờ */}
                             {formData.date && availableStartTimes.length === 0 && workingHours.length > 0 && (
                                 <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
                                     <p className="text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
                                         <span className="text-lg">⚠️</span>
-                                        <span>{t('schedule.noAvailableSlots') || 'Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc.'}</span>
+                                        <span>{t('schedule.noAvailableSlots')}</span>
                                     </p>
                                 </div>
                             )}
 
-                            {/* Lưu ý chung */}
-                            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800">
-                                <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-start gap-2">
-                                    <span className="text-lg">⚠️</span>
-                                    <span>{t('schedule.note')}</span>
-                                </p>
-                            </div>
+                            {/* 2. Nếu không có cảnh báo trên thì mới hiển thị cảnh báo phòng */}
+                            {(!formData.date || availableStartTimes.length !== 0) && roomWarning && (
+                                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
+                                    <p className="text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
+                                        <span className="text-lg">⚠️</span>
+                                        <span>{roomWarning}</span>
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* 3. Nếu không có cảnh báo nào thì mới hiển thị lưu ý chung */}
+                            {(!formData.date || availableStartTimes.length !== 0) && !roomWarning && (
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800">
+                                    <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-start gap-2">
+                                        <span className="text-lg">⚠️</span>
+                                        <span>{t('schedule.note')}</span>
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Buttons */}

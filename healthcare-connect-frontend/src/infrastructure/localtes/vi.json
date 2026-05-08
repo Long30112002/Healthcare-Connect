@@ -249,7 +249,9 @@
     "editNote": "Lưu ý: Chỉ có thể sửa lịch trong tương lai và chưa có bệnh nhân đặt.",
     "slotTooShort": "Ca khám quá ngắn (tối thiểu {min} phút)",
     "slotTooLong": "Ca khám quá dài (tối đa {max} phút)",
-    "noAvailableSlots": "Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc."
+    "noAvailableSlots": "Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc.",
+    "roomAlreadyBooked": "Phòng này đã được bác sĩ {{doctorName}} đặt vào khung giờ này",
+    "checkingRoom": "Đang kiểm tra phòng..."
   },
   "myPatients": {
     "title": "Danh sách bệnh nhân",
@@ -726,7 +728,50 @@
     "reviewsDesc": "Xem đánh giá từ bệnh nhân",
     "dashboard": "Dashboard",
     "manageReceptionists": "Quản lý lễ tân",
-    "workingHours": "Giờ làm việc"
+    "workingHours": "Giờ làm việc",
+    "rooms": "Phòng khám"
+  },
+  "room": {
+    "title": "Quản lý phòng khám",
+    "subtitle": "Xem và quản lý danh sách phòng khám",
+    "list": "Danh sách phòng khám",
+    "noRooms": "Không có phòng khám nào",
+    "searchPlaceholder": "🔍 Tìm theo số phòng hoặc khu nhà...",
+    "addRoom": "Thêm phòng",
+    "roomNumber": "Số phòng",
+    "floor": "Tầng",
+    "building": "Khu nhà",
+    "status": {
+      "available": "Trống",
+      "occupied": "Đang sử dụng",
+      "maintenance": "Bảo trì"
+    },
+    "createTitle": "Thêm phòng mới",
+    "editTitle": "Chỉnh sửa phòng",
+    "roomNumberPlaceholder": "Nhập số phòng (VD: 101, 102A...)",
+    "floorPlaceholder": "Nhập số tầng",
+    "buildingPlaceholder": "Nhập khu nhà (VD: A, B, C...)",
+    "validation": {
+      "roomNumberRequired": "Vui lòng nhập số phòng",
+      "floorInvalid": "Tầng không hợp lệ"
+    },
+    "createSuccess": "Thêm phòng thành công!",
+    "updateSuccess": "Cập nhật phòng thành công!",
+    "deleteSuccess": "Xóa phòng thành công!",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa phòng {{roomNumber}}?",
+    "deleteError": "Xóa phòng thất bại!",
+    "saveError": "Lưu phòng thất bại!",
+    "maintenance": "Bảo trì",
+    "maintenanceSuccess": "Đã chuyển phòng sang chế độ bảo trì!",
+    "maintenanceError": "Chuyển sang bảo trì thất bại!",
+    "maintenanceConfirm": "Bạn có chắc chắn muốn đưa phòng này vào bảo trì?",
+    "activate": "Kích hoạt",
+    "activateSuccess": "Kích hoạt phòng thành công!",
+    "activateError": "Kích hoạt phòng thất bại!",
+    "activateConfirm": "Bạn có chắc chắn muốn kích hoạt lại phòng này?",
+    "deleteTitle": "Xóa phòng",
+    "maintenanceTitle": "Đưa vào bảo trì",
+    "activateTitle": "Kích hoạt phòng"
   },
   "review": {
     "title": "Đánh giá bác sĩ",
@@ -1516,6 +1561,7 @@
     "REVIEW_EXPIRED": "Đã quá 30 ngày kể từ khi khám, không thể đánh giá!",
     "REVIEW_CANNOT_EDIT": "Đã quá 7 ngày kể từ khi đánh giá, không thể chỉnh sửa!",
     "REVIEW_ALREADY_DELETED": "Đánh giá này đã bị xóa trước đó!",
-    "REVIEW_NOT_DELETED": "Đánh giá này chưa bị xóa!"
+    "REVIEW_NOT_DELETED": "Đánh giá này chưa bị xóa!",
+    "ROOM_ALREADY_BOOKED": "Phòng khám đã được đặt vào khung giờ này!"
   }
 }
