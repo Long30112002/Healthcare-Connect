@@ -9,13 +9,10 @@ import com.hoanglong.healthcare_connect_backend.application.service.Receptionist
 import com.hoanglong.healthcare_connect_backend.application.usecase.ApproveReceptionistUseCase;
 import com.hoanglong.healthcare_connect_backend.application.usecase.RejectReceptionistUseCase;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
-import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
-import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
-import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/manager/receptionist")
+@RequestMapping("/api/manager/receptionists")
 @RequiredArgsConstructor
 public class ManagerReceptionController
 {

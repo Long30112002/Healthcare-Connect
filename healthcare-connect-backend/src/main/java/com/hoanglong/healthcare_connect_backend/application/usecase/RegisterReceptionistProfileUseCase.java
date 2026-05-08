@@ -3,7 +3,6 @@ package com.hoanglong.healthcare_connect_backend.application.usecase;
 import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistProfileRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.receptionist.ReceptionistResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.ReceptionistMapper;
-import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
 import com.hoanglong.healthcare_connect_backend.application.service.ReceptionistAuditLogService;
 import com.hoanglong.healthcare_connect_backend.core.constant.HospitalStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistApplicationStatus;
@@ -17,6 +16,7 @@ import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.storage.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class RegisterReceptionistProfileUseCase {
     private final HospitalRepository hospitalRepository;
     private final ReceptionistAuditLogService receptionistAuditLogService;
     private final ReceptionistMapper receptionistMapper;
-    private final CloudinaryService cloudinaryService;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public ReceptionistResponse execute(UUID userId, ReceptionistProfileRequest request, HttpServletRequest httpRequest) {
@@ -59,7 +59,7 @@ public class RegisterReceptionistProfileUseCase {
         Hospital hospital = getHospital(request.getHospitalId());
 
         // 4. Upload CV
-        String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
+        String cvUrl = fileStorageService.uploadFile(request.getCvFile());
 
         // 5. Create new receptionist
         Receptionist receptionist = createNewReceptionist(user, hospital, request, cvUrl);
@@ -111,7 +111,7 @@ public class RegisterReceptionistProfileUseCase {
         Hospital hospital = getHospital(request.getHospitalId());
 
         // Upload CV mới
-        String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
+        String cvUrl = fileStorageService.uploadFile(request.getCvFile());
 
         oldReceptionist.setHospital(hospital);
         oldReceptionist.setCvUrl(cvUrl);

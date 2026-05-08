@@ -4,6 +4,7 @@ import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.ManagerDashboardStatsResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.TopDoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.WeeklyStatResponse;
+import com.hoanglong.healthcare_connect_backend.application.service.AppointmentService;
 import com.hoanglong.healthcare_connect_backend.application.service.CurrentUserService;
 import com.hoanglong.healthcare_connect_backend.application.service.ManagerStatisticsService;
 import lombok.RequiredArgsConstructor;

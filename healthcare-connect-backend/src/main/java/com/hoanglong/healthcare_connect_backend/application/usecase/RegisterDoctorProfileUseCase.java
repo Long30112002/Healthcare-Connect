@@ -4,13 +4,13 @@ import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorPro
 import com.hoanglong.healthcare_connect_backend.application.dto.doctor.DoctorResponse;
 import com.hoanglong.healthcare_connect_backend.application.mapper.DoctorMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.DoctorAuditLogService;
-import com.hoanglong.healthcare_connect_backend.application.service.CloudinaryService;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
+import com.hoanglong.healthcare_connect_backend.infrastructure.storage.FileStorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class RegisterDoctorProfileUseCase {
     private final DepartmentRepository departmentRepository;
     private final HospitalRepository hospitalRepository;
     private final DoctorMapper doctorMapper;
-    private final CloudinaryService cloudinaryService;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public DoctorResponse execute(UUID userId, DoctorProfileRequest request, HttpServletRequest httpRequest) {
@@ -60,7 +60,7 @@ public class RegisterDoctorProfileUseCase {
         Hospital hospital = getHospital(request.getHospitalId());
 
         // 5. Upload CV (after all validations passed)
-        String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
+        String cvUrl = fileStorageService.uploadFile(request.getCvFile());
 
         // 6. Create new doctor
         Doctor doctor = createNewDoctor(user, department, specialty, hospital, request, cvUrl);
@@ -139,7 +139,7 @@ public class RegisterDoctorProfileUseCase {
         Hospital hospital = getHospital(request.getHospitalId());
 
         // Upload CV sau validate
-        String cvUrl = cloudinaryService.uploadFile(request.getCvFile());
+        String cvUrl = fileStorageService.uploadFile(request.getCvFile());
 
         oldDoc.setDepartment(department);
         oldDoc.setSpecialty(specialty);
