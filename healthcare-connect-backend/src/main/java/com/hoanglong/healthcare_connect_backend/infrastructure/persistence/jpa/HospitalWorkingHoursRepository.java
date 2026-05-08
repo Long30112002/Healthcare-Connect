@@ -29,7 +29,8 @@ public interface HospitalWorkingHoursRepository extends JpaRepository<HospitalWo
 
     @Modifying
     @Transactional
-    void deleteByHospitalId(UUID hospitalId);
+    @Query("DELETE FROM HospitalWorkingHours h WHERE h.hospital.id = :hospitalId")
+    void deleteByHospitalId(@Param("hospitalId") UUID hospitalId);
 
     @Query("SELECT CASE WHEN COUNT(h) > 0 THEN true ELSE false END FROM HospitalWorkingHours h " +
             "WHERE h.hospital.id = :hospitalId " +

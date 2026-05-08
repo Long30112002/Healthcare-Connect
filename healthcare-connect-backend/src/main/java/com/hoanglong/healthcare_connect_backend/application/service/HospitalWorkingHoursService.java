@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,23 +49,38 @@ public class HospitalWorkingHoursService {
         Hospital hospital = hospitalRepository.findById(hospitalId)
                 .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
 
-        // 2. Kiểm tra quyền (manager của bệnh viện này hoặc admin)
+        // 2. Kiểm tra quyền
         validateHospitalAccess(hospitalId);
 
         // 3. Validate dữ liệu đầu vào
         validateWorkingHoursRequest(request);
 
-        // 4. Vô hiệu hóa cấu hình cũ (nếu có)
-        workingHoursRepository.deactivateByHospitalIdAndDayOfWeek(hospitalId, request.getDayOfWeek());
+        // 4. Tìm bản ghi cũ (nếu có)
+        Optional<HospitalWorkingHours> existingOpt = workingHoursRepository
+                .findByHospitalIdAndDayOfWeekAndIsActiveTrue(hospitalId, request.getDayOfWeek());
 
-        // 5. Tạo cấu hình mới
-        HospitalWorkingHours workingHours = workingHoursMapper.toEntity(request);
-        workingHours.setHospital(hospital);
-        workingHours.setIsActive(true);
+        HospitalWorkingHours workingHours;
+
+        if (existingOpt.isPresent()) {
+            // UPDATE bản ghi cũ
+            workingHours = existingOpt.get();
+            workingHours.setStartTime(request.getStartTime());
+            workingHours.setEndTime(request.getEndTime());
+            workingHours.setLunchStart(request.getLunchStart());
+            workingHours.setLunchEnd(request.getLunchEnd());
+            workingHours.setMinSlotMinutes(request.getMinSlotMinutes());
+            workingHours.setMaxSlotMinutes(request.getMaxSlotMinutes());
+            // Không thay đổi isActive, hospital, dayOfWeek, id
+            log.info("Updated working hours for hospital: {}, dayOfWeek: {}", hospital.getName(), request.getDayOfWeek());
+        } else {
+            // INSERT bản ghi mới
+            workingHours = workingHoursMapper.toEntity(request);
+            workingHours.setHospital(hospital);
+            workingHours.setIsActive(true);
+            log.info("Inserted new working hours for hospital: {}, dayOfWeek: {}", hospital.getName(), request.getDayOfWeek());
+        }
 
         HospitalWorkingHours saved = workingHoursRepository.save(workingHours);
-        log.info("Saved working hours for hospital: {}, dayOfWeek: {}", hospital.getName(), request.getDayOfWeek());
-
         return workingHoursMapper.toResponse(saved);
     }
 
@@ -100,17 +116,15 @@ public class HospitalWorkingHoursService {
         deactivateWorkingHours(hospitalId, dayOfWeek);  // Gọi method đã có
     }
 
+    @Transactional
     public void resetToDefault() {
         UUID hospitalId = getCurrentHospitalId();
-        // Xóa tất cả cấu hình cũ
-        List<HospitalWorkingHours> existing = workingHoursRepository
-                .findByHospitalIdAndIsActiveTrueOrderByDayOfWeekAsc(hospitalId);
-        for (HospitalWorkingHours h : existing) {
-            h.setIsActive(false);
-        }
-        workingHoursRepository.saveAll(existing);
-        // Tạo cấu hình mặc định
+
+        workingHoursRepository.deleteByHospitalId(hospitalId);
+
         createDefaultWorkingHoursForNewHospital(hospitalId);
+
+        log.info("Reset to default working hours for hospital: {}", hospitalId);
     }
 
     /**
