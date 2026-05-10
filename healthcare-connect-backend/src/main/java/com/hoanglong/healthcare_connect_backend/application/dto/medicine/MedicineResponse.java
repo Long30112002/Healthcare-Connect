@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.dto.medicine;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.DosageForm;
 import com.hoanglong.healthcare_connect_backend.core.constant.MedicineCategory;
+import com.hoanglong.healthcare_connect_backend.core.constant.Unit;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -24,7 +25,7 @@ public class MedicineResponse {
     String categoryDisplayName;
     DosageForm dosageForm;
     String dosageFormDisplayName;
-    String unit;
+    Unit unit;
     BigDecimal price;
     String formattedPrice;
     Integer stockQuantity;

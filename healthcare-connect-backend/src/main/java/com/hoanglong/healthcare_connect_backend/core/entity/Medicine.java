@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.core.entity;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.DosageForm;
 import com.hoanglong.healthcare_connect_backend.core.constant.MedicineCategory;
+import com.hoanglong.healthcare_connect_backend.core.constant.Unit;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -45,7 +46,9 @@ public class Medicine {
     @Column(name = "dosage_form")
     DosageForm dosageForm;  // Dạng bào chế
 
-    String unit;  // Đơn vị (viên, chai, ống...)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unit", nullable = false)
+    Unit unit;  // Đơn vị (viên, chai, ống...)
 
     @Column(precision = 19, scale = 2)
     BigDecimal price;
