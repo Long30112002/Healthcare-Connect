@@ -9,10 +9,13 @@ import com.hoanglong.healthcare_connect_backend.core.entity.Room;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.RoomRepository;
+import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMapper roomMapper;
+    private final ScheduleRepository scheduleRepository;
 
     public List<RoomResponse> getAllRooms() {
         return roomMapper.toResponseList(roomRepository.findAll());
@@ -100,22 +104,6 @@ public class RoomService {
         roomRepository.save(room);
 
         log.info("==> [ROOM] Phòng {} đã được giải phóng", room.getRoomNumber());
-    }
-
-    // Đưa phòng vào bảo trì
-    @Transactional
-    public void setRoomMaintenance(UUID roomId) {
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-
-        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
-            throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
-        }
-
-        room.setStatus(RoomStatus.MAINTENANCE);
-        roomRepository.save(room);
-
-        log.info("==> [ROOM] Phòng {} đã được chuyển sang bảo trì", room.getRoomNumber());
     }
 
     // Xóa phòng
@@ -274,6 +262,11 @@ public class RoomService {
             throw new AppException(ErrorCode.FORBIDDEN);
         }
 
+        boolean hasFutureSchedules = scheduleRepository.existsByRoomIdAndStartTimeAfter(roomId, LocalDateTime.now());
+        if (hasFutureSchedules) {
+            throw new AppException(ErrorCode.ROOM_HAS_FUTURE_SCHEDULES);
+        }
+
         if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
             throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
         }
@@ -282,6 +275,23 @@ public class RoomService {
         roomRepository.save(room);
         log.info("==> [ROOM] Phòng {} chuyển sang bảo trì", room.getRoomNumber());
     }
+
+//    // Đưa phòng vào bảo trì
+//    @Transactional
+//    public void setRoomMaintenance(UUID roomId) {
+//        Room room = roomRepository.findById(roomId)
+//                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+//
+//        if (RoomStatus.OCCUPIED.equals(room.getStatus())) {
+//            throw new AppException(ErrorCode.ROOM_IS_OCCUPIED);
+//        }
+//
+//        room.setStatus(RoomStatus.MAINTENANCE);
+//        roomRepository.save(room);
+//
+//        log.info("==> [ROOM] Phòng {} đã được chuyển sang bảo trì", room.getRoomNumber());
+//    }
+
 
     // Kích hoạt phòng (của bệnh viện)
     @Transactional

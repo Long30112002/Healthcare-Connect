@@ -27,7 +27,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
     Optional<Schedule> findByIdWithLock(UUID id);
 
     List<Schedule> findByDoctorIdAndDate(UUID doctorId, LocalDate date);
+
     List<Schedule> findByDoctorIdAndStatusAndDateBetween(UUID doctorId, ScheduleStatus status, LocalDateTime startDate, LocalDateTime endDate);
+
+    boolean existsByRoomIdAndStartTimeAfter(UUID roomId, LocalDateTime time);
 
     @Query(value = "SELECT COUNT(*) > 0 FROM schedules s " +
             "WHERE s.doctor_id = :doctorId " +

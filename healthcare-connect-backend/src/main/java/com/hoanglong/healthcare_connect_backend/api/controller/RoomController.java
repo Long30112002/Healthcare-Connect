@@ -99,17 +99,17 @@ public class RoomController {
                 .build();
     }
 
-    // 8. Đưa phòng vào bảo trì
-    @PatchMapping("/{id}/maintenance")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<String> setRoomMaintenance(@PathVariable UUID id) {
-        roomService.setRoomMaintenance(id);
-        return ApiResponse.<String>builder()
-                .status("success")
-                .code(200)
-                .message("Chuyển phòng sang bảo trì thành công")
-                .build();
-    }
+//    // 8. Đưa phòng vào bảo trì
+//    @PatchMapping("/{id}/maintenance")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ApiResponse<String> setRoomMaintenance(@PathVariable UUID id) {
+//        roomService.setRoomMaintenance(id);
+//        return ApiResponse.<String>builder()
+//                .status("success")
+//                .code(200)
+//                .message("Chuyển phòng sang bảo trì thành công")
+//                .build();
+//    }
 
     // 9. Đưa phòng trở lại hoạt động (từ bảo trì hoặc OCCUPIED -> AVAILABLE)
     @PatchMapping("/{id}/activate")
