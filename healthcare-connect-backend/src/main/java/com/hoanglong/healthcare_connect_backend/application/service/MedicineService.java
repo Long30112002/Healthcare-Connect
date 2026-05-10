@@ -39,33 +39,31 @@ public class MedicineService {
     public MedicineResponse createMedicine(MedicineRequest request) {
         log.info("Tạo thuốc mới với code: {}", request.getCode());
 
-        // Kiểm tra quyền
+        // 1. Kiểm tra quyền
         checkAdminOrManagerPermission();
 
-        // Kiểm tra mã thuốc đã tồn tại trongC BỆNH VIỆN NÀY chưa
+        // 2. GÁN HOSPITAL_ID VÀO REQUEST
+        UUID hospitalId = currentUserService.getCurrentHospitalId();
+
         boolean exists = medicineRepository.existsByCodeAndHospitalIdAndDeletedFalse(
                 request.getCode(),
-                request.getHospitalId()
+                hospitalId
         );
 
         if (exists) {
             throw new AppException(ErrorCode.MEDICINE_ALREADY_EXISTS_IN_HOSPITAL);
         }
 
-        // Lấy hospital
-        Hospital hospital = getHospitalById(request.getHospitalId());
+        // 4. Lấy hospital
+        Hospital hospital = getHospitalById(hospitalId);
 
-        // Kiểm tra hospital thuộc quyền quản lý (nếu là MANAGER)
+        // 5. Kiểm tra hospital thuộc quyền quản lý (nếu là MANAGER)
         checkHospitalOwnership(hospital.getId());
 
-        // Convert request -> entity
         Medicine medicine = medicineMapper.toEntity(request);
         medicine.setHospital(hospital);
 
-        // lưu vào database
         Medicine savedMedicine = medicineRepository.save(medicine);
-        log.info("Đã tạo thuốc thành công với ID: {}", savedMedicine.getId());
-
         return medicineMapper.toResponse(savedMedicine);
     }
 
@@ -73,35 +71,30 @@ public class MedicineService {
      * Cập nhật thông tin thuốc
      */
     public MedicineResponse updateMedicine(UUID id, MedicineRequest request) {
+
         log.info("Cập nhật thuốc ID: {}", id);
 
-        // 1. Kiểm tra quyền
         checkAdminOrManagerPermission();
 
-        // 2. Tìm thuốc
         Medicine medicine = medicineRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.MEDICINE_NOT_FOUND));
 
-        // 3. Kiểm tra hospital thuộc quyền quản lý
         checkHospitalOwnership(medicine.getHospital().getId());
 
-        // 4. Kiểm tra mã thuốc trùng (nếu đổi code)
+        // Check duplicate code trong cùng hospital
         if (!medicine.getCode().equals(request.getCode()) &&
-                medicineRepository.existsByCodeAndDeletedFalse(request.getCode())) {
-            throw new AppException(ErrorCode.MEDICINE_ALREADY_EXISTS);
+                medicineRepository.existsByCodeAndHospitalIdAndDeletedFalse(
+                        request.getCode(),
+                        medicine.getHospital().getId()
+                )) {
+
+            throw new AppException(ErrorCode.MEDICINE_ALREADY_EXISTS_IN_HOSPITAL);
         }
 
-        // 5. Cập nhật
         medicineMapper.updateEntity(medicine, request);
 
-        // Cập nhật hospital nếu thay đổi
-        if (!medicine.getHospital().getId().equals(request.getHospitalId())) {
-            Hospital newHospital = getHospitalById(request.getHospitalId());
-            checkHospitalOwnership(newHospital.getId());
-            medicine.setHospital(newHospital);
-        }
-
         Medicine savedMedicine = medicineRepository.save(medicine);
+
         log.info("Đã cập nhật thuốc ID: {}", savedMedicine.getId());
 
         return medicineMapper.toResponse(savedMedicine);
