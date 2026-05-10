@@ -1562,6 +1562,7 @@
     "REVIEW_CANNOT_EDIT": "Đã quá 7 ngày kể từ khi đánh giá, không thể chỉnh sửa!",
     "REVIEW_ALREADY_DELETED": "Đánh giá này đã bị xóa trước đó!",
     "REVIEW_NOT_DELETED": "Đánh giá này chưa bị xóa!",
-    "ROOM_ALREADY_BOOKED": "Phòng khám đã được đặt vào khung giờ này!"
+    "ROOM_ALREADY_BOOKED": "Phòng khám đã được đặt vào khung giờ này!",
+    "ROOM_HAS_FUTURE_SCHEDULES": "Phòng đã có lịch hẹn trong tương lai, không thể bảo trì!"
   }
 }

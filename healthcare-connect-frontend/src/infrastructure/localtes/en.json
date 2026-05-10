@@ -1558,6 +1558,7 @@
     "REVIEW_CANNOT_EDIT": "Edit period (7 days) has expired!",
     "REVIEW_ALREADY_DELETED": "This review has been deleted!",
     "REVIEW_NOT_DELETED": "This review has not been deleted!",
-    "ROOM_ALREADY_BOOKED": "This room has already been booked for this time slot!"
+    "ROOM_ALREADY_BOOKED": "This room has already been booked for this time slot!",
+    "ROOM_HAS_FUTURE_SCHEDULES": "This room has future schedules, cannot be maintained!"
   }
 }
