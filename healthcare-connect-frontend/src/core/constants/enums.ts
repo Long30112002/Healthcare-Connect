@@ -120,3 +120,29 @@ export const MedicineCategory = {
 
 } as const;
 export type MedicineCategory = (typeof MedicineCategory)[keyof typeof MedicineCategory];
+
+export const Unit = {
+    BOX: 'BOX',
+    BLISTER: 'BLISTER',
+    BOTTLE: 'BOTTLE',
+    TUBE: 'TUBE',
+    TABLET: 'TABLET',
+    JAR: 'JAR',
+    BAG: 'BAG',
+    PACK: 'PACK',
+} as const;
+export type Unit = (typeof Unit)[keyof typeof Unit];
+
+export const DosageForm = {
+    TABLET: 'TABLET',
+    CAPSULE: 'CAPSULE',
+    SYRUP: 'SYRUP',
+    INJECTION: 'INJECTION',
+    CREAM: 'CREAM',
+    OINTMENT: 'OINTMENT',
+    INHALER: 'INHALER',
+    DROPS: 'DROPS',
+    PATCH: 'PATCH',
+    POWDER: 'POWDER'
+} as const;
+export type DosageForm = (typeof DosageForm)[keyof typeof DosageForm];

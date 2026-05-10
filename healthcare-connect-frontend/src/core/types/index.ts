@@ -1,4 +1,4 @@
-import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory, ReceptionistStatus } from '../constants/enums';
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory, ReceptionistStatus, Unit, DosageForm } from '../constants/enums';
 
 export interface User {
     id: string;
@@ -177,11 +177,11 @@ export interface Medicine {
     name: string;
     activeIngredient: string;
     category: MedicineCategory;
-    unit: string;
+    unit: Unit;
     price: number;
     stockQuantity: number;
     requiresPrescription: boolean;
-    dosageForm: string;
+    dosageForm: DosageForm;
     manufacturer: string;
     expiryDate: string;
     description: string;

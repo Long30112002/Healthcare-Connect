@@ -163,3 +163,13 @@ export const formatDateShort = (input: string | number[], language: 'vi' | 'en' 
     }
     return `${month}/${day}/${year}`;
 };
+
+export const formatExpiryDate = (expiryDate: any): string => {
+    if (!expiryDate) return '';
+    if (typeof expiryDate === 'string') return expiryDate.split('T')[0];
+    if (Array.isArray(expiryDate) && expiryDate.length >= 3) {
+        const [year, month, day] = expiryDate;
+        return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    }
+    return '';
+};

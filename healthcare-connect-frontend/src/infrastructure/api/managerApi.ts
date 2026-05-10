@@ -13,6 +13,11 @@ export const managerApi = {
         return response.data.data;
     },
 
+    getCurrentHospital: async (): Promise<{ id: string; name: string }> => {
+        const response = await axiosClient.get('/manager/current-hospital');
+        return response.data.data;
+    },
+
     getDoctorsByManager: async (
         page: number = 0,
         size: number = 10,

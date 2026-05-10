@@ -1,5 +1,3 @@
-import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-
 interface SelectOption {
     value: string;
     label: string;
@@ -28,7 +26,6 @@ const Select = ({
     error,
     className = ''
 }: SelectProps) => {
-    const { t } = useAppTranslation();
 
     return (
         <div className={className}>

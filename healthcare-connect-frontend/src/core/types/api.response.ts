@@ -1,5 +1,5 @@
 import type { Appointment, User, VitalSigns } from ".";
-import type { AppointmentStatus, DoctorStatus, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, UserRole } from "../constants/enums";
+import type { AppointmentStatus, DoctorStatus, DosageForm, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, Unit, UserRole } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string;
@@ -42,13 +42,14 @@ export interface MedicineResponse {
     activeIngredient: string;
     category: MedicineCategory;
     categoryDisplayName: string;
-    dosageForm: string;
+    dosageForm: DosageForm;
     dosageFormDisplayName: string;
-    unit: string;
+    unit: Unit;
     price: number;
     formattedPrice: string;
     stockQuantity: number;
     minStock: number;
+    maxStock: number;
     expiryDate: string;
     manufacturer: string;
     manufacturerCountry: string;

@@ -1,5 +1,5 @@
 import type { VitalSigns } from ".";
-import type { PaymentMethod, RefundMethod, RejectionReason } from "../constants/enums";
+import type { MedicineCategory, PaymentMethod, RefundMethod, RejectionReason } from "../constants/enums";
 
 export interface BookingRequest {
     scheduleId: string;
@@ -110,4 +110,25 @@ export interface RejectDoctorRequest {
 export interface RejectReceptionistRequest {
   reasonCode: RejectionReason;
   note?: string;
+}
+
+export interface MedicineRequest {
+    code: string;
+    name: string;
+    activeIngredient: string;
+    category: MedicineCategory;
+    unit: string;
+    price: number;
+    stockQuantity: number;
+    minStock: number;
+    expiryDate: string;
+    manufacturer: string;
+    requiresPrescription: boolean;
+    description?: string;
+    usageInstructions?: string;
+    contraindications?: string;
+    sideEffects?: string;
+    maxStock?: number;
+    manufacturerCountry?: string;
+    dosageForm?: string;
 }

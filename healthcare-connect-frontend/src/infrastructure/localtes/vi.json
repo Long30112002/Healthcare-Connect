@@ -63,7 +63,8 @@
     "viewAll": "Xem tất cả",
     "download": "Tải xuống",
     "notAvailable": "Chưa cập nhật",
-    "reason": "Lý do"
+    "reason": "Lý do",
+    "update": "Cập nhật"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -637,8 +638,115 @@
     "generatedBy": "Được tạo bởi"
   },
   "medicine": {
+    "minStock": "Tồn kho tối thiểu",
     "searchError": "Tìm kiếm thuốc thất bại!",
-    "alreadyAdded": "Thuốc đã có trong đơn!"
+    "alreadyAdded": "Thuốc đã có trong đơn!",
+    "title": "Quản lý thuốc",
+    "subtitle": "Xem và quản lý danh sách thuốc trong bệnh viện",
+    "code": "Mã thuốc",
+    "name": "Tên thuốc",
+    "unit": "Đơn vị",
+    "price": "Giá",
+    "stock": "Tồn kho",
+    "expiryDate": "Hạn sử dụng",
+    "searchPlaceholder": "Tìm theo tên hoặc mã thuốc...",
+    "stockQuantity": "Số lượng tồn kho",
+    "allCategories": "Tất cả danh mục",
+    "addMedicine": "Thêm thuốc",
+    "noMedicines": "Không có thuốc nào",
+    "updateStock": "Nhập kho",
+    "updateStockTitle": "Cập nhật tồn kho",
+    "currentStock": "Tồn kho hiện tại",
+    "stockChange": "Số lượng thay đổi",
+    "stockChangePlaceholder": "Nhập số lượng (có thể âm để xuất kho)",
+    "stockChangeNote": "Nhập số dương để nhập thêm, số âm để xuất kho",
+    "stockUpdateSuccess": "Cập nhật tồn kho thành công!",
+    "stockUpdateError": "Cập nhật tồn kho thất bại!",
+    "activeIngredient": "Hoạt chất",
+    "manufacturer": "Nhà sản xuất",
+    "requiresPrescription": "Thuốc kê đơn",
+    "description": "Mô tả",
+    "usageInstructions": "Hướng dẫn sử dụng",
+    "contraindications": "Chống chỉ định",
+    "sideEffects": "Tác dụng phụ",
+    "createTitle": "Thêm thuốc mới",
+    "editTitle": "Chỉnh sửa thuốc",
+    "createSuccess": "Thêm thuốc thành công!",
+    "updateSuccess": "Cập nhật thuốc thành công!",
+    "deleteSuccess": "Xóa thuốc thành công!",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa thuốc {{name}}?",
+    "deleteError": "Xóa thuốc thất bại!",
+    "saveError": "Lưu thuốc thất bại!",
+    "expired": "Hết hạn",
+    "expiringSoon": "Sắp hết hạn",
+    "valid": "Còn hạn",
+    "outOfStock": "Hết hàng",
+    "lowStock": "Sắp hết hàng",
+    "inStock": "Còn hàng",
+    "maxStock": "Tồn kho tối đa",
+    "dosageForm": "Dạng bào chế",
+    "manufacturerCountry": "Nước sản xuất",
+    "validation": {
+      "codeRequired": "Vui lòng nhập mã thuốc",
+      "nameRequired": "Vui lòng nhập tên thuốc",
+      "activeIngredientRequired": "Vui lòng nhập hoạt chất",
+      "priceInvalid": "Giá không hợp lệ",
+      "stockInvalid": "Số lượng tồn kho không hợp lệ",
+      "minStockInvalid": "Ngưỡng tồn kho tối thiểu không hợp lệ",
+      "expiryDateRequired": "Vui lòng chọn hạn sử dụng",
+      "categoryRequired": "Vui lòng chọn danh mục thuốc",
+      "unitRequired": "Vui lòng chọn đơn vị tính"
+    },
+    "descriptionPlaceholder": "Mô tả về thuốc...",
+    "usageInstructionsPlaceholder": "Hướng dẫn sử dụng...",
+    "contraindicationsPlaceholder": "Chống chỉ định...",
+    "sideEffectsPlaceholder": "Tác dụng phụ...",
+    "category": "Danh mục",
+    "medicine": {
+      "category": "Danh mục",
+      "unit": "Đơn vị",
+      "categoryList": {
+        "analgesic": "Giảm đau",
+        "antibiotic": "Kháng sinh",
+        "antihypertensive": "Hạ huyết áp",
+        "antidiabetic": "Tiểu đường",
+        "antihistamine": "Kháng dị ứng",
+        "antiviral": "Kháng virus",
+        "antifungal": "Kháng nấm",
+        "vaccine": "Vắc-xin",
+        "vitamin": "Vitamin & Khoáng chất",
+        "hormone": "Nội tiết tố",
+        "gastrointestinal": "Tiêu hóa",
+        "respiratory": "Hô hấp",
+        "cardiovascular": "Tim mạch",
+        "other": "Khác"
+      },
+      "unitList": {
+        "box": "Hộp",
+        "blister": "Vỉ",
+        "bottle": "Chai",
+        "tube": "Ống",
+        "tablet": "Viên",
+        "jar": "Lọ",
+        "bag": "Túi",
+        "pack": "Gói"
+      },
+      "maxStockPlaceholder": "Để trống nếu không giới hạn",
+      "manufacturerCountryPlaceholder": "Nhập nước sản xuất",
+      "dosageFormPlaceholder": "Chọn dạng bào chế",
+      "dosageFormList": {
+        "tablet": "Viên nén",
+        "capsule": "Viên nang",
+        "syrup": "Si-rô",
+        "injection": "Dung dịch tiêm",
+        "cream": "Kem bôi",
+        "ointment": "Thuốc mỡ",
+        "inhaler": "Bình xịt",
+        "drops": "Thuốc nhỏ",
+        "patch": "Miếng dán",
+        "powder": "Bột"
+      }
+    }
   },
   "applyDoctor": {
     "title": "Đăng ký làm bác sĩ",
@@ -729,7 +837,8 @@
     "dashboard": "Dashboard",
     "manageReceptionists": "Quản lý lễ tân",
     "workingHours": "Giờ làm việc",
-    "rooms": "Phòng khám"
+    "rooms": "Phòng khám",
+    "medicines": "Quản lý thuốc"
   },
   "room": {
     "title": "Quản lý phòng khám",
@@ -1563,6 +1672,7 @@
     "REVIEW_ALREADY_DELETED": "Đánh giá này đã bị xóa trước đó!",
     "REVIEW_NOT_DELETED": "Đánh giá này chưa bị xóa!",
     "ROOM_ALREADY_BOOKED": "Phòng khám đã được đặt vào khung giờ này!",
-    "ROOM_HAS_FUTURE_SCHEDULES": "Phòng đã có lịch hẹn trong tương lai, không thể bảo trì!"
+    "ROOM_HAS_FUTURE_SCHEDULES": "Phòng đã có lịch hẹn trong tương lai, không thể bảo trì!",
+    "UNIT_REQUIRED": "Đơn vị đo lường không được để trống!"
   }
 }
