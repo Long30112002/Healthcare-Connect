@@ -1,8 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.ManagerDashboardStatsResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.TopDoctorResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.WeeklyStatResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.manager.*;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.AppointmentRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.DoctorRepository;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.ReceptionistRepository;
@@ -198,5 +196,79 @@ public class ManagerStatisticsService
         }
 
         return topDoctors;
+    }
+
+    public List<MonthlyRevenueResponse> getMonthlyRevenue(UUID hospitalId) {
+        // Lấy 12 tháng gần nhất (từ 12 tháng trước đến nay)
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusMonths(11).withDayOfMonth(1);
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(23, 59, 59);
+
+        List<Object[]> results = statisticsRepository.getMonthlyRevenueByHospital(hospitalId, start, end);
+
+        // Tạo Map để lưu doanh thu theo tháng
+        Map<String, Long> revenueMap = new HashMap<>();
+        for (Object[] row : results) {
+            int month = ((Number) row[0]).intValue();
+            int year = ((Number) row[1]).intValue();
+            long revenue = ((Number) row[2]).longValue();
+            String key = year + "-" + month;
+            revenueMap.put(key, revenue);
+        }
+
+        // Tạo danh sách 12 tháng
+        List<MonthlyRevenueResponse> monthlyRevenues = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            LocalDate date = startDate.plusMonths(i);
+            int month = date.getMonthValue();
+            int year = date.getYear();
+            String key = year + "-" + month;
+            long revenue = revenueMap.getOrDefault(key, 0L);
+
+            monthlyRevenues.add(MonthlyRevenueResponse.builder()
+                    .month(month)
+                    .year(year)
+                    .revenue(revenue)
+                    .build());
+        }
+
+        return monthlyRevenues;
+    }
+
+    public List<DepartmentStatResponse> getDepartmentStatistics(UUID hospitalId) {
+        List<Object[]> results = statisticsRepository.getDepartmentStatisticsByHospital(hospitalId);
+
+        List<DepartmentStatResponse> departmentStats = new ArrayList<>();
+        for (Object[] row : results) {
+            String departmentName = (String) row[0];
+            long totalPatients = ((Number) row[1]).longValue();
+            long totalRevenue = ((Number) row[2]).longValue();
+
+            departmentStats.add(DepartmentStatResponse.builder()
+                    .departmentName(departmentName)
+                    .totalPatients(totalPatients)
+                    .totalRevenue(totalRevenue)
+                    .build());
+        }
+
+        return departmentStats;
+    }
+
+    public List<TopMedicineResponse> getTopMedicines(UUID hospitalId, int limit) {
+        List<Object[]> results = statisticsRepository.getTopMedicinesByHospital(hospitalId, limit);
+
+        List<TopMedicineResponse> topMedicines = new ArrayList<>();
+        for (Object[] row : results) {
+            String medicineName = (String) row[0];
+            long prescriptionCount = ((Number) row[1]).longValue();
+
+            topMedicines.add(TopMedicineResponse.builder()
+                    .medicineName(medicineName)
+                    .prescriptionCount(prescriptionCount)
+                    .build());
+        }
+
+        return topMedicines;
     }
 }
