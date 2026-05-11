@@ -834,6 +834,7 @@
     "usageInstructionsPlaceholder": "Enter usage instructions...",
     "contraindicationsPlaceholder": "Enter contraindications...",
     "sideEffectsPlaceholder": "Enter side effects...",
+    "deleteTitle": "Delete Medicine",
     "category": "Category",
     "medicine": {
       "category": "Category",

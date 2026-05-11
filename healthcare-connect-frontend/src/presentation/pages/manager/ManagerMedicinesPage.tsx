@@ -13,7 +13,7 @@ import { DosageForm, MedicineCategory, Unit } from '../../../core/constants/enum
 import type { MedicineResponse } from '../../../core/types/api.response';
 import toast from 'react-hot-toast';
 import type { MedicineRequest } from '../../../core/types/api.request';
-import { formatExpiryDate } from '../../../shared/utils/dateUtils';
+import { formatDate, formatExpiryDate, formatPrice } from '../../../shared/utils/dateUtils';
 
 interface MedicineFormData {
     code: string;
@@ -68,6 +68,16 @@ const ManagerMedicinesPage = () => {
 
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    const [deleteModal, setDeleteModal] = useState<{
+        open: boolean;
+        medicineId: string;
+        medicineName: string;
+    }>({
+        open: false,
+        medicineId: '',
+        medicineName: '',
+    });
+
     // Fetch medicines
     const fetchMedicines = async () => {
         setLoading(true);
@@ -110,17 +120,6 @@ const ManagerMedicinesPage = () => {
         if (stock <= 0) return { text: t('medicine.outOfStock'), color: 'text-red-600' };
         if (stock <= minStock) return { text: t('medicine.lowStock'), color: 'text-yellow-600' };
         return { text: t('medicine.inStock'), color: 'text-green-600' };
-    };
-
-    // Format price
-    const formatPrice = (price: number) => {
-        return price?.toLocaleString('vi-VN') + 'đ' || '0đ';
-    };
-
-    // Format date
-    const formatDate = (dateStr: string) => {
-        const date = new Date(dateStr);
-        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     };
 
     // Validate form
@@ -197,6 +196,20 @@ const ManagerMedicinesPage = () => {
         setStockModalOpen(true);
     };
 
+    const handleDelete = (medicineId: string, medicineName: string) => {
+        setDeleteModal({
+            open: true,
+            medicineId,
+            medicineName,
+        });
+    };
+
+    const handleConfirmDelete = async () => {
+        const { medicineId } = deleteModal;
+        await deleteMedicine(() => medicineApi.delete(medicineId));
+        setDeleteModal({ open: false, medicineId: '', medicineName: '' });
+    };
+
     // Save medicine
     const { execute: saveMedicine, loading: saving } = useMinLoadingAction({
         minLoadingTime: 500,
@@ -227,8 +240,8 @@ const ManagerMedicinesPage = () => {
             usageInstructions: formData.usageInstructions,
             contraindications: formData.contraindications,
             sideEffects: formData.sideEffects,
-            maxStock: formData.maxStock,                    
-            manufacturerCountry: formData.manufacturerCountry, 
+            maxStock: formData.maxStock,
+            manufacturerCountry: formData.manufacturerCountry,
             dosageForm: formData.dosageForm,
         };
 
@@ -263,11 +276,6 @@ const ManagerMedicinesPage = () => {
         onSuccess: () => fetchMedicines(),
     });
 
-    const handleDelete = (medicineId: string, medicineName: string) => {
-        if (window.confirm(t('medicine.deleteConfirm', { name: medicineName }))) {
-            deleteMedicine(() => medicineApi.delete(medicineId));
-        }
-    };
 
     // const categories = Object.values(MedicineCategory).map(cat => ({
     //     value: cat,
@@ -651,6 +659,19 @@ const ManagerMedicinesPage = () => {
                     </p>
                 </div>
             </Modal>
+
+            {/* Delete Confirm Modal */}
+            <Modal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, medicineId: '', medicineName: '' })}
+                onConfirm={handleConfirmDelete}
+                title={t('medicine.deleteTitle')}
+                message={t('medicine.deleteConfirm', { name: deleteModal.medicineName })}
+                variant="danger"
+                confirmText={t('common.delete')}
+                cancelText={t('common.cancel')}
+                loading={deleting}
+            />
         </div>
     );
 };

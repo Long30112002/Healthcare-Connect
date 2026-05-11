@@ -701,6 +701,7 @@
     "usageInstructionsPlaceholder": "Hướng dẫn sử dụng...",
     "contraindicationsPlaceholder": "Chống chỉ định...",
     "sideEffectsPlaceholder": "Tác dụng phụ...",
+    "deleteTitle": "Xóa thuốc",
     "category": "Danh mục",
     "medicine": {
       "category": "Danh mục",
