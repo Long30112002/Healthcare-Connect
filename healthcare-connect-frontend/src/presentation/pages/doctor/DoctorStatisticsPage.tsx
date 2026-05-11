@@ -5,13 +5,8 @@ import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAct
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import Button from '../../components/shared/Button';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
-import {
-    getDoctorStatistics,
-    getCurrentDoctorInfo,
-    type DoctorStatisticsData,
-    type CurrentDoctorInfo
-} from '../../../infrastructure/api/statisticsApi';
 import { exportDoctorStatisticsExcel, exportDoctorStatisticsPDF } from '../../../shared/utils/exportUtils';
+import { statisticsApi, type CurrentDoctorInfo, type DoctorStatisticsData } from '../../../infrastructure/api/statisticsApi';
 
 type Period = 'week' | 'month' | 'year';
 
@@ -35,8 +30,8 @@ const DoctorStatisticsPage = () => {
         setLoading(true);
         try {
             const [info, statistics] = await Promise.all([
-                getCurrentDoctorInfo(),
-                getDoctorStatistics(period)
+                statisticsApi.getCurrentDoctorInfo(),
+                statisticsApi.getDoctorStatistics(period)
             ]);
             setDoctorInfo(info);
             setStats(statistics);

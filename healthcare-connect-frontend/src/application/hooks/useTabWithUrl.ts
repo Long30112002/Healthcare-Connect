@@ -55,6 +55,7 @@ export const useTabWithUrl = <T extends string>({
         navigate(`${location.pathname}?${params.toString()}`, { replace: true });
     };
 
+
     const setActiveTab = (tab: T) => {
         const defaultPage = pageZeroBased ? 0 : 1;
         setActiveTabState(tab);

@@ -1000,8 +1000,6 @@
     "activateTitle": "Activate Room"
   },
   "statistics": {
-    "title": "Statistics",
-    "subtitle": "Receptionist activity report",
     "totalAppointments": "Total Appointments",
     "checkedIn": "Checked-in",
     "waiting": "Waiting",
@@ -1027,7 +1025,18 @@
     },
     "dailyChart": "Daily Statistics",
     "date": "Date",
-    "noData": "No data available"
+    "noData": "No data available",
+    "title": "Hospital Statistics",
+    "subtitle": "Revenue and activity report",
+    "revenueChart": "Monthly Revenue Chart",
+    "topDoctorsByRevenue": "Top Doctors by Revenue",
+    "topDoctorsByPatients": "Top Doctors by Patients",
+    "departmentStats": "Department Statistics",
+    "topMedicines": "Top Prescribed Medicines",
+    "weeklyPatients": "Weekly Patient Count",
+    "patients": "patients",
+    "prescriptions": "prescriptions",
+    "reportGeneratedAt": "Report generated at"
   },
   "home": {
     "hero": {

@@ -33,6 +33,7 @@ import ManagerDoctorDetailPage from '../../presentation/pages/manager/ManagerDoc
 import ManagerReceptionistDetailPage from '../../presentation/pages/manager/ManagerReceptionistDetailPage';
 import ManagerRoomsPage from '../../presentation/pages/manager/ManagerRoomsPage';
 import ManagerMedicinesPage from '../../presentation/pages/manager/ManagerMedicinesPage';
+import ManagerStatisticsPage from '../../presentation/pages/manager/ManagerStatisticsPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -118,7 +119,7 @@ export const routes: RouteConfig[] = [
   { path: '/manager/receptionists/:id', element: <ManagerReceptionistDetailPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
   { path: '/manager/rooms', element: <ManagerRoomsPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
   { path: '/manager/medicines', element: <ManagerMedicinesPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
-  // { path: '/manager/statistics', element: <ManagerStatisticsPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
+  { path: '/manager/statistics', element: <ManagerStatisticsPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },  
 
 
   { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR, UserRole.PATIENT] },

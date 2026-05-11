@@ -903,7 +903,6 @@
     "cannotReview": "Lịch hẹn này chưa hoàn thành. Bạn chỉ có thể đánh giá sau khi kết thúc khám."
   },
   "statistics": {
-    "title": "Thống kê",
     "subtitle": "Báo cáo hoạt động quầy lễ tân",
     "totalAppointments": "Tổng lịch hẹn",
     "checkedIn": "Đã check-in",
@@ -930,7 +929,17 @@
     },
     "dailyChart": "Thống kê theo ngày",
     "date": "Ngày",
-    "noData": "Không có dữ liệu"
+    "noData": "Không có dữ liệu",
+    "title": "Thống kê bệnh viện",
+    "revenueChart": "Biểu đồ doanh thu theo tháng",
+    "topDoctorsByRevenue": "Top bác sĩ theo doanh thu",
+    "topDoctorsByPatients": "Top bác sĩ theo số bệnh nhân",
+    "departmentStats": "Thống kê theo khoa",
+    "topMedicines": "Top thuốc được kê nhiều nhất",
+    "weeklyPatients": "Số bệnh nhân theo ngày",
+    "patients": "BN",
+    "prescriptions": "đơn",
+    "reportGeneratedAt": "Báo cáo được tạo lúc"
   },
   "home": {
     "hero": {

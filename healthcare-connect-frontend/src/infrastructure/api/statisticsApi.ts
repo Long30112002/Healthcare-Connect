@@ -1,11 +1,7 @@
-import {
-  fetchDoctorStatistics as fetchMockDoctorStatistics,
-  getCurrentDoctorInfo as getMockCurrentDoctorInfo,
-  USE_MOCK_DOCTOR_STATS
-} from '../../shared/mock/doctorStatisticsMock';
 import axiosClient from './axiosClient';
+import { fetchDoctorStatistics as fetchMockDoctorStatistics, getCurrentDoctorInfo as getMockCurrentDoctorInfo, USE_MOCK_DOCTOR_STATS } from '../../shared/mock/doctorStatisticsMock';
 
-// ==================== DOCTOR STATISTICS ====================
+export const USE_MOCK_STATISTICS = true;
 
 export interface DoctorStatisticsData {
   summary: {
@@ -32,49 +28,142 @@ export interface CurrentDoctorInfo {
   specialtyName?: string;
 }
 
-/**
- * Lấy thống kê của bác sĩ hiện tại
- */
-export const getDoctorStatistics = async (period: string): Promise<DoctorStatisticsData> => {
-  if (USE_MOCK_DOCTOR_STATS) {
-    const doctorInfo = await getMockCurrentDoctorInfo();
-    return await fetchMockDoctorStatistics(period, doctorInfo.id);
-  }
-  
-  const response = await axiosClient.get(`/doctor/statistics`, {
-    params: { period }
-  });
-  return response.data.data;
-};
+export interface RevenueData {
+  month: number;
+  year: number;
+  revenue: number;
+}
 
-/**
- * Lấy thông tin bác sĩ hiện tại
- */
-export const getCurrentDoctorInfo = async (): Promise<CurrentDoctorInfo> => {
-  if (USE_MOCK_DOCTOR_STATS) {
-    return await getMockCurrentDoctorInfo();
-  }
-  
-  // Cách 1: Dùng API /users/my-info (đã có sẵn trong dự án)
-  const response = await axiosClient.get(`/users/my-info`);
-  const user = response.data.data;
-  
-  // Cách 2: Nếu cần thêm thông tin bệnh viện, gọi thêm API
-  // const doctorResponse = await axiosClient.get(`/doctor/my-info`);
-  
-  return {
-    id: user.id,
-    name: user.fullName,
-    hospitalName: user.hospitalName || 'Bệnh viện',
-    specialtyName: user.specialtyName,
-  };
-};
+export interface DepartmentStat {
+  departmentName: string;
+  totalPatients: number;
+  totalRevenue: number;
+}
 
-/**
- * Xuất báo cáo - HIỆN TẠI DÙNG CLIENT-SIDE (exportUtils)
- * Hàm này không cần dùng, giữ lại để sau nếu backend support
- */
-export const exportDoctorStatisticsReport = async (period: string, format: 'excel' | 'pdf'): Promise<Blob> => {
-  // FE đang tự xuất bằng exportUtils, không cần gọi API này
-  throw new Error('Use client-side export instead (exportUtils.ts)');
+export interface TopMedicine {
+  medicineName: string;
+  prescriptionCount: number;
+}
+
+// ==================== STATISTICS API ====================
+
+export const statisticsApi = {
+  // ==================== DOCTOR STATISTICS ====================
+
+  getDoctorStatistics: async (period: string): Promise<DoctorStatisticsData> => {
+    if (USE_MOCK_DOCTOR_STATS) {
+      const doctorInfo = await getMockCurrentDoctorInfo();
+      return await fetchMockDoctorStatistics(period, doctorInfo.id);
+    }
+    const response = await axiosClient.get(`/doctor/statistics`, {
+      params: { period }
+    });
+    return response.data.data;
+  },
+
+  getCurrentDoctorInfo: async (): Promise<CurrentDoctorInfo> => {
+    if (USE_MOCK_DOCTOR_STATS) {
+      return await getMockCurrentDoctorInfo();
+    }
+    const response = await axiosClient.get(`/users/my-info`);
+    const user = response.data.data;
+    return {
+      id: user.id,
+      name: user.fullName,
+      hospitalName: user.hospitalName || 'Bệnh viện',
+      specialtyName: user.specialtyName,
+    };
+  },
+
+  exportDoctorStatisticsReport: async (period: string, format: 'excel' | 'pdf'): Promise<Blob> => {
+    // FE đang tự xuất bằng exportUtils, không cần gọi API này
+    throw new Error('Use client-side export instead (exportUtils.ts)');
+  },
+
+  // ==================== MANAGER STATISTICS ====================
+
+  getRevenueByMonth: async (year?: number): Promise<RevenueData[]> => {
+    if (USE_MOCK_STATISTICS) {
+      return [
+        { month: 1, year: 2026, revenue: 45000000 },
+        { month: 2, year: 2026, revenue: 52000000 },
+        { month: 3, year: 2026, revenue: 48000000 },
+        { month: 4, year: 2026, revenue: 67000000 },
+        { month: 5, year: 2026, revenue: 73000000 },
+        { month: 6, year: 2026, revenue: 89000000 },
+        { month: 7, year: 2026, revenue: 94000000 },
+        { month: 8, year: 2026, revenue: 112000000 },
+        { month: 9, year: 2026, revenue: 128000000 },
+        { month: 10, year: 2026, revenue: 135000000 },
+        { month: 11, year: 2026, revenue: 148000000 },
+        { month: 12, year: 2026, revenue: 156000000 },
+      ];
+    }
+    const params = year ? { year } : {};
+    const response = await axiosClient.get('/manager/statistics/revenue', { params });
+    return response.data.data;
+  },
+
+  getDepartmentStatistics: async (): Promise<DepartmentStat[]> => {
+    if (USE_MOCK_STATISTICS) {
+      return [
+        { departmentName: 'Khoa Nội khoa', totalPatients: 245, totalRevenue: 122500000 },
+        { departmentName: 'Khoa Ngoại khoa', totalPatients: 198, totalRevenue: 99000000 },
+        { departmentName: 'Khoa Nhi khoa', totalPatients: 175, totalRevenue: 87500000 },
+        { departmentName: 'Khoa Tim mạch', totalPatients: 156, totalRevenue: 78000000 },
+      ];
+    }
+    const response = await axiosClient.get('/manager/statistics/departments');
+    return response.data.data;
+  },
+
+  getTopMedicines: async (limit: number = 5): Promise<TopMedicine[]> => {
+    if (USE_MOCK_STATISTICS) {
+      return [
+        { medicineName: 'Paracetamol', prescriptionCount: 156 },
+        { medicineName: 'Amoxicillin', prescriptionCount: 142 },
+        { medicineName: 'Azithromycin', prescriptionCount: 128 },
+        { medicineName: 'Omeprazole', prescriptionCount: 98 },
+        { medicineName: 'Salbutamol', prescriptionCount: 87 },
+      ];
+    }
+    const response = await axiosClient.get(`/manager/statistics/top-medicines?limit=${limit}`);
+    return response.data.data;
+  },
+
+  exportExcel: async (): Promise<void> => {
+    if (USE_MOCK_STATISTICS) {
+      console.log('Mock export Excel');
+      return;
+    }
+    const response = await axiosClient.get('/manager/statistics/export/excel', {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `thong_ke_benh_vien_${new Date().toISOString().split('T')[0]}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  exportPDF: async (): Promise<void> => {
+    if (USE_MOCK_STATISTICS) {
+      console.log('Mock export PDF');
+      return;
+    }
+    const response = await axiosClient.get('/manager/statistics/export/pdf', {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `thong_ke_benh_vien_${new Date().toISOString().split('T')[0]}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };

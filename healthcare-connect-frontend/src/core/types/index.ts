@@ -259,6 +259,7 @@ export interface TopDoctorResponse {
   totalPatients: number;
   totalRevenue: number;
   averageRating: number;
+  rating: number; 
   rank: number;
 }
 
