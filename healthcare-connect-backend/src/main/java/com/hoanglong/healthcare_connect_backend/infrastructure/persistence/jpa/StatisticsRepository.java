@@ -33,6 +33,52 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             @Param("waitingStatus") String waitingStatus
     );
 
+    @Query(value = "SELECT m.name as medicine_name, " +
+            "COUNT(pi.id) as prescription_count " +
+            "FROM prescription_items pi " +
+            "JOIN medicines m ON pi.medicine_id = m.id " +
+            "JOIN prescriptions p ON pi.prescription_id = p.id " +
+            "JOIN medical_records mr ON p.medical_record_id = mr.id " +
+            "WHERE mr.hospital_id = CAST(:hospitalId AS uuid) " +
+            "AND m.deleted = false " +
+            "GROUP BY m.id, m.name " +
+            "ORDER BY prescription_count DESC " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Object[]> getTopMedicinesByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("limit") int limit);
+
+    @Query(value = "SELECT d.name as department_name, " +
+            "COUNT(DISTINCT a.id) as total_patients, " +
+            "COALESCE(SUM(s.price), 0) as total_revenue " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "JOIN doctors doc ON s.doctor_id = doc.id " +
+            "JOIN departments d ON doc.department_id = d.id " +
+            "WHERE a.hospital_id = CAST(:hospitalId AS uuid) " +
+            "AND a.is_paid = true " +
+            "AND a.status != 'CANCELLED' " +
+            "GROUP BY d.id, d.name " +
+            "ORDER BY total_revenue DESC",
+            nativeQuery = true)
+    List<Object[]> getDepartmentStatisticsByHospital(@Param("hospitalId") UUID hospitalId);
+
+    @Query(value = "SELECT EXTRACT(MONTH FROM a.appointment_date) as month, " +
+            "EXTRACT(YEAR FROM a.appointment_date) as year, " +
+            "COALESCE(SUM(s.price), 0) as revenue " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE a.hospital_id = CAST(:hospitalId AS uuid) " +
+            "AND a.is_paid = true " +
+            "AND a.status != 'CANCELLED' " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY EXTRACT(YEAR FROM a.appointment_date), EXTRACT(MONTH FROM a.appointment_date) " +
+            "ORDER BY year ASC, month ASC",
+            nativeQuery = true)
+    List<Object[]> getMonthlyRevenueByHospital(@Param("hospitalId") UUID hospitalId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
     @Query(value = "SELECT d.id, u.full_name, s.name as specialty_name, " +
             "COUNT(DISTINCT a.id) as total_patients, " +
             "COALESCE(SUM(CASE WHEN a.is_paid = true THEN sched.price ELSE 0 END), 0) as total_revenue, " +

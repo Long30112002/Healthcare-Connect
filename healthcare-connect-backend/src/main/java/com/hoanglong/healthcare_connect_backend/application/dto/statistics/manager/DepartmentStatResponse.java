@@ -5,19 +5,11 @@ import lombok.Data;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TopDoctorResponse {
-    UUID doctorId;
-    String doctorName;
-    String specialtyName;
+public class DepartmentStatResponse {
+    String departmentName;  
     long totalPatients;
-    BigDecimal totalRevenue;
-    double averageRating;
-    double rating;
-    int rank;
+    long totalRevenue;
 }
