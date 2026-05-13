@@ -35,6 +35,8 @@ import ManagerRoomsPage from '../../presentation/pages/manager/ManagerRoomsPage'
 import ManagerMedicinesPage from '../../presentation/pages/manager/ManagerMedicinesPage';
 import ManagerStatisticsPage from '../../presentation/pages/manager/ManagerStatisticsPage';
 import ManagerDepartmentsSpecialtiesPage from '../../presentation/pages/manager/ManagerDepartmentsSpecialtiesPage';
+import PublicDoctorsPage from '../../presentation/pages/PublicDoctorsPage';
+import PublicDoctorDetailPage from '../../presentation/pages/PublicDoctorDetailPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -73,8 +75,9 @@ export const routes: RouteConfig[] = [
   { path: '/about', element: <div>Về chúng tôi</div>, layout: true, isPublic: true },
   { path: '/privacy-policy', element: <div>Chính sách bảo mật</div>, layout: true, isPublic: true },
   { path: '/terms', element: <div>Điều khoản sử dụng</div>, layout: true, isPublic: true },
-  { path: '/doctors/public', element: <div>Danh sách bác sĩ</div>, layout: true, isPublic: true },
   { path: '/contact', element: <ContactPage />, layout: true, isPublic: true },
+  { path: '/doctors/public', element: <PublicDoctorsPage />, layout: true, isPublic: true },
+  { path: '/doctors/public/:id', element: <PublicDoctorDetailPage />, layout: true, isPublic: true },
 
 
   // Private routes (require login)
@@ -122,7 +125,7 @@ export const routes: RouteConfig[] = [
   { path: '/manager/medicines', element: <ManagerMedicinesPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
   { path: '/manager/statistics', element: <ManagerStatisticsPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
   { path: '/manager/departments-specialties', element: <ManagerDepartmentsSpecialtiesPage />, layout: true, roles: [UserRole.HOSPITAL_MANAGER] },
-  
+
   { path: '/doctor/medical-records/view/:appointmentId', element: <ViewMedicalRecordPage />, layout: true, roles: [UserRole.DOCTOR, UserRole.PATIENT] },
   { path: '/my-patients', element: <MyPatientsPage />, layout: true, roles: [UserRole.DOCTOR] },
   { path: '/my-patients/:patientId', element: <PatientDetailPage />, layout: true, roles: [UserRole.DOCTOR] },

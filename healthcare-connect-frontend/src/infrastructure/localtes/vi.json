@@ -68,7 +68,8 @@
     "reason": "Lý do",
     "update": "Cập nhật",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.",
-    "deleteConfirmMessage": "Hành động này sẽ xóa vĩnh viễn mục này khỏi hệ thống. Vui lòng xác nhận lại trước khi tiếp tục."
+    "deleteConfirmMessage": "Hành động này sẽ xóa vĩnh viễn mục này khỏi hệ thống. Vui lòng xác nhận lại trước khi tiếp tục.",
+    "anonymous": "Ẩn danh"
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -125,6 +126,11 @@
     "completeExamFailed": "Kết thúc khám thất bại!",
     "symptoms": "Triệu chứng",
     "searchPlaceholder": "Tìm kiếm theo tên hoặc số điện thoại...",
+    "hospital": "Bệnh viện",
+    "address": "Địa chỉ",
+    "phone": "Điện thoại",
+    "experience": "Kinh nghiệm",
+    "schedules": "Lịch làm việc",
     "stats": {
       "title": "Thống kê của tôi",
       "subtitle": "Thống kê số liệu khám bệnh của bạn",
@@ -159,7 +165,9 @@
       "verified": "Chờ duyệt",
       "approved": "Đã duyệt",
       "rejected": "Từ chối"
-    }
+    },
+    "noReviewsYet": "Chưa có đánh giá",
+    "noSchedules": "Chưa có lịch khám"
   },
   "rejectionReason": {
     "invalidCertificate": "Bằng cấp không hợp lệ",
@@ -256,7 +264,8 @@
     "slotTooLong": "Ca khám quá dài (tối đa {max} phút)",
     "noAvailableSlots": "Không có khung giờ khả dụng trong ngày này. Vui lòng chọn ngày khác hoặc liên hệ quản lý bệnh viện để cập nhật giờ làm việc.",
     "roomAlreadyBooked": "Phòng này đã được bác sĩ {{doctorName}} đặt vào khung giờ này",
-    "checkingRoom": "Đang kiểm tra phòng..."
+    "checkingRoom": "Đang kiểm tra phòng...",
+    "slots": "chỗ"
   },
   "myPatients": {
     "title": "Danh sách bệnh nhân",
@@ -1100,7 +1109,8 @@
     },
     "testimonials": {
       "title": "Khách hàng nói gì",
-      "subtitle": "Hàng ngàn bệnh nhân tin tưởng sử dụng dịch vụ"
+      "subtitle": "Hàng ngàn bệnh nhân tin tưởng sử dụng dịch vụ",
+      "patient": "Bệnh nhân"
     },
     "testimonial1": "Dịch vụ tuyệt vời! Tôi đã đặt lịch khám rất nhanh chóng và được bác sĩ tư vấn tận tình.",
     "testimonial2": "Ứng dụng dễ sử dụng, thanh toán online tiện lợi. Sẽ giới thiệu cho bạn bè và người thân.",
@@ -1132,6 +1142,20 @@
     "emailNotificationDesc": "Nhận thông báo qua email khi có lịch hẹn hoặc cập nhật",
     "appointmentReminder": "Nhắc lịch hẹn",
     "appointmentReminderDesc": "Nhận thông báo trước giờ khám 24 giờ"
+  },
+  "publicDoctors": {
+    "title": "Danh sách bác sĩ",
+    "subtitle": "Tìm kiếm và lựa chọn bác sĩ phù hợp với bạn",
+    "searchPlaceholder": "Tìm theo tên bác sĩ, chuyên khoa, bệnh viện...",
+    "allSpecialties": "Tất cả chuyên khoa",
+    "allHospitals": "Tất cả bệnh viện",
+    "doctorsList": "Danh sách bác sĩ",
+    "noDoctors": "Không tìm thấy bác sĩ",
+    "noDoctorsDesc": "Vui lòng thử lại với từ khóa khác",
+    "viewDetail": "Xem chi tiết",
+    "loginToBook": "Đăng nhập để đặt lịch",
+    "loginToBookPrompt": "Vui lòng đăng nhập để đặt lịch khám với bác sĩ này",
+    "loginToBookTitle": "Đặt lịch khám ngay"
   },
   "footer": {
     "aboutUs": "Về chúng tôi",
