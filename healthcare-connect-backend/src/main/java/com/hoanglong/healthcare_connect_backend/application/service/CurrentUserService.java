@@ -26,6 +26,10 @@ public class CurrentUserService
     private final DoctorRepository doctorRepository;
     private final HospitalRepository hospitalRepository;
 
+    public UUID getCurrentUserId() {
+        return SecurityUtils.getCurrentUserId();
+    }
+
     public UUID getCurrentReceptionistHospitalId() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         return receptionistRepository.findByUserId(currentUserId)

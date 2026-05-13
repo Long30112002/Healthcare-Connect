@@ -10,7 +10,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TopDoctorResponse {
+public class PublicTopDoctorResponse
+{
     UUID id;
     String fullName;
     String specialtyName;
