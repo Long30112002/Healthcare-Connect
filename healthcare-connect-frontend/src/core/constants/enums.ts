@@ -146,3 +146,18 @@ export const DosageForm = {
     POWDER: 'POWDER'
 } as const;
 export type DosageForm = (typeof DosageForm)[keyof typeof DosageForm];
+
+export const MedicalCategory = {
+    INTERNAL_MEDICINE: 'INTERNAL_MEDICINE',
+    SURGERY: 'SURGERY',
+    PEDIATRICS: 'PEDIATRICS',
+    ENT: 'ENT',
+    DIAGNOSTIC_IMAGING: 'DIAGNOSTIC_IMAGING',
+    GENERAL: 'GENERAL',
+    DERMATOLOGY: 'DERMATOLOGY',
+    OBSTETRICS: 'OBSTETRICS',
+    LABORATORY: 'LABORATORY',
+    OPHTHALMOLOGY: 'OPHTHALMOLOGY',
+} as const;
+
+export type MedicalCategory = typeof MedicalCategory[keyof typeof MedicalCategory];

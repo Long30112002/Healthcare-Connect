@@ -1,5 +1,5 @@
 import type { Appointment, User, VitalSigns } from ".";
-import type { AppointmentStatus, DoctorStatus, DosageForm, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, Unit, UserRole } from "../constants/enums";
+import type { AppointmentStatus, DoctorStatus, DosageForm, MedicalCategory, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, Unit, UserRole } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string;
@@ -240,6 +240,7 @@ export interface DepartmentResponse {
     name: string;
     code: string;
     description: string;
+    category: MedicalCategory;  
 }
 
 export interface SpecialtyResponse {
@@ -248,6 +249,7 @@ export interface SpecialtyResponse {
     code: string;
     description: string;
     department: DepartmentResponse;
+    category: MedicalCategory;  
 }
 
 export interface HospitalResponse {

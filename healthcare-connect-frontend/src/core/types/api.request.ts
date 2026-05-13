@@ -1,5 +1,5 @@
 import type { VitalSigns } from ".";
-import type { MedicineCategory, PaymentMethod, RefundMethod, RejectionReason } from "../constants/enums";
+import type { MedicalCategory, MedicineCategory, PaymentMethod, RefundMethod, RejectionReason } from "../constants/enums";
 
 export interface BookingRequest {
     scheduleId: string;
@@ -23,7 +23,7 @@ export interface RoomRequest {
 export interface CancelAppointmentRequest {
     reason: string;
     refundMethod: RefundMethod;
-    refundAmount?: number;  
+    refundAmount?: number;
 }
 
 export interface WalkInAppointmentRequest {
@@ -74,13 +74,13 @@ export interface UpdateReviewRequest {
 }
 
 export interface UpdateProfileRequest {
-  fullName: string;
-  phone: string;
+    fullName: string;
+    phone: string;
 }
 
 export interface ChangePasswordRequest {
-  oldPassword: string;
-  newPassword: string;
+    oldPassword: string;
+    newPassword: string;
 }
 
 export interface UpdateDoctorInfoRequest {
@@ -91,25 +91,25 @@ export interface UpdateDoctorInfoRequest {
 }
 
 export interface WorkingHoursRequest {
-  dayOfWeek: number;        // 2=T3,3=T4,4=T5,5=T6,6=T7,7=CN,8=T2
-  startTime: string;        // "07:30"
-  endTime: string;          // "17:00"
-  lunchStart: string | null;
-  lunchEnd: string | null;
-  minSlotMinutes: number;
-  maxSlotMinutes: number;
-  isActive?: boolean;
+    dayOfWeek: number;        // 2=T3,3=T4,4=T5,5=T6,6=T7,7=CN,8=T2
+    startTime: string;        // "07:30"
+    endTime: string;          // "17:00"
+    lunchStart: string | null;
+    lunchEnd: string | null;
+    minSlotMinutes: number;
+    maxSlotMinutes: number;
+    isActive?: boolean;
 }
 
 // Reject Requests
 export interface RejectDoctorRequest {
-  reasonCode: RejectionReason;
-  note?: string;
+    reasonCode: RejectionReason;
+    note?: string;
 }
 
 export interface RejectReceptionistRequest {
-  reasonCode: RejectionReason;
-  note?: string;
+    reasonCode: RejectionReason;
+    note?: string;
 }
 
 export interface MedicineRequest {
@@ -131,4 +131,18 @@ export interface MedicineRequest {
     maxStock?: number;
     manufacturerCountry?: string;
     dosageForm?: string;
+}
+
+export interface DepartmentRequest {
+    name: string;
+    code: string;
+    description?: string;
+    category: MedicalCategory;
+}
+
+export interface SpecialtyRequest {
+    name: string;
+    description?: string;
+    departmentId: string;
+    category: MedicalCategory;
 }

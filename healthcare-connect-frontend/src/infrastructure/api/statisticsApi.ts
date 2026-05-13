@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient';
 import { fetchDoctorStatistics as fetchMockDoctorStatistics, getCurrentDoctorInfo as getMockCurrentDoctorInfo, USE_MOCK_DOCTOR_STATS } from '../../shared/mock/doctorStatisticsMock';
 
-export const USE_MOCK_STATISTICS = true;
+export const USE_MOCK_STATISTICS = false;
 
 export interface DoctorStatisticsData {
   summary: {
@@ -83,24 +83,11 @@ export const statisticsApi = {
   // ==================== MANAGER STATISTICS ====================
 
   getRevenueByMonth: async (year?: number): Promise<RevenueData[]> => {
-    if (USE_MOCK_STATISTICS) {
-      return [
-        { month: 1, year: 2026, revenue: 45000000 },
-        { month: 2, year: 2026, revenue: 52000000 },
-        { month: 3, year: 2026, revenue: 48000000 },
-        { month: 4, year: 2026, revenue: 67000000 },
-        { month: 5, year: 2026, revenue: 73000000 },
-        { month: 6, year: 2026, revenue: 89000000 },
-        { month: 7, year: 2026, revenue: 94000000 },
-        { month: 8, year: 2026, revenue: 112000000 },
-        { month: 9, year: 2026, revenue: 128000000 },
-        { month: 10, year: 2026, revenue: 135000000 },
-        { month: 11, year: 2026, revenue: 148000000 },
-        { month: 12, year: 2026, revenue: 156000000 },
-      ];
-    }
     const params = year ? { year } : {};
-    const response = await axiosClient.get('/manager/statistics/revenue', { params });
+    const response = await axiosClient.get('/manager/statistics/revenue', 
+      { 
+        params 
+      });
     return response.data.data;
   },
 

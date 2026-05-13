@@ -28,7 +28,6 @@ const DoctorDetailPage = () => {
         { immediate: true }
     );
 
-    // 🟢 Lấy rating của bác sĩ
     useEffect(() => {
         const fetchRating = async () => {
             if (!id) return;

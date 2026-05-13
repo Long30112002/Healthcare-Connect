@@ -23,11 +23,11 @@ export const medicineApi = {
 
     // Get all
     getAll: async (page = 0, size = 20, sortBy = 'name', direction = 'asc'): Promise<PageResponse<MedicineResponse>> => {
-        console.log('🔵 Gọi API getAll medicines...');
+        // console.log('🔵 Gọi API getAll medicines...');
         const response = await axiosClient.get(`/medicines`, {
             params: { page, size, sortBy, direction }
         });
-        console.log('🟢 API response:', response.data);
+        // console.log('🟢 API response:', response.data);
         return response.data.data;
     },
 

@@ -1,4 +1,5 @@
-import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory, ReceptionistStatus, Unit, DosageForm } from '../constants/enums';
+import { UserRole, AppointmentStatus, PaymentStatus, ScheduleStatus, DoctorStatus, PaymentMethod, RoomStatus, MedicineCategory, ReceptionistStatus, Unit, DosageForm, MedicalCategory } from '../constants/enums';
+import type { DepartmentResponse } from './api.response';
 
 export interface User {
     id: string;
@@ -202,74 +203,92 @@ export interface VitalSigns {
 
 // Dashboard Stats
 export interface ManagerDashboardStats {
-  totalDoctors: number;
-  totalDoctorsChange: number;
-  totalReceptionists: number;
-  totalReceptionistsChange: number;
-  totalAppointmentsToday: number;
-  totalAppointmentsTodayChange: number;
-  revenueThisMonth: number;
-  revenueThisMonthChange: number;
+    totalDoctors: number;
+    totalDoctorsChange: number;
+    totalReceptionists: number;
+    totalReceptionistsChange: number;
+    totalAppointmentsToday: number;
+    totalAppointmentsTodayChange: number;
+    revenueThisMonth: number;
+    revenueThisMonthChange: number;
 }
 
 // Receptionist for Manager
 export interface ReceptionistForManager {
-  id: string;
-  receptionistCode: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  status: ReceptionistStatus;
-  cvUrl: string;
-  rejectionReason?: string;
-  rejectionNote?: string;
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    receptionistCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    status: ReceptionistStatus;
+    cvUrl: string;
+    rejectionReason?: string;
+    rejectionNote?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 // Appointment Today
 export interface AppointmentTodayResponse {
-  id: string;
-  patientName: string;
-  patientPhone: string;
-  doctorName: string;
-  doctorId: string;
-  startTime: string;
-  endTime: string;
-  appointmentDate: string;
-  symptoms: string;
-  status: AppointmentStatus;
-  paid: boolean;
-  price: number;
-  roomNumber?: string;
+    id: string;
+    patientName: string;
+    patientPhone: string;
+    doctorName: string;
+    doctorId: string;
+    startTime: string;
+    endTime: string;
+    appointmentDate: string;
+    symptoms: string;
+    status: AppointmentStatus;
+    paid: boolean;
+    price: number;
+    roomNumber?: string;
 }
 
 // Weekly Statistics
 export interface WeeklyStatResponse {
-  day: string;
-  dayOfWeek: number;
-  count: number;
+    day: string;
+    dayOfWeek: number;
+    count: number;
 }
 
 // Top Doctors
 export interface TopDoctorResponse {
-  doctorId: string;
-  doctorName: string;
-  specialtyName: string;
-  totalPatients: number;
-  totalRevenue: number;
-  averageRating: number;
-  rating: number; 
-  rank: number;
+    doctorId: string;
+    doctorName: string;
+    specialtyName: string;
+    totalRevenueCollected: number;
+    totalRevenueCompleted: number;
+    totalPatientsCompleted: number;
+    totalBookingsPaid: number;
+    averageRating: number;
+    rank: number;
 }
 
 // Alert
 export interface AlertResponse {
-  id: string;
-  type: 'warning' | 'danger' | 'info';
-  title: string;
-  message: string;
-  link?: string;
-  createdAt: string;
+    id: string;
+    type: 'warning' | 'danger' | 'info';
+    title: string;
+    message: string;
+    link?: string;
+    createdAt: string;
 }
 
+export interface Department {
+    id: string;
+    name: string;
+    code: string;
+    description: string;
+    category: MedicalCategory;
+}
+
+export interface Specialty {
+    id: string;
+    name: string;
+    code: string;
+    description: string;
+    departmentId: string;
+    department: DepartmentResponse;
+    category: MedicalCategory;
+}

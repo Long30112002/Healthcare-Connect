@@ -4,6 +4,7 @@
     "save": "Lưu",
     "cancel": "Hủy",
     "delete": "Xóa",
+    "add": "Thêm mới",
     "edit": "Sửa",
     "view": "Xem",
     "confirm": "Xác nhận",
@@ -62,9 +63,12 @@
     "reject": "Từ chối",
     "viewAll": "Xem tất cả",
     "download": "Tải xuống",
+    "deleteError": "Xóa thất bại, vui lòng thử lại!",
     "notAvailable": "Chưa cập nhật",
     "reason": "Lý do",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.",
+    "deleteConfirmMessage": "Hành động này sẽ xóa vĩnh viễn mục này khỏi hệ thống. Vui lòng xác nhận lại trước khi tiếp tục."
   },
   "prescriptions": {
     "title": "Đơn thuốc của tôi",
@@ -839,7 +843,58 @@
     "manageReceptionists": "Quản lý lễ tân",
     "workingHours": "Giờ làm việc",
     "rooms": "Phòng khám",
-    "medicines": "Quản lý thuốc"
+    "medicines": "Quản lý thuốc",
+    "departmentsSpecialties": "Khoa & Chuyên khoa"
+  },
+  "departmentsSpecialties": {
+    "title": "Quản lý Khoa & Chuyên khoa",
+    "subtitle": "Thêm, sửa, xóa khoa và chuyên khoa",
+    "departments": "Khoa",
+    "specialties": "Chuyên khoa",
+    "departmentsList": "Danh sách khoa",
+    "specialtiesList": "Danh sách chuyên khoa",
+    "noDepartments": "Chưa có khoa nào",
+    "noSpecialties": "Chưa có chuyên khoa nào"
+  },
+  "department": {
+    "name": "Tên khoa",
+    "code": "Mã khoa",
+    "description": "Mô tả",
+    "createTitle": "Thêm khoa mới",
+    "editTitle": "Sửa khoa",
+    "createSuccess": "Thêm khoa thành công!",
+    "updateSuccess": "Cập nhật khoa thành công!",
+    "saveError": "Lưu khoa thất bại!",
+    "nameRequired": "Vui lòng nhập tên khoa",
+    "codeRequired": "Vui lòng nhập mã khoa",
+    "codeInvalidFormat": "Mã khoa chỉ được chứa chữ hoa, số và dấu gạch dưới (VD: KNOI, NGOAI_1)",
+    "category": "Danh mục"
+  },
+  "specialty": {
+    "name": "Tên chuyên khoa",
+    "description": "Mô tả",
+    "department": "Khoa",
+    "selectDepartment": "Chọn khoa",
+    "createTitle": "Thêm chuyên khoa mới",
+    "editTitle": "Sửa chuyên khoa",
+    "createSuccess": "Thêm chuyên khoa thành công!",
+    "updateSuccess": "Cập nhật chuyên khoa thành công!",
+    "saveError": "Lưu chuyên khoa thất bại!",
+    "nameRequired": "Vui lòng nhập tên chuyên khoa",
+    "departmentRequired": "Vui lòng chọn khoa",
+    "category": "Danh mục"
+  },
+  "medicalCategory": {
+    "INTERNAL_MEDICINE": "Nội khoa",
+    "SURGERY": "Ngoại khoa",
+    "PEDIATRICS": "Nhi khoa",
+    "ENT": "Tai Mũi Họng",
+    "DIAGNOSTIC_IMAGING": "Chẩn đoán hình ảnh",
+    "GENERAL": "Tổng quát",
+    "DERMATOLOGY": "Da liễu",
+    "OBSTETRICS": "Sản phụ khoa",
+    "LABORATORY": "Xét nghiệm",
+    "OPHTHALMOLOGY": "Mắt"
   },
   "room": {
     "title": "Quản lý phòng khám",
@@ -937,9 +992,10 @@
     "departmentStats": "Thống kê theo khoa",
     "topMedicines": "Top thuốc được kê nhiều nhất",
     "weeklyPatients": "Số bệnh nhân theo ngày",
-    "patients": "BN",
+    "patients": "Bệnh nhân",
     "prescriptions": "đơn",
-    "reportGeneratedAt": "Báo cáo được tạo lúc"
+    "reportGeneratedAt": "Báo cáo được tạo lúc",
+    "from": "từ"
   },
   "home": {
     "hero": {
@@ -1528,6 +1584,8 @@
     "SPECIALTY_EXISTED": "Chuyên ngành đã tồn tại!",
     "SPECIALTY_CATEGORY_MISMATCH": "Chuyên khoa không thuộc nhóm danh mục của Khoa này!",
     "INVALID_SPECIALTY_CODE": "Mã chuyên khoa không khớp với mã khoa!",
+    "DEPARTMENT_HAS_SPECIALTIES": "Không thể xóa khoa vì đang có chuyên khoa trực thuộc!",
+    "DEPARTMENT_CATEGORY_REQUIRED": "Khoa chưa có danh mục, vui lòng cập nhật danh mục cho khoa trước!",
     "//": "--- 5xxx: DỮ LIỆU CHUNG ---",
     "DATA_NOT_FOUND": "Dữ liệu không tồn tại trong hệ thống!",
     "DATA_CONSTRAINT_VIOLATION": "Luồng dữ liệu bị ràng buộc, thực hiện lại!",

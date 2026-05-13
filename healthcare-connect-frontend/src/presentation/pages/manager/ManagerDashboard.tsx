@@ -347,8 +347,8 @@ const ManagerDashboard = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-primary">{doctor.totalPatients} BN</p>
-                    <p className="text-xs text-gray-500">{formatPrice(doctor.totalRevenue)}</p>
+                    <p className="text-sm font-semibold text-primary">{doctor.totalPatientsCompleted} BN</p>
+                    <p className="text-xs text-gray-500">{formatPrice(doctor.totalRevenueCollected)}</p>
                   </div>
                 </div>
               ))}

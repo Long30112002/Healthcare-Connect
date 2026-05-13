@@ -138,6 +138,7 @@ const ManagerStatisticsPage = () => {
         return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
     }
 
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="relative z-10 container mx-auto px-4 py-6">
@@ -150,32 +151,6 @@ const ManagerStatisticsPage = () => {
                         showHospital={true}
                         hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
                     />
-                </div>
-
-                {/* Filter and Export */}
-                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4">
-                    <div className="flex gap-2">
-                        {periodOptions.map((opt) => (
-                            <button
-                                key={opt.value}
-                                onClick={() => setPeriod(opt.value as Period)}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${period === opt.value
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                                    }`}
-                            >
-                                {opt.icon} {opt.label}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleExportExcel}>
-                            📥 {t('statistics.export.excel')}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleExportPDF}>
-                            📄 {t('statistics.export.pdf')}
-                        </Button>
-                    </div>
                 </div>
 
                 {/* Revenue Chart */}
@@ -231,8 +206,14 @@ const ManagerStatisticsPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm font-semibold text-primary">{formatPrice(doctor.totalRevenue)}</p>
-                                            <p className="text-xs text-gray-500">{doctor.totalPatients} {t('statistics.patients')}</p>
+                                            {/* Doanh thu đã thu (tài chính) */}
+                                            <p className="text-sm font-semibold text-primary">
+                                                {formatPrice(doctor.totalRevenueCollected)}
+                                            </p>
+                                            {/* Doanh thu từ ca hoàn thành + Số BN đã khám */}
+                                            <p className="text-xs text-gray-500">
+                                                {formatPrice(doctor.totalRevenueCompleted)} {t('statistics.from')} {doctor.totalPatientsCompleted} {t('statistics.patients')}
+                                            </p>
                                         </div>
                                     </div>
                                 ))
@@ -261,8 +242,8 @@ const ManagerStatisticsPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm font-semibold text-primary">{doctor.totalPatients} {t('statistics.patients')}</p>
-                                            <p className="text-xs text-gray-500">{formatPrice(doctor.totalRevenue)}</p>
+                                            <p className="text-sm font-semibold text-primary">{doctor.totalPatientsCompleted} {t('statistics.patients')}</p>
+                                            <p className="text-xs text-gray-500">{formatPrice(doctor.totalRevenueCollected)}</p>
                                         </div>
                                     </div>
                                 ))
@@ -344,12 +325,23 @@ const ManagerStatisticsPage = () => {
                                     <div key={idx} className="flex flex-col items-center flex-1">
                                         <div className="w-full bg-green-500 rounded-t-lg transition-all duration-500" style={{ height: `${height}px` }} />
                                         <p className="text-xs text-gray-500 mt-2">{stat.day}</p>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{stat.count}</p>
-                                    </div>
+                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                            {stat.count} {t('statistics.patients')}
+                                        </p>                                    </div>
                                 );
                             })}
                         </div>
                     </div>
+                </div>
+
+                {/* Export Buttons*/}
+                <div className="flex justify-end gap-2 mt-6">
+                    <Button variant="outline" size="sm" onClick={handleExportExcel}>
+                        📥 {t('statistics.export.excel')}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                        📄 {t('statistics.export.pdf')}
+                    </Button>
                 </div>
 
                 {/* Footer */}
