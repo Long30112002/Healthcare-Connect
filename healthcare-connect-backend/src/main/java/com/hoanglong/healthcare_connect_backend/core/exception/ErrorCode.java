@@ -255,6 +255,18 @@ public enum ErrorCode {
     ROOM_ALREADY_BOOKED(9012, "Phòng khám đã được đặt vào khung giờ này!", HttpStatus.BAD_REQUEST),
     ROOM_HAS_FUTURE_SCHEDULES(9013, "Phòng đã có lịch hẹn trong tương lai, không thể bảo trì!", HttpStatus.BAD_REQUEST),
 
+    // =============================================================================
+    // 10xxx: HỆ THỐNG (SYSTEM)
+    // =============================================================================
+    CONFIG_NOT_FOUND(10000, "Không tìm thấy cấu hình hệ thống!", HttpStatus.NOT_FOUND),
+    CONFIG_ALREADY_EXISTS(10002, "Cấu hình đã tồn tại!", HttpStatus.BAD_REQUEST),
+    CONFIG_VALUE_REQUIRED(10003, "Giá trị cấu hình không được để trống!", HttpStatus.BAD_REQUEST),
+    CONFIG_KEY_INVALID(10004, "Key cấu hình không hợp lệ!", HttpStatus.BAD_REQUEST),
+    CONFIG_GROUP_INVALID(10005, "Nhóm cấu hình không hợp lệ!", HttpStatus.BAD_REQUEST),
+    FILE_REQUIRED(10006, "Vui lòng chọn file để upload!", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED(10007, "Upload file thất bại!", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_TOO_LARGE(10008, "Kích thước file vượt quá giới hạn cho phép!", HttpStatus.BAD_REQUEST),
+    FILE_INVALID_TYPE(10009, "Định dạng file không được hỗ trợ!", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
