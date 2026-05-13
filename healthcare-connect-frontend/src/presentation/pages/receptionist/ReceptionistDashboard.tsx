@@ -28,6 +28,7 @@ const ReceptionistDashboard = () => {
         paramName: 'filter',
         validValues: ['today', 'tomorrow', 'week', 'all'],
         defaultValue: 'today',
+        includePage: true,
         pageZeroBased: false
     });
 
@@ -126,7 +127,7 @@ const ReceptionistDashboard = () => {
     const fetchAppointments = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await receptionistApi.getAppointments(activeFilter, apiPage, PAGE_SIZE);
+            const response = await receptionistApi.getAppointments(activeFilter, apiPage ?? 0, PAGE_SIZE);
             setAppointments(response.content || []);
             setTotalPages(response.totalPages);
             setTotalElements(response.totalElements);
@@ -193,7 +194,9 @@ const ReceptionistDashboard = () => {
     };
 
     const handlePageChange = (newPage: number) => {
-        setPage(newPage);
+        if (setPage) {
+            setPage(newPage);
+        }
     };
 
     // Filter appointments by search term
@@ -223,6 +226,36 @@ const ReceptionistDashboard = () => {
     const renderActions = (apt: Appointment) => {
         const actions = [];
 
+        // Kiểm tra xem lịch có hết hạn không
+        const isExpired = (appointment: Appointment): boolean => {
+            // Đã NO_SHOW
+            if (appointment.status === 'NO_SHOW') return true;
+
+            // Đã hoàn thành
+            if (appointment.status === 'COMPLETED') return true;
+
+            // Đã check-in hoặc đang khám
+            if (appointment.status === 'IN_PROGRESS') return true;
+
+            // Kiểm tra thời gian: nếu đã quá giờ khám
+            const appointmentDateTime = new Date(
+                appointment.startTime[0],
+                appointment.startTime[1] - 1,
+                appointment.startTime[2],
+                appointment.startTime[3] || 0,
+                appointment.startTime[4] || 0
+            );
+            const now = new Date();
+
+            // Nếu đã qua 30 phút sau giờ khám
+            const expiredTime = new Date(appointmentDateTime.getTime() + 30 * 60000);
+            if (now > expiredTime && appointment.status !== 'CANCELLED') {
+                return true;
+            }
+
+            return false;
+        };
+
         // Nút mở QR cho AWAITING_PAYMENT
         if (apt.status === 'AWAITING_PAYMENT') {
             actions.push(
@@ -232,8 +265,16 @@ const ReceptionistDashboard = () => {
             );
         }
 
-        // Nút hủy lịch
-        if (apt.status !== 'CANCELLED') {
+        // Kiểm tra lịch đã hết hạn chưa
+        if (isExpired(apt)) {
+            actions.push(
+                <span key="expired" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm">
+                    ⏰ {t('receptionist.scheduleExpired')}
+                </span>
+            );
+        }
+        // Nút hủy lịch (chỉ hiển thị nếu chưa hủy và chưa hết hạn)
+        else if (apt.status !== 'CANCELLED') {
             actions.push(
                 <Button
                     key="cancel"
@@ -379,7 +420,7 @@ const ReceptionistDashboard = () => {
                                 {totalPages > 1 && (
                                     <div className="mt-6">
                                         <Pagination
-                                            currentPage={page}
+                                            currentPage={page ?? 1}
                                             totalPages={totalPages}
                                             onPageChange={handlePageChange}
                                             showJumpToPage={true}

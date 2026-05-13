@@ -37,7 +37,7 @@ const PatientDashboard = () => {
         appointmentPrice: 0
     });
     const [cancellingId, setCancellingId] = useState<string | null>(null);
-    const [modalLoading, setModalLoading] = useState(false); 
+    const [modalLoading, setModalLoading] = useState(false);
 
     // Fetch appointments
     const {
@@ -65,12 +65,35 @@ const PatientDashboard = () => {
 
     const appointments = appointmentsData?.content || [];
 
-    // Lọc 3 lịch hẹn sắp tới
+    // Kiểm tra lịch có còn hiệu lực không (chưa quá giờ)
+    const isValidAppointment = (appointment: Appointment): boolean => {
+        // Các trạng thái không hiển thị
+        if (appointment.status === AppointmentStatus.CANCELLED) return false;
+        if (appointment.status === AppointmentStatus.COMPLETED) return false;
+        if (appointment.status === AppointmentStatus.NO_SHOW) return false;
+        
+        // Kiểm tra thời gian
+        const appointmentDateTime = new Date(
+            appointment.startTime[0],
+            appointment.startTime[1] - 1,
+            appointment.startTime[2],
+            appointment.startTime[3] || 0,
+            appointment.startTime[4] || 0
+        );
+        const now = new Date();
+        
+        // Nếu đã quá 30 phút sau giờ khám thì coi như hết hiệu lực
+        const expiredTime = new Date(appointmentDateTime.getTime() + 30 * 60000);
+        if (now > expiredTime) return false;
+        
+        return true;
+    };
+
+    // Lọc lịch sắp tới (chưa quá hạn và chưa hoàn thành)
     const upcomingAppointments = appointments
-        .filter(apt => apt.status !== AppointmentStatus.CANCELLED && apt.status !== AppointmentStatus.COMPLETED)
+        .filter(apt => isValidAppointment(apt))
         .slice(0, 3);
 
-        
     const stats = {
         totalAppointments: appointmentsData?.totalElements || 0,
         totalDoctors: visitedDoctors?.length || 0,

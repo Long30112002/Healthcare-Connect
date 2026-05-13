@@ -43,6 +43,27 @@ const AppointmentListPage = () => {
     const appointments = appointmentsData?.content ?? [];
     const totalElements = appointmentsData?.totalElements ?? 0;
 
+    // Kiểm tra lịch có hết hạn không
+    const isExpired = (appointment: Appointment): boolean => {
+        // Đã NO_SHOW hoặc COMPLETED hoặc CANCELLED
+        if (appointment.status === 'NO_SHOW') return true;
+        if (appointment.status === 'COMPLETED') return true;
+        if (appointment.status === 'CANCELLED') return true;
+        
+        // Kiểm tra thời gian
+        const appointmentDateTime = new Date(
+            appointment.startTime[0],
+            appointment.startTime[1] - 1,
+            appointment.startTime[2],
+            appointment.startTime[3] || 0,
+            appointment.startTime[4] || 0
+        );
+        const now = new Date();
+        const expiredTime = new Date(appointmentDateTime.getTime() + 30 * 60000);
+        
+        return now > expiredTime;
+    };
+
     // Filter appointments theo tab
     const filterByTab = (tab: TabKey): Appointment[] => {
         if (tab === 'all') return appointments;
@@ -69,7 +90,6 @@ const AppointmentListPage = () => {
 
     // MỞ MODAL HỦY LỊCH
     const openCancelModal = (appointment: Appointment) => {
-
         setCancelModal({
             open: true,
             appointmentId: appointment.id,
@@ -135,6 +155,27 @@ const AppointmentListPage = () => {
     // Render action buttons theo status
     const renderActions = (appointment: Appointment) => {
         const isCancelling = cancellingId === appointment.id;
+        const expired = isExpired(appointment);
+
+        // Nếu lịch đã hết hạn và không phải AWAITING_PAYMENT
+        if (expired && appointment.status !== 'AWAITING_PAYMENT') {
+            return (
+                <div className="flex gap-2 mt-3 sm:mt-0">
+                    <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm">
+                        ⏰ {t('appointment.expired')}
+                    </span>
+                    {appointment.status === 'COMPLETED' && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/appointments/${appointment.id}/review`)}
+                        >
+                            ⭐ {t('appointment.review')}
+                        </Button>
+                    )}
+                </div>
+            );
+        }
 
         switch (appointment.status) {
             case 'AWAITING_PAYMENT':
@@ -159,18 +200,22 @@ const AppointmentListPage = () => {
                 );
 
             case 'CONFIRMED':
-                return (
-                    <div className="flex gap-2 mt-3 sm:mt-0">
-                        <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => openCancelModal(appointment)}
-                            loading={isCancelling}
-                        >
-                            {t('appointment.cancel')}
-                        </Button>
-                    </div>
-                );
+                // Chỉ hiển thị nút cancel nếu chưa hết hạn
+                if (!expired) {
+                    return (
+                        <div className="flex gap-2 mt-3 sm:mt-0">
+                            <Button
+                                size="sm"
+                                variant="danger"
+                                onClick={() => openCancelModal(appointment)}
+                                loading={isCancelling}
+                            >
+                                {t('appointment.cancel')}
+                            </Button>
+                        </div>
+                    );
+                }
+                return null;
 
             case 'COMPLETED':
                 return (
@@ -396,6 +441,7 @@ const getStatusBadge = (status: string): string => {
         'IN_PROGRESS': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
         'COMPLETED': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
         'CANCELLED': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+        'NO_SHOW': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
     };
     return statusMap[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
 };

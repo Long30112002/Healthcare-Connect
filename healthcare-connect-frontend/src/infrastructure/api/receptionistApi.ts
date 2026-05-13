@@ -59,7 +59,7 @@ export const receptionistApi = {
 
     async getStatisticsByPeriod(period: string): Promise<StatisticsResponse> {
         const response = await axiosClient.get(`/receptionist/statistics/by-period?period=${period}`);
-        return response.data;
+        return response.data.data;
     },
 
     async getHourlyStatistics(startDate?: string, endDate?: string): Promise<HourlyStatistic[]> {

@@ -1342,7 +1342,8 @@
     "paid": "Paid",
     "unpaid": "Unpaid",
     "detailTitle": "Patient Details",
-    "time": "Appointment time"
+    "time": "Appointment time",
+    "expired": "Schedule has expired"
   },
   "receptionist": {
     "title": "Receptionist Dashboard",
@@ -1426,7 +1427,8 @@
       "verified": "Pending approval",
       "approved": "Approved",
       "rejected": "Rejected"
-    }
+    },
+    "scheduleExpired": "Schedule has expired"
   },
   "cancel": {
     "title": "Confirm Cancellation",

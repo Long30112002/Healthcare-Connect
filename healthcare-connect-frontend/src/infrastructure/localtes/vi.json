@@ -1278,7 +1278,8 @@
     "paid": "Đã thanh toán",
     "unpaid": "Chưa thanh toán",
     "detailTitle": "Chi tiết lịch hẹn",
-    "time": "Thời gian khám"
+    "time": "Thời gian khám",
+    "expired": "Lịch đã hết hạn"
   },
   "receptionist": {
     "title": "Bảng điều khiển Lễ tân",
@@ -1362,7 +1363,8 @@
       "verified": "Chờ duyệt",
       "approved": "Đã duyệt",
       "rejected": "Từ chối"
-    }
+    },
+    "scheduleExpired": "Lịch đã hết hạn"
   },
   "cancel": {
     "title": "Xác nhận hủy lịch",

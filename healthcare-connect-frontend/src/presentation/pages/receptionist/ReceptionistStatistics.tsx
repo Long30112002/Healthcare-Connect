@@ -44,12 +44,18 @@ const ReceptionistStatistics = () => {
             return;
         }
         try {
+            console.log('Calling APIs with period:', period);
+
             const [summaryData, hourlyData, doctorData, dailyData] = await Promise.all([
                 receptionistApi.getStatisticsByPeriod(period),
                 receptionistApi.getHourlyStatistics(),
                 receptionistApi.getDoctorStatistics(),
                 receptionistApi.getDailyStatistics(),
             ]);
+            console.log('Summary response:', summaryData);   // 👈 LOG
+            console.log('Hourly response:', hourlyData);     // 👈 LOG
+            console.log('Doctor response:', doctorData);     // 👈 LOG
+            console.log('Daily response:', dailyData);       // 👈 LOG
             setSummary(summaryData);
             setHourlyStats(Array.isArray(hourlyData) ? hourlyData : []);
             setDoctorStats(Array.isArray(doctorData) ? doctorData : []);
@@ -175,14 +181,22 @@ const ReceptionistStatistics = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {safeMap(dailyStats, (stat) => (
-                                        <tr key={stat.date} className="border-b">
-                                            <td className="p-2">{stat.date}</td>
-                                            <td className="p-2 text-center">{stat.total}</td>
-                                            <td className="p-2 text-center text-green-600">{stat.checkedIn}</td>
-                                            <td className="p-2 text-center text-yellow-600">{stat.waiting}</td>
+                                    {dailyStats.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={4} className="text-center text-gray-500 py-8">
+                                                {t('statistics.noData')}
+                                            </td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        dailyStats.map((stat) => (
+                                            <tr key={stat.date} className="border-b">
+                                                <td className="p-2">{stat.date}</td>
+                                                <td className="p-2 text-center">{stat.total}</td>
+                                                <td className="p-2 text-center text-green-600">{stat.checkedIn}</td>
+                                                <td className="p-2 text-center text-yellow-600">{stat.waiting}</td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
