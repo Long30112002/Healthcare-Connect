@@ -81,7 +81,8 @@ public enum ErrorCode {
     SPECIALTY_EXISTED(4004, "Chuyên ngành đã tồn tại!", HttpStatus.BAD_REQUEST),
     SPECIALTY_CATEGORY_MISMATCH(4005, "Chuyên khoa không thuộc nhóm danh mục của Khoa này!", HttpStatus.BAD_REQUEST),
     INVALID_SPECIALTY_CODE(4006, "Mã chuyên khoa không khớp với mã khoa!", HttpStatus.BAD_REQUEST),
-
+    DEPARTMENT_HAS_SPECIALTIES(4007, "Không thể xóa khoa vì đang có chuyên khoa trực thuộc!", HttpStatus.BAD_REQUEST),
+    DEPARTMENT_CATEGORY_REQUIRED(4008, "Khoa chưa có danh mục, vui lòng cập nhật danh mục cho khoa trước!", HttpStatus.BAD_REQUEST),
     // =============================================================================
     // 5xxx: DỮ LIỆU CHUNG (GENERAL DATA)
     // =============================================================================

@@ -15,9 +15,10 @@ public class TopDoctorResponse {
     UUID doctorId;
     String doctorName;
     String specialtyName;
-    long totalPatients;
-    BigDecimal totalRevenue;
+    long totalRevenueCollected;
+    long totalRevenueCompleted;
+    long totalPatientsCompleted;
+    long totalBookingsPaid;
     double averageRating;
-    double rating;
     int rank;
 }

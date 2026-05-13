@@ -180,17 +180,21 @@ public class ManagerStatisticsService
             UUID doctorId = (UUID) row[0];
             String doctorName = (String) row[1];
             String specialtyName = (String) row[2];
-            long totalPatients = ((Number) row[3]).longValue();
-            BigDecimal totalRevenue = (BigDecimal) row[4];
-            double averageRating = ((Number) row[5]).doubleValue();
+            long revenueCollected = ((Number) row[3]).longValue();
+            long revenueCompleted = ((Number) row[4]).longValue();
+            long patientsCompleted = ((Number) row[5]).longValue();
+            long bookingsPaid = ((Number) row[6]).longValue();
+            double avgRating = ((Number) row[7]).doubleValue();
 
             topDoctors.add(TopDoctorResponse.builder()
                     .doctorId(doctorId)
                     .doctorName(doctorName)
                     .specialtyName(specialtyName)
-                    .totalPatients(totalPatients)
-                    .totalRevenue(totalRevenue)
-                    .averageRating(Math.round(averageRating * 10) / 10.0)
+                    .totalRevenueCollected(revenueCollected)
+                    .totalRevenueCompleted(revenueCompleted)
+                    .totalPatientsCompleted(patientsCompleted)
+                    .totalBookingsPaid(bookingsPaid)
+                    .averageRating(Math.round(avgRating * 10) / 10.0)
                     .rank(rank++)
                     .build());
         }

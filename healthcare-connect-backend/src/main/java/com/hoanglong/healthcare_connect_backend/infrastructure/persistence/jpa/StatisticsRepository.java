@@ -49,15 +49,15 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             @Param("limit") int limit);
 
     @Query(value = "SELECT d.name as department_name, " +
-            "COUNT(DISTINCT a.id) as total_patients, " +
-            "COALESCE(SUM(s.price), 0) as total_revenue " +
+            "COUNT(DISTINCT CASE WHEN a.is_paid = true AND a.status = 'COMPLETED' " +
+            "THEN COALESCE(a.patient_id::TEXT, a.patient_phone) " +
+            "ELSE NULL END) as total_patients, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true AND a.status = 'COMPLETED' THEN s.price ELSE 0 END), 0) as total_revenue " +
             "FROM appointments a " +
             "JOIN schedules s ON a.schedule_id = s.id " +
             "JOIN doctors doc ON s.doctor_id = doc.id " +
             "JOIN departments d ON doc.department_id = d.id " +
             "WHERE a.hospital_id = CAST(:hospitalId AS uuid) " +
-            "AND a.is_paid = true " +
-            "AND a.status != 'CANCELLED' " +
             "GROUP BY d.id, d.name " +
             "ORDER BY total_revenue DESC",
             nativeQuery = true)
@@ -70,7 +70,7 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             "JOIN schedules s ON a.schedule_id = s.id " +
             "WHERE a.hospital_id = CAST(:hospitalId AS uuid) " +
             "AND a.is_paid = true " +
-            "AND a.status != 'CANCELLED' " +
+            "AND a.status = 'COMPLETED' " +
             "AND a.appointment_date BETWEEN :startDate AND :endDate " +
             "GROUP BY EXTRACT(YEAR FROM a.appointment_date), EXTRACT(MONTH FROM a.appointment_date) " +
             "ORDER BY year ASC, month ASC",
@@ -80,8 +80,10 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             @Param("endDate") LocalDateTime endDate);
 
     @Query(value = "SELECT d.id, u.full_name, s.name as specialty_name, " +
-            "COUNT(DISTINCT a.id) as total_patients, " +
-            "COALESCE(SUM(CASE WHEN a.is_paid = true THEN sched.price ELSE 0 END), 0) as total_revenue, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true AND a.status != 'CANCELLED' THEN sched.price ELSE 0 END), 0) as revenue_collected, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true AND a.status = 'COMPLETED' THEN sched.price ELSE 0 END), 0) as revenue_completed, " +
+            "COUNT(DISTINCT CASE WHEN a.status = 'COMPLETED' THEN COALESCE(a.patient_id::TEXT, a.patient_phone) ELSE NULL END) as patients_completed, " +
+            "COUNT(DISTINCT CASE WHEN a.is_paid = true AND a.status != 'CANCELLED' THEN a.id ELSE NULL END) as bookings_paid, " +
             "COALESCE(AVG(r.rating), 0) as avg_rating " +
             "FROM doctors d " +
             "JOIN users u ON d.user_id = u.id " +
@@ -92,7 +94,7 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             "WHERE d.hospital_id = CAST(:hospitalId AS uuid) " +
             "AND d.status = 'APPROVED' " +
             "GROUP BY d.id, u.full_name, s.name " +
-            "ORDER BY total_patients DESC " +
+            "ORDER BY revenue_collected DESC " +
             "LIMIT :limit",
             nativeQuery = true)
     List<Object[]> findTopDoctorsByHospital(@Param("hospitalId") UUID hospitalId,
