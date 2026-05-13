@@ -28,7 +28,7 @@ public class Specialty {
     String name;
 
     @Enumerated(EnumType.STRING)
-    private MedicalCategory category;
+    MedicalCategory category;
 
     String description;
 
@@ -38,6 +38,10 @@ public class Specialty {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+
+    @Column(name = "hospital_id")
+    UUID hospitalId;
+
 
     @PrePersist
     protected void onCreate() {

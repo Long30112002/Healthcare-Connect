@@ -23,7 +23,7 @@ public class SpecialtyController {
     private final SpecialtyService specialtyService;
     CreateSpecialtyUseCase createSpecialtyUseCase;
 
-    @PostMapping
+    @PostMapping    
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<SpecialtyResponse> create(@RequestBody @Valid SpecialtyRequest request) {
         return ApiResponse.<SpecialtyResponse>builder()
