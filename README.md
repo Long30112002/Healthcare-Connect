@@ -36,7 +36,7 @@ Thông qua:
 <tr>
 <td width="50%" valign="top">
 
-<h3 align="center">👤 Bệnh nhân</h3>
+<h3 align="center">Bệnh nhân</h3>
 
 - Đặt lịch khám online
 - AI phân tích triệu chứng và gợi ý chuyên khoa
@@ -53,7 +53,7 @@ Thông qua:
 
 <td width="50%" valign="top">
 
-<h3 align="center">👨‍⚕️ Bác sĩ</h3>
+<h3 align="center">Bác sĩ</h3>
 
 - Đăng ký và cập nhật hồ sơ chuyên môn
 - Upload chứng chỉ hành nghề
@@ -72,7 +72,7 @@ Thông qua:
 <tr>
 <td width="50%" valign="top">
 
-<h3 align="center">🧾 Lễ tân</h3>
+<h3 align="center">Lễ tân</h3>
 
 - Xác nhận check-in bệnh nhân
 - Hỗ trợ tạo lịch khám trực tiếp tại quầy
@@ -88,7 +88,7 @@ Thông qua:
 
 <td width="50%" valign="top">
 
-<h3 align="center">🏥 Hospital Manager</h3>
+<h3 align="center">Hospital Manager</h3>
 
 - Duyệt hồ sơ bác sĩ
 - Quản lý chuyên khoa và dịch vụ y tế
@@ -106,7 +106,7 @@ Thông qua:
 <tr>
 <td width="50%" valign="top">
 
-<h3 align="center">🛡️ Admin</h3>
+<h3 align="center">Admin</h3>
 
 - Quản lý toàn bộ hệ thống
 - Kiểm duyệt tài khoản Manager và Doctor
@@ -122,7 +122,7 @@ Thông qua:
 
 <td width="50%" valign="top">
 
-<h3 align="center">⚙️ Tính năng kỹ thuật</h3>
+<h3 align="center">Tính năng kỹ thuật</h3>
 
 - JWT Authentication
 - Role-based Authorization
@@ -138,18 +138,6 @@ Thông qua:
 </td>
 </tr>
 </table>
-
-Tính năng kỹ thuật
-- JWT Authentication
-- Role-based Authorization
-- Real-time Notification với WebSocket
-- Email Queue với RabbitMQ
-- Rate Limiting với Bucket4j
-- Database Migration với Flyway
-- Cloud Storage với Cloudinary / MinIO
-- Audit Logging
-- Refund Calculation Logic
-- AI Symptom Analysis với Gemini AI
 
 ---
 
