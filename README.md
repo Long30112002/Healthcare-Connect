@@ -1,11 +1,2 @@
-Healthcare Connect – Telemedicine & Booking Platform
-I. Tổng quan
-Healthcare Connect là nền tảng y tế số hỗ trợ kết nối giữa bệnh nhân, bác sĩ và bệnh viện thông qua hệ thống đặt lịch khám trực tuyến, quản lý hồ sơ sức khỏe điện tử và đặt lịch thông minh bằng AI.
-
-Hệ thống được xây dựng theo hướng scalable backend architecture, tập trung vào:
-
-Hiệu năng
-Bảo mật
-Khả năng mở rộng
-Dễ bảo trì
-Real-time communication
+Healthcare Connect
+<p align="center"> <img src="docs/banner.png" width="100%" /> </p> <p align="center"> Nền tảng đặt lịch khám bệnh và tư vấn y tế trực tuyến tích hợp AI </p> <p align="center"> <img src="https://img.shields.io/badge/Java-21-orange"/> <img src="https://img.shields.io/badge/SpringBoot-3-success"/> <img src="https://img.shields.io/badge/React-Frontend-blue"/> <img src="https://img.shields.io/badge/PostgreSQL-Database-informational"/> </p>
