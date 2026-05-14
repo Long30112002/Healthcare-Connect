@@ -21,18 +21,12 @@ Healthcare Connect là hệ thống hỗ trợ kết nối giữa:
 - Admin: Kiểm duyệt toàn bộ cơ sở y tế, cấu hình hệ thống và giám sát hoạt động qua Audit Log.
 
 Thông qua:
-- Đặt lịch khám online: * Tìm kiếm bác sĩ theo chuyên khoa, giá khám và khung giờ trống.
-Tự động khóa slot khám khi đang xử lý thanh toán để tránh đặt trùng lịch (Race Condition).
-- Check in lịch khám: * Lễ tân xác thực mã lịch hẹn và đổi trạng thái sang "Chờ khám" ngay khi bệnh nhân có mặt tại bệnh viện.
-Tự động thông báo đến bác sĩ thông qua hệ thống để chuẩn bị tiếp nhận ca khám.
-- Quản lý bệnh án điện tử: * Lưu trữ lịch sử khám bệnh, đơn thuốc, kết quả xét nghiệm và ghi chú của bác sĩ một cách bảo mật.
-Cho phép bệnh nhân tra cứu lịch sử bệnh lý mọi lúc mọi nơi trên nền tảng.
-- Thanh toán/hoàn tiền trực tuyến: * Tích hợp cổng thanh toán MoMo, xử lý giao dịch tự động 24/7.
-Cơ chế hoàn tiền: Tự động tính toán tỷ lệ hoàn tiền (ví dụ: 100%, 50%) dựa trên thời điểm bệnh nhân yêu cầu hủy lịch so với giờ khám.
-- Gợi ý đặt chuyên khoa bằng AI: * Sử dụng Gemini AI để phân tích triệu chứng bệnh nhân nhập vào.
-Tự động đề xuất các chuyên khoa phù hợp nhất, giúp bệnh nhân chọn đúng bác sĩ cần gặp.
-- Theo dõi lịch khám realtime: * Sử dụng WebSocket để cập nhật trạng thái thanh toán và số thứ tự khám hiện tại theo thời gian thực.
-Hệ thống gửi thông báo nhắc lịch tự động qua Email/RabbitMQ trước giờ khám để giảm tỷ lệ bỏ lịch.
+- Đặt lịch khám online: Tìm kiếm bác sĩ theo chuyên khoa, giá khám và khung giờ trống. Tự động khóa slot khám khi đang xử lý thanh toán để tránh đặt trùng lịch (Race Condition).
+- Check in lịch khám: Lễ tân xác thực mã lịch hẹn và đổi trạng thái sang "Chờ khám" ngay khi bệnh nhân có mặt tại bệnh viện. Tự động thông báo đến bác sĩ thông qua hệ thống để chuẩn bị tiếp nhận ca khám.
+- Quản lý bệnh án điện tử: Lưu trữ lịch sử khám bệnh, đơn thuốc, kết quả xét nghiệm và ghi chú của bác sĩ một cách bảo mật. Cho phép bệnh nhân tra cứu lịch sử bệnh lý mọi lúc mọi nơi trên nền tảng.
+- Thanh toán/hoàn tiền trực tuyến: Tích hợp cổng thanh toán MoMo, xử lý giao dịch tự động 24/7. Cơ chế hoàn tiền: Tự động tính toán tỷ lệ hoàn tiền (ví dụ: 100%, 50%) dựa trên thời điểm bệnh nhân yêu cầu hủy lịch so với giờ khám.
+- Gợi ý đặt chuyên khoa bằng AI: Sử dụng AI để phân tích triệu chứng bệnh nhân nhập vào. Tự động đề xuất các chuyên khoa phù hợp nhất, giúp bệnh nhân chọn đúng bác sĩ cần gặp.
+- Theo dõi lịch khám realtime: Sử dụng WebSocket để cập nhật trạng thái thanh toán và số thứ tự khám hiện tại theo thời gian thực.
 
 ---
 
