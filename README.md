@@ -36,22 +36,32 @@ Thông qua:
 <tr>
 <td width="50%">
 
-## 👤 Bệnh nhân
-- Đặt lịch khám
-- AI phân tích triệu chứng
-- Thanh toán MoMo
-- Quản lý hồ sơ sức khỏe
-- Hoàn tiền khi hủy lịch
+## Bệnh nhân
+- Đặt lịch khám online
+- AI phân tích triệu chứng và gợi ý chuyên khoa
+- Tìm kiếm bác sĩ theo chuyên khoa, giá khám, thời gian
+- Thanh toán trực tuyến qua MoMo
+- Theo dõi trạng thái thanh toán realtime
+- Hủy lịch và hoàn tiền tự động
+- Quản lý hồ sơ sức khỏe điện tử
+- Xem lịch sử khám bệnh và toa thuốc
+- Nhận email/thông báo nhắc lịch khám
+- Đánh giá bác sĩ sau khi khám
 
 </td>
 
 <td width="50%">
 
-## 👨‍⚕️ Bác sĩ
-- Quản lý lịch khám
-- Cập nhật bệnh án
-- Tư vấn bệnh nhân
-- Theo dõi đánh giá
+## Bác sĩ
+- Đăng ký và cập nhật hồ sơ chuyên môn
+- Upload chứng chỉ hành nghề
+- Quản lý lịch khám và thời gian làm việc
+- Theo dõi danh sách bệnh nhân
+- Tư vấn và cập nhật bệnh án điện tử
+- Kê toa thuốc và ghi chú điều trị
+- Theo dõi đánh giá từ bệnh nhân
+- Xem thống kê hiệu suất khám bệnh
+- Quản lý trạng thái lịch hẹn
 
 </td>
 </tr>
@@ -59,21 +69,62 @@ Thông qua:
 <tr>
 <td width="50%">
 
-## 🏥 Hospital Manager
-- Duyệt bác sĩ
-- Quản lý chuyên khoa
-- Theo dõi doanh thu
-- Quản lý dịch vụ y tế
+## 🧾 Lễ tân
+- Xác nhận check-in bệnh nhân
+- Hỗ trợ tạo lịch khám trực tiếp tại quầy
+- Quản lý hàng đợi khám bệnh
+- Cập nhật trạng thái lịch hẹn
+- Kiểm tra thanh toán của bệnh nhân
+- Hỗ trợ bệnh nhân hủy hoặc đổi lịch
+- In thông tin lịch khám
+- Quản lý danh sách bệnh nhân trong ngày
 
 </td>
 
 <td width="50%">
 
-## 🛡️ Admin
-- Quản lý hệ thống
-- Audit Log
-- Quản lý cấu hình
-- Kiểm duyệt tài khoản
+## Hospital Manager
+- Duyệt hồ sơ bác sĩ
+- Quản lý chuyên khoa và dịch vụ y tế
+- Quản lý danh sách bác sĩ thuộc bệnh viện
+- Theo dõi doanh thu bệnh viện
+- Xem thống kê số lượng ca khám
+- Theo dõi hiệu suất bác sĩ
+- Quản lý lịch làm việc bác sĩ
+- Quản lý giá khám và phí dịch vụ
+
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+
+## Admin
+- Quản lý toàn bộ hệ thống
+- Kiểm duyệt tài khoản Manager và Doctor
+- Quản lý cấu hình hệ thống
+- Theo dõi Audit Log
+- Quản lý trạng thái bảo trì hệ thống
+- Theo dõi hoạt động người dùng
+- Quản lý phân quyền và role
+- Theo dõi thống kê hệ thống
+- Kiểm soát nội dung và dữ liệu hệ thống
+
+</td>
+
+<td width="50%">
+
+## Hệ thống
+- JWT Authentication
+- Role-based Authorization
+- Real-time Notification bằng WebSocket
+- Email Queue với RabbitMQ
+- Rate Limiting với Bucket4j
+- Database Migration với Flyway
+- Cloud Storage với Cloudinary / MinIO
+- Audit Logging
+- Refund Calculation Logic
+- AI Symptom Analysis với Gemini AI
 
 </td>
 </tr>
