@@ -7,7 +7,7 @@
 ![JWT](https://img.shields.io/badge/Auth-JWT-red)
 ![WebSocket](https://img.shields.io/badge/Realtime-WebSocket-purple)
 
-> Nền tảng đặt lịch khám bệnh và tư vấn y tế trực tuyến tích hợp AI.
+> Healthcare Connect là một hệ thống Telemedicine toàn diện, kết nối trực tiếp Bệnh nhân, Bác sĩ và Cơ sở y tế. Hệ thống không chỉ dừng lại ở việc đặt lịch mà còn ứng dụng trí tuệ nhân tạo (AI) để hỗ trợ người dùng đặt lịch và quản lý quy trình vận hành y tế một cách chuyên nghiệp.
 
 ---
 
