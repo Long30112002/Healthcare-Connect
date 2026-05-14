@@ -30,7 +30,7 @@ Thông qua:
 
 ---
 
-# 🚀 Chức năng chính
+# Chức năng chính
 
 <table>
 <tr>
@@ -69,7 +69,7 @@ Thông qua:
 <tr>
 <td width="50%">
 
-## 🧾 Lễ tân
+## Lễ tân
 - Xác nhận check-in bệnh nhân
 - Hỗ trợ tạo lịch khám trực tiếp tại quầy
 - Quản lý hàng đợi khám bệnh
@@ -114,10 +114,14 @@ Thông qua:
 
 <td width="50%">
 
-## Hệ thống
+</td>
+</tr>
+</table>
+
+Tính năng kỹ thuật
 - JWT Authentication
 - Role-based Authorization
-- Real-time Notification bằng WebSocket
+- Real-time Notification với WebSocket
 - Email Queue với RabbitMQ
 - Rate Limiting với Bucket4j
 - Database Migration với Flyway
@@ -125,10 +129,6 @@ Thông qua:
 - Audit Logging
 - Refund Calculation Logic
 - AI Symptom Analysis với Gemini AI
-
-</td>
-</tr>
-</table>
 
 ---
 
