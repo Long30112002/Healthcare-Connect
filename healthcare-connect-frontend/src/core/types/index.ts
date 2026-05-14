@@ -292,3 +292,17 @@ export interface Specialty {
     department: DepartmentResponse;
     category: MedicalCategory;
 }
+
+export interface SystemConfig {
+    id: string;
+    configKey: string;
+    configValue: string;
+    configType: string;
+    groupName: string;
+    displayName: string;
+    description: string;
+    displayOrder: number;
+    isActive: boolean;
+    updatedAt: string;
+    updatedByName?: string;
+}

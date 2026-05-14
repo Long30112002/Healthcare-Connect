@@ -69,7 +69,8 @@
     "reason": "Reason",
     "update": "Update",
     "deleteConfirm": "Are you sure you want to delete this item? This action cannot be undone.",
-    "deleteConfirmMessage": "This action will permanently delete the item from the system. Please confirm before proceeding."
+    "deleteConfirmMessage": "This action will permanently delete the item from the system. Please confirm before proceeding.",
+    "anonymous": "Anonymous"
   },
   "manager": {
     "dashboard": {
@@ -201,7 +202,8 @@
     "slotTooLong": "The appointment is too long (maximum {max} minutes)",
     "noAvailableSlots": "No time slots are available for this day. Please choose a different day or contact hospital management for updated operating hours.",
     "roomAlreadyBooked": "This room has been booked by Dr. {{doctorName}} at this time slot",
-    "checkingRoom": "Checking room availability..."
+    "checkingRoom": "Checking room availability...",
+    "slots": "slots"
   },
   "pagination": {
     "firstPage": "First page",
@@ -242,6 +244,11 @@
     "completeExamFailed": "Failed to complete exam!",
     "symptoms": "Symptoms",
     "searchPlaceholder": "Search by name or phone...",
+    "hospital": "Hospital",
+    "address": "Address",
+    "phone": "Phone",
+    "experience": "Experience",
+    "schedules": "Working Schedule",
     "stats": {
       "title": "My Statistics",
       "subtitle": "Your medical appointment statistics",
@@ -276,7 +283,9 @@
       "verified": "Verified",
       "approved": "Approved",
       "rejected": "Rejected"
-    }
+    },
+    "noReviewsYet": "No reviews yet",
+    "noSchedules": "No schedules yet"
   },
   "rejectionReason": {
     "invalidCertificate": "Invalid certificate",
@@ -941,7 +950,90 @@
     "workingHours": "Working Hours",
     "rooms": "Rooms",
     "medicines": "Medicines",
-    "departmentsSpecialties": "Depts & Specialties"
+    "departmentsSpecialties": "Depts & Specialties",
+    "systemConfig": "System Configuration",
+    "systemConfigDesc": "Manage banners, contacts, colors"
+  },
+  "adminConfig": {
+    "title": "System Configuration",
+    "resetDefault": "Reset to Default",
+    "resetConfirm": "Are you sure you want to reset all configurations to default?",
+    "resetSuccess": "Default configurations restored!",
+    "resetError": "Failed to restore default configurations!",
+    "invalidJson": "Invalid JSON",
+    "validJson": "Valid JSON",
+    "lastSaved": "Last saved",
+    "previewReady": "Preview ready",
+    "subtitle": "Manage website content and appearance",
+    "general": {
+      "basicInfo": "Basic Information",
+      "basicInfoDesc": "Configure system name, logo",
+      "systemName": "System Name",
+      "systemLogo": "System Logo",
+      "appearance": "Appearance",
+      "appearanceDesc": "Configure theme colors",
+      "primaryColor": "Primary Color",
+      "secondaryColor": "Secondary Color"
+    },
+    "home": {
+      "heroSlides": "Hero Slides",
+      "heroSlidesDesc": "Configure homepage slideshow",
+      "heroSlidesVI": "Hero Slides (Vietnamese)",
+      "heroSlidesEN": "Hero Slides (English)",
+      "features": "Features",
+      "featuresDesc": "Configure features display",
+      "featuresVI": "Features (Vietnamese)",
+      "featuresEN": "Features (English)",
+      "stats": "Statistics",
+      "statsDesc": "Configure statistics display",
+      "statsVI": "Statistics (Vietnamese)",
+      "statsEN": "Statistics (English)",
+      "cta": "Call to Action",
+      "ctaDesc": "Configure call to action button",
+      "ctaTitleVI": "CTA Title (Vietnamese)",
+      "ctaTitleEN": "CTA Title (English)",
+      "ctaSubtitleVI": "CTA Subtitle (Vietnamese)",
+      "ctaSubtitleEN": "CTA Subtitle (English)",
+      "ctaButtonVI": "CTA Button (Vietnamese)",
+      "ctaButtonEN": "CTA Button (English)"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "desc": "Configure contact information",
+      "phone": "Phone Number",
+      "email": "Email",
+      "address": "Address",
+      "mapEmbed": "Google Maps Embed"
+    },
+    "social": {
+      "title": "Social Media",
+      "desc": "Configure social media links"
+    },
+    "footer": {
+      "title": "Footer",
+      "desc": "Configure footer content",
+      "description": "Description",
+      "descriptionPlaceholder": "System description...",
+      "copyright": "Copyright"
+    },
+    "seo": {
+      "title": "SEO",
+      "desc": "Configure website SEO",
+      "pageTitle": "Page Title",
+      "pageTitlePlaceholder": "Healthcare Connect - Book Medical Appointments",
+      "description": "Description",
+      "descriptionPlaceholder": "Platform for booking medical appointments...",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "book appointment, doctor, hospital"
+    },
+    "tabs": {
+      "general": "General",
+      "home": "Home Page",
+      "contact": "Contact",
+      "social": "Social Media",
+      "footer": "Footer",
+      "seo": "SEO"
+    }
   },
   "departmentsSpecialties": {
     "title": "Manage Departments & Specialties",
@@ -1101,7 +1193,11 @@
       "description": "Smart healthcare platform that helps you easily book appointments, consult remotely, and manage your health comprehensively.",
       "register": "Register Now",
       "findDoctor": "Find a Doctor",
-      "departmentsSpecialties": "Depts & Specialties"
+      "departmentsSpecialties": "Depts & Specialties",
+      "brand": "HEALTHCARE CONNECT",
+      "myAppointments": "My Appointments",
+      "mySchedule": "My Schedule",
+      "dashboard": "Dashboard"
     },
     "heroSlides": [
       {
@@ -1198,7 +1294,8 @@
     },
     "testimonials": {
       "title": "What Patients Say",
-      "subtitle": "Thousands of patients trust our service"
+      "subtitle": "Thousands of patients trust our service",
+      "patient": "Patient"
     },
     "testimonial1": "Great service! I booked an appointment very quickly and received thorough consultation.",
     "testimonial2": "Easy to use app, convenient online payment. Will recommend to friends and family.",
@@ -1206,7 +1303,10 @@
     "cta": {
       "title": "Ready to take care of your health?",
       "subtitle": "Sign up today to experience smart healthcare services",
-      "button": "Sign up for free"
+      "button": "Sign up for free",
+      "myAppointments": "My Appointments",
+      "mySchedule": "My Schedule",
+      "dashboard": "Dashboard"
     }
   },
   "settings": {
@@ -1230,6 +1330,20 @@
     "emailNotificationDesc": "Receive email notifications for appointments and updates",
     "appointmentReminder": "Appointment Reminder",
     "appointmentReminderDesc": "Receive reminders 24 hours before appointment"
+  },
+  "publicDoctors": {
+    "title": "Doctors List",
+    "subtitle": "Search and choose the right doctor for you",
+    "searchPlaceholder": "Search by doctor name, specialty, hospital...",
+    "allSpecialties": "All Specialties",
+    "allHospitals": "All Hospitals",
+    "doctorsList": "Doctors List",
+    "noDoctors": "No doctors found",
+    "noDoctorsDesc": "Please try with different keywords",
+    "viewDetail": "View Details",
+    "loginToBook": "Login to Book",
+    "loginToBookPrompt": "Please login to book an appointment with this doctor",
+    "loginToBookTitle": "Book an Appointment Now"
   },
   "page": {
     "login": {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import Button from '../components/shared/Button';
@@ -6,6 +6,21 @@ import Input from '../components/shared/Input';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../application/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import tiktok from '../assets/images/tik-tok.png';
+import zalo from '../assets/images/zalo.png';
+import youtube from '../assets/images/youtube.png';
+import facebook from '../assets/images/facebook.png';
+import messenger from '../assets/images/messenger.png';
+import quickBooking from '../assets/images/booking.png';
+import quickPayment from '../assets/images/quick_payment.png';
+import complaint from '../assets/images/complain.png';
+import locationIcon from '../assets/images/location.png';
+import phoneIcon from '../assets/images/phone-call.png';
+import emailIcon from '../assets/images/email.png';
+import timeIcon from '../assets/images/clock.png'
+
+import { configApi } from '../../infrastructure/api/configApi';
+import { useSystemConfig } from '../../application/hooks/useSystemConfig';
 
 interface ContactFormData {
     fullName: string;
@@ -26,6 +41,11 @@ const ContactPage = () => {
     });
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
+    const { configs } = useSystemConfig();
+
+    const contactPhone = configs.CONTACT_PHONE || '1900 1234';
+    const contactEmail = configs.CONTACT_EMAIL || 'support@healthcareconnect.vn';
+    const contactAddress = configs.CONTACT_ADDRESS || '123 Đường Nguyễn Huệ, Quận 1, TP.HCM';
 
     const handleChange = (field: keyof ContactFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -91,18 +111,18 @@ const ContactPage = () => {
 
     // Social links data
     const socialLinks = [
-        { name: t('contact.facebook'), icon: '📘', url: 'https://facebook.com', color: 'hover:text-blue-700' },
-        { name: t('contact.zalo'), icon: '💬', url: 'https://zalo.me', color: 'hover:text-blue-500' },
-        { name: t('contact.youtube'), icon: '📺', url: 'https://youtube.com', color: 'hover:text-red-600' },
-        { name: t('contact.tiktok'), icon: '🎵', url: 'https://tiktok.com', color: 'hover:text-gray-900' },
-        { name: t('contact.messenger'), icon: '💬', url: 'https://messenger.com', color: 'hover:text-blue-600' },
+        { name: t('contact.facebook'), icon: facebook, url: 'https://facebook.com', color: 'hover:text-blue-700' },
+        { name: t('contact.zalo'), icon: zalo, url: 'https://zalo.me', color: 'hover:text-blue-500' },
+        { name: t('contact.youtube'), icon: youtube, url: 'https://youtube.com', color: 'hover:text-red-600' },
+        { name: t('contact.tiktok'), icon: tiktok, url: 'https://tiktok.com', color: 'hover:text-gray-900' },
+        { name: t('contact.messenger'), icon: messenger, url: 'https://messenger.com', color: 'hover:text-blue-600' },
     ];
 
     // Quick support items
     const quickSupport = [
-        { label: t('contact.quickBooking'), extension: '1', icon: '📅' },
-        { label: t('contact.quickPayment'), extension: '2', icon: '💳' },
-        { label: t('contact.quickComplaint'), extension: '3', icon: '📝' },
+        { label: t('contact.quickBooking'), extension: '1', icon: quickBooking },
+        { label: t('contact.quickPayment'), extension: '2', icon: quickPayment },
+        { label: t('contact.quickComplaint'), extension: '3', icon: complaint },
     ];
 
     return (
@@ -145,43 +165,42 @@ const ContactPage = () => {
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="text-2xl">🏥</span>
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     {t('contact.infoTitle')}
                                 </h2>
                             </div>
 
                             <div className="space-y-4">
-                                {/* Address */}
-                                <div className="flex items-start gap-3">
-                                    <span className="text-xl">📍</span>
-                                    <div>
-                                        <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.address')}</p>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm">{t('contact.addressValue')}</p>
-                                    </div>
-                                </div>
-
                                 {/* Hotline */}
                                 <div className="flex items-start gap-3">
-                                    <span className="text-xl">📞</span>
+                                    <img src={phoneIcon} alt="Phone" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.hotline')}</p>
-                                        <p className="text-blue-600 dark:text-blue-400 font-bold text-lg">1900 1234</p>
+                                        <p className="text-blue-600 dark:text-blue-400 font-bold text-lg">{contactPhone}</p>
                                     </div>
                                 </div>
 
                                 {/* Email */}
                                 <div className="flex items-start gap-3">
-                                    <span className="text-xl">✉️</span>
+                                    <img src={emailIcon} alt="Email" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.email')}</p>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm">support@healthcareconnect.vn</p>
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm">{contactEmail}</p>
+                                    </div>
+                                </div>
+
+                                {/* Address */}
+                                <div className="flex items-start gap-3">
+                                    <img src={locationIcon} alt="Address" className="w-6 h-6 mt-0.5" />
+                                    <div>
+                                        <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.address')}</p>
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm">{contactAddress}</p>
                                     </div>
                                 </div>
 
                                 {/* Working Hours */}
                                 <div className="flex items-start gap-3">
-                                    <span className="text-xl">🕒</span>
+                                    <img src={timeIcon} alt="Address" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.workingHours')}</p>
                                         <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -198,22 +217,25 @@ const ContactPage = () => {
                             <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
 
                             {/* Quick Support */}
-                            <div>
-                                <p className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-3">
-                                    <span>📱</span> {t('contact.quickSupport')}
-                                </p>
-                                <div className="space-y-2">
-                                    {quickSupport.map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                {item.icon} {item.label}
-                                            </span>
-                                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                                                1900 1234 ({item.extension})
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
+                            <div className="space-y-2">
+                                {quickSupport.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <span className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                            <img
+                                                src={item.icon}
+                                                alt={item.label}
+                                                className="w-5 h-5 object-contain"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).style.display = 'none';
+                                                }}
+                                            />
+                                            {item.label}
+                                        </span>
+                                        <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                                            1900 1234 ({item.extension})
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -222,14 +244,12 @@ const ContactPage = () => {
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="text-2xl">📝</span>
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     {t('contact.formTitle')}
                                 </h2>
                             </div>
 
                             {isAuthenticated ? (
-                                // 🟢 ĐÃ ĐĂNG NHẬP - Hiển thị form bình thường
                                 <>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                                         {t('contact.formDescription')}
@@ -295,7 +315,7 @@ const ContactPage = () => {
                                     </form>
                                 </>
                             ) : (
-                                // 🔴 CHƯA ĐĂNG NHẬP - Hiển thị thông báo + nút chuyển sang Login
+                                // CHƯA ĐĂNG NHẬP - Hiển thị thông báo + nút chuyển sang Login
                                 <div className="text-center py-8">
                                     <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
                                         <span className="text-4xl">🔒</span>
@@ -325,7 +345,6 @@ const ContactPage = () => {
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="text-2xl">🗺️</span>
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     {t('contact.mapTitle')}
                                 </h2>
@@ -355,7 +374,7 @@ const ContactPage = () => {
                 <div className="mt-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                     <div className="p-6 text-center">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-center gap-2">
-                            <span>💡</span> {t('contact.connectTitle')}
+                            {t('contact.connectTitle')}
                         </h3>
                         <div className="flex flex-wrap justify-center gap-4">
                             {socialLinks.map((social, idx) => (
@@ -366,7 +385,14 @@ const ContactPage = () => {
                                     rel="noopener noreferrer"
                                     className={`flex flex-col items-center gap-1 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ${social.color}`}
                                 >
-                                    <span className="text-2xl">{social.icon}</span>
+                                    <img
+                                        src={social.icon}
+                                        alt={social.name}
+                                        className="w-8 h-8 object-contain"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                    />
                                     <span className="text-xs text-gray-600 dark:text-gray-400">{social.name}</span>
                                 </a>
                             ))}

@@ -386,3 +386,45 @@ export interface PaymentStatusResponse {
     paid: boolean;
     payUrl?: string;
 }
+
+export interface PublicTopDoctorResponse  {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    experienceYears: number;
+    averageRating: number;
+    totalReviews: number;
+}
+
+export interface PublicDoctorResponse {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    hospitalName: string;
+    hospitalAddress: string;
+    experienceYears: number;
+    degree: string;
+    consultationFee: number;
+    averageRating: number;
+    totalReviews: number;
+    avatar: string | null;
+}
+
+export interface PublicDoctorDetailResponse {
+    id: string;
+    fullName: string;
+    specialtyName: string;
+    departmentName: string;
+    hospitalName: string;
+    hospitalAddress: string;
+    hospitalPhone: string;
+    hospitalEmail: string;
+    experienceYears: number;
+    degree: string;
+    biography: string;
+    consultationFee: number;
+    averageRating: number;
+    totalReviews: number;
+    avatar: string | null;
+    schedules: ScheduleRespone[];
+}

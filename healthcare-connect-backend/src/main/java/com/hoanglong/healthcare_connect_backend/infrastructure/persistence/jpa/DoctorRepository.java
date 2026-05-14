@@ -23,6 +23,34 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
     List<Doctor> findAllByHospitalId(UUID hospitalId);
     List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
 
+    Page<Doctor> findByStatus(DoctorStatus status, Pageable pageable);
+
+    // Tìm kiếm bác sĩ public (chỉ lấy APPROVED)
+    @Query("SELECT DISTINCT d FROM Doctor d " +
+            "LEFT JOIN d.specialty s " +
+            "LEFT JOIN d.hospital h " +
+            "LEFT JOIN d.user u " +
+            "WHERE d.status = :status " +
+            "AND (:keyword IS NULL OR :keyword = '' OR " +
+            "     LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "     LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "     LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:specialtyId IS NULL OR s.id = :specialtyId) " +
+            "AND (:hospitalId IS NULL OR h.id = :hospitalId)")
+    Page<Doctor> searchPublicDoctors(@Param("status") DoctorStatus status,
+            @Param("keyword") String keyword,
+            @Param("specialtyId") UUID specialtyId,
+            @Param("hospitalId") UUID hospitalId,
+            Pageable pageable);
+
+    // Lấy bác sĩ theo ID và status APPROVED
+    Optional<Doctor> findByIdAndStatus(UUID id, DoctorStatus status);
+
+    @Query("SELECT d FROM Doctor d " +
+            "WHERE d.status = :status " +
+            "ORDER BY SIZE(d.schedules) DESC")
+    Page<Doctor> findTopDoctorsByScheduleCount(@Param("status") DoctorStatus status, Pageable pageable);
+
     @Query("SELECT COUNT(d) FROM Doctor d WHERE d.hospital.id = :hospitalId")
     long countByHospitalId(@Param("hospitalId") UUID hospitalId);
 

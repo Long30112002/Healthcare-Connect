@@ -82,6 +82,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/doctors/apply").hasAnyRole("PATIENT", "USER")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/departments/**").hasRole("ADMIN")
+                .requestMatchers("/api/configs/**").permitAll()
+                .requestMatchers("/api/public/doctors/**").permitAll()
+                .requestMatchers("/api/public/home/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/hospitals").permitAll()
                 .anyRequest().authenticated()
         );
 

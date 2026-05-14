@@ -29,6 +29,22 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             "WHERE r.appointment.id = :appointmentId AND r.deleted = false")
     boolean existsByAppointmentId(@Param("appointmentId") UUID appointmentId);
 
+    Long countByDoctorId(UUID doctorId);
+
+    // Lấy đánh giá theo doctorId (phân trang)
+    Page<Review> findByDoctorIdAndDeletedFalse(UUID doctorId, Pageable pageable);
+
+    // Đếm số lượng đánh giá
+    Long countByDoctorIdAndDeletedFalse(UUID doctorId);
+
+    Page<Review> findByRatingGreaterThanEqualAndDeletedFalse(int rating, Pageable pageable);
+
+    @Query("SELECT r FROM Review r " +
+            "WHERE r.rating >= :minRating " +
+            "AND r.deleted = false " +
+            "ORDER BY r.createdAt DESC")
+    Page<Review> findFeaturedReviews(@Param("minRating") int minRating, Pageable pageable);
+
     @Query("SELECT r FROM Review r WHERE r.doctor.id = :doctorId AND r.deleted = false")
     Page<Review> findByDoctorId(@Param("doctorId") UUID doctorId, Pageable pageable);
 
@@ -49,9 +65,14 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
-    @Query(value = "SELECT AVG(rating) FROM reviews WHERE doctor_id = :doctorId AND deleted = false",
-            nativeQuery = true)
+//    @Query(value = "SELECT AVG(rating) FROM reviews WHERE doctor_id = :doctorId AND deleted = false",
+//            nativeQuery = true)
+//    Double getAverageRatingByDoctorId(@Param("doctorId") UUID doctorId);
+
+    // Lấy rating trung bình theo doctorId
+    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r WHERE r.doctor.id = :doctorId AND r.deleted = false")
     Double getAverageRatingByDoctorId(@Param("doctorId") UUID doctorId);
+
 
     @Query(value = "SELECT rating, COUNT(*) FROM reviews WHERE doctor_id = :doctorId AND deleted = false " +
             "GROUP BY rating", nativeQuery = true)

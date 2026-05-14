@@ -6,6 +6,8 @@ interface InputProps {
     placeholder?: string;
     value: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;  // 👈 THÊM
+    onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // 👈 THÊM
     error?: string;
     required?: boolean;
     disabled?: boolean;
@@ -26,6 +28,8 @@ const Input = ({
     placeholder,
     value,
     onChange,
+    onKeyDown,    // 👈 THÊM
+    onKeyPress,   // 👈 THÊM
     error,
     required = false,
     disabled = false,
@@ -94,6 +98,8 @@ const Input = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
+                    onKeyDown={onKeyDown}    // 👈 THÊM
+                    onKeyPress={onKeyPress}  // 👈 THÊM
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     required={required}
