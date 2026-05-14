@@ -34,12 +34,13 @@ Thông qua:
 
 <table>
 <tr>
-<td width="50%">
+<td width="50%" valign="top">
 
-## Bệnh nhân
+<h3 align="center">👤 Bệnh nhân</h3>
+
 - Đặt lịch khám online
 - AI phân tích triệu chứng và gợi ý chuyên khoa
-- Tìm kiếm bác sĩ theo chuyên khoa, giá khám, thời gian
+- Tìm kiếm bác sĩ theo chuyên khoa, giá khám và thời gian trống
 - Thanh toán trực tuyến qua MoMo
 - Theo dõi trạng thái thanh toán realtime
 - Hủy lịch và hoàn tiền tự động
@@ -50,9 +51,10 @@ Thông qua:
 
 </td>
 
-<td width="50%">
+<td width="50%" valign="top">
 
-## Bác sĩ
+<h3 align="center">👨‍⚕️ Bác sĩ</h3>
+
 - Đăng ký và cập nhật hồ sơ chuyên môn
 - Upload chứng chỉ hành nghề
 - Quản lý lịch khám và thời gian làm việc
@@ -62,14 +64,16 @@ Thông qua:
 - Theo dõi đánh giá từ bệnh nhân
 - Xem thống kê hiệu suất khám bệnh
 - Quản lý trạng thái lịch hẹn
+- Xem lịch sử tư vấn và điều trị
 
 </td>
 </tr>
 
 <tr>
-<td width="50%">
+<td width="50%" valign="top">
 
-## Lễ tân
+<h3 align="center">🧾 Lễ tân</h3>
+
 - Xác nhận check-in bệnh nhân
 - Hỗ trợ tạo lịch khám trực tiếp tại quầy
 - Quản lý hàng đợi khám bệnh
@@ -78,12 +82,14 @@ Thông qua:
 - Hỗ trợ bệnh nhân hủy hoặc đổi lịch
 - In thông tin lịch khám
 - Quản lý danh sách bệnh nhân trong ngày
+- Hỗ trợ hướng dẫn bệnh nhân
 
 </td>
 
-<td width="50%">
+<td width="50%" valign="top">
 
-## Hospital Manager
+<h3 align="center">🏥 Hospital Manager</h3>
+
 - Duyệt hồ sơ bác sĩ
 - Quản lý chuyên khoa và dịch vụ y tế
 - Quản lý danh sách bác sĩ thuộc bệnh viện
@@ -92,14 +98,16 @@ Thông qua:
 - Theo dõi hiệu suất bác sĩ
 - Quản lý lịch làm việc bác sĩ
 - Quản lý giá khám và phí dịch vụ
+- Theo dõi báo cáo hoạt động bệnh viện
 
 </td>
 </tr>
 
 <tr>
-<td width="50%">
+<td width="50%" valign="top">
 
-## Admin
+<h3 align="center">🛡️ Admin</h3>
+
 - Quản lý toàn bộ hệ thống
 - Kiểm duyệt tài khoản Manager và Doctor
 - Quản lý cấu hình hệ thống
@@ -108,11 +116,24 @@ Thông qua:
 - Theo dõi hoạt động người dùng
 - Quản lý phân quyền và role
 - Theo dõi thống kê hệ thống
-- Kiểm soát nội dung và dữ liệu hệ thống
+- Kiểm soát dữ liệu và nội dung hệ thống
 
 </td>
 
-<td width="50%">
+<td width="50%" valign="top">
+
+<h3 align="center">⚙️ Tính năng kỹ thuật</h3>
+
+- JWT Authentication
+- Role-based Authorization
+- Real-time Notification với WebSocket
+- Email Queue với RabbitMQ
+- Rate Limiting với Bucket4j
+- Database Migration với Flyway
+- Cloud Storage với Cloudinary / MinIO
+- Audit Logging
+- Refund Calculation Logic
+- AI Symptom Analysis với Gemini AI
 
 </td>
 </tr>
