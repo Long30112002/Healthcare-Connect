@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import { configApi } from '../../../infrastructure/api/configApi';
-import { useEffect, useState } from 'react';
 import tiktok from '../../assets/images/tik-tok.png';
 import zalo from '../../assets/images/zalo.png';
 import youtube from '../../assets/images/youtube.png';
@@ -15,34 +13,23 @@ import clockIcon from '../../assets/images/clock.png';
 import aboutIcon from '../../assets/images/about.png';
 import privacyPolicyIcon from '../../assets/images/privacy_policy.png';
 import termsIcon from '../../assets/images/services.png';
+import { useSystemConfig } from '../../../application/hooks/useSystemConfig';
 
 const Footer = () => {
   const { t } = useAppTranslation();
   const currentYear = new Date().getFullYear();
-  
-  const [configs, setConfigs] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    const fetchConfigs = async () => {
-      try {
-        const data = await configApi.getAllConfigs();
-        setConfigs(data);
-      } catch (error) {
-        console.error('Failed to load footer configs:', error);
-      }
-    };
-    fetchConfigs();
-  }, []);
+  const { configs } = useSystemConfig();
 
   const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
   const systemName = configs.SYSTEM_NAME || 'Healthcare Connect';
   const footerDescription = configs.FOOTER_DESCRIPTION || t('footer.description');
   const footerCopyright = configs.FOOTER_COPYRIGHT || t('footer.copyright');
-  
+
   const contactPhone = configs.CONTACT_PHONE || '1900 1234';
   const contactEmail = configs.CONTACT_EMAIL || 'support@healthcareconnect.vn';
   const contactAddress = configs.CONTACT_ADDRESS || '123 Đường Nguyễn Huệ, Quận 1, TP.HCM';
-  
+
   const socialFacebook = configs.SOCIAL_FACEBOOK || 'https://facebook.com';
   const socialZalo = configs.SOCIAL_ZALO || 'https://zalo.me';
   const socialYoutube = configs.SOCIAL_YOUTUBE || 'https://youtube.com';
@@ -109,8 +96,8 @@ const Footer = () => {
                     to={link.path}
                     className="text-gray-400 hover:text-white transition flex items-center gap-2"
                   >
-                    <img 
-                      src={link.icon} 
+                    <img
+                      src={link.icon}
                       alt={link.label}
                       className="w-5 h-5 object-contain"
                       onError={(e) => {
@@ -132,8 +119,8 @@ const Footer = () => {
             <ul className="space-y-3">
               {contactInfo.map((info, index) => (
                 <li key={index} className="flex items-start gap-3 text-sm text-gray-400">
-                  <img 
-                    src={info.icon} 
+                  <img
+                    src={info.icon}
                     alt={info.text}
                     className="w-5 h-5 object-contain mt-0.5"
                     onError={(e) => {

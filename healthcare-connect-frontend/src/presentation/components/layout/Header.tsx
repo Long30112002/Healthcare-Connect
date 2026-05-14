@@ -18,6 +18,7 @@ import roomIcon from '../../assets/images/room.png'
 import receptionistIcon from '../../assets/images/receptionist.png'
 import clockIcon from '../../assets/images/clock.png'
 import departmentsSpecialties from '../../assets/images/specialties.png'
+import { useSystemConfig } from '../../../application/hooks/useSystemConfig';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -27,7 +28,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
-  const [configs, setConfigs] = useState<Record<string, string>>({});
+  const { configs } = useSystemConfig();
 
   useEffect(() => {
     const checkScreen = () => {
@@ -38,21 +39,8 @@ const Header = () => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
-  useEffect(() => {
-    const fetchConfigs = async () => {
-      try {
-        const data = await configApi.getAllConfigs();
-        setConfigs(data);
-      } catch (error) {
-        console.error('Failed to load configs:', error);
-      }
-    };
-    fetchConfigs();
-  }, []);
-
   const systemName = configs.SYSTEM_NAME || 'Healthcare Connect';
   const systemLogo = configs.SYSTEM_LOGO_URL || logoHospital;
-
 
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);

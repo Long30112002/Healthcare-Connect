@@ -20,6 +20,7 @@ import emailIcon from '../assets/images/email.png';
 import timeIcon from '../assets/images/clock.png'
 
 import { configApi } from '../../infrastructure/api/configApi';
+import { useSystemConfig } from '../../application/hooks/useSystemConfig';
 
 interface ContactFormData {
     fullName: string;
@@ -40,19 +41,7 @@ const ContactPage = () => {
     });
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
-    const [configs, setConfigs] = useState<Record<string, string>>({});
-
-    useEffect(() => {
-        const fetchConfigs = async () => {
-            try {
-                const data = await configApi.getAllConfigs();
-                setConfigs(data);
-            } catch (error) {
-                console.error('Failed to load configs:', error);
-            }
-        };
-        fetchConfigs();
-    }, []);
+    const { configs } = useSystemConfig();
 
     const contactPhone = configs.CONTACT_PHONE || '1900 1234';
     const contactEmail = configs.CONTACT_EMAIL || 'support@healthcareconnect.vn';

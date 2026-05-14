@@ -6,17 +6,20 @@ import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
 import { authApi } from '../../infrastructure/api/authApi';
+import { useSystemConfig } from '../../application/hooks/useSystemConfig';
 
 const ResetPasswordPage = () => {
   const { t } = useAppTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code') || '';
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { configs } = useSystemConfig();
+  const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
 
   const { execute: resetPassword, loading } = useMinLoadingAction({
     minLoadingTime: 1500,
@@ -53,14 +56,14 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!code) {
       toast.error(t('resetPassword.invalidCode'));
       return;
     }
-    
+
     if (!validateForm()) return;
-    
+
     await resetPassword(() => authApi.resetPassword({ code, newPassword: password }));
   };
 
@@ -96,7 +99,7 @@ const ResetPasswordPage = () => {
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-4">
             <img
-              src="/src/presentation/assets/images/hospital_logo.png"
+              src={systemLogo}
               alt="Logo"
               className="w-12 h-12 object-contain"
               onError={(e) => {
