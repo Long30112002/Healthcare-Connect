@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
+import { configApi } from '../../../infrastructure/api/configApi';
+import logoHospital from '../../assets/images/hospital_logo.png';
+import homeIcon from '../../assets/images/home.png';
+import phoneIcon from '../../assets/images/phone-call.png';
+import doctorIcon from '../../assets/images/doctor.png';
+import appointmentIcon from '../../assets/images/medical-appointment.png';
+import findIcon from '../../assets/images/find.png';
+import healthcareIcon from '../../assets/images/healthcare.png';
+import scheduleIcon from '../../assets/images/schedule.png'
+import patientIcon from '../../assets/images/patient.png'
+import statisticsIcon from '../../assets/images/statistics.png'
+import reviewIcon from '../../assets/images/review.png'
+import roomIcon from '../../assets/images/room.png'
+import receptionistIcon from '../../assets/images/receptionist.png'
+import clockIcon from '../../assets/images/clock.png'
+import departmentsSpecialties from '../../assets/images/specialties.png'
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -11,6 +27,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [configs, setConfigs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const checkScreen = () => {
@@ -21,6 +38,22 @@ const Header = () => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      try {
+        const data = await configApi.getAllConfigs();
+        setConfigs(data);
+      } catch (error) {
+        console.error('Failed to load configs:', error);
+      }
+    };
+    fetchConfigs();
+  }, []);
+
+  const systemName = configs.SYSTEM_NAME || 'Healthcare Connect';
+  const systemLogo = configs.SYSTEM_LOGO_URL || logoHospital;
+
+
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);
     setIsMobileMenuOpen(false);
@@ -29,19 +62,32 @@ const Header = () => {
 
   const isActive = (path: string) => {
     const currentPath = location.pathname;
+
+    // Trường hợp path là '/doctors'
     if (path === '/doctors') {
       return currentPath === '/doctors';
     }
+
+    // Trường hợp path là '/' 
     if (path === '/') {
+      // Nếu đã đăng nhập: Home chỉ active khi đang ở dashboard paths
       if (isAuthenticated) {
         const dashboardPaths = [
           '/dashboard', '/doctor/dashboard', '/receptionist/dashboard',
           '/admin/dashboard', '/manager/dashboard'
         ];
-        if (dashboardPaths.includes(currentPath)) return true;
+        // Khi đang ở dashboard thì active Home
+        if (dashboardPaths.includes(currentPath)) {
+          return true;
+        }
+        // Không active Home ở các trang khác khi đã login
+        return false;
       }
+      // Chưa đăng nhập: active khi đang ở '/'
       return currentPath === '/';
     }
+
+    // Các trường hợp khác
     return currentPath === path || currentPath.startsWith(path + '/');
   };
 
@@ -81,7 +127,7 @@ const Header = () => {
 
   // Menu công khai (hiển thị cho cả login và chưa login)
   const publicMenuItems = [
-    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: '🏠' },
+    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: homeIcon },
   ];
 
   // Thêm Contact vào publicMenuItems nếu được phép
@@ -90,48 +136,48 @@ const Header = () => {
       path: '/contact',
       label: t('nav.contact'),
       shortLabel: '📞',
-      icon: '📞'
+      icon: phoneIcon
     });
   }
 
   // Menu chỉ hiển thị khi chưa login
   const unauthenticatedMenuItems = !isAuthenticated ? [
-    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
+    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
   ] : [];
 
   // Menu riêng tư (thêm vào khi đã login) - KHÔNG hiển thị cho RECEPTIONIST
   const privateMenuItems = user && user.role === 'PATIENT' ? [
-    { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: '📋' },
+    { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: appointmentIcon },
   ] : [];
 
   // Menu theo role
   const roleBasedItems: Record<string, typeof publicMenuItems> = {
     PATIENT: [
-      { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: '🔍' },
-      { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: '💊' },
+      { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: findIcon },
+      { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: healthcareIcon },
     ],
     DOCTOR: [
-      { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: '📅' },
-      { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: '👥' },
-      { path: '/doctor/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' }, // 👈 THÊM MỚI
-      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: '⭐' },
+      { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: scheduleIcon },
+      { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: patientIcon },
+      { path: '/doctor/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
+      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: reviewIcon },
     ],
     HOSPITAL_MANAGER: [
-      { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: '👨‍⚕️' },
-      { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: '👩‍💼' },
-      { path: '/manager/departments-specialties', label: t('nav.departmentsSpecialties'), shortLabel: '📋', icon: '📋' },
-      { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: '⏰' },
-      { path: '/manager/rooms', label: t('nav.rooms'), shortLabel: '🚪', icon: '🚪' },
-      { path: '/manager/medicines', label: t('nav.medicines'), shortLabel: '💊', icon: '💊' },
-      { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' },
+      { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
+      { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: receptionistIcon },
+      { path: '/manager/departments-specialties', label: t('nav.departmentsSpecialties'), shortLabel: '📋', icon: departmentsSpecialties },
+      { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: clockIcon },
+      { path: '/manager/rooms', label: t('nav.rooms'), shortLabel: '🚪', icon: roomIcon },
+      { path: '/manager/medicines', label: t('nav.medicines'), shortLabel: '💊', icon: healthcareIcon },
+      { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
     ],
     ADMIN: [
-      { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: '👥' },
-      { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: '🏥' },
-      { path: '/admin/specialties', label: t('nav.specialties'), shortLabel: '📚', icon: '📚' },
+      { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: patientIcon },
+      { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: doctorIcon },
+      { path: '/admin/specialties', label: t('nav.specialties'), shortLabel: '📚', icon: findIcon },
     ],
     RECEPTIONIST: [
-      { path: '/receptionist/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: '📊' },
+      { path: '/receptionist/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
     ],
   };
 
@@ -147,9 +193,9 @@ const Header = () => {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo + Brand */}
           <div className="flex-shrink-0">
-            <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-1.5 sm:gap-2 group">
+            <Link to={isAuthenticated ? '/' : '/'} className="flex items-center gap-1.5 sm:gap-2 group">
               <img
-                src="/src/presentation/assets/images/hospital_logo.png"
+                src={systemLogo}
                 alt="Healthcare Connect"
                 className="w-7 h-7 sm:w-9 sm:h-9 object-contain"
                 onError={(e) => {
@@ -157,7 +203,7 @@ const Header = () => {
                 }}
               />
               <span className="text-sm sm:text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-cyan-400 hidden sm:inline">
-                Healthcare Connect
+                {systemName}
               </span>
             </Link>
           </div>
@@ -177,7 +223,8 @@ const Header = () => {
                         }`}
                       title={item.label}
                     >
-                      <span className="text-base xl:text-lg">{item.icon}</span>
+                      <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain" />
+
                       <span className={`${isLargeScreen ? 'inline' : 'hidden'} xl:inline`}>
                         {item.label}
                       </span>
@@ -194,7 +241,8 @@ const Header = () => {
                       }`}
                     title={item.label}
                   >
-                    <span className="text-base xl:text-lg">{item.icon}</span>
+                    {/* <span className="text-base xl:text-lg">{item.icon}</span> */}
+                    <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain" />
                     <span className={`${isLargeScreen ? 'inline' : 'hidden'} xl:inline`}>
                       {item.label}
                     </span>
@@ -298,6 +346,23 @@ const Header = () => {
                           <p className="text-xs text-gray-400">{t('settings.appearance')}</p>
                         </div>
                       </Link>
+
+                      {user?.role === 'ADMIN' && (
+                        <>
+                          <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                          <Link
+                            to="/admin/config"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <span className="text-xl">⚙️</span>
+                            <div>
+                              <p className="font-medium">{t('nav.systemConfig')}</p>
+                              <p className="text-xs text-gray-400">{t('nav.systemConfigDesc')}</p>
+                            </div>
+                          </Link>
+                        </>
+                      )}
 
                       {/* Divider */}
                       <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>

@@ -950,7 +950,90 @@
     "workingHours": "Working Hours",
     "rooms": "Rooms",
     "medicines": "Medicines",
-    "departmentsSpecialties": "Depts & Specialties"
+    "departmentsSpecialties": "Depts & Specialties",
+    "systemConfig": "System Configuration",
+    "systemConfigDesc": "Manage banners, contacts, colors"
+  },
+  "adminConfig": {
+    "title": "System Configuration",
+    "resetDefault": "Reset to Default",
+    "resetConfirm": "Are you sure you want to reset all configurations to default?",
+    "resetSuccess": "Default configurations restored!",
+    "resetError": "Failed to restore default configurations!",
+    "invalidJson": "Invalid JSON",
+    "validJson": "Valid JSON",
+    "lastSaved": "Last saved",
+    "previewReady": "Preview ready",
+    "subtitle": "Manage website content and appearance",
+    "general": {
+      "basicInfo": "Basic Information",
+      "basicInfoDesc": "Configure system name, logo",
+      "systemName": "System Name",
+      "systemLogo": "System Logo",
+      "appearance": "Appearance",
+      "appearanceDesc": "Configure theme colors",
+      "primaryColor": "Primary Color",
+      "secondaryColor": "Secondary Color"
+    },
+    "home": {
+      "heroSlides": "Hero Slides",
+      "heroSlidesDesc": "Configure homepage slideshow",
+      "heroSlidesVI": "Hero Slides (Vietnamese)",
+      "heroSlidesEN": "Hero Slides (English)",
+      "features": "Features",
+      "featuresDesc": "Configure features display",
+      "featuresVI": "Features (Vietnamese)",
+      "featuresEN": "Features (English)",
+      "stats": "Statistics",
+      "statsDesc": "Configure statistics display",
+      "statsVI": "Statistics (Vietnamese)",
+      "statsEN": "Statistics (English)",
+      "cta": "Call to Action",
+      "ctaDesc": "Configure call to action button",
+      "ctaTitleVI": "CTA Title (Vietnamese)",
+      "ctaTitleEN": "CTA Title (English)",
+      "ctaSubtitleVI": "CTA Subtitle (Vietnamese)",
+      "ctaSubtitleEN": "CTA Subtitle (English)",
+      "ctaButtonVI": "CTA Button (Vietnamese)",
+      "ctaButtonEN": "CTA Button (English)"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "desc": "Configure contact information",
+      "phone": "Phone Number",
+      "email": "Email",
+      "address": "Address",
+      "mapEmbed": "Google Maps Embed"
+    },
+    "social": {
+      "title": "Social Media",
+      "desc": "Configure social media links"
+    },
+    "footer": {
+      "title": "Footer",
+      "desc": "Configure footer content",
+      "description": "Description",
+      "descriptionPlaceholder": "System description...",
+      "copyright": "Copyright"
+    },
+    "seo": {
+      "title": "SEO",
+      "desc": "Configure website SEO",
+      "pageTitle": "Page Title",
+      "pageTitlePlaceholder": "Healthcare Connect - Book Medical Appointments",
+      "description": "Description",
+      "descriptionPlaceholder": "Platform for booking medical appointments...",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "book appointment, doctor, hospital"
+    },
+    "tabs": {
+      "general": "General",
+      "home": "Home Page",
+      "contact": "Contact",
+      "social": "Social Media",
+      "footer": "Footer",
+      "seo": "SEO"
+    }
   },
   "departmentsSpecialties": {
     "title": "Manage Departments & Specialties",
@@ -1110,7 +1193,11 @@
       "description": "Smart healthcare platform that helps you easily book appointments, consult remotely, and manage your health comprehensively.",
       "register": "Register Now",
       "findDoctor": "Find a Doctor",
-      "departmentsSpecialties": "Depts & Specialties"
+      "departmentsSpecialties": "Depts & Specialties",
+      "brand": "HEALTHCARE CONNECT",
+      "myAppointments": "My Appointments",
+      "mySchedule": "My Schedule",
+      "dashboard": "Dashboard"
     },
     "heroSlides": [
       {
@@ -1216,7 +1303,10 @@
     "cta": {
       "title": "Ready to take care of your health?",
       "subtitle": "Sign up today to experience smart healthcare services",
-      "button": "Sign up for free"
+      "button": "Sign up for free",
+      "myAppointments": "My Appointments",
+      "mySchedule": "My Schedule",
+      "dashboard": "Dashboard"
     }
   },
   "settings": {

@@ -853,7 +853,9 @@
     "workingHours": "Giờ làm việc",
     "rooms": "Phòng khám",
     "medicines": "Quản lý thuốc",
-    "departmentsSpecialties": "Khoa & Chuyên khoa"
+    "departmentsSpecialties": "Khoa & Chuyên khoa",
+    "systemConfig": "Cấu hình hệ thống",
+    "systemConfigDesc": "Quản lý banner, liên hệ, màu sắc"
   },
   "departmentsSpecialties": {
     "title": "Quản lý Khoa & Chuyên khoa",
@@ -864,6 +866,87 @@
     "specialtiesList": "Danh sách chuyên khoa",
     "noDepartments": "Chưa có khoa nào",
     "noSpecialties": "Chưa có chuyên khoa nào"
+  },
+  "adminConfig": {
+    "title": "Cấu hình hệ thống",
+    "resetDefault": "Khôi phục mặc định",
+    "resetConfirm": "Bạn có chắc chắn muốn khôi phục tất cả cấu hình về mặc định?",
+    "resetSuccess": "Đã khôi phục cấu hình mặc định!",
+    "resetError": "Khôi phục cấu hình thất bại!",
+    "invalidJson": "JSON không hợp lệ",
+    "validJson": "JSON hợp lệ",
+    "lastSaved": "Đã lưu lúc",
+    "previewReady": "Đã sẵn sàng preview",
+    "subtitle": "Cấu hình các thông tin hiển thị trên website",
+    "general": {
+      "basicInfo": "Thông tin cơ bản",
+      "basicInfoDesc": "Cấu hình tên hệ thống, logo",
+      "systemName": "Tên hệ thống",
+      "systemLogo": "Logo hệ thống",
+      "appearance": "Giao diện",
+      "appearanceDesc": "Cấu hình màu sắc chủ đạo",
+      "primaryColor": "Màu chủ đạo",
+      "secondaryColor": "Màu phụ"
+    },
+    "home": {
+      "heroSlides": "Hero Slides",
+      "heroSlidesDesc": "Cấu hình slideshow trên trang chủ",
+      "heroSlidesVI": "Hero Slides (Tiếng Việt)",
+      "heroSlidesEN": "Hero Slides (Tiếng Anh)",
+      "features": "Tính năng",
+      "featuresDesc": "Cấu hình các tính năng hiển thị",
+      "featuresVI": "Tính năng (Tiếng Việt)",
+      "featuresEN": "Features (English)",
+      "stats": "Thống kê",
+      "statsDesc": "Cấu hình số liệu thống kê",
+      "statsVI": "Thống kê (Tiếng Việt)",
+      "statsEN": "Statistics (English)",
+      "cta": "Call to Action",
+      "ctaDesc": "Cấu hình nút kêu gọi hành động",
+      "ctaTitleVI": "Tiêu đề CTA (Tiếng Việt)",
+      "ctaTitleEN": "CTA Title (English)",
+      "ctaSubtitleVI": "Mô tả CTA (Tiếng Việt)",
+      "ctaSubtitleEN": "CTA Subtitle (English)",
+      "ctaButtonVI": "Nút CTA (Tiếng Việt)",
+      "ctaButtonEN": "CTA Button (English)"
+    },
+    "contact": {
+      "title": "Thông tin liên hệ",
+      "desc": "Cấu hình thông tin liên hệ hiển thị trên website",
+      "phone": "Số điện thoại",
+      "email": "Email",
+      "address": "Địa chỉ",
+      "mapEmbed": "Google Maps Embed"
+    },
+    "social": {
+      "title": "Mạng xã hội",
+      "desc": "Cấu hình đường dẫn mạng xã hội"
+    },
+    "footer": {
+      "title": "Chân trang",
+      "desc": "Cấu hình nội dung footer",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả về hệ thống...",
+      "copyright": "Bản quyền"
+    },
+    "seo": {
+      "title": "SEO",
+      "desc": "Cấu hình SEO cho website",
+      "pageTitle": "Tiêu đề trang",
+      "pageTitlePlaceholder": "Healthcare Connect - Đặt lịch khám bệnh",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Nền tảng đặt lịch khám bệnh...",
+      "keywords": "Từ khóa",
+      "keywordsPlaceholder": "đặt lịch khám, bác sĩ, bệnh viện"
+    },
+    "tabs": {
+      "general": "Cấu hình chung",
+      "home": "Trang chủ",
+      "contact": "Liên hệ",
+      "social": "Mạng xã hội",
+      "footer": "Chân trang",
+      "seo": "SEO"
+    }
   },
   "department": {
     "name": "Tên khoa",
@@ -1012,48 +1095,33 @@
       "subtitle": "Kết nối Bệnh nhân - Bác sĩ - Bệnh viện",
       "description": "Nền tảng y tế thông minh giúp bạn đặt lịch khám dễ dàng, tư vấn từ xa và quản lý sức khỏe toàn diện.",
       "register": "Đăng ký ngay",
-      "findDoctor": "Tìm bác sĩ"
+      "findDoctor": "Tìm bác sĩ",
+      "brand": "KẾT NỐI CHĂM SÓC SỨC KHỎE",
+      "myAppointments": "Lịch của tôi",
+      "mySchedule": "Lịch làm việc",
+      "dashboard": "Bảng điều khiển"
     },
     "heroSlides": [
       {
         "id": 1,
-        "title": "Healthcare Connect",
-        "subtitle": "Kết nối Bệnh nhân - Bác sĩ - Bệnh viện",
-        "description": "Nền tảng y tế thông minh giúp bạn đặt lịch khám dễ dàng, tư vấn từ xa và quản lý sức khỏe toàn diện.",
-        "icon": "🏥",
-        "bgGradient": "from-blue-600 via-blue-500 to-cyan-500"
+        "title": "Chăm sóc sức khỏe toàn diện",
+        "subtitle": "Đặt lịch khám dễ dàng",
+        "description": "Kết nối với bác sĩ hàng đầu",
+        "imageUrl": "http://localhost:5173/images/banners/banner1.jpg"
       },
       {
         "id": 2,
-        "title": "Đội ngũ bác sĩ hàng đầu",
-        "subtitle": "Chuyên gia giàu kinh nghiệm",
-        "description": "Hơn 500 bác sĩ chuyên khoa giỏi, tận tâm với nghề",
-        "icon": "👨‍⚕️",
-        "bgGradient": "from-green-600 via-green-500 to-teal-500"
+        "title": "Tư vấn trực tuyến 24/7",
+        "subtitle": "Bác sĩ sẵn sàng giải đáp",
+        "description": "Đặt câu hỏi và nhận tư vấn từ xa",
+        "imageUrl": "http://localhost:5173/images/banners/banner1.jpg"
       },
       {
         "id": 3,
-        "title": "Công nghệ hiện đại",
-        "subtitle": "Đặt lịch khám trực tuyến",
-        "description": "Hệ thống đặt lịch thông minh, thanh toán dễ dàng",
-        "icon": "💻",
-        "bgGradient": "from-purple-600 via-purple-500 to-pink-500"
-      },
-      {
-        "id": 4,
-        "title": "Bảo hiểm y tế toàn diện",
-        "subtitle": "Chi phí hợp lý",
-        "description": "Liên kết với nhiều bảo hiểm, hỗ trợ tối đa cho bệnh nhân",
-        "icon": "📋",
-        "bgGradient": "from-orange-600 via-orange-500 to-red-500"
-      },
-      {
-        "id": 5,
-        "title": "Chăm sóc tận tâm",
-        "subtitle": "Sức khỏe là vàng",
-        "description": "Đồng hành cùng bạn trên mọi chặng đường chăm sóc sức khỏe",
-        "icon": "❤️",
-        "bgGradient": "from-rose-600 via-rose-500 to-pink-500"
+        "title": "Đặt lịch nhanh chóng",
+        "subtitle": "Tiết kiệm thời gian chờ đợi",
+        "description": "Chọn bác sĩ, chọn giờ, xác nhận ngay",
+        "imageUrl": "http://localhost:5173/images/banners/banner1.jpg"
       }
     ],
     "stats": {
@@ -1118,7 +1186,10 @@
     "cta": {
       "title": "Sẵn sàng chăm sóc sức khỏe của bạn?",
       "subtitle": "Đăng ký ngay hôm nay để trải nghiệm dịch vụ y tế thông minh",
-      "button": "Đăng ký miễn phí"
+      "button": "Đăng ký miễn phí",
+      "myAppointments": "Lịch hẹn của tôi",
+      "mySchedule": "Lịch làm việc của tôi",
+      "dashboard": "Bảng điều khiển"
     }
   },
   "settings": {
