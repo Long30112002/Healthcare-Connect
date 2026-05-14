@@ -32,7 +32,7 @@ Thông qua:
 
 # Chức năng chính
 
-<table>
+<table align="center" width="100%">
 <tr>
 <td width="50%" valign="top">
 
