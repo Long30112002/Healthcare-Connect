@@ -55,7 +55,7 @@ Thông qua:
 
 <h3 align="center">Bác sĩ</h3>
 
-- Đăng ký và cập nhật hồ sơ chuyên môn
+- Đăng ký bác sĩ và cập nhật hồ sơ chuyên môn
 - Upload chứng chỉ hành nghề
 - Quản lý lịch khám và thời gian làm việc
 - Theo dõi danh sách bệnh nhân
@@ -74,6 +74,7 @@ Thông qua:
 
 <h3 align="center">Lễ tân</h3>
 
+- Đăng ký lễ tân và cập nhật hồ sơ chuyên môn
 - Xác nhận check-in bệnh nhân
 - Hỗ trợ tạo lịch khám trực tiếp tại quầy
 - Quản lý hàng đợi khám bệnh
@@ -90,7 +91,7 @@ Thông qua:
 
 <h3 align="center">Hospital Manager</h3>
 
-- Duyệt hồ sơ bác sĩ
+- Duyệt hồ sơ bác sĩ/lễ tân
 - Quản lý chuyên khoa và dịch vụ y tế
 - Quản lý danh sách bác sĩ thuộc bệnh viện
 - Theo dõi doanh thu bệnh viện
