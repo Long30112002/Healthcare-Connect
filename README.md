@@ -1,4 +1,4 @@
-# 🏥 Healthcare Connect
+# Healthcare Connect
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-3-success)
@@ -142,7 +142,7 @@ Thông qua:
 
 ---
 
-# 🏗 Kiến trúc hệ thống
+# Kiến trúc hệ thống
 
 ```text
 API Layer
