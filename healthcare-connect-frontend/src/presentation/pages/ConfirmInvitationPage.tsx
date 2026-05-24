@@ -18,7 +18,7 @@ const ConfirmInvitationPage = () => {
   const token = searchParams.get('token');
   const hospitalId = searchParams.get('hospitalId');
 
-  const { execute: acceptInvitation, loading } = useMinLoadingAction({
+  const { execute: acceptInvitation } = useMinLoadingAction({
     minLoadingTime: 1500,
     onSuccess: (result) => {
       setStatus('success');

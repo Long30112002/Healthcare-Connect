@@ -43,11 +43,11 @@ const Pagination = ({
     if (totalPages <= 1) return null;
 
     // Kích thước nút
-    const sizeClasses = {
-        sm: 'px-1.5 py-1 text-xs',
-        md: 'px-2 py-1 text-sm',
-        lg: 'px-3 py-2 text-base'
-    };
+    // const sizeClasses = {
+    //     sm: 'px-1.5 py-1 text-xs',
+    //     md: 'px-2 py-1 text-sm',
+    //     lg: 'px-3 py-2 text-base'
+    // };
 
     // NẾU LÀ MOBILE HOẶC VARIANT=SIMPLE -> HIỂN THỊ ĐƠN GIẢN
     if (isMobile || variant === 'simple') {

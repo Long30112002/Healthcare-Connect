@@ -2,9 +2,9 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { TopDoctorResponse } from '../../core/types';
 import type { RevenueData, DepartmentStat, TopMedicine } from '../../infrastructure/api/statisticsApi';
 import RobotoFont from './fonts/Roboto-Regular-normal';
+import type { TopDoctorResponse } from '../../core/types/api.response';
 
 export interface ManagerReportData {
     revenues: RevenueData[];
@@ -56,7 +56,13 @@ export const exportManagerStatisticsExcel = (data: ManagerReportData) => {
     const doctorSheetData = [
         ['TOP BÁC SĨ'],
         ['STT', 'Bác sĩ', 'Chuyên khoa', 'Số bệnh nhân', 'Doanh thu (VNĐ)'],
-        ...data.topDoctors.map((d, i) => [i + 1, d.doctorName, d.specialtyName, d.totalPatients, d.totalRevenue.toLocaleString()]),
+        ...data.topDoctors.map((d, i) => [
+            i + 1,
+            d.doctorName,
+            d.specialtyName,
+            d.totalPatientsCompleted,      // ← thay totalPatients bằng totalPatientsCompleted
+            d.totalRevenueCompleted.toLocaleString()  // ← thay totalRevenue bằng totalRevenueCompleted
+        ]),
     ];
     const doctorSheet = XLSX.utils.aoa_to_sheet(doctorSheetData);
     XLSX.utils.book_append_sheet(workbook, doctorSheet, 'Top bác sĩ');
@@ -70,12 +76,12 @@ export const exportManagerStatisticsExcel = (data: ManagerReportData) => {
 
 export const exportManagerStatisticsPDF = (data: ManagerReportData) => {
     const doc = new jsPDF();
-    
+
     doc.addFileToVFS('Roboto.ttf', RobotoFont);
     doc.addFont('Roboto.ttf', 'Roboto', 'normal');
     doc.addFont('Roboto.ttf', 'Roboto', 'bold');
     doc.setFont('Roboto', 'normal');
-    
+
     const pageWidth = doc.internal.pageSize.getWidth();
     const marginLeft = 15;
     let y = 20;
@@ -95,7 +101,7 @@ export const exportManagerStatisticsPDF = (data: ManagerReportData) => {
     doc.setFontSize(12);
     doc.text('Doanh thu theo tháng', marginLeft, y);
     y += 5;
-    
+
     const revenueBody = data.revenues.map(r => [r.month, r.year, r.revenue.toLocaleString()]);
     autoTable(doc, {
         startY: y,
@@ -110,7 +116,7 @@ export const exportManagerStatisticsPDF = (data: ManagerReportData) => {
     // Thống kê theo khoa
     doc.text('Thống kê theo khoa', marginLeft, y);
     y += 5;
-    
+
     const deptBody = data.departments.map(d => [d.departmentName, d.totalPatients, d.totalRevenue.toLocaleString()]);
     autoTable(doc, {
         startY: y,
@@ -129,7 +135,7 @@ export const exportManagerStatisticsPDF = (data: ManagerReportData) => {
     }
     doc.text('Top thuốc được kê nhiều nhất', marginLeft, y);
     y += 5;
-    
+
     const medicineBody = data.topMedicines.map((m, i) => [i + 1, m.medicineName, m.prescriptionCount]);
     autoTable(doc, {
         startY: y,
@@ -148,8 +154,8 @@ export const exportManagerStatisticsPDF = (data: ManagerReportData) => {
     }
     doc.text('Top bác sĩ', marginLeft, y);
     y += 5;
-    
-    const doctorBody = data.topDoctors.map((d, i) => [i + 1, d.doctorName, d.specialtyName, d.totalPatients, d.totalRevenue.toLocaleString()]);
+
+    const doctorBody = data.topDoctors.map((d, i) => [i + 1, d.doctorName, d.specialtyName, d.totalPatientsCompleted, d.totalRevenueCompleted.toLocaleString()]);
     autoTable(doc, {
         startY: y,
         head: [['STT', 'Bác sĩ', 'Chuyên khoa', 'Số BN', 'Doanh thu']],

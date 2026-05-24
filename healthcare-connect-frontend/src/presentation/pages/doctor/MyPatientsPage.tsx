@@ -38,7 +38,7 @@ const MyPatientsPage = () => {
 
     // State cho Modal
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<PatientSummaryWithUI | null>(null);
+    const [selectedPatient, ] = useState<PatientSummaryWithUI | null>(null);
     const [medicalRecordStatus, setMedicalRecordStatus] = useState<Record<string, boolean>>({});
     const [showAppointmentSelectModal, setShowAppointmentSelectModal] = useState(false);
     const [appointmentList, setAppointmentList] = useState<WalkInAppointmentItem[]>([]);

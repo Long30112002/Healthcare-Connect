@@ -396,6 +396,19 @@ export interface PublicTopDoctorResponse  {
     totalReviews: number;
 }
 
+// Top Doctors
+export interface TopDoctorResponse {
+    doctorId: string;
+    doctorName: string;
+    specialtyName: string;
+    totalRevenueCollected: number;
+    totalRevenueCompleted: number;
+    totalPatientsCompleted: number;
+    totalBookingsPaid: number;
+    averageRating: number;
+    rank: number;
+}
+
 export interface PublicDoctorResponse {
     id: string;
     fullName: string;

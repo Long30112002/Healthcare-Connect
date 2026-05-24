@@ -38,7 +38,7 @@ const ReceptionistDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [checkingId, setCheckingId] = useState<string | null>(null);
     const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
+    const [, setTotalElements] = useState(0);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [hospitalName, setHospitalName] = useState('');
     const [cancelModal, setCancelModal] = useState<{

@@ -281,7 +281,7 @@ export const exportDoctorStatisticsExcel = (
   stats: DoctorStatsForExcel,
   doctorName: string,
   hospitalName: string,
-  period: string,
+  _period: string,
   periodText: string,
   specialtyName?: string
 ) => {

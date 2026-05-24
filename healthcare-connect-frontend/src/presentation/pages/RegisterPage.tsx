@@ -6,7 +6,8 @@ import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction
 import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
 import { authApi } from '../../infrastructure/api/authApi';
-import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+// import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+import Logo from '../components/shared/Logo';
 
 const RegisterPage = () => {
   const { t, getError } = useAppTranslation();
@@ -19,8 +20,8 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const { configs } = useSystemConfig();
-  const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
+  // const { configs } = useSystemConfig();
+  // const systemLogo = configs.SYSTEM_LOGO_URL || '../assets/images/hospital_logo.png';
 
   const { execute: register, loading } = useMinLoadingAction({
     minLoadingTime: 1500,
@@ -115,14 +116,7 @@ const RegisterPage = () => {
               to="/"
               className="w-full h-full flex items-center justify-center rounded-3xl overflow-hidden"
             >
-              <img
-                src={systemLogo}
-                alt="Logo"
-                className="w-12 h-12 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              <Logo className="w-14 h-14 object-contain" />
             </Link>
           </div>
           <h2 className="text-3xl font-bold text-white mb-2 animate-slide-up">{t('register.title')}</h2>

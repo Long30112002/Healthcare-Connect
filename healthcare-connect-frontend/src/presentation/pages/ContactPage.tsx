@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import Button from '../components/shared/Button';
@@ -18,8 +18,6 @@ import locationIcon from '../assets/images/location.png';
 import phoneIcon from '../assets/images/phone-call.png';
 import emailIcon from '../assets/images/email.png';
 import timeIcon from '../assets/images/clock.png'
-
-import { configApi } from '../../infrastructure/api/configApi';
 import { useSystemConfig } from '../../application/hooks/useSystemConfig';
 
 interface ContactFormData {

@@ -135,7 +135,7 @@ const mockDataByDoctorId: Record<string, DoctorStatisticsData> = {
 };
 
 export const fetchDoctorStatistics = async (
-  period: string,
+  _period: string,
   doctorId: string
 ): Promise<DoctorStatisticsData> => {
   if (USE_MOCK_DOCTOR_STATS) {

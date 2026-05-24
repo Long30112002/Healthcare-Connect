@@ -255,7 +255,7 @@ const ScheduleEditPage = () => {
             
             if (config?.lunchStart && config?.lunchEnd) {
                 const lunchStartTimeStr = formatTimeOnly(config.lunchStart as unknown as number[]);
-                const lunchEndTimeStr = formatTimeOnly(config.lunchEnd as unknown as number[]);
+                // const lunchEndTimeStr = formatTimeOnly(config.lunchEnd as unknown as number[]);
                 
                 // Nếu startTime < lunchStart, không cho chọn endTime > lunchStart
                 if (formData.startTime < lunchStartTimeStr) {

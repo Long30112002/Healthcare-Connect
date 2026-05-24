@@ -52,13 +52,13 @@ const CreateOfflineAppointmentModal = ({ isOpen, onClose, onSuccess }: CreateOff
     const [schedules, setSchedules] = useState<ScheduleSlot[]>([]);
     const [showQRModal, setShowQRModal] = useState(false);
     const [payUrl, setPayUrl] = useState('');
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [, setQrCodeUrl] = useState('');
     const [currentAppointmentId, setCurrentAppointmentId] = useState<string | null>(null);
     const [paymentStatus, setPaymentStatus] = useState<'PENDING' | 'SUCCESS' | 'FAILED'>('PENDING');
-    const [deeplink, setDeeplink] = useState<string | undefined>(undefined);
+    const [, setDeeplink] = useState<string | undefined>(undefined);
 
     // Form data
-    const [selectedDoctorId, setSelectedDoctorId] = useState('');
+    const [, setSelectedDoctorId] = useState('');
     const [selectedScheduleId, setSelectedScheduleId] = useState('');
     const [patientName, setPatientName] = useState('');
     const [phone, setPhone] = useState('');

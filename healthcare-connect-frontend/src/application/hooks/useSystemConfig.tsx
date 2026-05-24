@@ -9,9 +9,11 @@ export const useSystemConfig = () => {
         const fetchConfigs = async () => {
             try {
                 const data = await configApi.getAllConfigs();
-                setConfigs(data);
+                // Đảm bảo data là object, nếu không thì set object rỗng
+                setConfigs(data && typeof data === 'object' ? data : {});
             } catch (error) {
                 console.error('Failed to load configs:', error);
+                setConfigs({});
             } finally {
                 setLoading(false);
             }

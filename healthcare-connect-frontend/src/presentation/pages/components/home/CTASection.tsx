@@ -68,7 +68,8 @@ const CTASection = ({ title, subtitle, buttonText, backgroundImage }: CTASection
             {/* Background Image */}
             <div className="absolute inset-0 w-full h-full">
                 <img
-                    src={backgroundImage || 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop'}
+                    src={backgroundImage}
+                    // || 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=600&fit=crop'
                     alt="CTA Background"
                     className="w-full h-full object-cover"
                     onError={(e) => {

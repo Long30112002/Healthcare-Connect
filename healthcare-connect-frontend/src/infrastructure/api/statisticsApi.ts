@@ -75,7 +75,7 @@ export const statisticsApi = {
     };
   },
 
-  exportDoctorStatisticsReport: async (period: string, format: 'excel' | 'pdf'): Promise<Blob> => {
+  exportDoctorStatisticsReport: async (_period: string, _format: 'excel' | 'pdf'): Promise<Blob> => {
     // FE đang tự xuất bằng exportUtils, không cần gọi API này
     throw new Error('Use client-side export instead (exportUtils.ts)');
   },
@@ -84,9 +84,9 @@ export const statisticsApi = {
 
   getRevenueByMonth: async (year?: number): Promise<RevenueData[]> => {
     const params = year ? { year } : {};
-    const response = await axiosClient.get('/manager/statistics/revenue', 
-      { 
-        params 
+    const response = await axiosClient.get('/manager/statistics/revenue',
+      {
+        params
       });
     return response.data.data;
   },

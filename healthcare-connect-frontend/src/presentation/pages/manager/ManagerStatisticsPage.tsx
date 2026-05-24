@@ -6,20 +6,20 @@ import Button from '../../components/shared/Button';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 import toast from 'react-hot-toast';
-import type { TopDoctorResponse, WeeklyStatResponse } from '../../../core/types';
+import type { WeeklyStatResponse } from '../../../core/types';
 import { statisticsApi } from '../../../infrastructure/api/statisticsApi';
 import { formatPrice } from '../../../shared/utils/dateUtils';
-import { t } from 'i18next';
 import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { exportManagerStatisticsExcel, exportManagerStatisticsPDF, type ManagerReportData } from '../../../shared/utils/managerExportUtils';
+import type { TopDoctorResponse } from '../../../core/types/api.response';
 
 type Period = 'week' | 'month' | 'year' | 'custom';
 
-const periodOptions = [
-    { value: 'week', label: t('statistics.period.week'), icon: '📆' },
-    { value: 'month', label: t('statistics.period.month'), icon: '📊' },
-    { value: 'year', label: t('statistics.period.year'), icon: '🎯' },
-];
+// const periodOptions = [
+//     { value: 'week', label: t('statistics.period.week'), icon: '📆' },
+//     { value: 'month', label: t('statistics.period.month'), icon: '📊' },
+//     { value: 'year', label: t('statistics.period.year'), icon: '🎯' },
+// ];
 
 interface RevenueData {
     month: number;
@@ -51,7 +51,7 @@ const ManagerStatisticsPage = () => {
     const [topMedicines, setTopMedicines] = useState<TopMedicine[]>([]);
     const [weeklyStats, setWeeklyStats] = useState<WeeklyStatResponse[]>([]);
 
-    const { activeTab: period, setActiveTab: setPeriod } = useTabWithUrl<Period>({
+    const { activeTab: period, setActiveTab: _setPeriod } = useTabWithUrl<Period>({
         paramName: 'period',
         validValues: ['week', 'month', 'year'],
         defaultValue: 'month',
