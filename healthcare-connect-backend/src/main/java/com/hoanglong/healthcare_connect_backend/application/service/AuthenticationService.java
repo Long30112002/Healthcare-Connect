@@ -38,7 +38,6 @@ public class AuthenticationService {
     private final UserMapper userMapper;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
-
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
