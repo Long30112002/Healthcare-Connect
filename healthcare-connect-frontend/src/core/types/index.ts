@@ -252,18 +252,7 @@ export interface WeeklyStatResponse {
     count: number;
 }
 
-// Top Doctors
-export interface TopDoctorResponse {
-    doctorId: string;
-    doctorName: string;
-    specialtyName: string;
-    totalRevenueCollected: number;
-    totalRevenueCompleted: number;
-    totalPatientsCompleted: number;
-    totalBookingsPaid: number;
-    averageRating: number;
-    rank: number;
-}
+
 
 // Alert
 export interface AlertResponse {

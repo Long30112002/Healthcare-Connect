@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 
 const FloatingChatbot = () => {
-    const { t, currentLanguage } = useAppTranslation();
+    const { currentLanguage } = useAppTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
     const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([

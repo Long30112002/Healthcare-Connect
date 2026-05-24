@@ -9,7 +9,8 @@ import LanguageToggle from '../components/shared/LanguageToggle';
 import toast from 'react-hot-toast';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import type { LoginResponse } from '../../core/types/api.response';
-import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+// import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+import Logo from '../components/shared/Logo';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -19,10 +20,6 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const { t, getError } = useAppTranslation();
     const [searchParams] = useSearchParams();
-
-
-    const { configs } = useSystemConfig();
-    const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
 
     useEffect(() => {
         const verified = searchParams.get('verified');
@@ -116,14 +113,7 @@ const LoginPage = () => {
                         to="/"
                         className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-3xl shadow-2xl mb-6 animate-fade-in hover:scale-105 transition-transform duration-300"
                     >
-                        <img
-                            src={systemLogo}
-                            alt="Logo"
-                            className="w-14 h-14 object-contain"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                        />
+                        <Logo className="w-14 h-14 object-contain" />
                     </Link>
                     <h2 className="text-4xl font-bold text-white mb-2 animate-slide-up">
                         {t('page.login.title')}

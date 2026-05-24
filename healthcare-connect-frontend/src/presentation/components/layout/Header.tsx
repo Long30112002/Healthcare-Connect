@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import { configApi } from '../../../infrastructure/api/configApi';
 import logoHospital from '../../assets/images/hospital_logo.png';
 import homeIcon from '../../assets/images/home.png';
 import phoneIcon from '../../assets/images/phone-call.png';
@@ -28,7 +27,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
-  const { configs } = useSystemConfig();
+  const { configs = {}, loading } = useSystemConfig() || {};
 
   useEffect(() => {
     const checkScreen = () => {
@@ -39,8 +38,12 @@ const Header = () => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
-  const systemName = configs.SYSTEM_NAME || 'Healthcare Connect';
-  const systemLogo = configs.SYSTEM_LOGO_URL || logoHospital;
+  if (loading) {
+    return <div className="flex items-center justify-center h-16">Loading...</div>;
+  }
+
+  const systemName = configs?.SYSTEM_NAME || 'Healthcare Connect';
+  const systemLogo = configs?.SYSTEM_LOGO_URL || logoHospital;
 
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);

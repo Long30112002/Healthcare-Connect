@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import { useAuth } from '../../../application/context/AuthContext';
 import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import Button from '../../components/shared/Button';
-import StatusBadge from '../../components/shared/StatusBadge';
 import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import { managerApi } from '../../../infrastructure/api/managerApi';

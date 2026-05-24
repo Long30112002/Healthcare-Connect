@@ -9,8 +9,8 @@ import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import toast from 'react-hot-toast';
 import { RejectionReason } from '../../../core/constants/enums';
-import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse, TopDoctorResponse } from '../../../core/types';
-import type { DoctorResponse } from '../../../core/types/api.response';
+import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse } from '../../../core/types';
+import type { DoctorResponse, TopDoctorResponse } from '../../../core/types/api.response';
 import { formatPrice } from '../../../shared/utils/dateUtils';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 
@@ -23,7 +23,7 @@ const ManagerDashboard = () => {
   // States
   const [stats, setStats] = useState<ManagerDashboardStats | null>(null);
   const [pendingDoctors, setPendingDoctors] = useState<DoctorResponse[]>([]);
-  const [pendingReceptionists, setPendingReceptionists] = useState<ReceptionistForManager[]>([]);
+  const [, setPendingReceptionists] = useState<ReceptionistForManager[]>([]);
   const [todayAppointments, setTodayAppointments] = useState<AppointmentTodayResponse[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStatResponse[]>([]);
   const [topDoctors, setTopDoctors] = useState<TopDoctorResponse[]>([]);

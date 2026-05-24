@@ -176,14 +176,19 @@ const HeroSection = ({ slides, autoPlayInterval = 5000 }: HeroSectionProps) => {
         >
             {/* Background Image */}
             <div className="absolute inset-0 w-full h-full">
-                <img
-                    src={current.imageUrl}
-                    alt={current.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://picsum.photos/id/20/1920/1080';
-                    }}
-                />
+                {current.imageUrl ? (
+                    <img
+                        src={current.imageUrl}
+                        alt={current.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=1080&fit=crop';
+                        }}
+                    />
+                ) : (
+                    // Fallback nếu không có imageUrl - dùng gradient màu
+                    <div className={`w-full h-full bg-gradient-to-r || 'from-blue-600 to-cyan-500'}`} />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/20"></div>
             </div>
 

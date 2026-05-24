@@ -207,6 +207,12 @@ const ConfigTabHome = ({ configs, onRefresh }: ConfigTabHomeProps) => {
                         >
                             Đóng
                         </button>
+                        <button
+                            onClick={() => handlePreview('HOME_HERO_SLIDES_VI')}
+                            className="px-3 py-1 bg-blue-500 text-white rounded"
+                        >
+                            Preview
+                        </button>
                     </div>
                 </div>
             )}

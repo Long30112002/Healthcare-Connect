@@ -110,7 +110,7 @@ const DoctorDashboard = () => {
         }
     };
 
-    if (loading && page === 0) {
+    if ((loading || loadingInfo) && page === 0) {
         return <LoadingSpinner fullScreen size="lg" />;
     }
 

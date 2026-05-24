@@ -1,5 +1,6 @@
 import { DoctorStatus, ReceptionistStatus, AppointmentStatus } from '../../core/constants/enums';
-import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse, TopDoctorResponse } from '../../core/types';
+import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse } from '../../core/types';
+import type { TopDoctorResponse } from '../../core/types/api.response';
 
 export const USE_MOCK_MANAGER = false; 
 
@@ -106,7 +107,7 @@ export const mockTodayAppointments: AppointmentTodayResponse[] = [
     appointmentDate: '2026-05-06',
     symptoms: 'Đau ngực, khó thở',
     status: AppointmentStatus.CONFIRMED,
-    isPaid: true,
+    paid: true,
     price: 500000,
     roomNumber: 'Phòng 201',
   },
@@ -121,7 +122,7 @@ export const mockTodayAppointments: AppointmentTodayResponse[] = [
     appointmentDate: '2026-05-06',
     symptoms: 'Đau bụng, buồn nôn',
     status: AppointmentStatus.CONFIRMED,
-    isPaid: false,
+    paid: false,
     price: 450000,
     roomNumber: 'Phòng 202',
   },
@@ -136,7 +137,7 @@ export const mockTodayAppointments: AppointmentTodayResponse[] = [
     appointmentDate: '2026-05-06',
     symptoms: 'Kiểm tra sức khỏe định kỳ',
     status: AppointmentStatus.CONFIRMED,
-    isPaid: true,
+    paid: true,
     price: 300000,
     roomNumber: 'Phòng 203',
   },
@@ -151,7 +152,7 @@ export const mockTodayAppointments: AppointmentTodayResponse[] = [
     appointmentDate: '2026-05-06',
     symptoms: 'Hoa mắt, chóng mặt',
     status: AppointmentStatus.CONFIRMED,
-    isPaid: true,
+    paid: true,
     price: 500000,
     roomNumber: 'Phòng 201',
   },
@@ -174,8 +175,12 @@ export const mockTopDoctors: TopDoctorResponse[] = [
     doctorId: 'doctor-top-1',
     doctorName: 'BS. Nguyễn Văn A',
     specialtyName: 'Tim mạch',
-    totalPatients: 156,
-    totalRevenue: 78000000,
+
+    totalRevenueCollected: 85000000,
+    totalRevenueCompleted: 78000000,
+    totalPatientsCompleted: 156,
+    totalBookingsPaid: 170,
+
     averageRating: 4.9,
     rank: 1,
   },
@@ -183,8 +188,12 @@ export const mockTopDoctors: TopDoctorResponse[] = [
     doctorId: 'doctor-top-2',
     doctorName: 'BS. Trần Văn B',
     specialtyName: 'Nội tổng hợp',
-    totalPatients: 142,
-    totalRevenue: 71000000,
+
+    totalRevenueCollected: 76000000,
+    totalRevenueCompleted: 71000000,
+    totalPatientsCompleted: 142,
+    totalBookingsPaid: 155,
+
     averageRating: 4.7,
     rank: 2,
   },
@@ -192,8 +201,12 @@ export const mockTopDoctors: TopDoctorResponse[] = [
     doctorId: 'doctor-top-3',
     doctorName: 'BS. Lê Thị C',
     specialtyName: 'Nhi khoa',
-    totalPatients: 128,
-    totalRevenue: 64000000,
+
+    totalRevenueCollected: 69000000,
+    totalRevenueCompleted: 64000000,
+    totalPatientsCompleted: 128,
+    totalBookingsPaid: 140,
+
     averageRating: 4.8,
     rank: 3,
   },
@@ -201,8 +214,12 @@ export const mockTopDoctors: TopDoctorResponse[] = [
     doctorId: 'doctor-top-4',
     doctorName: 'BS. Phạm Văn D',
     specialtyName: 'Ngoại khoa',
-    totalPatients: 98,
-    totalRevenue: 98000000,
+
+    totalRevenueCollected: 105000000,
+    totalRevenueCompleted: 98000000,
+    totalPatientsCompleted: 98,
+    totalBookingsPaid: 110,
+
     averageRating: 4.6,
     rank: 4,
   },
@@ -210,8 +227,12 @@ export const mockTopDoctors: TopDoctorResponse[] = [
     doctorId: 'doctor-top-5',
     doctorName: 'BS. Hoàng Thị E',
     specialtyName: 'Da liễu',
-    totalPatients: 87,
-    totalRevenue: 43500000,
+
+    totalRevenueCollected: 47000000,
+    totalRevenueCompleted: 43500000,
+    totalPatientsCompleted: 87,
+    totalBookingsPaid: 95,
+
     averageRating: 4.8,
     rank: 5,
   },
