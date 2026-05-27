@@ -492,4 +492,95 @@ public class AdminService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return date.format(formatter);
     }
+
+    public byte[] exportDoctorsToExcel(String keyword, String status, String hospitalId) {
+        log.info("Export doctors to Excel - keyword: {}, status: {}, hospitalId: {}", keyword, status, hospitalId);
+
+        // Xử lý status filter
+        DoctorStatus doctorStatus = null;
+        if (status != null && !status.isEmpty() && !"ALL".equals(status)) {
+            try {
+                doctorStatus = DoctorStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                log.warn("Status không hợp lệ: {}", status);
+            }
+        }
+
+        // Xử lý hospitalId filter
+        UUID hospitalUuid = null;
+        if (hospitalId != null && !hospitalId.isEmpty() && !"ALL".equals(hospitalId)) {
+            try {
+                hospitalUuid = UUID.fromString(hospitalId);
+            } catch (IllegalArgumentException e) {
+                log.warn("hospitalId không hợp lệ: {}", hospitalId);
+            }
+        }
+
+        // Lấy danh sách bác sĩ (không phân trang, lấy tất cả)
+        Page<Doctor> doctors = doctorRepository.findAllWithFilters(keyword, doctorStatus, hospitalUuid, Pageable.unpaged());
+
+        // Tạo workbook Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách bác sĩ");
+
+        // Tạo header style
+        CellStyle headerStyle = getHeaderCellStyle(workbook);
+
+        // Tạo header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Mã bác sĩ", "Họ tên", "Email", "Số điện thoại",
+                "Chuyên khoa", "Bệnh viện", "Kinh nghiệm", "Phí khám",
+                "Trạng thái", "Ngày đăng ký"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Đổ dữ liệu
+        int rowNum = 1;
+        for (Doctor doctor : doctors) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(doctor.getDoctorCode());
+            row.createCell(2).setCellValue(doctor.getUser().getFullName());
+            row.createCell(3).setCellValue(doctor.getUser().getEmail());
+            row.createCell(4).setCellValue(doctor.getUser().getPhone() != null ? doctor.getUser().getPhone() : "");
+            row.createCell(5).setCellValue(doctor.getSpecialty() != null ? doctor.getSpecialty().getName() : "");
+            row.createCell(6).setCellValue(doctor.getHospital() != null ? doctor.getHospital().getName() : "");
+            row.createCell(7).setCellValue(doctor.getExperienceYears() != null ? String.valueOf(doctor.getExperienceYears()) : "");
+            row.createCell(8).setCellValue(doctor.getConsultationFee() != null ? String.valueOf(doctor.getConsultationFee()) : "");
+            row.createCell(9).setCellValue(getStatusVietnamese(doctor.getStatus()));
+            row.createCell(10).setCellValue(formatDateTime(doctor.getCreatedAt()));
+        }
+
+        // Auto-size columns
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) > 15000) {
+                sheet.setColumnWidth(i, 15000);
+            }
+        }
+
+        // Ghi ra byte array
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            workbook.close();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Lỗi khi tạo file Excel: {}", e.getMessage());
+            throw new AppException(ErrorCode.FILE_EXPORT_FAILED);
+        }
+    }
+
+    private String getStatusVietnamese(DoctorStatus status) {
+        if (status == null) return "";
+        switch (status) {
+            case PENDING: return "Chờ duyệt";
+            case VERIFIED: return "Đã xác thực";
+            case APPROVED: return "Đã duyệt";
+            case REJECTED: return "Từ chối";
+            default: return status.name();
+        }
+    }
 }

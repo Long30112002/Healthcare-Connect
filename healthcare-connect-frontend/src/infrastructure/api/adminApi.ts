@@ -161,4 +161,16 @@ export const adminApi = {
     return response.data.data;
   },
 
+  exportDoctors: async (keyword?: string, status?: string, hospitalId?: string): Promise<Blob> => {
+    const params: any = {};
+    if (keyword) params.keyword = keyword;
+    if (status && status !== 'ALL') params.status = status;
+    if (hospitalId && hospitalId !== 'ALL') params.hospitalId = hospitalId;
+
+    const response = await axiosClient.get('/admin/doctors/export', {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
+  },
 };

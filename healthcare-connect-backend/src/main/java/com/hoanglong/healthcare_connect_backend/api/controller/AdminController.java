@@ -168,4 +168,19 @@ public class AdminController
                 .data(doctors)
                 .build();
     }
+
+    @GetMapping("/doctors/export")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<byte[]> exportDoctors(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String hospitalId) {
+
+        byte[] excelData = adminService.exportDoctorsToExcel(keyword, status, hospitalId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=doctors_" + LocalDate.now() + ".xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelData);
+    }
 }

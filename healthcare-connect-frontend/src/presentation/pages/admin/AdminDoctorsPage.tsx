@@ -137,6 +137,28 @@ const AdminDoctorsPage = () => {
         }
     }, [currentPage, pageSize, searchKeyword, statusFilter, hospitalFilter, t]);
 
+    const handleExportExcel = async () => {
+        try {
+            const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
+            const hospitalParam = hospitalFilter === 'ALL' || !hospitalFilter ? undefined : hospitalFilter;
+            const blob = await adminApi.exportDoctors(searchKeyword, statusParam, hospitalParam);
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `doctors_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success(t('admin.doctors.exportSuccess'));
+        } catch (error) {
+            console.error('Export failed:', error);
+            toast.error(t('admin.doctors.exportError'));
+        }
+    };
+
     useEffect(() => {
         fetchDoctors();
     }, [fetchDoctors]);
@@ -451,8 +473,8 @@ const AdminDoctorsPage = () => {
                                 {t('admin.doctors.showing')} {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalElements)} / {totalElements}
                             </div>
                         )}
-                        <Button variant="outline" className="flex items-center gap-2">
-                            📥 {t('admin.users.exportExcel')}
+                        <Button variant="outline" onClick={handleExportExcel} className="flex items-center gap-2">
+                            📥 {t('admin.doctors.exportExcel')}
                         </Button>
                     </div>
 
