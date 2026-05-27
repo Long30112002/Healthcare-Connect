@@ -1,7 +1,8 @@
 import type { DashboardStats, TopHospital, UserTrend } from "../../core/types";
+import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse } from "../../core/types/api.response";
 import type { PendingDoctor } from "../../infrastructure/api/adminApi";
 
-export const USE_MOCK_ADMIN = true;
+export const USE_MOCK_ADMIN = false;
 
 export const mockDashboardStats: DashboardStats = {
   // 4 stat cards
@@ -13,7 +14,7 @@ export const mockDashboardStats: DashboardStats = {
   totalHospitalsChange: 0,
   totalBookings: 15678,
   totalBookingsChange: 23.4,
-  
+
   // Booking overview
   todayBookings: 47,
   weekBookings: 312,
@@ -275,5 +276,591 @@ export const fetchMockUserTrend = (): Promise<UserTrend[]> => {
 export const fetchMockPendingDoctors = (): Promise<PendingDoctor[]> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(mockPendingDoctors), 500);
+  });
+};
+
+// ==================== MOCK USERS DATA ====================
+
+export const mockUsers: AdminUserListResponse[] = [
+  {
+    id: 'user-001',
+    fullName: 'Nguyễn Văn An',
+    email: 'nguyenvana@email.com',
+    phone: '0912345678',
+    role: 'DOCTOR',
+    enabled: true,
+    createdAt: '2024-01-15T08:30:00',
+  },
+  {
+    id: 'user-002',
+    fullName: 'Trần Thị Bích',
+    email: 'tranbich@email.com',
+    phone: '0987654321',
+    role: 'PATIENT',
+    enabled: true,
+    createdAt: '2024-02-20T10:15:00',
+  },
+  {
+    id: 'user-003',
+    fullName: 'Lê Văn Cường',
+    email: 'lecuong@email.com',
+    phone: '0934567890',
+    role: 'HOSPITAL_MANAGER',
+    enabled: true,
+    createdAt: '2024-03-10T14:45:00',
+  },
+  {
+    id: 'user-004',
+    fullName: 'Phạm Thị Dung',
+    email: 'phamdung@email.com',
+    phone: '0978123456',
+    role: 'RECEPTIONIST',
+    enabled: false,
+    createdAt: '2024-04-05T09:20:00',
+  },
+  {
+    id: 'user-005',
+    fullName: 'Hoàng Văn Em',
+    email: 'hoangem@email.com',
+    phone: '0945678901',
+    role: 'PATIENT',
+    enabled: true,
+    createdAt: '2024-05-12T16:00:00',
+  },
+  {
+    id: 'user-006',
+    fullName: 'Vũ Thị Phượng',
+    email: 'vuphuong@email.com',
+    phone: '0967890123',
+    role: 'DOCTOR',
+    enabled: true,
+    createdAt: '2024-06-18T11:30:00',
+  },
+  {
+    id: 'user-007',
+    fullName: 'Đặng Văn Hùng',
+    email: 'danghung@email.com',
+    phone: '0912340987',
+    role: 'ADMIN',
+    enabled: true,
+    createdAt: '2024-07-22T13:10:00',
+  },
+  {
+    id: 'user-008',
+    fullName: 'Bùi Thị Lan',
+    email: 'builan@email.com',
+    phone: '0987012345',
+    role: 'RECEPTIONIST',
+    enabled: true,
+    createdAt: '2024-08-30T08:00:00',
+  },
+  {
+    id: 'user-009',
+    fullName: 'Trịnh Quốc Bảo',
+    email: 'trinhbao@email.com',
+    phone: '0932123456',
+    role: 'PATIENT',
+    enabled: false,
+    createdAt: '2024-09-14T15:30:00',
+  },
+  {
+    id: 'user-010',
+    fullName: 'Lý Thị Hồng',
+    email: 'lyhong@email.com',
+    phone: '0976543210',
+    role: 'HOSPITAL_MANAGER',
+    enabled: true,
+    createdAt: '2024-10-25T10:45:00',
+  },
+  {
+    id: 'user-011',
+    fullName: 'Mai Văn Tuấn',
+    email: 'maituan@email.com',
+    phone: '0943210987',
+    role: 'DOCTOR',
+    enabled: true,
+    createdAt: '2024-11-08T14:20:00',
+  },
+  {
+    id: 'user-012',
+    fullName: 'Hà Thị Nga',
+    email: 'hanga@email.com',
+    phone: '0935678901',
+    role: 'PATIENT',
+    enabled: true,
+    createdAt: '2024-12-01T09:15:00',
+  },
+];
+
+// ==================== MOCK USER DETAIL ====================
+
+export const mockUserDetails: Record<string, AdminUserDetailResponse> = {
+  'user-001': {
+    id: 'user-001',
+    fullName: 'Nguyễn Văn An',
+    email: 'nguyenvana@email.com',
+    phone: '0912345678',
+    role: 'DOCTOR',
+    enabled: true,
+    createdAt: '2024-01-15T08:30:00',
+    doctorInfo: {
+      doctorId: 'doc-001',
+      doctorCode: 'DOC-2024-001',
+      specialtyName: 'Tim mạch',
+      departmentName: 'Khoa Nội',
+      hospitalId: 'hospital-001',
+      hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+      hospitalAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+      experienceYears: 15,
+      degree: 'Tiến sĩ, Bác sĩ Chuyên khoa II',
+      biography: 'Chuyên gia về tim mạch với 15 năm kinh nghiệm',
+      consultationFee: 500000,
+      cvUrl: 'https://example.com/cv/an_nguyen.pdf',
+      status: 'APPROVED',
+      verifiedAt: '2024-01-20T09:00:00',
+      approvedAt: '2024-01-25T14:30:00',
+    },
+  },
+  'user-002': {
+    id: 'user-002',
+    fullName: 'Trần Thị Bích',
+    email: 'tranbich@email.com',
+    phone: '0987654321',
+    role: 'PATIENT',
+    enabled: true,
+    createdAt: '2024-02-20T10:15:00',
+  },
+  'user-003': {
+    id: 'user-003',
+    fullName: 'Lê Văn Cường',
+    email: 'lecuong@email.com',
+    phone: '0934567890',
+    role: 'HOSPITAL_MANAGER',
+    enabled: true,
+    createdAt: '2024-03-10T14:45:00',
+    managerInfo: {
+      hospitalId: 'hospital-001',
+      hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+      hospitalAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+      hospitalPhone: '028 1234 5678',
+      hospitalEmail: 'contact@benhvienxuana.com',
+      acceptedAt: '2024-03-11T10:00:00',
+    },
+  },
+  'user-004': {
+    id: 'user-004',
+    fullName: 'Phạm Thị Dung',
+    email: 'phamdung@email.com',
+    phone: '0978123456',
+    role: 'RECEPTIONIST',
+    enabled: false,
+    createdAt: '2024-04-05T09:20:00',
+    receptionistInfo: {
+      receptionistId: 'rec-001',
+      receptionistCode: 'REC-2024-001',
+      hospitalId: 'hospital-002',
+      hospitalName: 'Bệnh viện Quốc tế City',
+      hospitalAddress: '456 Lê Lợi, Quận 3, TP.HCM',
+      cvUrl: 'https://example.com/cv/pham_dung.pdf',
+      status: 'APPROVED',
+      verifiedAt: '2024-04-10T11:00:00',
+      approvedAt: '2024-04-15T09:30:00',
+    },
+  },
+  'user-005': {
+    id: 'user-005',
+    fullName: 'Hoàng Văn Em',
+    email: 'hoangem@email.com',
+    phone: '0945678901',
+    role: 'PATIENT',
+    enabled: true,
+    createdAt: '2024-05-12T16:00:00',
+  },
+  'user-006': {
+    id: 'user-006',
+    fullName: 'Vũ Thị Phượng',
+    email: 'vuphuong@email.com',
+    phone: '0967890123',
+    role: 'DOCTOR',
+    enabled: true,
+    createdAt: '2024-06-18T11:30:00',
+    doctorInfo: {
+      doctorId: 'doc-002',
+      doctorCode: 'DOC-2024-002',
+      specialtyName: 'Nhi khoa',
+      departmentName: 'Khoa Nhi',
+      hospitalId: 'hospital-002',
+      hospitalName: 'Bệnh viện Quốc tế City',
+      hospitalAddress: '456 Lê Lợi, Quận 3, TP.HCM',
+      experienceYears: 8,
+      degree: 'Thạc sĩ, Bác sĩ Chuyên khoa I',
+      biography: 'Chuyên khoa Nhi, tốt nghiệp Đại học Y Dược TP.HCM',
+      consultationFee: 350000,
+      cvUrl: 'https://example.com/cv/vu_phuong.pdf',
+      status: 'APPROVED',
+      verifiedAt: '2024-06-25T10:00:00',
+      approvedAt: '2024-07-01T14:00:00',
+    },
+  },
+};
+
+// ==================== MOCK FETCH FUNCTIONS ====================
+
+export const fetchMockUsers = (
+  page: number = 0,
+  size: number = 10,
+  keyword?: string,
+  role?: string,
+  enabled?: boolean,
+  sortBy?: string,
+  sortDir?: string
+): Promise<PageResponse<AdminUserListResponse>> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filtered = [...mockUsers];
+
+      // Lọc theo keyword
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        filtered = filtered.filter(
+          (user) =>
+            user.fullName.toLowerCase().includes(lowerKeyword) ||
+            user.email.toLowerCase().includes(lowerKeyword)
+        );
+      }
+
+      // Lọc theo role
+      if (role && role !== 'ALL') {
+        filtered = filtered.filter((user) => user.role === role);
+      }
+
+      // Lọc theo enabled status
+      if (enabled !== undefined) {
+        filtered = filtered.filter((user) => user.enabled === enabled);
+      }
+
+      // Sắp xếp
+      if (sortBy === 'fullName') {
+        filtered.sort((a, b) => {
+          const comparison = a.fullName.localeCompare(b.fullName);
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      } else if (sortBy === 'email') {
+        filtered.sort((a, b) => {
+          const comparison = a.email.localeCompare(b.email);
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      } else if (sortBy === 'createdAt') {
+        filtered.sort((a, b) => {
+          const comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      }
+
+      // Phân trang
+      const start = page * size;
+      const end = start + size;
+      const content = filtered.slice(start, end);
+
+      resolve({
+        content,
+        totalPages: Math.ceil(filtered.length / size),
+        totalElements: filtered.length,
+        size,
+        number: page,
+        first: page === 0,
+        last: end >= filtered.length,
+        empty: content.length === 0,
+        pageable: {
+          pageNumber: page,
+          pageSize: size,
+          sort: { empty: true, sorted: false, unsorted: true },
+          offset: page * size,
+          paged: true,
+          unpaged: false,
+        },
+        sort: { empty: true, sorted: false, unsorted: true },
+        numberOfElements: content.length,
+      });
+    }, 500);
+  });
+};
+export const fetchMockUserDetail = (userId: string): Promise<AdminUserDetailResponse> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const userDetail = mockUserDetails[userId];
+      if (userDetail) {
+        resolve(userDetail);
+      } else {
+        reject(new Error('User not found'));
+      }
+    }, 500);
+  });
+};
+
+// ==================== MOCK DOCTORS DATA ====================
+
+export const mockDoctors: AdminDoctorListResponse[] = [
+  {
+    id: 'doctor-001',
+    doctorCode: 'DOC-2024-001',
+    fullName: 'Nguyễn Văn An',
+    email: 'nguyenvana@email.com',
+    phone: '0912345678',
+    specialtyName: 'Tim mạch',
+    departmentName: 'Khoa Nội',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    hospitalId: 'hospital-001',
+    experienceYears: 15,
+    consultationFee: 500000,
+    status: 'PENDING',
+    createdAt: '2024-01-15T08:30:00',
+  },
+  {
+    id: 'doctor-002',
+    doctorCode: 'DOC-2024-002',
+    fullName: 'Trần Thị Bích',
+    email: 'tranbich@email.com',
+    phone: '0987654321',
+    specialtyName: 'Nhi khoa',
+    departmentName: 'Khoa Nhi',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    hospitalId: 'hospital-002',
+    experienceYears: 8,
+    consultationFee: 350000,
+    status: 'VERIFIED',
+    createdAt: '2024-02-20T10:15:00',
+  },
+  {
+    id: 'doctor-003',
+    doctorCode: 'DOC-2024-003',
+    fullName: 'Lê Văn Cường',
+    email: 'lecuong@email.com',
+    phone: '0934567890',
+    specialtyName: 'Da liễu',
+    departmentName: 'Khoa Da liễu',
+    hospitalName: 'Phòng khám Đa khoa Medic',
+    hospitalId: 'hospital-003',
+    experienceYears: 12,
+    consultationFee: 400000,
+    status: 'APPROVED',
+    createdAt: '2024-03-10T14:45:00',
+  },
+  {
+    id: 'doctor-004',
+    doctorCode: 'DOC-2024-004',
+    fullName: 'Phạm Thị Dung',
+    email: 'phamdung@email.com',
+    phone: '0978123456',
+    specialtyName: 'Mắt',
+    departmentName: 'Khoa Mắt',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    hospitalId: 'hospital-001',
+    experienceYears: 10,
+    consultationFee: 450000,
+    status: 'REJECTED',
+    createdAt: '2024-04-05T09:20:00',
+  },
+  {
+    id: 'doctor-005',
+    doctorCode: 'DOC-2024-005',
+    fullName: 'Hoàng Văn Em',
+    email: 'hoangem@email.com',
+    phone: '0945678901',
+    specialtyName: 'Tai Mũi Họng',
+    departmentName: 'Khoa Tai Mũi Họng',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    hospitalId: 'hospital-002',
+    experienceYears: 6,
+    consultationFee: 300000,
+    status: 'PENDING',
+    createdAt: '2024-05-12T16:00:00',
+  },
+];
+
+// ==================== MOCK DOCTOR DETAIL ====================
+
+export const mockDoctorDetails: Record<string, DoctorDetailResponse> = {
+  'doctor-001': {
+    id: 'doctor-001',
+    doctorCode: 'DOC-2024-001',
+    fullName: 'Nguyễn Văn An',
+    email: 'nguyenvana@email.com',
+    phone: '0912345678',
+    degree: 'Tiến sĩ, Bác sĩ Chuyên khoa II',
+    experienceYears: 15,
+    biography: 'Chuyên gia về tim mạch với 15 năm kinh nghiệm tại bệnh viện Tim mạch TP.HCM. Đã thực hiện thành công nhiều ca phẫu thuật tim phức tạp.',
+    consultationFee: 500000,
+    specialtyName: 'Tim mạch',
+    departmentName: 'Khoa Nội',
+    hospitalId: 'hospital-001',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    hospitalAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+    status: 'PENDING',
+    cvUrl: 'https://example.com/cv/an_nguyen.pdf',
+    createdAt: '2024-01-15T08:30:00',
+    updatedAt: '2024-01-15T08:30:00',
+  },
+  'doctor-002': {
+    id: 'doctor-002',
+    doctorCode: 'DOC-2024-002',
+    fullName: 'Trần Thị Bích',
+    email: 'tranbich@email.com',
+    phone: '0987654321',
+    degree: 'Thạc sĩ, Bác sĩ Chuyên khoa I',
+    experienceYears: 8,
+    biography: 'Chuyên khoa Nhi, tốt nghiệp Đại học Y Dược TP.HCM. Đam mê chăm sóc sức khỏe trẻ em.',
+    consultationFee: 350000,
+    specialtyName: 'Nhi khoa',
+    departmentName: 'Khoa Nhi',
+    hospitalId: 'hospital-002',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    hospitalAddress: '456 Lê Lợi, Quận 3, TP.HCM',
+    status: 'VERIFIED',
+    cvUrl: 'https://example.com/cv/tran_bich.pdf',
+    createdAt: '2024-02-20T10:15:00',
+    updatedAt: '2024-02-25T09:00:00',
+  },
+};
+
+// ==================== MOCK DOCTOR HISTORY ====================
+
+export const mockDoctorHistories: Record<string, DoctorHistoryResponse[]> = {
+  'doctor-001': [
+    {
+      id: 1,
+      doctorId: 'doctor-001',
+      actorName: 'Nguyễn Văn An',
+      actorRole: 'DOCTOR',
+      action: 'CREATE',
+      oldStatus: null,
+      newStatus: 'PENDING',
+      note: 'Nộp hồ sơ đăng ký bác sĩ lần đầu',
+      createdAt: '2024-01-15T08:30:00',
+    },
+  ],
+  'doctor-002': [
+    {
+      id: 1,
+      doctorId: 'doctor-002',
+      actorName: 'Trần Thị Bích',
+      actorRole: 'DOCTOR',
+      action: 'CREATE',
+      oldStatus: null,
+      newStatus: 'PENDING',
+      note: 'Nộp hồ sơ đăng ký bác sĩ lần đầu',
+      createdAt: '2024-02-20T10:15:00',
+    },
+    {
+      id: 2,
+      doctorId: 'doctor-002',
+      actorName: 'Admin System',
+      actorRole: 'ADMIN',
+      action: 'VERIFY',
+      oldStatus: 'PENDING',
+      newStatus: 'VERIFIED',
+      note: 'Admin xác thực hồ sơ bác sĩ',
+      createdAt: '2024-02-25T09:00:00',
+    },
+  ],
+};
+
+// ==================== MOCK FETCH FUNCTIONS FOR DOCTORS ====================
+
+export const fetchMockDoctors = (
+  page: number = 0,
+  size: number = 10,
+  keyword?: string,
+  status?: string,
+  hospitalId?: string,
+  sortBy: string = 'createdAt',
+  sortDir: string = 'desc'
+): Promise<PageResponse<AdminDoctorListResponse>> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filtered = [...mockDoctors];
+      
+      // Lọc theo keyword
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        filtered = filtered.filter(
+          (doctor) =>
+            doctor.fullName.toLowerCase().includes(lowerKeyword) ||
+            doctor.email.toLowerCase().includes(lowerKeyword) ||
+            doctor.doctorCode.toLowerCase().includes(lowerKeyword)
+        );
+      }
+      
+      // Lọc theo status
+      if (status && status !== 'ALL') {
+        filtered = filtered.filter((doctor) => doctor.status === status);
+      }
+      
+      // Lọc theo bệnh viện
+      if (hospitalId && hospitalId !== 'ALL') {
+        filtered = filtered.filter((doctor) => doctor.hospitalId === hospitalId);
+      }
+      
+      // Sắp xếp
+      if (sortBy === 'fullName') {
+        filtered.sort((a, b) => {
+          const comparison = a.fullName.localeCompare(b.fullName);
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      } else if (sortBy === 'createdAt') {
+        filtered.sort((a, b) => {
+          const comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      }
+      
+      // Phân trang
+      const start = page * size;
+      const end = start + size;
+      const content = filtered.slice(start, end);
+      
+      resolve({
+        content,
+        totalPages: Math.ceil(filtered.length / size),
+        totalElements: filtered.length,
+        size,
+        number: page,
+        first: page === 0,
+        last: end >= filtered.length,
+        empty: content.length === 0,
+        pageable: {
+          pageNumber: page,
+          pageSize: size,
+          sort: { empty: true, sorted: false, unsorted: true },
+          offset: page * size,
+          paged: true,
+          unpaged: false,
+        },
+        sort: { empty: true, sorted: false, unsorted: true },
+        numberOfElements: content.length,
+      });
+    }, 500);
+  });
+};
+
+export const fetchMockDoctorDetail = (doctorId: string): Promise<DoctorDetailResponse> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const doctorDetail = mockDoctorDetails[doctorId];
+      const history = mockDoctorHistories[doctorId] || [];
+      if (doctorDetail) {
+        resolve({ ...doctorDetail, history });
+      } else {
+        reject(new Error('Doctor not found'));
+      }
+    }, 500);
+  });
+};
+
+export const fetchMockDoctorHistory = (doctorId: string): Promise<DoctorHistoryResponse[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(mockDoctorHistories[doctorId] || []);
+    }, 500);
   });
 };

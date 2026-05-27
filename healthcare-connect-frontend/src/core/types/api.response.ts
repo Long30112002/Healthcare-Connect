@@ -240,7 +240,7 @@ export interface DepartmentResponse {
     name: string;
     code: string;
     description: string;
-    category: MedicalCategory;  
+    category: MedicalCategory;
 }
 
 export interface SpecialtyResponse {
@@ -249,7 +249,7 @@ export interface SpecialtyResponse {
     code: string;
     description: string;
     department: DepartmentResponse;
-    category: MedicalCategory;  
+    category: MedicalCategory;
 }
 
 export interface HospitalResponse {
@@ -361,10 +361,10 @@ export interface DoctorResponse {
     hospitalAddress: string;
     status: DoctorStatus;
     rejectionReason?: string | null;
-    cvUrl?: string; 
+    cvUrl?: string;
     rejectionNote?: string | null;
-    createdAt?: string;      
-    updatedAt?: string;      
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface ReceptionistForManager {
@@ -387,7 +387,7 @@ export interface PaymentStatusResponse {
     payUrl?: string;
 }
 
-export interface PublicTopDoctorResponse  {
+export interface PublicTopDoctorResponse {
     id: string;
     fullName: string;
     specialtyName: string;
@@ -474,4 +474,123 @@ export interface PublicDoctorDetailResponse {
     totalReviews: number;
     avatar: string | null;
     schedules: ScheduleRespone[];
+}
+
+export interface AdminUserListResponse {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    role: UserRole;
+    enabled: boolean;
+    createdAt: string;
+}
+
+export interface AdminUserDetailResponse {
+    // Thông tin cơ bản
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    role: UserRole;
+    enabled: boolean;
+    createdAt: string;
+
+    // Thông tin bác sĩ (nếu role = DOCTOR)
+    doctorInfo?: {
+        doctorId: string;
+        doctorCode: string;
+        specialtyName: string;
+        departmentName: string;
+        hospitalId: string;
+        hospitalName: string;
+        hospitalAddress: string;
+        experienceYears: number;
+        degree: string;
+        biography: string;
+        consultationFee: number;
+        cvUrl: string;
+        status: DoctorStatus;
+        verifiedAt?: string;
+        approvedAt?: string;
+    };
+
+    // Thông tin quản lý bệnh viện (nếu role = HOSPITAL_MANAGER)
+    managerInfo?: {
+        hospitalId: string;
+        hospitalName: string;
+        hospitalAddress: string;
+        hospitalPhone: string;
+        hospitalEmail: string;
+        acceptedAt: string;
+    };
+
+    // Thông tin lễ tân (nếu role = RECEPTIONIST)
+    receptionistInfo?: {
+        receptionistId: string;
+        receptionistCode: string;
+        hospitalId: string;
+        hospitalName: string;
+        hospitalAddress: string;
+        cvUrl: string;
+        status: ReceptionistStatus;
+        verifiedAt?: string;
+        approvedAt?: string;
+    };
+}
+
+// ==================== ADMIN DOCTOR MANAGEMENT ====================
+
+export interface AdminDoctorListResponse {
+    id: string;
+    doctorCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    specialtyName: string;
+    departmentName: string;
+    hospitalName: string;
+    hospitalId: string;
+    experienceYears: number;
+    consultationFee: number;
+    status: 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED' | 'INACTIVE' | 'ARCHIVED';
+    createdAt: string;
+}
+
+export interface DoctorHistoryResponse {
+    id: number;
+    doctorId: string;
+    actorName: string;
+    actorRole: string;
+    action: string;
+    oldStatus: string | null;
+    newStatus: string;
+    rejectionReason?: string;
+    rejectionNote?: string;
+    note?: string;
+    createdAt: string;
+}
+
+export interface DoctorDetailResponse {
+    id: string;
+    doctorCode: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    degree: string;
+    experienceYears: number;
+    biography: string;
+    consultationFee: number;
+    specialtyName: string;
+    departmentName: string;
+    hospitalId: string;
+    hospitalName: string;
+    hospitalAddress: string;
+    status: 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED' | 'INACTIVE' | 'ARCHIVED';
+    cvUrl?: string;
+    rejectionReason?: string;
+    rejectionNote?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    history?: DoctorHistoryResponse[];
 }

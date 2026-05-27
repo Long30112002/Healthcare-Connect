@@ -1,13 +1,7 @@
 import axiosClient from './axiosClient';
-import type { DoctorResponse } from '../../core/types/api.response';
+import type { AdminDoctorListResponse, AdminUserDetailResponse, AdminUserListResponse, DoctorDetailResponse, DoctorHistoryResponse, DoctorResponse, PageResponse } from '../../core/types/api.response';
 import type { RejectDoctorRequest } from '../../core/types/api.request';
-import {
-  USE_MOCK_ADMIN,
-  fetchMockDashboardStats,
-  fetchMockTopHospitals,
-  fetchMockUserTrend,
-  fetchMockPendingDoctors,
-} from '../../shared/mock/adminMock';
+import { USE_MOCK_ADMIN, fetchMockDashboardStats, fetchMockTopHospitals, fetchMockUserTrend, fetchMockPendingDoctors, fetchMockUserDetail, fetchMockUsers, fetchMockDoctorDetail, fetchMockDoctorHistory, fetchMockDoctors, } from '../../shared/mock/adminMock';
 import type { DashboardStats, TopHospital, UserTrend } from '../../core/types';
 
 export interface PendingDoctor extends DoctorResponse {
@@ -59,11 +53,112 @@ export const adminApi = {
     await axiosClient.patch(`/admin/doctors/${doctorId}/approve`);
   },
 
-  rejectDoctor: async (doctorId: string, data: RejectDoctorRequest): Promise<void> => {
+  rejectDoctor: async (doctorId: string, reasonCode: string, note?: string): Promise<void> => {
     if (USE_MOCK_ADMIN) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       return;
     }
-    await axiosClient.post(`/admin/doctors/${doctorId}/reject`, data);
+    await axiosClient.post(`/admin/doctors/${doctorId}/reject`, { reasonCode, note });
   },
+
+  getUsers: async (
+    page: number = 0,
+    size: number = 10,
+    keyword?: string,
+    role?: string,
+    enabled?: boolean,
+    sortBy?: string,
+    sortDir?: string
+  ): Promise<PageResponse<AdminUserListResponse>> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockUsers(page, size, keyword, role, enabled, sortBy, sortDir);
+    }
+    const params: any = { page, size };
+    if (keyword) params.keyword = keyword;
+    if (role && role !== 'ALL') params.role = role;
+    if (enabled !== undefined) params.enabled = enabled;
+    if (sortBy) params.sortBy = sortBy;
+    if (sortDir) params.sortDir = sortDir;
+    const response = await axiosClient.get('/admin/users', { params });
+    return response.data.data;
+  },
+
+  getUserDetail: async (userId: string): Promise<AdminUserDetailResponse> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockUserDetail(userId);
+    }
+    const response = await axiosClient.get(`/admin/users/${userId}`);
+    return response.data.data;
+  },
+
+  toggleUserStatus: async (userId: string, reason?: string): Promise<boolean> => {
+    if (USE_MOCK_ADMIN) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return true;
+    }
+    const response = await axiosClient.patch(`/admin/users/${userId}/toggle-status`, { reason });
+    return response.data.data;
+  },
+
+  resetUserPassword: async (userId: string): Promise<void> => {
+    if (USE_MOCK_ADMIN) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return;
+    }
+    await axiosClient.post(`/admin/users/${userId}/reset-password`);
+  },
+
+  exportUsers: async (
+    keyword?: string,
+    role?: string,
+    enabled?: boolean
+  ): Promise<Blob> => {
+    const params: any = {};
+    if (keyword) params.keyword = keyword;
+    if (role && role !== 'ALL') params.role = role;
+    if (enabled !== undefined) params.enabled = enabled;
+
+    const response = await axiosClient.get('/admin/users/export', {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  getDoctors: async (
+    page: number = 0,
+    size: number = 10,
+    keyword?: string,
+    status?: string,
+    hospitalId?: string,
+    sortBy: string = 'createdAt',
+    sortDir: string = 'desc'
+  ): Promise<PageResponse<AdminDoctorListResponse>> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockDoctors(page, size, keyword, status, hospitalId, sortBy, sortDir);
+    }
+    const params: any = { page, size, sortBy, sortDir };
+    if (keyword) params.keyword = keyword;
+    if (status && status !== 'ALL') params.status = status;
+    if (hospitalId && hospitalId !== 'ALL') params.hospitalId = hospitalId;
+    const response = await axiosClient.get('/admin/doctors', { params });
+    return response.data.data;
+  },
+
+  getDoctorDetail: async (doctorId: string): Promise<DoctorDetailResponse> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockDoctorDetail(doctorId);
+    }
+    const response = await axiosClient.get(`/admin/doctors/${doctorId}`);
+    return response.data.data;
+  },
+
+  getDoctorHistory: async (doctorId: string): Promise<DoctorHistoryResponse[]> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockDoctorHistory(doctorId);
+    }
+    const response = await axiosClient.get(`/admin/doctors/${doctorId}/history`);
+    return response.data.data;
+  },
+
 };

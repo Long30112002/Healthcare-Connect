@@ -85,7 +85,7 @@ const AdminDashboard = () => {
     const { doctorId } = rejectModal;
     setRejectingId(doctorId);
     try {
-      await adminApi.rejectDoctor(doctorId, { reasonCode: rejectReason, note: rejectNote });
+      await adminApi.rejectDoctor(doctorId, rejectReason, rejectNote);
       toast.success(t('admin.rejectDoctorSuccess'));
       setPendingDoctors(prev => prev.filter(d => d.id !== doctorId));
       setRejectModal({ open: false, doctorId: '', doctorName: '' });
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-6">
-        
+
         {/* Header */}
         <DashboardHeader
           icon="👑"
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
 
         {/* Two columns layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          
+
           {/* Left column: Pending Doctors */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
                   <span className="font-semibold text-gray-900 dark:text-white">{stats?.monthBookings || 0}</span>
                 </div>
               </div>
-              
+
               <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">✅ {t('admin.paymentRate')}</span>
@@ -262,7 +262,7 @@ const AdminDashboard = () => {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-green-500 h-2 rounded-full" style={{ width: `${stats?.paymentRate || 0}%` }} />
                 </div>
-                
+
                 <div className="flex justify-between items-center mt-3 mb-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">❌ {t('admin.cancelRate')}</span>
                   <span className="text-sm font-semibold text-red-600">{stats?.cancelRate || 0}%</span>
@@ -270,7 +270,7 @@ const AdminDashboard = () => {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-red-500 h-2 rounded-full" style={{ width: `${stats?.cancelRate || 0}%` }} />
                 </div>
-                
+
                 <div className="flex justify-between items-center mt-3 mb-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">⏰ {t('admin.noShowRate')}</span>
                   <span className="text-sm font-semibold text-yellow-600">{stats?.noShowRate || 0}%</span>
@@ -279,7 +279,7 @@ const AdminDashboard = () => {
                   <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${stats?.noShowRate || 0}%` }} />
                 </div>
               </div>
-              
+
               <div className="mt-4 text-center">
                 <button
                   onClick={() => navigate('/admin/reports')}
@@ -399,7 +399,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </Modal>
-      
+
     </div>
   );
 };
