@@ -1,6 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.application.dto.admin;
 
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import lombok.Builder;
 import lombok.Data;
 import lombok.AccessLevel;
@@ -20,4 +20,5 @@ public class AdminUserListResponse {
     UserRole role;
     Boolean enabled;
     LocalDateTime createdAt;
+    String lockReason;
 }

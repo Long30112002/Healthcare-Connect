@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DoctorController
 {
-
     private final CreateScheduleUseCase createScheduleUseCase;
     private final DoctorService doctorService;
     private final AppointmentService appointmentService;

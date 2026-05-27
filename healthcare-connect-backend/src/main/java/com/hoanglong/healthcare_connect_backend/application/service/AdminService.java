@@ -4,18 +4,22 @@ package com.hoanglong.healthcare_connect_backend.application.service;
 import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserDetailResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDashboardStats;
+import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDoctorListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.TopHospitalResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.UserTrendDTO;
 import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
+import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +27,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,10 +156,15 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserListResponse> getUsers(int page, int size, String keyword, String role) {
-        log.info("Lấy danh sách user - page: {}, size: {}, keyword: {}, role: {}", page, size, keyword, role);
+    public Page<AdminUserListResponse> getUsers(int page, int size, String keyword,
+            String role, Boolean enabled,
+            String sortBy, String sortDir) {
+        log.info("Lấy danh sách user - page: {}, size: {}, keyword: {}, role: {}, enabled: {}, sortBy: {}, sortDir: {}",
+                page, size, keyword, role, enabled, sortBy, sortDir);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        // Xử lý sort
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         UserRole userRole = null;
         if (role != null && !role.isEmpty() && !"ALL".equals(role)) {
@@ -162,8 +174,7 @@ public class AdminService {
                 log.warn("Role không hợp lệ: {}", role);
             }
         }
-
-        Page<User> userPage = userRepository.findAllWithFilters(keyword, userRole, pageable);
+        Page<User> userPage = userRepository.findAllWithFilters(keyword, userRole, enabled, pageable);
 
         return userPage.map(user -> AdminUserListResponse.builder()
                 .id(user.getId())
@@ -256,8 +267,8 @@ public class AdminService {
     }
 
     @Transactional
-    public Boolean toggleUserStatus(UUID userId) {
-        log.info("Toggle user status: {}", userId);
+    public Boolean toggleUserStatus(UUID userId, String reason, UUID adminId) {
+        log.info("Toggle user status: {}, reason: {}", userId, reason);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -267,11 +278,44 @@ public class AdminService {
             throw new AppException(ErrorCode.CANNOT_LOCK_ADMIN_ACCOUNT);
         }
 
-        boolean newStatus = !Boolean.TRUE.equals(user.getEnabled());
-        user.setEnabled(newStatus);
-        userRepository.save(user);
+        // Lấy thông tin Admin để gửi email (cần tên)
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        log.info("User {} status changed to: {}", userId, newStatus);
+        boolean newStatus = !Boolean.TRUE.equals(user.getEnabled());
+        LocalDateTime now = LocalDateTime.now();
+
+        if (!newStatus) {
+            // ===== ĐANG KHÓA TÀI KHOẢN =====
+            user.setEnabled(false);
+            user.setLockReason(reason);
+            user.setLockedAt(now);
+            user.setLockedBy(admin);
+            // Xóa thông tin mở khóa cũ (nếu có)
+            user.setUnlockedAt(null);
+            user.setUnlockedBy(null);
+
+            userRepository.save(user);
+
+            // Gửi email thông báo khóa
+            mailService.sendAccountLockedEmail(user, reason, admin);
+
+            log.info("User {} locked by {} at {}", userId, admin.getFullName(), now);
+        } else {
+            // ===== ĐANG MỞ KHÓA TÀI KHOẢN =====
+            user.setEnabled(true);
+            user.setUnlockedAt(now);
+            user.setUnlockedBy(admin);
+            // Giữ lại lockReason để trace (không xóa)
+
+            userRepository.save(user);
+
+            // Gửi email thông báo mở khóa
+            mailService.sendAccountUnlockedEmail(user, admin);
+
+            log.info("User {} unlocked by {} at {}", userId, admin.getFullName(), now);
+        }
+
         return newStatus;
     }
 
@@ -292,5 +336,160 @@ public class AdminService {
         mailService.sendForgotPasswordEmail(user);
 
         log.info("Reset password email sent to: {}", user.getEmail());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminDoctorListResponse> getDoctors(int page, int size, String keyword,
+            String status, String hospitalId,
+            String sortBy, String sortDir) {
+        log.info("Lấy danh sách bác sĩ - page: {}, size: {}, keyword: {}, status: {}, hospitalId: {}, sortBy: {}, sortDir: {}",
+                page, size, keyword, status, hospitalId, sortBy, sortDir);
+
+        // Xử lý sort
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Xử lý status filter
+        DoctorStatus doctorStatus = null;
+        if (status != null && !status.isEmpty() && !"ALL".equals(status)) {
+            try {
+                doctorStatus = DoctorStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                log.warn("Status không hợp lệ: {}", status);
+            }
+        }
+
+        // Xử lý hospitalId filter
+        UUID hospitalUuid = null;
+        if (hospitalId != null && !hospitalId.isEmpty() && !"ALL".equals(hospitalId)) {
+            try {
+                hospitalUuid = UUID.fromString(hospitalId);
+            } catch (IllegalArgumentException e) {
+                log.warn("hospitalId không hợp lệ: {}", hospitalId);
+            }
+        }
+
+        Page<Doctor> doctorPage = doctorRepository.findAllWithFilters(keyword, doctorStatus, hospitalUuid, pageable);
+
+        return doctorPage.map(doctor -> AdminDoctorListResponse.builder()
+                .id(doctor.getId())
+                .doctorCode(doctor.getDoctorCode())
+                .fullName(doctor.getUser().getFullName())
+                .email(doctor.getUser().getEmail())
+                .phone(doctor.getUser().getPhone())
+                .specialtyName(doctor.getSpecialty() != null ? doctor.getSpecialty().getName() : null)
+                .departmentName(doctor.getDepartment() != null ? doctor.getDepartment().getName() : null)
+                .hospitalName(doctor.getHospital() != null ? doctor.getHospital().getName() : null)
+                .hospitalId(doctor.getHospital() != null ? doctor.getHospital().getId() : null)
+                .experienceYears(doctor.getExperienceYears())
+                .consultationFee(doctor.getConsultationFee())
+                .status(doctor.getStatus())
+                .createdAt(doctor.getCreatedAt())
+                .build());
+    }
+
+    public byte[] exportUsersToExcel(String keyword, String role, Boolean enabled) {
+        log.info("Export users to Excel - keyword: {}, role: {}, enabled: {}", keyword, role, enabled);
+
+        // Lấy danh sách user (không phân trang, lấy tất cả)
+        UserRole userRole = null;
+        if (role != null && !role.isEmpty() && !"ALL".equals(role)) {
+            try {
+                userRole = UserRole.valueOf(role);
+            } catch (IllegalArgumentException e) {
+                log.warn("Role không hợp lệ: {}", role);
+            }
+        }
+
+        Page<User> users = userRepository.findAllWithFilters(keyword, userRole, enabled, Pageable.unpaged());
+
+        // Tạo workbook Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách người dùng");
+
+        // Tạo header style
+        CellStyle headerStyle = getHeaderCellStyle(workbook);
+
+        // Tạo header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Họ tên", "Email", "Số điện thoại", "Vai trò", "Trạng thái", "Ngày tạo", "Lý do khóa"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Đổ dữ liệu
+        int rowNum = 1;
+        for (User user : users) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(user.getFullName());
+            row.createCell(2).setCellValue(user.getEmail());
+            row.createCell(3).setCellValue(user.getPhone() != null ? user.getPhone() : "");
+            row.createCell(4).setCellValue(getRoleVietnamese(user.getRole()));
+            row.createCell(5).setCellValue(Boolean.TRUE.equals(user.getEnabled()) ? "Hoạt động" : "Đã khóa");
+            row.createCell(6).setCellValue(formatDateTime(user.getCreatedAt()));
+            row.createCell(7).setCellValue(user.getLockReason() != null ? user.getLockReason() : "");
+        }
+
+        // Auto-size columns
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            // Giới hạn độ rộng tối đa để tránh quá rộng
+            if (sheet.getColumnWidth(i) > 15000) {
+                sheet.setColumnWidth(i, 15000);
+            }
+        }
+
+        // Ghi ra byte array
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            workbook.close();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Lỗi khi tạo file Excel: {}", e.getMessage());
+            throw new AppException(ErrorCode.FILE_EXPORT_FAILED);
+        }
+    }
+
+    private CellStyle getHeaderCellStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(font);
+        style.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        return style;
+    }
+
+    private String getRoleVietnamese(UserRole role) {
+        if (role == null) return "";
+        switch (role) {
+            case PATIENT: return "Bệnh nhân";
+            case DOCTOR: return "Bác sĩ";
+            case ADMIN: return "Quản trị viên";
+            case HOSPITAL_MANAGER: return "Quản lý bệnh viện";
+            case RECEPTIONIST: return "Lễ tân";
+            default: return role.name();
+        }
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return dateTime.format(formatter);
+    }
+
+    private String formatDate(LocalDate date) {
+        if (date == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return date.format(formatter);
     }
 }

@@ -105,6 +105,19 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
             @Param("hospitalId") UUID hospitalId
     );
 
+    @Query("SELECT d FROM Doctor d " +
+            "JOIN d.user u " +
+            "WHERE (:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.doctorCode) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:status IS NULL OR d.status = :status) " +
+            "AND (:hospitalId IS NULL OR d.hospital.id = :hospitalId)")
+    Page<Doctor> findAllWithFilters(@Param("keyword") String keyword,
+            @Param("status") DoctorStatus status,
+            @Param("hospitalId") UUID hospitalId,
+            Pageable pageable);
+
     // Lấy danh sách bác sĩ của bệnh viện (có phân trang)
     Page<Doctor> findByHospitalId(UUID hospitalId, Pageable pageable);
 

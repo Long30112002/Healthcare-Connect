@@ -2,7 +2,7 @@ package com.hoanglong.healthcare_connect_backend.application.dto.admin;
 
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import lombok.Builder;
 import lombok.Data;
 import lombok.AccessLevel;
@@ -25,6 +25,13 @@ public class AdminUserDetailResponse {
     UserRole role;
     Boolean enabled;
     LocalDateTime createdAt;
+
+    // ===== THÔNG TIN KHÓA TÀI KHOẢN
+    String lockReason;           // Lý do khóa
+    LocalDateTime lockedAt;      // Thời điểm bị khóa
+    String lockedByName;         // Tên Admin đã khóa
+    LocalDateTime unlockedAt;    // Thời điểm được mở khóa
+    String unlockedByName;       // Tên Admin đã mở khóa
 
     // ===== THÔNG TIN BÁC SĨ (nếu role = DOCTOR) =====
     DoctorInfo doctorInfo;

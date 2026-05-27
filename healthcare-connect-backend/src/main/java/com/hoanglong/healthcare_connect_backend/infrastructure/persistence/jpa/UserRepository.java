@@ -1,8 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa;
 
-import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.UserTrendDTO;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,9 +43,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "(:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:role IS NULL OR u.role = :role)")
+            "AND (:role IS NULL OR u.role = :role) " +
+            "AND (:enabled IS NULL OR u.enabled = :enabled)")  // ← Thêm
     Page<User> findAllWithFilters(@Param("keyword") String keyword,
             @Param("role") UserRole role,
+            @Param("enabled") Boolean enabled,
             Pageable pageable);
 
     Optional<User> findById(UUID id);

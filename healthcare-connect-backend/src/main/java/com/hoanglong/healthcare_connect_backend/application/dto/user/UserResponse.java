@@ -1,7 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
