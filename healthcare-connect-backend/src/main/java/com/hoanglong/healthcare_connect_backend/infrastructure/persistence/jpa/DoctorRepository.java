@@ -22,6 +22,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID>
     Optional<Doctor> findByUserId(UUID userId);
     List<Doctor> findAllByHospitalId(UUID hospitalId);
     List<Doctor> findAllByHospitalIdAndStatus(UUID hospitalId, DoctorStatus status);
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     Page<Doctor> findByStatus(DoctorStatus status, Pageable pageable);
 

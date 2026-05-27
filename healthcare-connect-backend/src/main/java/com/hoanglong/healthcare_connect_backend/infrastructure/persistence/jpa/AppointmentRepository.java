@@ -21,6 +21,19 @@ import java.util.UUID;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID>
 {
+    long countByIsPaidTrue();
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.status = :status")
+    long countByStatus(@Param("status") AppointmentStatus status);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE DATE(a.appointmentDate) = :date")
+    long countByDate(@Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE DATE(a.appointmentDate) BETWEEN :start AND :end")
+    long countByDateBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    long countByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+
     @Query("""
         SELECT a FROM Appointment a
         JOIN FETCH a.schedule s
