@@ -1,5 +1,6 @@
 package com.hoanglong.healthcare_connect_backend.core.entity;
 
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -38,6 +39,23 @@ public class User {
 
     @Column(name = "is_enabled")
     Boolean enabled = false;
+
+    @Column(name = "lock_reason", columnDefinition = "TEXT")
+    String lockReason;
+
+    @Column(name = "locked_at")
+    LocalDateTime lockedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locked_by")
+    User lockedBy;
+
+    @Column(name = "unlocked_at")
+    LocalDateTime unlockedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unlocked_by")
+    User unlockedBy;
 
     @PrePersist
     protected void onCreate() {

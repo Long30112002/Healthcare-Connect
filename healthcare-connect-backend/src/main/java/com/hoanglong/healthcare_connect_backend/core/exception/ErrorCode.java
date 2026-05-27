@@ -34,7 +34,7 @@ public enum ErrorCode {
     ADMIN_CANNOT_BE_RECEPTIONIST(1027, "Admin không thể đăng ký làm lễ tân!", HttpStatus.BAD_REQUEST),
     USER_ALREADY_HAS_ROLE(1028, "Người dùng đã có role!", HttpStatus.BAD_REQUEST),
     INVALID_OLD_PASSWORD(1029, "Mật khẩu cũ không chính xác!", HttpStatus.BAD_REQUEST),
-
+    CANNOT_LOCK_ADMIN_ACCOUNT(1030, "Không thể khóa tài khoản Admin!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 2xxx: NGƯỜI DÙNG (USER)
@@ -267,7 +267,7 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILED(10007, "Upload file thất bại!", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_TOO_LARGE(10008, "Kích thước file vượt quá giới hạn cho phép!", HttpStatus.BAD_REQUEST),
     FILE_INVALID_TYPE(10009, "Định dạng file không được hỗ trợ!", HttpStatus.BAD_REQUEST),
-    CANNOT_LOCK_ADMIN_ACCOUNT(1030, "Không thể khóa tài khoản Admin!", HttpStatus.BAD_REQUEST),
+    FILE_EXPORT_FAILED(10010, "Xuất file thất bại!", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final int code;
