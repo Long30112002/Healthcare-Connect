@@ -267,6 +267,7 @@ public enum ErrorCode {
     FILE_UPLOAD_FAILED(10007, "Upload file thất bại!", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_TOO_LARGE(10008, "Kích thước file vượt quá giới hạn cho phép!", HttpStatus.BAD_REQUEST),
     FILE_INVALID_TYPE(10009, "Định dạng file không được hỗ trợ!", HttpStatus.BAD_REQUEST),
+    CANNOT_LOCK_ADMIN_ACCOUNT(1030, "Không thể khóa tài khoản Admin!", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;
