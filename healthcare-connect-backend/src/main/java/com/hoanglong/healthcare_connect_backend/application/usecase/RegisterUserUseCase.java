@@ -6,7 +6,7 @@ import com.hoanglong.healthcare_connect_backend.application.dto.user.UserRespons
 import com.hoanglong.healthcare_connect_backend.application.mapper.UserMapper;
 import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.UserRepository;
 import com.hoanglong.healthcare_connect_backend.shared.annotation.Throttling;
 import lombok.RequiredArgsConstructor;

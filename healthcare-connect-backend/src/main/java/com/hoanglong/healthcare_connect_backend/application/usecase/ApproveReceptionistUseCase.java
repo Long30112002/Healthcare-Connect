@@ -8,7 +8,7 @@ import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus
 import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.Receptionist;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.entity.UserRole;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.HospitalRepository;

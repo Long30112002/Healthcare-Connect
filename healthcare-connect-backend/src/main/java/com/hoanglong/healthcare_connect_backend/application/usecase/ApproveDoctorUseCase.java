@@ -5,6 +5,7 @@ import com.hoanglong.healthcare_connect_backend.application.service.MailService;
 import com.hoanglong.healthcare_connect_backend.application.service.UserRoleService;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorApplicationStatus;
 import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;

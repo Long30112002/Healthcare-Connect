@@ -1,6 +1,7 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
 import com.hoanglong.healthcare_connect_backend.application.dto.notification.NotificationMessage;
+import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import jakarta.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -306,6 +308,48 @@ public class MailService {
         }
     }
 
+
+    // Hàm gửi email thông báo khóa tài khoản
+    public void sendAccountLockedEmail(User user, String reason, User lockedByAdmin) {
+        String loginUrl = publicFrontendUrl + "/login";
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("reason", reason != null ? reason : "Không có lý do cụ thể");
+        variables.put("lockedBy", lockedByAdmin != null ? lockedByAdmin.getFullName() : "Quản trị viên");
+        variables.put("lockedAt", formatDateTime(LocalDateTime.now()));
+        variables.put("loginUrl", loginUrl);
+        variables.put("supportEmail", "support@healthcareconnect.vn");
+        variables.put("supportPhone", "1900 1234");
+        variables.put("btnText", "Liên hệ hỗ trợ");
+
+        pushToQueue(
+                user.getEmail(),
+                "[Healthcare Connect] Thông báo khóa tài khoản",
+                "account-locked-template",
+                variables
+        );
+    }
+
+    // Hàm gửi email thông báo mở khóa tài khoản
+    public void sendAccountUnlockedEmail(User user, User unlockedByAdmin) {
+        String loginUrl = publicFrontendUrl + "/login";
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("name", user.getFullName());
+        variables.put("unlockedBy", unlockedByAdmin != null ? unlockedByAdmin.getFullName() : "Quản trị viên");
+        variables.put("unlockedAt", formatDateTime(LocalDateTime.now()));
+        variables.put("loginUrl", loginUrl);
+        variables.put("btnText", "Đăng nhập ngay");
+
+        pushToQueue(
+                user.getEmail(),
+                "[Healthcare Connect] Thông báo mở khóa tài khoản",
+                "account-unlocked-template",
+                variables
+        );
+    }
+
     // --- HÀM GỬI MAIL VẬT LÝ ---
     public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
         try {
@@ -337,5 +381,11 @@ public class MailService {
         if (date == null) return "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return date.format(formatter);
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return dateTime.format(formatter);
     }
 }
