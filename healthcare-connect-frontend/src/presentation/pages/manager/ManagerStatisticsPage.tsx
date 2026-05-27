@@ -6,12 +6,11 @@ import Button from '../../components/shared/Button';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 import toast from 'react-hot-toast';
-import type { WeeklyStatResponse } from '../../../core/types';
 import { statisticsApi } from '../../../infrastructure/api/statisticsApi';
 import { formatPrice } from '../../../shared/utils/dateUtils';
 import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { exportManagerStatisticsExcel, exportManagerStatisticsPDF, type ManagerReportData } from '../../../shared/utils/managerExportUtils';
-import type { TopDoctorResponse } from '../../../core/types/api.response';
+import type { TopDoctorResponse, WeeklyStatResponse } from '../../../core/types/api.response';
 
 type Period = 'week' | 'month' | 'year' | 'custom';
 

@@ -9,8 +9,8 @@ import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import toast from 'react-hot-toast';
 import { RejectionReason } from '../../../core/constants/enums';
-import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse } from '../../../core/types';
-import type { DoctorResponse, TopDoctorResponse } from '../../../core/types/api.response';
+import type { ManagerDashboardStats, ReceptionistForManager } from '../../../core/types';
+import type { AppointmentTodayResponse, DoctorResponse, TopDoctorResponse, WeeklyStatResponse } from '../../../core/types/api.response';
 import { formatPrice } from '../../../shared/utils/dateUtils';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 

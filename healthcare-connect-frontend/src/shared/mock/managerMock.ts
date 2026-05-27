@@ -1,6 +1,6 @@
 import { DoctorStatus, ReceptionistStatus, AppointmentStatus } from '../../core/constants/enums';
-import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse } from '../../core/types';
-import type { TopDoctorResponse } from '../../core/types/api.response';
+import type { ManagerDashboardStats, ReceptionistForManager} from '../../core/types';
+import type { AppointmentTodayResponse, TopDoctorResponse, WeeklyStatResponse } from '../../core/types/api.response';
 
 export const USE_MOCK_MANAGER = false; 
 

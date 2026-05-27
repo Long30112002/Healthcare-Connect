@@ -1,6 +1,6 @@
-import type { ManagerDashboardStats, ReceptionistForManager, AppointmentTodayResponse, WeeklyStatResponse} from "../../core/types";
+import type { ManagerDashboardStats, ReceptionistForManager} from "../../core/types";
 import type { RejectDoctorRequest, RejectReceptionistRequest } from "../../core/types/api.request";
-import type { DoctorResponse, PageResponse, RoomResponse, TopDoctorResponse } from "../../core/types/api.response";
+import type { AppointmentTodayResponse, DoctorResponse, PageResponse, RoomResponse, TopDoctorResponse, WeeklyStatResponse } from "../../core/types/api.response";
 import axiosClient from "./axiosClient";
 import { fetchManagerDashboardStats as fetchMockDashboardStats, fetchPendingDoctors as fetchMockPendingDoctors, fetchPendingReceptionists as fetchMockPendingReceptionists, fetchTodayAppointments as fetchMockTodayAppointments, fetchWeeklyStats as fetchMockWeeklyStats, fetchTopDoctors as fetchMockTopDoctors, fetchRooms as fetchMockRooms, USE_MOCK_MANAGER } from '../../shared/mock/managerMock';
 
