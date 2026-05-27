@@ -360,9 +360,9 @@ export interface DoctorResponse {
     hospitalName: string;
     hospitalAddress: string;
     status: DoctorStatus;
-    rejectionReason?: string;
+    rejectionReason?: string | null;
     cvUrl?: string; 
-    rejectionNote?: string;
+    rejectionNote?: string | null;
     createdAt?: string;      
     updatedAt?: string;      
 }
@@ -407,6 +407,40 @@ export interface TopDoctorResponse {
     totalBookingsPaid: number;
     averageRating: number;
     rank: number;
+}
+
+// Appointment Today
+export interface AppointmentTodayResponse {
+    id: string;
+    patientName: string;
+    patientPhone: string;
+    doctorName: string;
+    doctorId: string;
+    startTime: string;
+    endTime: string;
+    appointmentDate: string;
+    symptoms: string;
+    status: AppointmentStatus;
+    paid: boolean;
+    price: number;
+    roomNumber?: string;
+}
+
+// Weekly Statistics
+export interface WeeklyStatResponse {
+    day: string;
+    dayOfWeek: number;
+    count: number;
+}
+
+// Alert
+export interface AlertResponse {
+    id: string;
+    type: 'warning' | 'danger' | 'info';
+    title: string;
+    message: string;
+    link?: string;
+    createdAt: string;
 }
 
 export interface PublicDoctorResponse {

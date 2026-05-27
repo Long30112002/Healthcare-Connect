@@ -228,41 +228,6 @@ export interface ReceptionistForManager {
     updatedAt: string;
 }
 
-// Appointment Today
-export interface AppointmentTodayResponse {
-    id: string;
-    patientName: string;
-    patientPhone: string;
-    doctorName: string;
-    doctorId: string;
-    startTime: string;
-    endTime: string;
-    appointmentDate: string;
-    symptoms: string;
-    status: AppointmentStatus;
-    paid: boolean;
-    price: number;
-    roomNumber?: string;
-}
-
-// Weekly Statistics
-export interface WeeklyStatResponse {
-    day: string;
-    dayOfWeek: number;
-    count: number;
-}
-
-
-
-// Alert
-export interface AlertResponse {
-    id: string;
-    type: 'warning' | 'danger' | 'info';
-    title: string;
-    message: string;
-    link?: string;
-    createdAt: string;
-}
 
 export interface Department {
     id: string;
@@ -294,4 +259,38 @@ export interface SystemConfig {
     isActive: boolean;
     updatedAt: string;
     updatedByName?: string;
+}
+
+
+export interface DashboardStats {
+  totalUsers: number;
+  totalUsersChange: number;
+  totalDoctors: number;
+  totalDoctorsChange: number;
+  totalHospitals: number;
+  totalHospitalsChange: number;
+  totalBookings: number;
+  totalBookingsChange: number;
+  todayBookings: number;
+  weekBookings: number;
+  monthBookings: number;
+  paymentRate: number;
+  cancelRate: number;
+  noShowRate: number;
+}
+
+export interface TopHospital {
+  id: string;
+  name: string;
+  address: string;
+  doctorCount: number;
+  bookingCount: number;
+  revenue: number;
+  rank: number;
+}
+
+export interface UserTrend {
+  month: number;
+  year: number;
+  count: number;
 }

@@ -1309,6 +1309,41 @@
       "dashboard": "Dashboard"
     }
   },
+  "admin": {
+    "dashboard": {
+      "title": "System Administration",
+      "subtitle": "Overview of entire system operations"
+    },
+    "stats": {
+      "totalUsers": "Users",
+      "totalDoctors": "Doctors",
+      "totalHospitals": "Hospitals",
+      "totalBookings": "Bookings"
+    },
+    "pendingDoctors": "Doctors Pending Verification",
+    "noPendingDoctors": "No doctors pending verification",
+    "bookingOverview": "Booking Overview",
+    "todayBookings": "Today",
+    "weekBookings": "This Week",
+    "monthBookings": "This Month",
+    "paymentRate": "Payment Rate",
+    "cancelRate": "Cancellation Rate",
+    "noShowRate": "No-Show Rate",
+    "topHospitals": "Top Active Hospitals",
+    "userTrend": "New User Registrations by Month",
+    "doctors": "doctors",
+    "bookings": "bookings",
+    "viewDetailedReport": "View detailed report",
+    "manageHospitals": "Manage Hospitals",
+    "approveDoctorSuccess": "Doctor approved successfully!",
+    "approveDoctorError": "Failed to approve doctor!",
+    "rejectDoctorSuccess": "Doctor rejected successfully!",
+    "rejectError": "Failed to reject!",
+    "rejectTitle": "Reject {{name}}",
+    "rejectReason": "Rejection reason",
+    "rejectNote": "Note (optional)",
+    "rejectNotePlaceholder": "Enter additional notes..."
+  },
   "settings": {
     "title": "Settings",
     "appearance": "Appearance & Language",

@@ -38,6 +38,7 @@ import ManagerDepartmentsSpecialtiesPage from '../../presentation/pages/manager/
 import PublicDoctorsPage from '../../presentation/pages/PublicDoctorsPage';
 import PublicDoctorDetailPage from '../../presentation/pages/PublicDoctorDetailPage';
 import AdminConfigPage from '../../presentation/pages/admin/AdminConfigPage';
+import AdminDashboard from '../../presentation/pages/admin/AdminDashboard';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -140,6 +141,8 @@ export const routes: RouteConfig[] = [
   { path: '/doctor/statistics', element: <DoctorStatisticsPage />, layout: true, roles: [UserRole.DOCTOR] },
   // { path: '/doctor/appointments/:appointmentId/detail', element: <AppointmentDetailPage />, layout: true, roles: [UserRole.DOCTOR] }
 
+  // Admin routes
+  { path: '/admin/dashboard', element: <AdminDashboard />, layout: true, roles: [UserRole.ADMIN] },
   { path: '/admin/config', element: <AdminConfigPage />, layout: true, roles: [UserRole.ADMIN] },
 
 ];  

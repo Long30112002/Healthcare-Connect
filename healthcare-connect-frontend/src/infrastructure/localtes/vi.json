@@ -1192,6 +1192,41 @@
       "dashboard": "Bảng điều khiển"
     }
   },
+  "admin": {
+    "dashboard": {
+      "title": "Quản trị hệ thống",
+      "subtitle": "Tổng quan hoạt động của toàn bộ hệ thống"
+    },
+    "stats": {
+      "totalUsers": "Người dùng",
+      "totalDoctors": "Bác sĩ",
+      "totalHospitals": "Bệnh viện",
+      "totalBookings": "Lịch hẹn"
+    },
+    "pendingDoctors": "Bác sĩ chờ xác thực",
+    "noPendingDoctors": "Không có bác sĩ nào chờ xác thực",
+    "bookingOverview": "Tổng quan lịch hẹn",
+    "todayBookings": "Hôm nay",
+    "weekBookings": "Tuần này",
+    "monthBookings": "Tháng này",
+    "paymentRate": "Tỷ lệ thanh toán",
+    "cancelRate": "Tỷ lệ hủy",
+    "noShowRate": "Tỷ lệ không đến",
+    "topHospitals": "Top bệnh viện hoạt động",
+    "userTrend": "Người dùng mới đăng ký theo tháng",
+    "doctors": "bác sĩ",
+    "bookings": "lịch hẹn",
+    "viewDetailedReport": "Xem báo cáo chi tiết",
+    "manageHospitals": "Quản lý bệnh viện",
+    "approveDoctorSuccess": "Duyệt bác sĩ thành công!",
+    "approveDoctorError": "Duyệt bác sĩ thất bại!",
+    "rejectDoctorSuccess": "Từ chối bác sĩ thành công!",
+    "rejectError": "Từ chối thất bại!",
+    "rejectTitle": "Từ chối {{name}}",
+    "rejectReason": "Lý do từ chối",
+    "rejectNote": "Ghi chú (không bắt buộc)",
+    "rejectNotePlaceholder": "Nhập ghi chú thêm..."
+  },
   "settings": {
     "title": "Cài đặt",
     "appearance": "Giao diện & Ngôn ngữ",
