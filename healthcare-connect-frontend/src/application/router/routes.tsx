@@ -41,6 +41,7 @@ import AdminConfigPage from '../../presentation/pages/admin/AdminConfigPage';
 import AdminDashboard from '../../presentation/pages/admin/AdminDashboard';
 import AdminUsersPage from '../../presentation/pages/admin/AdminUsersPage';
 import AdminDoctorsPage from '../../presentation/pages/admin/AdminDoctorsPage';
+import AdminHospitalsPage from '../../presentation/pages/admin/AdminHospitalsPage';
 
 // Lazy load components để tối ưu performance
 const PublicHomePage = lazy(() => import('../../presentation/pages/PublicHomePage'));
@@ -148,4 +149,5 @@ export const routes: RouteConfig[] = [
   { path: '/admin/config', element: <AdminConfigPage />, layout: true, roles: [UserRole.ADMIN] },
   { path: '/admin/users', element: <AdminUsersPage />, layout: true, roles: [UserRole.ADMIN] },
   { path: '/admin/doctors', element: <AdminDoctorsPage />, layout: true, roles: [UserRole.ADMIN] }, 
+  { path: '/admin/hospitals', element: <AdminHospitalsPage />, layout: true, roles: [UserRole.ADMIN] }, 
 ];  

@@ -1,5 +1,5 @@
 import type { DashboardStats, TopHospital, UserTrend } from "../../core/types";
-import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse } from "../../core/types/api.response";
+import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse, AdminHospitalDetailResponse, AdminHospitalListResponse } from "../../core/types/api.response";
 import type { PendingDoctor } from "../../infrastructure/api/adminApi";
 
 export const USE_MOCK_ADMIN = false;
@@ -779,7 +779,7 @@ export const fetchMockDoctors = (
   return new Promise((resolve) => {
     setTimeout(() => {
       let filtered = [...mockDoctors];
-      
+
       // Lọc theo keyword
       if (keyword) {
         const lowerKeyword = keyword.toLowerCase();
@@ -790,17 +790,17 @@ export const fetchMockDoctors = (
             doctor.doctorCode.toLowerCase().includes(lowerKeyword)
         );
       }
-      
+
       // Lọc theo status
       if (status && status !== 'ALL') {
         filtered = filtered.filter((doctor) => doctor.status === status);
       }
-      
+
       // Lọc theo bệnh viện
       if (hospitalId && hospitalId !== 'ALL') {
         filtered = filtered.filter((doctor) => doctor.hospitalId === hospitalId);
       }
-      
+
       // Sắp xếp
       if (sortBy === 'fullName') {
         filtered.sort((a, b) => {
@@ -813,12 +813,12 @@ export const fetchMockDoctors = (
           return sortDir === 'asc' ? comparison : -comparison;
         });
       }
-      
+
       // Phân trang
       const start = page * size;
       const end = start + size;
       const content = filtered.slice(start, end);
-      
+
       resolve({
         content,
         totalPages: Math.ceil(filtered.length / size),
@@ -861,6 +861,198 @@ export const fetchMockDoctorHistory = (doctorId: string): Promise<DoctorHistoryR
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockDoctorHistories[doctorId] || []);
+    }, 500);
+  });
+};
+
+// ==================== MOCK HOSPITALS DATA ====================
+
+export const mockHospitals: AdminHospitalListResponse[] = [
+  {
+    id: 'hospital-001',
+    name: 'Bệnh viện Đa khoa Xuyên Á',
+    address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+    hotline: '028 1234 5678',
+    email: 'contact@benhvienxuana.com',
+    managerName: 'Nguyễn Văn An',
+    managerEmail: 'an.nguyen@email.com',
+    status: 'ACTIVE',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-01-15T08:30:00',
+  },
+  {
+    id: 'hospital-002',
+    name: 'Bệnh viện Quốc tế City',
+    address: '456 Lê Lợi, Quận 3, TP.HCM',
+    hotline: '028 8765 4321',
+    email: 'info@cityinternational.com',
+    managerName: 'Trần Thị Bích',
+    managerEmail: 'bich.tran@email.com',
+    status: 'PENDING_CONFIRMATION',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-02-20T10:15:00',
+  },
+  {
+    id: 'hospital-003',
+    name: 'Phòng khám Đa khoa Medic',
+    address: '789 CMT8, Quận 10, TP.HCM',
+    hotline: '028 3456 7890',
+    email: 'contact@medic.com',
+    managerName: 'Lê Văn Cường',
+    managerEmail: 'cuong.le@email.com',
+    status: 'REJECTED',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-03-10T14:45:00',
+  },
+  {
+    id: 'hospital-004',
+    name: 'Bệnh viện Nhi Đồng',
+    address: '234 Nguyễn Trãi, Quận 5, TP.HCM',
+    hotline: '028 9876 5432',
+    email: 'info@nhidong.com',
+    managerName: 'Phạm Thị Dung',
+    managerEmail: 'dung.pham@email.com',
+    status: 'PENDING_CONFIRMATION',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-04-05T09:20:00',
+  },
+  {
+    id: 'hospital-005',
+    name: 'Bệnh viện Tim mạch',
+    address: '567 Hồng Bàng, Quận 5, TP.HCM',
+    hotline: '028 2345 6789',
+    email: 'contact@tim mach.com',
+    managerName: 'Hoàng Văn Em',
+    managerEmail: 'em.hoang@email.com',
+    status: 'ACTIVE',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-05-12T16:00:00',
+  },
+];
+
+export const mockHospitalDetails: Record<string, AdminHospitalDetailResponse> = {
+  'hospital-001': {
+    id: 'hospital-001',
+    name: 'Bệnh viện Đa khoa Xuyên Á',
+    address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+    hotline: '028 1234 5678',
+    email: 'contact@benhvienxuana.com',
+    website: 'https://benhvienxuana.com',
+    description: 'Bệnh viện đa khoa hàng đầu tại TP.HCM với đội ngũ bác sĩ giàu kinh nghiệm',
+    imageUrl: 'https://example.com/images/hospital-001.jpg',
+    managerId: 'user-001',
+    managerName: 'Nguyễn Văn An',
+    managerEmail: 'an.nguyen@email.com',
+    status: 'ACTIVE',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-01-15T08:30:00',
+    updatedAt: '2024-01-15T08:30:00',
+    doctorCount: 45,
+  },
+  'hospital-002': {
+    id: 'hospital-002',
+    name: 'Bệnh viện Quốc tế City',
+    address: '456 Lê Lợi, Quận 3, TP.HCM',
+    hotline: '028 8765 4321',
+    email: 'info@cityinternational.com',
+    website: 'https://cityinternational.com',
+    description: 'Bệnh viện quốc tế với trang thiết bị hiện đại',
+    imageUrl: 'https://example.com/images/hospital-002.jpg',
+    managerId: 'user-002',
+    managerName: 'Trần Thị Bích',
+    managerEmail: 'bich.tran@email.com',
+    status: 'PENDING_CONFIRMATION',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-02-20T10:15:00',
+    updatedAt: '2024-02-20T10:15:00',
+    doctorCount: 32,
+  },
+  'hospital-003': {
+    id: 'hospital-003',
+    name: 'Phòng khám Đa khoa Medic',
+    address: '789 CMT8, Quận 10, TP.HCM',
+    hotline: '028 3456 7890',
+    email: 'contact@medic.com',
+    website: 'https://medic.com',
+    description: 'Phòng khám đa khoa uy tín tại TP.HCM',
+    imageUrl: 'https://example.com/images/hospital-003.jpg',
+    managerId: 'user-003',
+    managerName: 'Lê Văn Cường',
+    managerEmail: 'cuong.le@email.com',
+    status: 'REJECTED',  // ← THÊM DÒNG NÀY
+    createdAt: '2024-03-10T14:45:00',
+    updatedAt: '2024-03-10T14:45:00',
+    doctorCount: 18,
+  },
+};
+
+// ==================== MOCK FETCH FUNCTIONS FOR HOSPITALS ====================
+
+export const fetchMockHospitals = (
+  page: number = 0,
+  size: number = 10,
+  keyword?: string,
+  sortBy: string = 'createdAt',
+  sortDir: string = 'desc'
+): Promise<PageResponse<AdminHospitalListResponse>> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filtered = [...mockHospitals];
+
+      // Lọc theo keyword
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        filtered = filtered.filter(
+          (hospital) =>
+            hospital.name.toLowerCase().includes(lowerKeyword) ||
+            hospital.address.toLowerCase().includes(lowerKeyword)
+        );
+      }
+
+      // Sắp xếp
+      if (sortBy === 'name') {
+        filtered.sort((a, b) => {
+          const comparison = a.name.localeCompare(b.name);
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      } else if (sortBy === 'createdAt') {
+        filtered.sort((a, b) => {
+          const comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      }
+
+      // Phân trang
+      const start = page * size;
+      const end = start + size;
+      const content = filtered.slice(start, end);
+
+      resolve({
+        content,
+        totalPages: Math.ceil(filtered.length / size),
+        totalElements: filtered.length,
+        size,
+        number: page,
+        first: page === 0,
+        last: end >= filtered.length,
+        empty: content.length === 0,
+        pageable: {
+          pageNumber: page,
+          pageSize: size,
+          sort: { empty: true, sorted: false, unsorted: true },
+          offset: page * size,
+          paged: true,
+          unpaged: false,
+        },
+        sort: { empty: true, sorted: false, unsorted: true },
+        numberOfElements: content.length,
+      });
+    }, 500);
+  });
+};
+
+export const fetchMockHospitalDetail = (hospitalId: string): Promise<AdminHospitalDetailResponse> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const detail = mockHospitalDetails[hospitalId];
+      if (detail) {
+        resolve(detail);
+      } else {
+        reject(new Error('Hospital not found'));
+      }
     }, 500);
   });
 };

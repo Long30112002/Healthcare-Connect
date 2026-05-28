@@ -1,5 +1,5 @@
 import type { Appointment, User, VitalSigns } from ".";
-import type { AppointmentStatus, DoctorStatus, DosageForm, MedicalCategory, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, Unit, UserRole } from "../constants/enums";
+import type { AppointmentStatus, DoctorStatus, DosageForm, HospitalStatus, MedicalCategory, MedicineCategory, PaymentStatus, ReceptionistStatus, RejectionReason, ScheduleStatus, Unit, UserRole } from "../constants/enums";
 
 export interface ApiResponse<T> {
     status: string;
@@ -586,11 +586,52 @@ export interface DoctorDetailResponse {
     hospitalId: string;
     hospitalName: string;
     hospitalAddress: string;
-    status: 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED' | 'INACTIVE' | 'ARCHIVED';
+    status: DoctorStatus;
     cvUrl?: string;
     rejectionReason?: string;
     rejectionNote?: string;
     createdAt?: string;
     updatedAt?: string;
     history?: DoctorHistoryResponse[];
+}
+
+export interface AdminHospitalListResponse {
+  id: string;
+  name: string;
+  address: string;
+  hotline: string;
+  email: string;
+  managerName: string;
+  managerEmail: string;
+  createdAt: string;
+}
+
+export interface AdminHospitalDetailResponse {
+  id: string;
+  name: string;
+  address: string;
+  hotline?: string;
+  email?: string;
+  website?: string;
+  description?: string;
+  imageUrl?: string;
+  managerId: string;
+  managerName: string;
+  managerEmail: string;
+  status: HospitalStatus;
+  createdAt: string;
+  updatedAt: string;
+  doctorCount: number;
+}
+
+export interface AdminHospitalListResponse {
+  id: string;
+  name: string;
+  address: string;
+  hotline: string;
+  email: string;
+  managerName: string;
+  managerEmail: string;
+  status: HospitalStatus;
+  createdAt: string;
 }
