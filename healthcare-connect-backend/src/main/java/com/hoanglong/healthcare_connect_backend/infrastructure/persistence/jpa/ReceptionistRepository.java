@@ -57,4 +57,18 @@ public interface ReceptionistRepository extends JpaRepository<Receptionist, UUID
             @Param("keyword") String keyword,
             Pageable pageable);
 
+    @Query("SELECT r FROM Receptionist r WHERE " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(r.user.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(r.receptionistCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(r.user.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:status IS NULL OR r.status = :status) " +
+            "AND (:hospitalId IS NULL OR r.hospital.id = :hospitalId)")
+    Page<Receptionist> findAllWithFilters(
+            @Param("keyword") String keyword,
+            @Param("status") ReceptionistStatus status,
+            @Param("hospitalId") UUID hospitalId,
+            Pageable pageable
+    );
+
 }

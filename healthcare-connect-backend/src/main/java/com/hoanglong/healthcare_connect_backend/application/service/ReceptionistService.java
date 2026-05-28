@@ -16,13 +16,18 @@ import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -52,18 +57,6 @@ public class ReceptionistService {
 
         return receptionistPage.map(receptionistMapper::toListResponse);
     }
-
-//    public Page<ReceptionistListResponse> getReceptionistsByHospital(UUID hospitalId, ReceptionistStatus status, Pageable pageable) {
-//        Page<Receptionist> receptionistPage;
-//
-//        if (status != null) {
-//            receptionistPage = receptionistRepository.findByHospitalIdAndStatus(hospitalId, status, pageable);
-//        } else {
-//            receptionistPage = receptionistRepository.findByHospitalId(hospitalId, pageable);
-//        }
-//
-//        return receptionistPage.map(receptionistMapper::toListResponse);
-//    }
 
     //Manager: Lấy receptionists của bệnh viện mình quản lý
     public Page<ReceptionistListResponse> getReceptionistsByHospital(UUID hospitalId,
@@ -167,6 +160,121 @@ public class ReceptionistService {
         return appointments.stream()
                 .map(appointmentMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public byte[] exportReceptionistsToExcel(String keyword, String status, String hospitalId) {
+        log.info("Export receptionists to Excel - keyword: {}, status: {}, hospitalId: {}",
+                keyword, status, hospitalId);
+
+        // Parse status filter
+        ReceptionistStatus receptionistStatus = null;
+        if (status != null && !status.isEmpty() && !"ALL".equals(status)) {
+            try {
+                receptionistStatus = ReceptionistStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                log.warn("Status không hợp lệ: {}", status);
+            }
+        }
+
+        // Parse hospitalId filter
+        UUID hospitalUuid = null;
+        if (hospitalId != null && !hospitalId.isEmpty() && !"ALL".equals(hospitalId)) {
+            try {
+                hospitalUuid = UUID.fromString(hospitalId);
+            } catch (IllegalArgumentException e) {
+                log.warn("hospitalId không hợp lệ: {}", hospitalId);
+            }
+        }
+
+        // Lấy danh sách receptionist (không phân trang)
+        Page<Receptionist> receptionists = receptionistRepository.findAllWithFilters(
+                keyword, receptionistStatus, hospitalUuid, Pageable.unpaged());
+
+        // Tạo workbook Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách lễ tân");
+
+        // Tạo header style
+        CellStyle headerStyle = getHeaderCellStyle(workbook);
+
+        // Tạo header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Mã lễ tân", "Họ tên", "Email", "Số điện thoại",
+                "Bệnh viện", "Trạng thái", "Ngày đăng ký"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Đổ dữ liệu
+        int rowNum = 1;
+        for (Receptionist receptionist : receptionists) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(receptionist.getReceptionistCode());
+            row.createCell(2).setCellValue(receptionist.getUser().getFullName());
+            row.createCell(3).setCellValue(receptionist.getUser().getEmail());
+            row.createCell(4).setCellValue(receptionist.getUser().getPhone() != null ?
+                    receptionist.getUser().getPhone() : "");
+            row.createCell(5).setCellValue(receptionist.getHospital() != null ?
+                    receptionist.getHospital().getName() : "");
+            row.createCell(6).setCellValue(getStatusVietnamese(receptionist.getStatus()));
+            row.createCell(7).setCellValue(formatDateTime(receptionist.getCreatedAt()));
+        }
+
+        // Auto-size columns
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) > 15000) {
+                sheet.setColumnWidth(i, 15000);
+            }
+        }
+
+        // Ghi ra byte array
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            workbook.close();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Lỗi khi tạo file Excel: {}", e.getMessage());
+            throw new AppException(ErrorCode.FILE_EXPORT_FAILED);
+        }
+    }
+
+    private CellStyle getHeaderCellStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(font);
+        style.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        return style;
+    }
+
+    private String getStatusVietnamese(ReceptionistStatus status) {
+        if (status == null) return "";
+        switch (status) {
+            case PENDING: return "Chờ duyệt";
+            case VERIFIED: return "Đã xác thực";
+            case APPROVED: return "Đã duyệt";
+            case REJECTED: return "Từ chối";
+            case INACTIVE: return "Không hoạt động";
+            default: return status.name();
+        }
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return dateTime.format(formatter);
     }
 
     //Manager: Lấy hospitalId từ token
