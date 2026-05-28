@@ -165,6 +165,7 @@ const Header = () => {
     ADMIN: [
       { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: patientIcon },
       { path: '/admin/doctors', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
+      { path: '/admin/receptionists', label: t('nav.receptionists'), shortLabel: '👩‍💼', icon: receptionistIcon },  
       { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: doctorIcon },
       { path: '/admin/specialties', label: t('nav.specialties'), shortLabel: '📚', icon: findIcon },
     ],

@@ -8,8 +8,8 @@ import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
-import type { ReceptionistForManager } from '../../../core/types/api.response';
 import toast from 'react-hot-toast';
+import type { ReceptionistForManager } from '../../../core/types';
 
 const ManagerReceptionistDetailPage = () => {
     const navigate = useNavigate();
@@ -47,6 +47,7 @@ const ManagerReceptionistDetailPage = () => {
                     fullName: 'Nguyễn Thị B',
                     email: 'nguyenthib@email.com',
                     phone: '0912345678',
+                    hospitalName: "abc",
                     status: ReceptionistStatus.VERIFIED,
                     cvUrl: 'https://example.com/cv.pdf',
                     createdAt: '2024-04-15T10:30:00',

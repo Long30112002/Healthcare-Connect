@@ -367,20 +367,6 @@ export interface DoctorResponse {
     updatedAt?: string;
 }
 
-export interface ReceptionistForManager {
-    id: string;
-    receptionistCode: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    status: ReceptionistStatus;
-    cvUrl: string;
-    rejectionReason?: string;
-    rejectionNote?: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
 export interface PaymentStatusResponse {
     status: string;
     paid: boolean;
@@ -634,4 +620,38 @@ export interface AdminHospitalListResponse {
   managerEmail: string;
   status: HospitalStatus;
   createdAt: string;
+}
+
+export interface ReceptionistListResponse {
+  id: string;
+  receptionistCode: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  hospitalName: string;
+  status: ReceptionistStatus;
+  createdAt: string;
+}
+
+export interface ReceptionistHistoryResponse {
+  id: number;
+  receptionistId: string;
+  actorName: string;
+  actorRole: string;
+  action: string;
+  oldStatus: string | null;
+  newStatus: string;
+  rejectionReason?: string;
+  rejectionNote?: string;
+  note?: string;
+  createdAt: string;
+}
+
+export interface ReceptionistDetailResponse extends ReceptionistListResponse {
+  cvUrl: string;
+  hospitalAddress: string;
+  rejectionReason?: string;
+  rejectionNote?: string;
+  updatedAt: string;
+  history?: ReceptionistHistoryResponse[];
 }

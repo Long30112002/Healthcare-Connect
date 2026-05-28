@@ -9,9 +9,9 @@ import Pagination from '../../components/shared/Pagination';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
-import type { ReceptionistForManager } from '../../../core/types/api.response';
 import toast from 'react-hot-toast';
 import { t } from 'i18next';
+import type { ReceptionistForManager } from '../../../core/types';
 
 type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
 

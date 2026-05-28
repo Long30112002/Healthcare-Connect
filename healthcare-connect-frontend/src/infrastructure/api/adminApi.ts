@@ -1,7 +1,7 @@
 import axiosClient from './axiosClient';
-import type { AdminDoctorListResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, AdminUserDetailResponse, AdminUserListResponse, DoctorDetailResponse, DoctorHistoryResponse, DoctorResponse, PageResponse } from '../../core/types/api.response';
-import { USE_MOCK_ADMIN, fetchMockDashboardStats, fetchMockTopHospitals, fetchMockUserTrend, fetchMockPendingDoctors, fetchMockUserDetail, fetchMockUsers, fetchMockDoctorDetail, fetchMockDoctorHistory, fetchMockDoctors, fetchMockHospitals, fetchMockHospitalDetail, } from '../../shared/mock/adminMock';
-import type { DashboardStats, TopHospital, UserTrend } from '../../core/types';
+import type { AdminDoctorListResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, AdminUserDetailResponse, AdminUserListResponse, DoctorDetailResponse, DoctorHistoryResponse, DoctorResponse, PageResponse, ReceptionistDetailResponse, ReceptionistListResponse } from '../../core/types/api.response';
+import { USE_MOCK_ADMIN, fetchMockDashboardStats, fetchMockTopHospitals, fetchMockUserTrend, fetchMockPendingDoctors, fetchMockUserDetail, fetchMockUsers, fetchMockDoctorDetail, fetchMockDoctorHistory, fetchMockDoctors, fetchMockHospitals, fetchMockHospitalDetail, fetchMockReceptionistDetail, fetchMockReceptionists, } from '../../shared/mock/adminMock';
+import type { DashboardStats, ReceptionistForManager, TopHospital, UserTrend } from '../../core/types';
 
 export interface PendingDoctor extends DoctorResponse {
   hospitalName: string;
@@ -256,5 +256,93 @@ export const adminApi = {
       return;
     }
     await axiosClient.post(`/admin/hospitals/${hospitalId}/resend-invitation`);
+  },
+
+  getReceptionistsByManager: async (
+    page: number = 0,
+    size: number = 10,
+    status?: string
+  ): Promise<PageResponse<ReceptionistForManager>> => {
+    const params: any = { page, size };
+    if (status) params.status = status;
+    const response = await axiosClient.get('/manager/receptionists', { params });
+    return response.data.data;
+  },
+
+  getPendingReceptionists: async (): Promise<ReceptionistForManager[]> => {
+    const response = await axiosClient.get('/admin/receptionist/pending');
+    return response.data.data;
+  },
+
+  approveReceptionist: async (receptionistId: string): Promise<void> => {
+    if (USE_MOCK_ADMIN) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return;
+    }
+    await axiosClient.patch(`/admin/receptionist/${receptionistId}/verify`);
+  },
+
+  rejectReceptionist: async (receptionistId: string, data: { reasonCode: string; note?: string }): Promise<void> => {
+    if (USE_MOCK_ADMIN) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return;
+    }
+    await axiosClient.post(`/admin/receptionist/${receptionistId}/reject`, data);
+  },
+
+  // Lấy danh sách receptionists (có phân trang, filter)
+  getReceptionists: async (
+    page: number = 0,
+    size: number = 10,
+    keyword?: string,
+    status?: string,
+    hospitalId?: string,
+    sortBy: string = 'createdAt',
+    sortDir: string = 'desc'
+  ): Promise<PageResponse<ReceptionistListResponse>> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockReceptionists(page, size, keyword, status, hospitalId, sortBy, sortDir);
+    }
+    const params: any = { page, size, sortBy, sortDir };
+    if (keyword) params.keyword = keyword;
+    if (status && status !== 'ALL') params.status = status;
+    if (hospitalId && hospitalId !== 'ALL') params.hospitalId = hospitalId;
+    const response = await axiosClient.get('/admin/receptionist', { params });
+    return response.data.data;
+  },
+
+  // Admin verify receptionist (PENDING → VERIFIED)
+  verifyReceptionist: async (receptionistId: string): Promise<void> => {
+    if (USE_MOCK_ADMIN) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return;
+    }
+    await axiosClient.patch(`/admin/receptionist/${receptionistId}/verify`);
+  },
+
+  // Lấy chi tiết receptionist (kèm lịch sử)
+  getReceptionistDetail: async (receptionistId: string): Promise<ReceptionistDetailResponse> => {
+    if (USE_MOCK_ADMIN) {
+      return fetchMockReceptionistDetail(receptionistId);
+    }
+    const response = await axiosClient.get(`/admin/receptionist/${receptionistId}`);
+    return response.data.data;
+  },
+
+  // Export receptionists to Excel
+  exportReceptionists: async (
+    keyword?: string,
+    status?: string,
+    hospitalId?: string
+  ): Promise<Blob> => {
+    const params: any = {};
+    if (keyword) params.keyword = keyword;
+    if (status && status !== 'ALL') params.status = status;
+    if (hospitalId && hospitalId !== 'ALL') params.hospitalId = hospitalId;
+    const response = await axiosClient.get('/admin/receptionist/export', {
+      params,
+      responseType: 'blob'
+    });
+    return response.data;
   },
 };

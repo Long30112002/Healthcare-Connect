@@ -1,5 +1,5 @@
 import type { DashboardStats, TopHospital, UserTrend } from "../../core/types";
-import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse, AdminHospitalDetailResponse, AdminHospitalListResponse } from "../../core/types/api.response";
+import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, ReceptionistDetailResponse, ReceptionistHistoryResponse, ReceptionistListResponse } from "../../core/types/api.response";
 import type { PendingDoctor } from "../../infrastructure/api/adminApi";
 
 export const USE_MOCK_ADMIN = false;
@@ -1052,6 +1052,215 @@ export const fetchMockHospitalDetail = (hospitalId: string): Promise<AdminHospit
         resolve(detail);
       } else {
         reject(new Error('Hospital not found'));
+      }
+    }, 500);
+  });
+};
+
+// ==================== MOCK RECEPTIONISTS DATA ====================
+
+export const mockReceptionists: ReceptionistListResponse[] = [
+  {
+    id: 'receptionist-001',
+    receptionistCode: 'REC-2024-001',
+    fullName: 'Nguyễn Thị Anh',
+    email: 'anh.nguyen@email.com',
+    phone: '0912345678',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    status: 'PENDING',
+    createdAt: '2024-01-15T08:30:00',
+  },
+  {
+    id: 'receptionist-002',
+    receptionistCode: 'REC-2024-002',
+    fullName: 'Trần Văn Bình',
+    email: 'binh.tran@email.com',
+    phone: '0987654321',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    status: 'VERIFIED',
+    createdAt: '2024-02-20T10:15:00',
+  },
+  {
+    id: 'receptionist-003',
+    receptionistCode: 'REC-2024-003',
+    fullName: 'Lê Thị Cúc',
+    email: 'cuc.le@email.com',
+    phone: '0934567890',
+    hospitalName: 'Phòng khám Đa khoa Medic',
+    status: 'APPROVED',
+    createdAt: '2024-03-10T14:45:00',
+  },
+  {
+    id: 'receptionist-004',
+    receptionistCode: 'REC-2024-004',
+    fullName: 'Phạm Văn Dũng',
+    email: 'dung.pham@email.com',
+    phone: '0978123456',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    status: 'REJECTED',
+    createdAt: '2024-04-05T09:20:00',
+  },
+  {
+    id: 'receptionist-005',
+    receptionistCode: 'REC-2024-005',
+    fullName: 'Hoàng Thị Em',
+    email: 'em.hoang@email.com',
+    phone: '0945678901',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    status: 'PENDING',
+    createdAt: '2024-05-12T16:00:00',
+  },
+];
+
+export const mockReceptionistDetails: Record<string, ReceptionistDetailResponse> = {
+  'receptionist-001': {
+    id: 'receptionist-001',
+    receptionistCode: 'REC-2024-001',
+    fullName: 'Nguyễn Thị Anh',
+    email: 'anh.nguyen@email.com',
+    phone: '0912345678',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    hospitalAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+    status: 'PENDING',
+    cvUrl: 'https://example.com/cv/anh_nguyen.pdf',
+    createdAt: '2024-01-15T08:30:00',
+    updatedAt: '2024-01-15T08:30:00',
+  },
+  'receptionist-002': {
+    id: 'receptionist-002',
+    receptionistCode: 'REC-2024-002',
+    fullName: 'Trần Văn Bình',
+    email: 'binh.tran@email.com',
+    phone: '0987654321',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    hospitalAddress: '456 Lê Lợi, Quận 3, TP.HCM',
+    status: 'VERIFIED',
+    cvUrl: 'https://example.com/cv/van_binh.pdf',
+    createdAt: '2024-02-20T10:15:00',
+    updatedAt: '2024-02-25T09:00:00',
+  },
+};
+
+export const mockReceptionistHistories: Record<string, ReceptionistHistoryResponse[]> = {
+  'receptionist-001': [
+    {
+      id: 1,
+      receptionistId: 'receptionist-001',
+      actorName: 'Nguyễn Thị Anh',
+      actorRole: 'RECEPTIONIST',
+      action: 'CREATE',
+      oldStatus: null,
+      newStatus: 'PENDING',
+      note: 'Nộp hồ sơ đăng ký lễ tân lần đầu',
+      createdAt: '2024-01-15T08:30:00',
+    },
+  ],
+  'receptionist-002': [
+    {
+      id: 1,
+      receptionistId: 'receptionist-002',
+      actorName: 'Trần Văn Bình',
+      actorRole: 'RECEPTIONIST',
+      action: 'CREATE',
+      oldStatus: null,
+      newStatus: 'PENDING',
+      note: 'Nộp hồ sơ đăng ký lễ tân lần đầu',
+      createdAt: '2024-02-20T10:15:00',
+    },
+    {
+      id: 2,
+      receptionistId: 'receptionist-002',
+      actorName: 'Admin System',
+      actorRole: 'ADMIN',
+      action: 'VERIFY',
+      oldStatus: 'PENDING',
+      newStatus: 'VERIFIED',
+      note: 'Admin xác thực hồ sơ lễ tân',
+      createdAt: '2024-02-25T09:00:00',
+    },
+  ],
+};
+
+export const fetchMockReceptionists = (
+  page: number = 0,
+  size: number = 10,
+  keyword?: string,
+  status?: string,
+  hospitalId?: string,
+  sortBy: string = 'createdAt',
+  sortDir: string = 'desc'
+): Promise<PageResponse<ReceptionistListResponse>> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filtered = [...mockReceptionists];
+
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        filtered = filtered.filter(
+          (r) =>
+            r.fullName.toLowerCase().includes(lowerKeyword) ||
+            r.email.toLowerCase().includes(lowerKeyword) ||
+            r.receptionistCode.toLowerCase().includes(lowerKeyword)
+        );
+      }
+
+      if (status && status !== 'ALL') {
+        filtered = filtered.filter((r) => r.status === status);
+      }
+
+      if (hospitalId && hospitalId !== 'ALL') {
+        filtered = filtered.filter((r) => r.hospitalName.toLowerCase().includes(hospitalId.toLowerCase()));
+      }
+
+      if (sortBy === 'fullName') {
+        filtered.sort((a, b) => {
+          const comparison = a.fullName.localeCompare(b.fullName);
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      } else if (sortBy === 'createdAt') {
+        filtered.sort((a, b) => {
+          const comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return sortDir === 'asc' ? comparison : -comparison;
+        });
+      }
+
+      const start = page * size;
+      const end = start + size;
+      const content = filtered.slice(start, end);
+
+      resolve({
+        content,
+        totalPages: Math.ceil(filtered.length / size),
+        totalElements: filtered.length,
+        size,
+        number: page,
+        first: page === 0,
+        last: end >= filtered.length,
+        empty: content.length === 0,
+        pageable: {
+          pageNumber: page,
+          pageSize: size,
+          sort: { empty: true, sorted: false, unsorted: true },
+          offset: page * size,
+          paged: true,
+          unpaged: false,
+        },
+        sort: { empty: true, sorted: false, unsorted: true },
+        numberOfElements: content.length,
+      });
+    }, 500);
+  });
+};
+
+export const fetchMockReceptionistDetail = (receptionistId: string): Promise<ReceptionistDetailResponse> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const detail = mockReceptionistDetails[receptionistId];
+      const history = mockReceptionistHistories[receptionistId] || [];
+      if (detail) {
+        resolve({ ...detail, history });
+      } else {
+        reject(new Error('Receptionist not found'));
       }
     }, 500);
   });

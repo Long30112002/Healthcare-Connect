@@ -220,6 +220,7 @@ export interface ReceptionistForManager {
     fullName: string;
     email: string;
     phone: string;
+    hospitalName: string; 
     status: ReceptionistStatus;
     cvUrl: string;
     rejectionReason?: string;
