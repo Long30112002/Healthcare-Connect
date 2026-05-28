@@ -1,8 +1,8 @@
 package com.hoanglong.healthcare_connect_backend.api.controller;
 
 import com.hoanglong.healthcare_connect_backend.api.payload.ApiResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserDetailResponse;
-import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserListResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.admin.*;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDashboardStats;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDoctorListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.TopHospitalResponse;
@@ -11,11 +11,11 @@ import com.hoanglong.healthcare_connect_backend.application.dto.user.UserRespons
 import com.hoanglong.healthcare_connect_backend.application.service.AdminService;
 import com.hoanglong.healthcare_connect_backend.application.service.UserService;
 import com.hoanglong.healthcare_connect_backend.shared.util.SecurityUtils;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.hoanglong.healthcare_connect_backend.application.dto.admin.ToggleUserStatusRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -182,5 +182,87 @@ public class AdminController
                 .header("Content-Disposition", "attachment; filename=doctors_" + LocalDate.now() + ".xlsx")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(excelData);
+    }
+
+    @GetMapping("/hospitals")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Page<AdminHospitalListResponse>> getHospitals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Page<AdminHospitalListResponse> hospitals = adminService.getHospitals(page, size, keyword, sortBy, sortDir);
+
+        return ApiResponse.<Page<AdminHospitalListResponse>>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Lấy danh sách bệnh viện thành công!")
+                .data(hospitals)
+                .build();
+    }
+
+    @GetMapping("/hospitals/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<AdminHospitalDetailResponse> getHospitalDetail(@PathVariable UUID id) {
+        AdminHospitalDetailResponse hospital = adminService.getHospitalDetail(id);
+
+        return ApiResponse.<AdminHospitalDetailResponse>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Lấy chi tiết bệnh viện thành công!")
+                .data(hospital)
+                .build();
+    }
+
+    @PostMapping("/hospitals")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<AdminHospitalDetailResponse> createHospital(@Valid @RequestBody HospitalRequest request) {
+        AdminHospitalDetailResponse hospital = adminService.createHospital(request);
+
+        return ApiResponse.<AdminHospitalDetailResponse>builder()
+                .status("success")
+                .code(HttpStatus.CREATED.value())
+                .message("Tạo bệnh viện thành công! Email mời đã được gửi.")
+                .data(hospital)
+                .build();
+    }
+
+    @DeleteMapping("/hospitals/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> deleteHospital(@PathVariable UUID id) {
+        adminService.deleteHospital(id);
+
+        return ApiResponse.<Void>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Xóa bệnh viện thành công!")
+                .build();
+    }
+
+    @GetMapping("/hospitals/export")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<byte[]> exportHospitals(
+            @RequestParam(required = false) String keyword) {
+
+        byte[] excelData = adminService.exportHospitalsToExcel(keyword);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=hospitals_" + LocalDate.now() + ".xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelData);
+    }
+
+    @PostMapping("/hospitals/{id}/resend-invitation")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> resendInvitation(@PathVariable UUID id) {
+        adminService.resendInvitation(id);
+
+        return ApiResponse.<Void>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("Đã gửi lại email mời thành công!")
+                .build();
     }
 }

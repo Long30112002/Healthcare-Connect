@@ -135,7 +135,9 @@ public enum ErrorCode {
     PHONE_TOO_LONG(6042, "Số điện thoại không hợp lệ!", HttpStatus.BAD_REQUEST),
     WEBSITE_TOO_LONG(6043, "Website không hợp lệ!", HttpStatus.BAD_REQUEST),
     RECEPTIONIST_NOT_IN_HOSPITAL(6033, "Lễ tân không thuộc bệnh viện này!", HttpStatus.FORBIDDEN),
-
+    CANNOT_DELETE_HOSPITAL_HAS_DOCTORS(6032, "Không thể xóa bệnh viện vì đang có bác sĩ hoạt động!", HttpStatus.BAD_REQUEST),
+    HOSPITAL_ALREADY_HAS_MANAGER(6033, "Bệnh viện này đã có quản lý!", HttpStatus.BAD_REQUEST),
+    NO_INVITATION_EMAIL(6034, "Bệnh viện này chưa có email mời quản lý!", HttpStatus.BAD_REQUEST),
 
     // =============================================================================
     // 7xxx: ĐẶT LỊCH & LỊCH KHÁM (BOOKING & SCHEDULE)

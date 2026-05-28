@@ -1,18 +1,19 @@
 package com.hoanglong.healthcare_connect_backend.application.service;
 
 
+import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminHospitalDetailResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminHospitalListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserDetailResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.admin.AdminUserListResponse;
+import com.hoanglong.healthcare_connect_backend.application.dto.hospital.HospitalRequest;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDashboardStats;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.AdminDoctorListResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.TopHospitalResponse;
 import com.hoanglong.healthcare_connect_backend.application.dto.statistics.admin.UserTrendDTO;
-import com.hoanglong.healthcare_connect_backend.core.constant.AppointmentStatus;
-import com.hoanglong.healthcare_connect_backend.core.constant.DoctorStatus;
-import com.hoanglong.healthcare_connect_backend.core.constant.ReceptionistStatus;
+import com.hoanglong.healthcare_connect_backend.core.constant.*;
 import com.hoanglong.healthcare_connect_backend.core.entity.Doctor;
+import com.hoanglong.healthcare_connect_backend.core.entity.Hospital;
 import com.hoanglong.healthcare_connect_backend.core.entity.User;
-import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.exception.AppException;
 import com.hoanglong.healthcare_connect_backend.core.exception.ErrorCode;
 import com.hoanglong.healthcare_connect_backend.infrastructure.persistence.jpa.*;
@@ -581,6 +582,241 @@ public class AdminService {
             case APPROVED: return "Đã duyệt";
             case REJECTED: return "Từ chối";
             default: return status.name();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminHospitalListResponse> getHospitals(int page, int size, String keyword, String sortBy, String sortDir) {
+        log.info("Lấy danh sách bệnh viện - page: {}, size: {}, keyword: {}, sortBy: {}, sortDir: {}",
+                page, size, keyword, sortBy, sortDir);
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Hospital> hospitalPage = hospitalRepository.findAllWithFilters(keyword, pageable);
+
+        return hospitalPage.map(hospital -> {
+            String managerName = hospital.getManager() != null ? hospital.getManager().getFullName() : null;
+
+            // Xác định status
+            HospitalStatus status;
+            if (hospital.getManager() != null) {
+                status = HospitalStatus.ACTIVE;  // Đã có manager
+            } else if (hospital.getTempManagerEmail() != null && !hospital.getTempManagerEmail().isEmpty()) {
+                status = HospitalStatus.PENDING_CONFIRMATION;  // Đã gửi mail, chờ xác nhận
+            } else {
+                status = HospitalStatus.REJECTED;  // Chưa có email manager
+            }
+
+            return AdminHospitalListResponse.builder()
+                    .id(hospital.getId())
+                    .name(hospital.getName())
+                    .address(hospital.getAddress())
+                    .hotline(hospital.getHotline())
+                    .email(hospital.getEmail())
+                    .managerName(managerName)
+                    .managerEmail(hospital.getTempManagerEmail())
+                    .status(status)
+                    .createdAt(hospital.getCreatedAt())
+                    .build();
+        });
+    }
+
+    @Transactional
+    public void resendInvitation(UUID hospitalId) {
+        log.info("Gửi lại email mời cho bệnh viện: {}", hospitalId);
+
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
+
+        // Kiểm tra đã có manager chưa
+        if (hospital.getManager() != null) {
+            throw new AppException(ErrorCode.HOSPITAL_ALREADY_HAS_MANAGER);
+        }
+
+        // Kiểm tra có email mời không
+        if (hospital.getTempManagerEmail() == null || hospital.getTempManagerEmail().isEmpty()) {
+            throw new AppException(ErrorCode.NO_INVITATION_EMAIL);
+        }
+
+        // Tìm user theo email
+        User manager = userRepository.findByEmail(hospital.getTempManagerEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Tạo token mới
+        String newToken = UUID.randomUUID().toString();
+        hospital.setInvitationToken(newToken);
+        hospital.setTokenExpiry(LocalDateTime.now().plusHours(24));
+        hospitalRepository.save(hospital);
+
+        // Gửi lại mail mời
+        mailService.sendManagerInvitation(manager, hospital, newToken);
+
+        log.info("Đã gửi lại email mời cho bệnh viện: {}", hospitalId);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminHospitalDetailResponse getHospitalDetail(UUID hospitalId) {
+        log.info("Lấy chi tiết bệnh viện: {}", hospitalId);
+
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
+
+        long doctorCount = doctorRepository.countByHospitalId(hospitalId);
+
+        String managerName = hospital.getManager() != null ? hospital.getManager().getFullName() : null;
+
+        return AdminHospitalDetailResponse.builder()
+                .id(hospital.getId())
+                .name(hospital.getName())
+                .address(hospital.getAddress())
+                .hotline(hospital.getHotline())
+                .email(hospital.getEmail())
+                .website(hospital.getWebsite())
+                .description(hospital.getDescription())
+                .imageUrl(hospital.getImageUrl())
+                .managerId(hospital.getManager() != null ? hospital.getManager().getId() : null)
+                .managerName(managerName)
+                .managerEmail(hospital.getTempManagerEmail())
+                .createdAt(hospital.getCreatedAt())
+                .updatedAt(hospital.getUpdatedAt())
+                .doctorCount(doctorCount)
+                .build();
+    }
+
+    @Transactional
+    public AdminHospitalDetailResponse createHospital(HospitalRequest request) {
+        log.info("Tạo bệnh viện mới: {}", request.getName());
+
+        // Kiểm tra tên bệnh viện đã tồn tại chưa
+        if (hospitalRepository.existsByName(request.getName())) {
+            throw new AppException(ErrorCode.HOSPITAL_ALREADY_EXISTS);
+        }
+
+        // Tìm user theo email manager
+        User manager = userRepository.findByEmail(request.getManagerEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Kiểm tra user đã verify email chưa
+        if (!Boolean.TRUE.equals(manager.getEnabled())) {
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
+        }
+
+        // Không cho phép mời Admin hoặc Doctor làm Manager
+        if (manager.getRole() == UserRole.ADMIN || manager.getRole() == UserRole.DOCTOR) {
+            throw new AppException(ErrorCode.INVALID_ROLE_FOR_MANAGER);
+        }
+
+        // Kiểm tra user đã là Manager của bệnh viện khác chưa
+        if (manager.getRole() == UserRole.HOSPITAL_MANAGER) {
+            boolean alreadyManager = hospitalRepository.existsByManagerId(manager.getId());
+            if (alreadyManager) {
+                throw new AppException(ErrorCode.USER_ALREADY_MANAGER);
+            }
+        }
+
+        // Tạo token mời
+        String token = UUID.randomUUID().toString();
+
+        // Tạo bệnh viện
+        Hospital hospital = Hospital.builder()
+                .name(request.getName())
+                .address(request.getAddress())
+                .hotline(request.getHotline())
+                .email(request.getEmail())
+                .website(request.getWebsite())
+                .description(request.getDescription())
+                .imageUrl(request.getImageUrl())
+                .status(HospitalStatus.PENDING_CONFIRMATION)
+                .invitationToken(token)
+                .tokenExpiry(LocalDateTime.now().plusHours(24))
+                .tempManagerEmail(request.getManagerEmail())
+                .build();
+
+        Hospital savedHospital = hospitalRepository.save(hospital);
+
+        // Gửi mail mời
+        mailService.sendManagerInvitation(manager, savedHospital, token);
+
+        return getHospitalDetail(savedHospital.getId());
+    }
+
+    @Transactional
+    public void deleteHospital(UUID hospitalId) {
+        log.info("Xóa bệnh viện: {}", hospitalId);
+
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
+
+        // Kiểm tra có bác sĩ không
+        if (hospitalRepository.hasDoctors(hospitalId)) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_HOSPITAL_HAS_DOCTORS);
+        }
+
+        hospitalRepository.delete(hospital);
+
+        log.info("Đã xóa bệnh viện: {}", hospitalId);
+    }
+
+    public byte[] exportHospitalsToExcel(String keyword) {
+        log.info("Export hospitals to Excel - keyword: {}", keyword);
+
+        // Lấy danh sách bệnh viện (không phân trang)
+        Pageable pageable = Pageable.unpaged();
+        Page<Hospital> hospitalPage = hospitalRepository.findAllWithFilters(keyword, pageable);
+        List<Hospital> hospitals = hospitalPage.getContent();
+
+        // Tạo workbook Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Danh sách bệnh viện");
+
+        // Tạo header style
+        CellStyle headerStyle = getHeaderCellStyle(workbook);
+
+        // Tạo header row
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"STT", "Tên bệnh viện", "Địa chỉ", "Số điện thoại", "Email", "Website", "Quản lý", "Ngày tạo"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Đổ dữ liệu
+        int rowNum = 1;
+        for (Hospital hospital : hospitals) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowNum - 1);
+            row.createCell(1).setCellValue(hospital.getName());
+            row.createCell(2).setCellValue(hospital.getAddress());
+            row.createCell(3).setCellValue(hospital.getHotline() != null ? hospital.getHotline() : "");
+            row.createCell(4).setCellValue(hospital.getEmail() != null ? hospital.getEmail() : "");
+            row.createCell(5).setCellValue(hospital.getWebsite() != null ? hospital.getWebsite() : "");
+
+            String managerName = hospital.getManager() != null ? hospital.getManager().getFullName() : "";
+            String managerEmail = hospital.getTempManagerEmail() != null ? hospital.getTempManagerEmail() : "";
+            String managerInfo = managerName + (managerEmail.isEmpty() ? "" : " (" + managerEmail + ")");
+            row.createCell(6).setCellValue(managerInfo);
+
+            row.createCell(7).setCellValue(formatDateTime(hospital.getCreatedAt()));
+        }
+
+        // Auto-size columns
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) > 15000) {
+                sheet.setColumnWidth(i, 15000);
+            }
+        }
+
+        // Ghi ra byte array
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            workbook.close();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Lỗi khi tạo file Excel: {}", e.getMessage());
+            throw new AppException(ErrorCode.FILE_EXPORT_FAILED);
         }
     }
 }
