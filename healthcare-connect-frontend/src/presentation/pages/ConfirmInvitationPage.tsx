@@ -1,5 +1,3 @@
-// presentation/pages/ConfirmInvitationPage.tsx
-
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppTranslation } from '../../application/hooks/useAppTranslation';
@@ -41,10 +39,34 @@ const ConfirmInvitationPage = () => {
       return;
     }
 
-    acceptInvitation(() => 
+    acceptInvitation(() =>
       axiosClient.post('/hospitals/accept-invitation', { token, hospitalId })
     );
   }, [token, hospitalId]);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-20 max-w-md">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-8 text-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <svg className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('confirmInvitation.processing')}
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400">
+                {t('confirmInvitation.pleaseWait')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (status === 'success') {
     return (
@@ -78,9 +100,9 @@ const ConfirmInvitationPage = () => {
               <p className="text-sm text-gray-400 dark:text-gray-500 mb-4">
                 ⏱️ {t('confirmInvitation.redirecting')}
               </p>
-              <Button 
-                variant="primary" 
-                onClick={() => navigate('/login')} 
+              <Button
+                variant="primary"
+                onClick={() => navigate('/login')}
                 className="bg-gradient-to-r from-green-600 to-teal-500 hover:from-green-700 hover:to-teal-600"
               >
                 🔑 {t('common.login')}

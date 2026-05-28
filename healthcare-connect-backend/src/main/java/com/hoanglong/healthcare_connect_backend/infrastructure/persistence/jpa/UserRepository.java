@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByVerificationCode(String code);
 
+    @Query(value = "SELECT * FROM users WHERE email = :email", nativeQuery = true)
+    Optional<User> findByEmailNative(@Param("email") String email);
+
     @Modifying
     @Query("UPDATE User u SET u.enabled = true, u.verificationCode = null WHERE u.verificationCode = :code")
     int verifyUserByCode(@Param("code") String code);
@@ -51,6 +54,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             Pageable pageable);
 
     Optional<User> findById(UUID id);
-
-    long countByRole(UserRole role);
 }

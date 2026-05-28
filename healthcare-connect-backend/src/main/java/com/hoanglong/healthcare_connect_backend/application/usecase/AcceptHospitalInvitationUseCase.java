@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,9 +32,16 @@ public class AcceptHospitalInvitationUseCase {
 
     @Transactional
     public ApiResponse<UserResponse> execute(AcceptInvitationRequest request) {
+        log.info("=== ACCEPT INVITATION DEBUG ===");
+        log.info("Hospital ID: {}", request.getHospitalId());
+        log.info("Token: {}", request.getToken());
+
         // 1. Tìm bệnh viện
         Hospital hospital = hospitalRepository.findById(request.getHospitalId())
                 .orElseThrow(() -> new AppException(ErrorCode.HOSPITAL_NOT_FOUND));
+
+        log.info("Found hospital: {}", hospital.getName());
+        log.info("TempManagerEmail: '{}'", hospital.getTempManagerEmail());
 
         // 2. Kiểm tra Token
         if (hospital.getInvitationToken() == null || !hospital.getInvitationToken().equals(request.getToken())) {
@@ -46,27 +54,35 @@ public class AcceptHospitalInvitationUseCase {
             throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
 
-        // 3. Dùng ID thay Email để khớp với Token
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        // 3. Tìm user bằng email (trim và native query)
+        String email = hospital.getTempManagerEmail().trim();
+        log.info("Tìm user với email: '{}', độ dài: {}", email, email.length());
+
+        User user = userRepository.findByEmailNative(email)
+                .orElseThrow(() -> {
+                    log.error("KHÔNG tìm thấy user với email: '{}'", email);
+                    return new AppException(ErrorCode.USER_NOT_FOUND);
+                });
+
+        log.info("Đã tìm thấy user: {} - {}", user.getId(), user.getEmail());
 
         // 4. Kiểm tra email user có khớp với email được mời không
-        if (!user.getEmail().equals(hospital.getTempManagerEmail())) {
+        if (!user.getEmail().equalsIgnoreCase(email)) {
+            log.error("Email không khớp: user.email={}, expected={}", user.getEmail(), email);
             throw new AppException(ErrorCode.INVITATION_EMAIL_MISMATCH);
         }
 
-        // 4a. Kiểm tra user đã verify email chưa
+        // 5. Kiểm tra user đã verify email chưa
         if (!Boolean.TRUE.equals(user.getEnabled())) {
             throw new AppException(ErrorCode.USER_NOT_VERIFIED);
         }
 
-        // 4b. Kiểm tra user không phải là ADMIN
+        // 6. Kiểm tra user không phải là ADMIN
         if (user.getRole() == UserRole.ADMIN) {
             throw new AppException(ErrorCode.ADMIN_CANNOT_BE_MANAGER);
         }
 
-        // 4c. Kiểm tra user có ROLE manager của bệnh viện khác
+        // 7. Kiểm tra user có ROLE manager của bệnh viện khác
         if (user.getRole() == UserRole.HOSPITAL_MANAGER) {
             boolean alreadyManager = hospitalRepository.existsByManagerId(user.getId());
             if (alreadyManager) {
@@ -74,7 +90,7 @@ public class AcceptHospitalInvitationUseCase {
             }
         }
 
-        // 5. Thực hiện nâng cấp Role và kích hoạt Bệnh viện
+        // 8. Nâng cấp Role và kích hoạt Bệnh viện
         user.setRole(UserRole.HOSPITAL_MANAGER);
         userRepository.save(user);
 

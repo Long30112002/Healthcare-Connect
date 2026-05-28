@@ -86,6 +86,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/doctors/**").permitAll()
                 .requestMatchers("/api/public/home/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/hospitals").permitAll()
+                .requestMatchers("/api/hospitals/accept-invitation").permitAll()
                 .anyRequest().authenticated()
         );
 
