@@ -1,7 +1,8 @@
 import axiosClient from './axiosClient';
-import type { AdminDoctorListResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, AdminUserDetailResponse, AdminUserListResponse, DoctorDetailResponse, DoctorHistoryResponse, DoctorResponse, PageResponse, ReceptionistDetailResponse, ReceptionistListResponse } from '../../core/types/api.response';
-import { USE_MOCK_ADMIN, fetchMockDashboardStats, fetchMockTopHospitals, fetchMockUserTrend, fetchMockPendingDoctors, fetchMockUserDetail, fetchMockUsers, fetchMockDoctorDetail, fetchMockDoctorHistory, fetchMockDoctors, fetchMockHospitals, fetchMockHospitalDetail, fetchMockReceptionistDetail, fetchMockReceptionists, } from '../../shared/mock/adminMock';
+import type { AdminDoctorListResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, AdminUserDetailResponse, AdminUserListResponse, DoctorDetailResponse, DoctorHistoryResponse, DoctorResponse, PageResponse, ReceptionistDetailResponse, ReceptionistListResponse, TopDoctorResponse, TopMedicineResponse } from '../../core/types/api.response';
+import { USE_MOCK_ADMIN, fetchMockDashboardStats, fetchMockTopHospitals, fetchMockUserTrend, fetchMockPendingDoctors, fetchMockUserDetail, fetchMockUsers, fetchMockDoctorDetail, fetchMockDoctorHistory, fetchMockDoctors, fetchMockHospitals, fetchMockHospitalDetail, fetchMockReceptionistDetail, fetchMockReceptionists, mockPendingReceptionists, mockMonthlyRevenueForAdmin, mockTopDoctorsForAdmin, mockTopMedicinesForAdmin, } from '../../shared/mock/adminMock';
 import type { DashboardStats, ReceptionistForManager, TopHospital, UserTrend } from '../../core/types';
+import type { RevenueData } from './statisticsApi';
 
 export interface PendingDoctor extends DoctorResponse {
   hospitalName: string;
@@ -269,7 +270,10 @@ export const adminApi = {
     return response.data.data;
   },
 
-  getPendingReceptionists: async (): Promise<ReceptionistForManager[]> => {
+  getPendingReceptionists: async (): Promise<ReceptionistListResponse[]> => {
+    if (USE_MOCK_ADMIN) {
+      return mockPendingReceptionists;
+    }
     const response = await axiosClient.get('/admin/receptionist/pending');
     return response.data.data;
   },
@@ -344,5 +348,29 @@ export const adminApi = {
       responseType: 'blob'
     });
     return response.data;
+  },
+
+  getTopDoctors: async (limit: number = 5): Promise<TopDoctorResponse[]> => {
+    if (USE_MOCK_ADMIN) {
+      return mockTopDoctorsForAdmin.slice(0, limit);
+    }
+    const response = await axiosClient.get(`/admin/statistics/top-doctors?limit=${limit}`);
+    return response.data.data;
+  },
+
+  getTopMedicines: async (limit: number = 5): Promise<TopMedicineResponse[]> => {
+    if (USE_MOCK_ADMIN) {
+      return mockTopMedicinesForAdmin.slice(0, limit);
+    }
+    const response = await axiosClient.get(`/admin/statistics/top-medicines?limit=${limit}`);
+    return response.data.data;
+  },
+
+  getMonthlyRevenue: async (): Promise<RevenueData[]> => {
+    if (USE_MOCK_ADMIN) {
+      return mockMonthlyRevenueForAdmin;
+    }
+    const response = await axiosClient.get('/admin/statistics/revenue');
+    return response.data.data;
   },
 };

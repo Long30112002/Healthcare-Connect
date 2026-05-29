@@ -1192,7 +1192,15 @@
     "patients": "patients",
     "prescriptions": "prescriptions",
     "reportGeneratedAt": "Report generated at",
-    "from": "from"
+    "from": "from",
+    "topDoctors": "Top Doctors",
+    "specialty": "Specialty",
+    "revenue": "Revenue",
+    "rating": "Rating",
+    "rank": "Rank",
+    "totalDoctors": "Doctors",
+    "totalPatients": "Patients",
+    "consultationFee": "Consultation Fee"
   },
   "home": {
     "hero": {
@@ -1424,6 +1432,21 @@
       "resendInvitation": "Resend invitation email",
       "resendSuccess": "Invitation email resent to {{name}}!",
       "resendError": "Failed to resend invitation email!"
+    },
+    "statistics": {
+      "revenueChart": "Monthly Revenue",
+      "topMedicines": "Top Prescribed Medicines",
+      "topDoctors": "Top Doctors",
+      "specialty": "Specialty",
+      "patients": "Patients",
+      "revenue": "Revenue",
+      "rating": "Rating",
+      "rank": "Rank",
+      "prescriptions": "prescriptions",
+      "noData": "No data available",
+      "totalDoctors": "Doctors",
+      "totalPatients": "Patients",
+      "consultationFee": "Consultation Fee"
     },
     "doctors": {
       "title": "Doctor Management",

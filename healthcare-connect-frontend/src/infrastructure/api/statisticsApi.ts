@@ -45,8 +45,6 @@ export interface TopMedicine {
   prescriptionCount: number;
 }
 
-// ==================== STATISTICS API ====================
-
 export const statisticsApi = {
   // ==================== DOCTOR STATISTICS ====================
 

@@ -209,4 +209,49 @@ public interface StatisticsRepository extends JpaRepository<Appointment, UUID> {
             @Param("checkedInStatus") String checkedInStatus,
             @Param("waitingStatus") String waitingStatus);
 
+    @Query(value = "SELECT d.id, u.full_name, COALESCE(s.name, 'Chưa phân loại') as specialty_name, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true AND a.status != 'CANCELLED' THEN sched.price ELSE 0 END), 0) as revenue_collected, " +
+            "COALESCE(SUM(CASE WHEN a.is_paid = true AND a.status = 'COMPLETED' THEN sched.price ELSE 0 END), 0) as revenue_completed, " +
+            "COUNT(DISTINCT CASE WHEN a.status = 'COMPLETED' THEN COALESCE(a.patient_id::TEXT, a.patient_phone) ELSE NULL END) as patients_completed, " +
+            "COUNT(DISTINCT CASE WHEN a.is_paid = true AND a.status != 'CANCELLED' THEN a.id ELSE NULL END) as bookings_paid, " +
+            "COALESCE(AVG(r.rating), 0) as avg_rating " +
+            "FROM doctors d " +
+            "JOIN users u ON d.user_id = u.id " +
+            "LEFT JOIN specialties s ON d.specialty_id = s.id " +
+            "LEFT JOIN schedules sched ON d.id = sched.doctor_id " +
+            "LEFT JOIN appointments a ON sched.id = a.schedule_id " +
+            "LEFT JOIN reviews r ON d.id = r.doctor_id AND r.deleted = false " +
+            "WHERE d.status = 'APPROVED' " +
+            "GROUP BY d.id, u.full_name, s.name " +
+            "ORDER BY revenue_collected DESC " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Object[]> findTopDoctorsForAdmin(@Param("limit") int limit);
+
+    @Query(value = "SELECT m.name as medicine_name, " +
+            "COUNT(pi.id) as prescription_count " +
+            "FROM prescription_items pi " +
+            "JOIN medicines m ON pi.medicine_id = m.id " +
+            "JOIN prescriptions p ON pi.prescription_id = p.id " +
+            "JOIN medical_records mr ON p.medical_record_id = mr.id " +
+            "WHERE m.deleted = false " +
+            "GROUP BY m.id, m.name " +
+            "ORDER BY prescription_count DESC " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Object[]> getTopMedicinesForAdmin(@Param("limit") int limit);
+
+    @Query(value = "SELECT EXTRACT(MONTH FROM a.appointment_date) as month, " +
+            "EXTRACT(YEAR FROM a.appointment_date) as year, " +
+            "COALESCE(SUM(s.price), 0) as revenue " +
+            "FROM appointments a " +
+            "JOIN schedules s ON a.schedule_id = s.id " +
+            "WHERE a.is_paid = true " +
+            "AND a.status = 'COMPLETED' " +
+            "AND a.appointment_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY EXTRACT(YEAR FROM a.appointment_date), EXTRACT(MONTH FROM a.appointment_date) " +
+            "ORDER BY year ASC, month ASC",
+            nativeQuery = true)
+    List<Object[]> getMonthlyRevenueForAdmin(@Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

@@ -1095,7 +1095,15 @@
         "patients": "Bệnh nhân",
         "prescriptions": "đơn",
         "reportGeneratedAt": "Báo cáo được tạo lúc",
-        "from": "từ"
+        "from": "từ",
+        "topDoctors": "Top bác sĩ",
+        "specialty": "Chuyên khoa",
+        "revenue": "Doanh thu",
+        "rating": "Đánh giá",
+        "rank": "Hạng",
+        "totalDoctors": "Bác sĩ",
+        "totalPatients": "Bệnh nhân",
+        "consultationFee": "Phí khám"
     },
     "home": {
         "hero": {
@@ -1307,6 +1315,21 @@
             "resendInvitation": "Gửi lại email mời",
             "resendSuccess": "Đã gửi lại email mời cho bệnh viện {{name}}!",
             "resendError": "Gửi lại email mời thất bại!"
+        },
+        "statistics": {
+            "revenueChart": "Doanh thu theo tháng",
+            "topMedicines": "Top thuốc được kê nhiều nhất",
+            "topDoctors": "Top bác sĩ",
+            "specialty": "Chuyên khoa",
+            "patients": "Bệnh nhân",
+            "revenue": "Doanh thu",
+            "rating": "Đánh giá",
+            "rank": "Hạng",
+            "prescriptions": "đơn",
+            "noData": "Không có dữ liệu",
+            "totalDoctors": "Bác sĩ",
+            "totalPatients": "Bệnh nhân",
+            "consultationFee": "Phí khám"
         },
         "doctors": {
             "title": "Quản lý bác sĩ",

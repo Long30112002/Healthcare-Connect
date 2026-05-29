@@ -395,6 +395,11 @@ export interface TopDoctorResponse {
     rank: number;
 }
 
+export interface TopMedicineResponse {
+  medicineName: string;
+  prescriptionCount: number;
+}
+
 // Appointment Today
 export interface AppointmentTodayResponse {
     id: string;
