@@ -6,11 +6,12 @@ import Button from '../../components/shared/Button';
 import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
 import toast from 'react-hot-toast';
-import { formatPrice,formatDate } from '../../../shared/utils/dateUtils';
+import { formatPrice, formatDate } from '../../../shared/utils/dateUtils';
 import { RejectionReason } from '../../../core/constants/enums';
-import type { DoctorResponse } from '../../../core/types/api.response';
+import type { DoctorResponse, ReceptionistListResponse, TopDoctorResponse } from '../../../core/types/api.response';
 import { adminApi } from '../../../infrastructure/api/adminApi';
-import type { DashboardStats, ReceptionistForManager, TopHospital, UserTrend } from '../../../core/types';
+import type { DashboardStats, TopHospital, UserTrend } from '../../../core/types';
+import { type RevenueData, type TopMedicine } from '../../../infrastructure/api/statisticsApi';
 
 const AdminDashboard = () => {
   const { t } = useAppTranslation();
@@ -20,7 +21,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [pendingDoctors, setPendingDoctors] = useState<DoctorResponse[]>([]);
-  const [pendingReceptionists, setPendingReceptionists] = useState<ReceptionistForManager[]>([]);
+  const [pendingReceptionists, setPendingReceptionists] = useState<ReceptionistListResponse[]>([]);
   const [topHospitals, setTopHospitals] = useState<TopHospital[]>([]);
   const [userTrend, setUserTrend] = useState<UserTrend[]>([]);
 
@@ -34,6 +35,11 @@ const AdminDashboard = () => {
   const [rejectNote, setRejectNote] = useState('');
   const [approvingDoctorId, setApprovingDoctorId] = useState<string | null>(null);
   const [rejectingDoctorId, setRejectingDoctorId] = useState<string | null>(null);
+
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [topMedicines, setTopMedicines] = useState<TopMedicine[]>([]);
+  const [topDoctors, setTopDoctors] = useState<TopDoctorResponse[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   // Modal states for Receptionists
   const [rejectReceptionistModal, setRejectReceptionistModal] = useState<{
@@ -61,6 +67,7 @@ const AdminDashboard = () => {
         setTopHospitals(hospitalsData);
         setUserTrend(trendData);
         setPendingReceptionists(receptionistsData);
+        await fetchStatistics();
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
         toast.error(t('common.loadError'));
@@ -71,7 +78,25 @@ const AdminDashboard = () => {
     fetchData();
   }, [t]);
 
-  // ==================== DOCTOR HANDLERS ====================
+  // Thêm vào sau function fetchData hiện tại
+  const fetchStatistics = async () => {
+    setStatsLoading(true);
+    try {
+      const [revenue, medicines, doctors] = await Promise.all([
+        adminApi.getMonthlyRevenue(),
+        adminApi.getTopMedicines(5),
+        adminApi.getTopDoctors(5)
+      ]);
+      setRevenueData(revenue);
+      setTopMedicines(medicines);
+      setTopDoctors(doctors);
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
   const handleApproveDoctor = async (doctorId: string) => {
     setApprovingDoctorId(doctorId);
     try {
@@ -116,7 +141,7 @@ const AdminDashboard = () => {
       toast.error(t('admin.approveReceptionistError'));
     } finally {
       setApprovingReceptionistId(null);
-    } 
+    }
   };
 
   const handleOpenRejectReceptionistModal = (receptionistId: string, receptionistName: string) => {
@@ -139,6 +164,8 @@ const AdminDashboard = () => {
       setRejectingReceptionistId(null);
     }
   };
+
+
 
   // Get max value for chart
   const maxTrendCount = Math.max(...userTrend.map(t => t.count), 0);
@@ -263,7 +290,7 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               )}
-              {pendingDoctors.length > 5 && (
+              {pendingDoctors.length >= 5 && (
                 <div className="mt-3 text-center">
                   <button
                     onClick={() => navigate('/admin/doctors?status=PENDING')}
@@ -322,10 +349,10 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               )}
-              {pendingReceptionists.length > 5 && (
+              {pendingReceptionists.length >= 5 && (
                 <div className="mt-3 text-center">
                   <button
-                    onClick={() => navigate('/admin/receptionists?status=VERIFIED')}
+                    onClick={() => navigate('/admin/receptionists?status=PENDING')}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     {t('common.viewAll')} →
@@ -338,7 +365,7 @@ const AdminDashboard = () => {
 
         {/* Booking Overview & Top Hospitals */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          
+
           {/* Left: Booking Overview */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -388,14 +415,14 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="mt-4 text-center">
+              {/* <div className="mt-4 text-center">
                 <button
-                  onClick={() => navigate('/manager/statistics')}
+                  onClick={() => navigate('/')}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   {t('admin.viewDetailedReport')} →
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -439,6 +466,117 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Revenue Chart */}
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              📈 {t('admin.statistics.revenueChart')}
+            </h3>
+            {statsLoading ? (
+              <div className="h-48 flex items-center justify-center">
+                <LoadingSpinner size="md" />
+              </div>
+            ) : (
+              <div className="relative h-48">
+                <div className="flex items-end justify-between gap-1 h-40">
+                  {revenueData.map((item, idx) => {
+                    const maxRevenue = Math.max(...revenueData.map(r => r.revenue), 0);
+                    const height = maxRevenue > 0 ? (item.revenue / maxRevenue) * 120 : 0;
+                    return (
+                      <div key={idx} className="flex flex-col items-center flex-1">
+                        <div className="relative w-full group">
+                          <div
+                            className="w-full bg-blue-500 rounded-t-lg transition-all duration-500 hover:bg-blue-600 cursor-pointer"
+                            style={{ height: `${height}px` }}
+                          />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                            {new Intl.NumberFormat('vi-VN').format(item.revenue)}đ
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">T{item.month}</p>
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{item.year}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Top Medicines */}
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              💊 {t('admin.statistics.topMedicines')}
+            </h3>
+            {statsLoading ? (
+              <div className="h-48 flex items-center justify-center">
+                <LoadingSpinner size="md" />
+              </div>
+            ) : topMedicines.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">{t('admin.statistics.noData')}</p>
+            ) : (
+              <div className="space-y-3">
+                {topMedicines.map((medicine, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-400 w-6">
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
+                      </span>
+                      <span className="font-medium text-gray-900 dark:text-white">{medicine.medicineName}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-primary">{medicine.prescriptionCount} {t('admin.statistics.prescriptions')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Doctors */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 shadow-sm mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            👑 {t('admin.statistics.topDoctors')}
+          </h3>
+          {statsLoading ? (
+            <div className="h-48 flex items-center justify-center">
+              <LoadingSpinner size="md" />
+            </div>
+          ) : topDoctors.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">{t('admin.statistics.noData')}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                  <tr>
+                    <th className="px-4 py-2 text-left">{t('admin.statistics.rank')}</th>
+                    <th className="px-4 py-2 text-left">{t('common.doctorName')}</th>
+                    <th className="px-4 py-2 text-left">{t('admin.statistics.specialty')}</th>
+                    <th className="px-4 py-2 text-center">{t('admin.statistics.patients')}</th>
+                    <th className="px-4 py-2 text-right">{t('admin.statistics.revenue')}</th>
+                    <th className="px-4 py-2 text-center">{t('admin.statistics.rating')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {topDoctors.map((doctor) => (
+                    <tr key={doctor.doctorId} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                      <td className="px-4 py-2">
+                        {doctor.rank === 1 ? '🥇' : doctor.rank === 2 ? '🥈' : doctor.rank === 3 ? '🥉' : `${doctor.rank}.`}
+                      </td>
+                      <td className="px-4 py-2 font-medium text-gray-900 dark:text-white">{doctor.doctorName}</td>
+                      <td className="px-4 py-2 text-gray-600 dark:text-gray-400">{doctor.specialtyName}</td>
+                      <td className="px-4 py-2 text-center">{doctor.totalPatientsCompleted}</td>
+                      <td className="px-4 py-2 text-right text-green-600 dark:text-green-400">
+                        {new Intl.NumberFormat('vi-VN').format(doctor.totalRevenueCollected)}đ
+                      </td>
+                      <td className="px-4 py-2 text-center">{doctor.averageRating.toFixed(1)} ★</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* User Trend Chart */}

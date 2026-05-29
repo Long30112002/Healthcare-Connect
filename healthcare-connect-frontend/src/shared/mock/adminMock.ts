@@ -1,8 +1,9 @@
 import type { DashboardStats, TopHospital, UserTrend } from "../../core/types";
-import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, ReceptionistDetailResponse, ReceptionistHistoryResponse, ReceptionistListResponse } from "../../core/types/api.response";
+import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, AdminDoctorListResponse, DoctorDetailResponse, DoctorHistoryResponse, AdminHospitalDetailResponse, AdminHospitalListResponse, ReceptionistDetailResponse, ReceptionistHistoryResponse, ReceptionistListResponse, TopDoctorResponse, TopMedicineResponse } from "../../core/types/api.response";
 import type { PendingDoctor } from "../../infrastructure/api/adminApi";
+import type { RevenueData } from "../../infrastructure/api/statisticsApi";
 
-export const USE_MOCK_ADMIN = false;
+export const USE_MOCK_ADMIN = true;
 
 export const mockDashboardStats: DashboardStats = {
   // 4 stat cards
@@ -1265,3 +1266,206 @@ export const fetchMockReceptionistDetail = (receptionistId: string): Promise<Rec
     }, 500);
   });
 };
+
+// ==================== MOCK PENDING RECEPTIONISTS ====================
+
+export const mockPendingReceptionists: ReceptionistListResponse[] = [
+  {
+    id: 'rec-pending-001',
+    receptionistCode: 'REC-2025-001',
+    fullName: 'Nguyễn Thị Mai Anh',
+    email: 'maianh.nguyen@email.com',
+    phone: '0912345001',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    status: 'PENDING',
+    createdAt: '2025-05-25T08:30:00',
+  },
+  {
+    id: 'rec-pending-002',
+    receptionistCode: 'REC-2025-002',
+    fullName: 'Trần Văn Bảo',
+    email: 'bao.tran@email.com',
+    phone: '0912345002',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    status: 'PENDING',
+    createdAt: '2025-05-26T10:15:00',
+  },
+  {
+    id: 'rec-pending-003',
+    receptionistCode: 'REC-2025-003',
+    fullName: 'Lê Thị Cúc',
+    email: 'cuc.le@email.com',
+    phone: '0912345003',
+    hospitalName: 'Phòng khám Đa khoa Medic',
+    status: 'PENDING',
+    createdAt: '2025-05-27T14:45:00',
+  },
+  {
+    id: 'rec-pending-004',
+    receptionistCode: 'REC-2025-004',
+    fullName: 'Phạm Văn Đức',
+    email: 'duc.pham@email.com',
+    phone: '0912345004',
+    hospitalName: 'Bệnh viện Đa khoa Xuyên Á',
+    status: 'PENDING',
+    createdAt: '2025-05-28T09:20:00',
+  },
+  {
+    id: 'rec-pending-005',
+    receptionistCode: 'REC-2025-005',
+    fullName: 'Hoàng Thị Em',
+    email: 'em.hoang@email.com',
+    phone: '0912345005',
+    hospitalName: 'Bệnh viện Quốc tế City',
+    status: 'PENDING',
+    createdAt: '2025-05-29T16:00:00',
+  },
+];
+
+// ==================== MOCK TOP DOCTORS FOR ADMIN ====================
+
+export const mockTopDoctorsForAdmin: TopDoctorResponse[] = [
+  {
+    doctorId: 'doctor-001',
+    doctorName: 'GS.TS. Nguyễn Văn An',
+    specialtyName: 'Tim mạch can thiệp',
+    totalRevenueCollected: 185000000,
+    totalRevenueCompleted: 175000000,
+    totalPatientsCompleted: 245,
+    totalBookingsPaid: 260,
+    averageRating: 4.9,
+    rank: 1,
+  },
+  {
+    doctorId: 'doctor-002',
+    doctorName: 'PGS.TS. Trần Thị Bình',
+    specialtyName: 'Nội thần kinh',
+    totalRevenueCollected: 162000000,
+    totalRevenueCompleted: 158000000,
+    totalPatientsCompleted: 218,
+    totalBookingsPaid: 230,
+    averageRating: 4.8,
+    rank: 2,
+  },
+  {
+    doctorId: 'doctor-003',
+    doctorName: 'TS.BS. Lê Văn Cường',
+    specialtyName: 'Ngoại tổng quát',
+    totalRevenueCollected: 148000000,
+    totalRevenueCompleted: 142000000,
+    totalPatientsCompleted: 198,
+    totalBookingsPaid: 210,
+    averageRating: 4.7,
+    rank: 3,
+  },
+  {
+    doctorId: 'doctor-004',
+    doctorName: 'BS.CKII. Phạm Thị Dung',
+    specialtyName: 'Sản phụ khoa',
+    totalRevenueCollected: 135000000,
+    totalRevenueCompleted: 130000000,
+    totalPatientsCompleted: 187,
+    totalBookingsPaid: 195,
+    averageRating: 4.9,
+    rank: 4,
+  },
+  {
+    doctorId: 'doctor-005',
+    doctorName: 'BS.CKI. Hoàng Văn Em',
+    specialtyName: 'Nhi khoa',
+    totalRevenueCollected: 122000000,
+    totalRevenueCompleted: 118000000,
+    totalPatientsCompleted: 176,
+    totalBookingsPaid: 185,
+    averageRating: 4.6,
+    rank: 5,
+  },
+  {
+    doctorId: 'doctor-006',
+    doctorName: 'ThS.BS. Vũ Thị Phượng',
+    specialtyName: 'Da liễu - Thẩm mỹ',
+    totalRevenueCollected: 110000000,
+    totalRevenueCompleted: 105000000,
+    totalPatientsCompleted: 158,
+    totalBookingsPaid: 168,
+    averageRating: 4.8,
+    rank: 6,
+  },
+  {
+    doctorId: 'doctor-007',
+    doctorName: 'BS. Đặng Văn Hùng',
+    specialtyName: 'Tai Mũi Họng',
+    totalRevenueCollected: 98000000,
+    totalRevenueCompleted: 95000000,
+    totalPatientsCompleted: 145,
+    totalBookingsPaid: 152,
+    averageRating: 4.5,
+    rank: 7,
+  },
+  {
+    doctorId: 'doctor-008',
+    doctorName: 'BS. Bùi Thị Lan',
+    specialtyName: 'Mắt',
+    totalRevenueCollected: 89000000,
+    totalRevenueCompleted: 86000000,
+    totalPatientsCompleted: 132,
+    totalBookingsPaid: 140,
+    averageRating: 4.7,
+    rank: 8,
+  },
+  {
+    doctorId: 'doctor-009',
+    doctorName: 'BS. Trịnh Quốc Bảo',
+    specialtyName: 'Cơ xương khớp',
+    totalRevenueCollected: 82000000,
+    totalRevenueCompleted: 79000000,
+    totalPatientsCompleted: 125,
+    totalBookingsPaid: 130,
+    averageRating: 4.4,
+    rank: 9,
+  },
+  {
+    doctorId: 'doctor-010',
+    doctorName: 'BS. Lý Thị Hồng',
+    specialtyName: 'Nội tiết',
+    totalRevenueCollected: 75000000,
+    totalRevenueCompleted: 72000000,
+    totalPatientsCompleted: 118,
+    totalBookingsPaid: 125,
+    averageRating: 4.6,
+    rank: 10,
+  },
+];
+
+// ==================== MOCK TOP MEDICINES FOR ADMIN ====================
+
+export const mockTopMedicinesForAdmin: TopMedicineResponse[] = [
+  { medicineName: 'Paracetamol 500mg', prescriptionCount: 1250 },
+  { medicineName: 'Amoxicillin 500mg', prescriptionCount: 980 },
+  { medicineName: 'Azithromycin 250mg', prescriptionCount: 850 },
+  { medicineName: 'Omeprazole 20mg', prescriptionCount: 720 },
+  { medicineName: 'Salbutamol Inhaler', prescriptionCount: 650 },
+  { medicineName: 'Cefixime 200mg', prescriptionCount: 580 },
+  { medicineName: 'Losartan 50mg', prescriptionCount: 520 },
+  { medicineName: 'Metformin 850mg', prescriptionCount: 490 },
+  { medicineName: 'Cetirizine 10mg', prescriptionCount: 450 },
+  { medicineName: 'Ambroxol 30mg', prescriptionCount: 410 },
+];
+
+
+// ==================== MOCK MONTHLY REVENUE FOR ADMIN ====================
+
+export const mockMonthlyRevenueForAdmin: RevenueData[] = [
+  { month: 6, year: 2024, revenue: 125000000 },
+  { month: 7, year: 2024, revenue: 142000000 },
+  { month: 8, year: 2024, revenue: 138000000 },
+  { month: 9, year: 2024, revenue: 156000000 },
+  { month: 10, year: 2024, revenue: 168000000 },
+  { month: 11, year: 2024, revenue: 175000000 },
+  { month: 12, year: 2024, revenue: 198000000 },
+  { month: 1, year: 2025, revenue: 185000000 },
+  { month: 2, year: 2025, revenue: 165000000 },
+  { month: 3, year: 2025, revenue: 210000000 },
+  { month: 4, year: 2025, revenue: 225000000 },
+  { month: 5, year: 2025, revenue: 245000000 },
+];
