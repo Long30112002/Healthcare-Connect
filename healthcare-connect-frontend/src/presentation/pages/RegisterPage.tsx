@@ -20,8 +20,6 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  // const { configs } = useSystemConfig();
-  // const systemLogo = configs.SYSTEM_LOGO_URL || '../assets/images/hospital_logo.png';
 
   const { execute: register, loading } = useMinLoadingAction({
     minLoadingTime: 1500,

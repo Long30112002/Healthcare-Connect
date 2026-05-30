@@ -12,8 +12,6 @@ import Logo from '../components/shared/Logo';
 const ForgotPasswordPage = () => {
   const { t, getError } = useAppTranslation();
   const [email, setEmail] = useState('');
-  // const { configs } = useSystemConfig();
-  // const systemLogo = configs.SYSTEM_LOGO_URL || '../assets/images/hospital_logo.png';
 
   const { execute: sendResetLink, loading } = useMinLoadingAction({
     minLoadingTime: 1500,

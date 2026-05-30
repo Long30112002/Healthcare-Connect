@@ -6,19 +6,8 @@ import Input from '../components/shared/Input';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../application/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import tiktok from '../assets/images/tik-tok.png';
-import zalo from '../assets/images/zalo.png';
-import youtube from '../assets/images/youtube.png';
-import facebook from '../assets/images/facebook.png';
-import messenger from '../assets/images/messenger.png';
-import quickBooking from '../assets/images/booking.png';
-import quickPayment from '../assets/images/quick_payment.png';
-import complaint from '../assets/images/complain.png';
-import locationIcon from '../assets/images/location.png';
-import phoneIcon from '../assets/images/phone-call.png';
-import emailIcon from '../assets/images/email.png';
-import timeIcon from '../assets/images/clock.png'
 import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+import { images } from '../../shared/utils/imageUtils';
 
 interface ContactFormData {
     fullName: string;
@@ -109,18 +98,18 @@ const ContactPage = () => {
 
     // Social links data
     const socialLinks = [
-        { name: t('contact.facebook'), icon: facebook, url: 'https://facebook.com', color: 'hover:text-blue-700' },
-        { name: t('contact.zalo'), icon: zalo, url: 'https://zalo.me', color: 'hover:text-blue-500' },
-        { name: t('contact.youtube'), icon: youtube, url: 'https://youtube.com', color: 'hover:text-red-600' },
-        { name: t('contact.tiktok'), icon: tiktok, url: 'https://tiktok.com', color: 'hover:text-gray-900' },
-        { name: t('contact.messenger'), icon: messenger, url: 'https://messenger.com', color: 'hover:text-blue-600' },
+        { name: t('contact.facebook'), icon: images.facebook(), url: 'https://facebook.com', color: 'hover:text-blue-700' },
+        { name: t('contact.zalo'), icon: images.zalo(), url: 'https://zalo.me', color: 'hover:text-blue-500' },
+        { name: t('contact.youtube'), icon: images.youtube(), url: 'https://youtube.com', color: 'hover:text-red-600' },
+        { name: t('contact.tiktok'), icon: images.tiktok(), url: 'https://tiktok.com', color: 'hover:text-gray-900' },
+        { name: t('contact.messenger'), icon: images.messenger(), url: 'https://messenger.com', color: 'hover:text-blue-600' },
     ];
 
     // Quick support items
     const quickSupport = [
-        { label: t('contact.quickBooking'), extension: '1', icon: quickBooking },
-        { label: t('contact.quickPayment'), extension: '2', icon: quickPayment },
-        { label: t('contact.quickComplaint'), extension: '3', icon: complaint },
+        { label: t('contact.quickBooking'), extension: '1', icon: images.booking() },
+        { label: t('contact.quickPayment'), extension: '2', icon: images.quickPayment() },
+        { label: t('contact.quickComplaint'), extension: '3', icon: images.complain() },
     ];
 
     return (
@@ -171,7 +160,7 @@ const ContactPage = () => {
                             <div className="space-y-4">
                                 {/* Hotline */}
                                 <div className="flex items-start gap-3">
-                                    <img src={phoneIcon} alt="Phone" className="w-6 h-6 mt-0.5" />
+                                    <img src={images.phone()} alt="Phone" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.hotline')}</p>
                                         <p className="text-blue-600 dark:text-blue-400 font-bold text-lg">{contactPhone}</p>
@@ -180,7 +169,7 @@ const ContactPage = () => {
 
                                 {/* Email */}
                                 <div className="flex items-start gap-3">
-                                    <img src={emailIcon} alt="Email" className="w-6 h-6 mt-0.5" />
+                                    <img src={images.email()} alt="Email" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.email')}</p>
                                         <p className="text-gray-500 dark:text-gray-400 text-sm">{contactEmail}</p>
@@ -189,7 +178,7 @@ const ContactPage = () => {
 
                                 {/* Address */}
                                 <div className="flex items-start gap-3">
-                                    <img src={locationIcon} alt="Address" className="w-6 h-6 mt-0.5" />
+                                    <img src={images.location()} alt="Address" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.address')}</p>
                                         <p className="text-gray-500 dark:text-gray-400 text-sm">{contactAddress}</p>
@@ -198,7 +187,7 @@ const ContactPage = () => {
 
                                 {/* Working Hours */}
                                 <div className="flex items-start gap-3">
-                                    <img src={timeIcon} alt="Address" className="w-6 h-6 mt-0.5" />
+                                    <img src={images.time()} alt="Working Hours" className="w-6 h-6 mt-0.5" />
                                     <div>
                                         <p className="font-medium text-gray-700 dark:text-gray-300">{t('contact.workingHours')}</p>
                                         <p className="text-gray-500 dark:text-gray-400 text-sm">

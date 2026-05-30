@@ -7,6 +7,7 @@ import Button from '../components/shared/Button';
 import Input from '../components/shared/Input';
 import { authApi } from '../../infrastructure/api/authApi';
 import { useSystemConfig } from '../../application/hooks/useSystemConfig';
+import { images } from '../../shared/utils/imageUtils';
 
 const ResetPasswordPage = () => {
   const { t } = useAppTranslation();
@@ -19,7 +20,7 @@ const ResetPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { configs } = useSystemConfig();
-  const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
+  const systemLogo = configs.SYSTEM_LOGO_URL || images.logo();
 
   const { execute: resetPassword, loading } = useMinLoadingAction({
     minLoadingTime: 1500,
