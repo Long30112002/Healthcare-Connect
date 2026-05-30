@@ -1,5 +1,5 @@
 import { useSystemConfig } from '../../../application/hooks/useSystemConfig';
-import defaultLogo from '../../assets/images/hospital_logo.png';
+import { images } from '../../../shared/utils/imageUtils';
 
 interface LogoProps {
     className?: string;
@@ -7,7 +7,7 @@ interface LogoProps {
 
 const Logo = ({ className = "w-12 h-12 object-contain" }: LogoProps) => {
     const { configs } = useSystemConfig();
-    const systemLogo = configs.SYSTEM_LOGO_URL || defaultLogo;
+    const systemLogo = configs?.SYSTEM_LOGO_URL || images.logo();
 
     return (
         <img
@@ -15,7 +15,7 @@ const Logo = ({ className = "w-12 h-12 object-contain" }: LogoProps) => {
             alt="Healthcare Connect Logo"
             className={className}
             onError={(e) => {
-                (e.target as HTMLImageElement).src = defaultLogo;
+                (e.target as HTMLImageElement).src = images.logo();
             }}
         />
     );

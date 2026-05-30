@@ -1,23 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../application/context/AuthContext';
-import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import logoHospital from '../../assets/images/hospital_logo.png';
-import homeIcon from '../../assets/images/home.png';
-import phoneIcon from '../../assets/images/phone-call.png';
-import doctorIcon from '../../assets/images/doctor.png';
-import appointmentIcon from '../../assets/images/medical-appointment.png';
-import findIcon from '../../assets/images/find.png';
-import healthcareIcon from '../../assets/images/healthcare.png';
-import scheduleIcon from '../../assets/images/schedule.png'
-import patientIcon from '../../assets/images/patient.png'
-import statisticsIcon from '../../assets/images/statistics.png'
-import reviewIcon from '../../assets/images/review.png'
-import roomIcon from '../../assets/images/room.png'
-import receptionistIcon from '../../assets/images/receptionist.png'
-import clockIcon from '../../assets/images/clock.png'
-import departmentsSpecialties from '../../assets/images/specialties.png'
 import { useSystemConfig } from '../../../application/hooks/useSystemConfig';
+import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
+import { images } from '../../../shared/utils/imageUtils';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -43,7 +29,7 @@ const Header = () => {
   }
 
   const systemName = configs?.SYSTEM_NAME || 'Healthcare Connect';
-  const systemLogo = configs?.SYSTEM_LOGO_URL || logoHospital;
+  const systemLogo = configs?.SYSTEM_LOGO_URL || images.logo();
 
   const handleLogout = async () => {
     setIsProfileDropdownOpen(false);
@@ -118,7 +104,7 @@ const Header = () => {
 
   // Menu công khai (hiển thị cho cả login và chưa login)
   const publicMenuItems = [
-    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: homeIcon },
+    { path: '/', label: t('nav.home'), shortLabel: '🏠', icon: images.home() },
   ];
 
   // Thêm Contact vào publicMenuItems nếu được phép
@@ -127,50 +113,49 @@ const Header = () => {
       path: '/contact',
       label: t('nav.contact'),
       shortLabel: '📞',
-      icon: phoneIcon
+      icon: images.phone()
     });
   }
 
   // Menu chỉ hiển thị khi chưa login
   const unauthenticatedMenuItems = !isAuthenticated ? [
-    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
+    { path: '/doctors/public', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: images.doctor() },
   ] : [];
 
   // Menu riêng tư (thêm vào khi đã login) - KHÔNG hiển thị cho RECEPTIONIST
   const privateMenuItems = user && user.role === 'PATIENT' ? [
-    { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: appointmentIcon },
+    { path: '/appointments', label: t('nav.appointments'), shortLabel: '📋', icon: images.appointment() },
   ] : [];
 
   // Menu theo role
   const roleBasedItems: Record<string, typeof publicMenuItems> = {
     PATIENT: [
-      { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: findIcon },
-      { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: healthcareIcon },
+      { path: '/doctors', label: t('nav.findDoctors'), shortLabel: '🔍', icon: images.find() },
+      { path: '/my-health', label: t('nav.myHealth'), shortLabel: '💊', icon: images.healthcare() },
     ],
     DOCTOR: [
-      { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: scheduleIcon },
-      { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: patientIcon },
-      { path: '/doctor/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
-      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: reviewIcon },
+      { path: '/my-schedule', label: t('nav.schedule'), shortLabel: '📅', icon: images.schedule() },
+      { path: '/my-patients', label: t('nav.patients'), shortLabel: '👥', icon: images.patient() },
+      { path: '/doctor/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: images.statistics() },
+      { path: '/doctor/reviews', label: t('nav.reviews'), shortLabel: '⭐', icon: images.review() },
     ],
     HOSPITAL_MANAGER: [
-      { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
-      { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: receptionistIcon },
-      { path: '/manager/departments-specialties', label: t('nav.departmentsSpecialties'), shortLabel: '📋', icon: departmentsSpecialties },
-      { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: clockIcon },
-      { path: '/manager/rooms', label: t('nav.rooms'), shortLabel: '🚪', icon: roomIcon },
-      { path: '/manager/medicines', label: t('nav.medicines'), shortLabel: '💊', icon: healthcareIcon },
-      { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
+      { path: '/manager/doctors', label: t('nav.manageDoctors'), shortLabel: '👨‍⚕️', icon: images.doctor() },
+      { path: '/manager/receptionists', label: t('nav.manageReceptionists'), shortLabel: '👩‍💼', icon: images.receptionist() },
+      { path: '/manager/departments-specialties', label: t('nav.departmentsSpecialties'), shortLabel: '📋', icon: images.specialties() },
+      { path: '/manager/working-hours', label: t('nav.workingHours'), shortLabel: '⏰', icon: images.clock() },
+      { path: '/manager/rooms', label: t('nav.rooms'), shortLabel: '🚪', icon: images.room() },
+      { path: '/manager/medicines', label: t('nav.medicines'), shortLabel: '💊', icon: images.healthcare() },
+      { path: '/manager/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: images.statistics() },
     ],
     ADMIN: [
-      { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: patientIcon },
-      { path: '/admin/doctors', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: doctorIcon },
-      { path: '/admin/receptionists', label: t('nav.receptionists'), shortLabel: '👩‍💼', icon: receptionistIcon },  
-      { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: doctorIcon },
-      { path: '/admin/specialties', label: t('nav.specialties'), shortLabel: '📚', icon: findIcon },
+      { path: '/admin/users', label: t('nav.users'), shortLabel: '👥', icon: images.patient() },
+      { path: '/admin/doctors', label: t('nav.doctors'), shortLabel: '👨‍⚕️', icon: images.doctor() },
+      { path: '/admin/receptionists', label: t('nav.receptionists'), shortLabel: '👩‍💼', icon: images.receptionist() },
+      { path: '/admin/hospitals', label: t('nav.hospitals'), shortLabel: '🏥', icon: images.doctor() },
     ],
     RECEPTIONIST: [
-      { path: '/receptionist/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: statisticsIcon },
+      { path: '/receptionist/statistics', label: t('nav.statistics'), shortLabel: '📊', icon: images.statistics() },
     ],
   };
 
@@ -489,7 +474,8 @@ const Header = () => {
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                   >
-                    <span>{item.icon}</span>
+                    {/* ✅ SỬA: dùng img thay vì span */}
+                    <img src={item.icon} alt="" className="w-5 h-5 object-contain" />
                     <span>{item.label}</span>
                   </button>
                 );
@@ -504,7 +490,8 @@ const Header = () => {
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <span>{item.icon}</span>
+                  {/* ✅ SỬA: dùng img thay vì span */}
+                  <img src={item.icon} alt="" className="w-5 h-5 object-contain" />
                   <span>{item.label}</span>
                 </Link>
               );

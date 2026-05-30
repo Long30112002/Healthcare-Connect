@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
-import registerIcon from '../../../assets/images/register.png';
-import appointmentIcon from '../../../assets/images/medical-appointment.png';
-import scheduleIcon from '../../../assets/images/schedule.png';
-import dashboardIcon from '../../../assets/images/dashboard.png';
 import { useAuth } from '../../../../application/context/AuthContext';
 import { useAppTranslation } from '../../../../application/hooks/useAppTranslation';
+import { images } from '../../../../shared/utils/imageUtils';
 
 interface CTASectionProps {
     title: string;
@@ -22,7 +19,7 @@ const CTASection = ({ title, subtitle, buttonText, backgroundImage }: CTASection
             return {
                 text: buttonText,
                 link: '/register',
-                icon: registerIcon,
+                icon: images.register(),
                 alt: 'Register'
             };
         }
@@ -32,14 +29,14 @@ const CTASection = ({ title, subtitle, buttonText, backgroundImage }: CTASection
                 return {
                     text: t('home.cta.myAppointments'),
                     link: '/appointments',
-                    icon: appointmentIcon,
+                    icon: images.appointment(),
                     alt: 'My Appointments'
                 };
             case 'DOCTOR':
                 return {
                     text: t('home.cta.mySchedule'),
                     link: '/my-schedule',
-                    icon: scheduleIcon,
+                    icon: images.schedule(),
                     alt: 'My Schedule'
                 };
             case 'RECEPTIONIST':
@@ -48,14 +45,14 @@ const CTASection = ({ title, subtitle, buttonText, backgroundImage }: CTASection
                 return {
                     text: t('home.cta.dashboard'),
                     link: `/${user?.role.toLowerCase().replace('_', '-')}/dashboard`,
-                    icon: dashboardIcon,
+                    icon: images.dashboard(),
                     alt: 'Dashboard'
                 };
             default:
                 return {
                     text: buttonText,
                     link: '/register',
-                    icon: registerIcon,
+                    icon: images.register(),
                     alt: 'Register'
                 };
         }

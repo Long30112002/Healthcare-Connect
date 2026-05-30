@@ -1,19 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import tiktok from '../../assets/images/tik-tok.png';
-import zalo from '../../assets/images/zalo.png';
-import youtube from '../../assets/images/youtube.png';
-import facebook from '../../assets/images/facebook.png';
-// Import icon cho contact
-import locationIcon from '../../assets/images/location.png';
-import phoneIcon from '../../assets/images/phone-call.png';
-import emailIcon from '../../assets/images/email.png';
-import clockIcon from '../../assets/images/clock.png';
-// Import icon cho quick links
-import aboutIcon from '../../assets/images/about.png';
-import privacyPolicyIcon from '../../assets/images/privacy_policy.png';
-import termsIcon from '../../assets/images/services.png';
 import { useSystemConfig } from '../../../application/hooks/useSystemConfig';
+import { images } from '../../../shared/utils/imageUtils';
 
 const Footer = () => {
   const { t } = useAppTranslation();
@@ -21,7 +9,7 @@ const Footer = () => {
 
   const { configs } = useSystemConfig();
 
-  const systemLogo = configs.SYSTEM_LOGO_URL || '/src/presentation/assets/images/hospital_logo.png';
+  const systemLogo = configs.SYSTEM_LOGO_URL || images.logo();
   const systemName = configs.SYSTEM_NAME || 'Healthcare Connect';
   const footerDescription = configs.FOOTER_DESCRIPTION || t('footer.description');
   const footerCopyright = configs.FOOTER_COPYRIGHT || t('footer.copyright');
@@ -37,25 +25,25 @@ const Footer = () => {
 
   // Quick Links - dùng ảnh
   const quickLinks = [
-    { path: '/about', label: t('footer.aboutUs'), icon: aboutIcon },
-    { path: '/privacy-policy', label: t('footer.privacyPolicy'), icon: privacyPolicyIcon },
-    { path: '/terms-of-service', label: t('footer.termsOfService'), icon: termsIcon },
-    { path: '/contact', label: t('footer.contact'), icon: phoneIcon },
+    { path: '/about', label: t('footer.aboutUs'), icon: images.about() },
+    { path: '/privacy-policy', label: t('footer.privacyPolicy'), icon: images.privacyPolicy() },
+    { path: '/terms-of-service', label: t('footer.termsOfService'), icon: images.terms() },
+    { path: '/contact', label: t('footer.contact'), icon: images.phone() },
   ];
 
   const socialLinks = [
-    { name: 'Facebook', url: socialFacebook, icon: facebook, color: 'hover:opacity-80' },
-    { name: 'Zalo', url: socialZalo, icon: zalo, color: 'hover:opacity-80' },
-    { name: 'YouTube', url: socialYoutube, icon: youtube, color: 'hover:opacity-80' },
-    { name: 'TikTok', url: socialTiktok, icon: tiktok, color: 'hover:opacity-80' },
+    { name: 'Facebook', url: socialFacebook, icon: images.facebook(), color: 'hover:opacity-80' },
+    { name: 'Zalo', url: socialZalo, icon: images.zalo(), color: 'hover:opacity-80' },
+    { name: 'YouTube', url: socialYoutube, icon: images.youtube(), color: 'hover:opacity-80' },
+    { name: 'TikTok', url: socialTiktok, icon: images.tiktok(), color: 'hover:opacity-80' },
   ];
 
   // Contact Info - dùng ảnh
   const contactInfo = [
-    { icon: locationIcon, text: t('footer.address'), value: contactAddress },
-    { icon: phoneIcon, text: t('footer.hotline'), value: contactPhone },
-    { icon: emailIcon, text: t('footer.email'), value: contactEmail },
-    { icon: clockIcon, text: t('footer.workingHours'), value: 'Thứ 2 - Thứ 7: 8:00 - 20:00' },
+    { icon: images.location(), text: t('footer.address'), value: contactAddress },
+    { icon: images.phone(), text: t('footer.hotline'), value: contactPhone },
+    { icon: images.email(), text: t('footer.email'), value: contactEmail },
+    { icon: images.time(), text: t('footer.workingHours'), value: 'Thứ 2 - Thứ 7: 8:00 - 20:00' },
   ];
 
   return (

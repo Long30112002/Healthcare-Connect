@@ -2,12 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../../application/context/ThemeContext';
 import { useAppTranslation } from '../../../../application/hooks/useAppTranslation';
-import registerIcon from '../../../assets/images/register.png';
-import appointmentIcon from '../../../assets/images/medical-appointment.png';
-import scheduleIcon from '../../../assets/images/schedule.png';
-import dashboardIcon from '../../../assets/images/dashboard.png';
-import findDoctorIcon from '../../../assets/images/find.png';
 import { useAuth } from '../../../../application/context/AuthContext';
+import { images } from '../../../../shared/utils/imageUtils';
 
 interface HeroSlide {
     id: number;
@@ -34,14 +30,12 @@ const HeroSection = ({ slides, autoPlayInterval = 5000 }: HeroSectionProps) => {
     const isDragging = useRef<boolean>(false);
     const { isAuthenticated, user } = useAuth();
 
-
-
     const getAuthButton = () => {
         if (!isAuthenticated) {
             return {
                 text: t('home.hero.register'),
                 link: '/register',
-                icon: registerIcon,
+                icon: images.register(),
                 alt: 'Register'
             };
         }
@@ -50,14 +44,14 @@ const HeroSection = ({ slides, autoPlayInterval = 5000 }: HeroSectionProps) => {
                 return {
                     text: t('home.hero.myAppointments'),
                     link: '/appointments',
-                    icon: appointmentIcon,
+                    icon: images.appointment(),
                     alt: 'My Appointments'
                 };
             case 'DOCTOR':
                 return {
                     text: t('home.hero.mySchedule'),
                     link: '/my-schedule',
-                    icon: scheduleIcon,
+                    icon: images.schedule(),
                     alt: 'My Schedule'
                 };
             case 'RECEPTIONIST':
@@ -66,14 +60,14 @@ const HeroSection = ({ slides, autoPlayInterval = 5000 }: HeroSectionProps) => {
                 return {
                     text: t('home.hero.dashboard'),
                     link: `/${user?.role.toLowerCase().replace('_', '-')}/dashboard`,
-                    icon: dashboardIcon,
+                    icon: images.dashboard(),
                     alt: 'Dashboard'
                 };
             default:
                 return {
                     text: t('home.hero.register'),
                     link: '/register',
-                    icon: registerIcon,
+                    icon: images.register(),
                     alt: 'Register'
                 };
         }
@@ -218,7 +212,7 @@ const HeroSection = ({ slides, autoPlayInterval = 5000 }: HeroSectionProps) => {
                                     to="/doctors/public"
                                     className="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-lg font-semibold transition text-center flex items-center justify-center gap-2"
                                 >
-                                    <img src={findDoctorIcon} alt="Find Doctor" className="w-5 h-5 object-contain" />
+                                    <img src={images.find()} alt="Find Doctor" className="w-5 h-5 object-contain" />
                                     {t('home.hero.findDoctor')}
                                 </Link>
                             )}

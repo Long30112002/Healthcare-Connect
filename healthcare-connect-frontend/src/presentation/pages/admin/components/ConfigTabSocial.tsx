@@ -3,11 +3,8 @@ import { useAppTranslation } from '../../../../application/hooks/useAppTranslati
 import ConfigField from './ConfigField';
 import { configApi } from '../../../../infrastructure/api/configApi';
 import toast from 'react-hot-toast';
-import tiktok from '../../../assets/images/tik-tok.png';
-import zalo from '../../../assets/images/zalo.png';
-import youtube from '../../../assets/images/youtube.png';
-import facebook from '../../../assets/images/facebook.png';
 import type { SystemConfig } from '../../../../core/types';
+import { images } from '../../../../shared/utils/imageUtils';
 
 interface ConfigTabSocialProps {
     configs: SystemConfig[];
@@ -36,10 +33,10 @@ const ConfigTabSocial = ({ configs, onRefresh }: ConfigTabSocialProps) => {
     };
 
     const socialLinks = [
-        { key: 'SOCIAL_FACEBOOK', label: 'Facebook', icon: facebook, placeholder: 'https://facebook.com/...' },
-        { key: 'SOCIAL_ZALO', label: 'Zalo', icon: zalo, placeholder: 'https://zalo.me/...' },
-        { key: 'SOCIAL_YOUTUBE', label: 'YouTube', icon: youtube, placeholder: 'https://youtube.com/...' },
-        { key: 'SOCIAL_TIKTOK', label: 'TikTok', icon: tiktok, placeholder: 'https://tiktok.com/@...' },
+        { key: 'SOCIAL_FACEBOOK', label: 'Facebook', icon: images.facebook(), placeholder: 'https://facebook.com/...' },
+        { key: 'SOCIAL_ZALO', label: 'Zalo', icon: images.zalo(), placeholder: 'https://zalo.me/...' },
+        { key: 'SOCIAL_YOUTUBE', label: 'YouTube', icon: images.youtube(), placeholder: 'https://youtube.com/...' },
+        { key: 'SOCIAL_TIKTOK', label: 'TikTok', icon: images.tiktok(), placeholder: 'https://tiktok.com/@...' },
     ];
 
     return (
@@ -57,8 +54,8 @@ const ConfigTabSocial = ({ configs, onRefresh }: ConfigTabSocialProps) => {
                 <div key={social.key} className="flex items-start gap-3">
                     {/* Thay vì {social.icon} trực tiếp, dùng img */}
                     <div className="w-8 h-8 flex items-center justify-center">
-                        <img 
-                            src={social.icon} 
+                        <img
+                            src={social.icon}
                             alt={social.label}
                             className="w-6 h-6 object-contain"
                         />
