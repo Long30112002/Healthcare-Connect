@@ -11,12 +11,11 @@ import DashboardHeader from '../../components/medical-dashboard/DashboardHeader'
 import type { DoctorResponse, PageResponse } from '../../../core/types/api.response';
 import { DoctorStatus, RejectionReason } from '../../../core/constants/enums';
 import toast from 'react-hot-toast';
-import { t } from 'i18next';
 import { managerApi } from '../../../infrastructure/api/managerApi';
 
 type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED' | 'INACTIVE';
 
-const statusOptions: { value: StatusFilter; label: string; icon: string }[] = [
+const getStatusOptions = (t: (key: string) => string) => [
   { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
   { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
   { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
@@ -29,7 +28,8 @@ const ManagerDoctorsPage = () => {
   const location = useLocation();
   const { t } = useAppTranslation();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  
+  const [tableLoading, setTableLoading] = useState(true);
   const [doctors, setDoctors] = useState<DoctorResponse[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -48,9 +48,11 @@ const ManagerDoctorsPage = () => {
   const [rejectReason, setRejectReason] = useState<RejectionReason>(RejectionReason.OTHER);
   const [rejectNote, setRejectNote] = useState('');
 
-  // Loading states
+  // Loading states for actions
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  const statusOptions = getStatusOptions(t);
 
   // Hàm cập nhật URL
   const updateUrl = (status: string, page: number) => {
@@ -73,7 +75,7 @@ const ManagerDoctorsPage = () => {
   // Fetch data
   useEffect(() => {
     const fetchDoctors = async () => {
-      setLoading(true);
+      setTableLoading(true);  
       try {
         const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
         const response: PageResponse<DoctorResponse> = await managerApi.getDoctorsByManager(currentPage, 10, statusParam);
@@ -84,7 +86,7 @@ const ManagerDoctorsPage = () => {
         console.error('Failed to fetch doctors:', error);
         toast.error(t('common.loadError'));
       } finally {
-        setLoading(false);
+        setTableLoading(false);
       }
     };
     fetchDoctors();
@@ -158,14 +160,104 @@ const ManagerDoctorsPage = () => {
     return price?.toLocaleString('vi-VN') + 'đ' || '0đ';
   };
 
-  if (loading && currentPage === 0) {
-    return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-  }
+  const renderTableContent = () => {
+    if (tableLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      );
+    }
+
+    if (doctors.length === 0) {
+      return (
+        <p className="text-center text-gray-500 py-8">{t('manager.doctors.noDoctors')}</p>
+      );
+    }
+
+    return (
+      <>
+        <div className="space-y-4">
+          {doctors.map((doctor) => (
+            <div key={doctor.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+              <div className="flex justify-between items-start flex-wrap gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xl">👨‍⚕️</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {doctor.fullName}
+                    </h3>
+                    {getStatusBadge(doctor.status)}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {t('manager.receptionists.code')}: {doctor.doctorCode} - {doctor.departmentName} - {doctor.specialtyName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    📧 {doctor.email} - 📞 {doctor.phone}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    🎓 {doctor.degree} - {doctor.experienceYears} {t('doctor.yearsExperience')}
+                  </p>
+                  <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-1">
+                    💰 {formatPrice(doctor.consultationFee)}
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {doctor.status === DoctorStatus.VERIFIED && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleApprove(doctor.id)}
+                        loading={approvingId === doctor.id}
+                      >
+                        ✅ {t('common.approve')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleOpenReject(doctor.id, doctor.fullName)}
+                        loading={rejectingId === doctor.id}
+                      >
+                        ❌ {t('common.reject')}
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/manager/doctors/${doctor.id}`)}
+                  >
+                    🔍 {t('common.viewDetail')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage + 1}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              showJumpToPage={true}
+              showFirstLast={true}
+              showPrevNext={true}
+              size="md"
+            />
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-6">
-        {/* Header */}
+        {/* Header - LUÔN HIỂN THỊ */}
         <DashboardHeader
           icon="👨‍⚕️"
           title={t('manager.doctors.title')}
@@ -174,7 +266,7 @@ const ManagerDoctorsPage = () => {
           hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
         />
 
-        {/* Filter Tabs */}
+        {/* Filter Tabs - LUÔN HIỂN THỊ */}
         <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-2 mb-6">
           <div className="flex flex-wrap gap-2">
             {statusOptions.map((opt) => (
@@ -192,7 +284,7 @@ const ManagerDoctorsPage = () => {
           </div>
         </div>
 
-        {/* Doctors List */}
+        {/* Doctors List Container - CHỈ PHẦN NÀY LOADING */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h2 className="font-semibold text-gray-900 dark:text-white">
@@ -201,83 +293,7 @@ const ManagerDoctorsPage = () => {
           </div>
 
           <div className="p-4">
-            {doctors.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">{t('manager.doctors.noDoctors')}</p>
-            ) : (
-              <div className="space-y-4">
-                {doctors.map((doctor) => (
-                  <div key={doctor.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <div className="flex justify-between items-start flex-wrap gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xl">👨‍⚕️</span>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
-                            {doctor.fullName}
-                          </h3>
-                          {getStatusBadge(doctor.status)}
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Mã: {doctor.doctorCode} - {doctor.departmentName} - {doctor.specialtyName}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          📧 {doctor.email} - 📞 {doctor.phone}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          🎓 {doctor.degree} - {doctor.experienceYears} {t('doctor.yearsExperience')}
-                        </p>
-                        <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-1">
-                          💰 {formatPrice(doctor.consultationFee)}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {doctor.status === DoctorStatus.VERIFIED && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="primary"
-                              onClick={() => handleApprove(doctor.id)}
-                              loading={approvingId === doctor.id}
-                            >
-                              ✅ {t('common.approve')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              onClick={() => handleOpenReject(doctor.id, doctor.fullName)}
-                              loading={rejectingId === doctor.id}
-                            >
-                              ❌ {t('common.reject')}
-                            </Button>
-                          </>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/manager/doctors/${doctor.id}`)}
-                        >
-                          🔍 {t('common.viewDetail')}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage + 1}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                  showJumpToPage={true}
-                  showFirstLast={true}
-                  showPrevNext={true}
-                  size="md"
-                />
-              </div>
-            )}
+            {renderTableContent()}
           </div>
         </div>
       </div>

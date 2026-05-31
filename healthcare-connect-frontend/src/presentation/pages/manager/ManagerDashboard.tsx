@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import { useAuth } from '../../../application/context/AuthContext';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import Button from '../../components/shared/Button';
 import StatusBadge from '../../components/shared/StatusBadge';
 import Modal from '../../components/shared/Modal';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { RejectionReason } from '../../../core/constants/enums';
 import type { ManagerDashboardStats, ReceptionistForManager } from '../../../core/types';
@@ -18,12 +18,12 @@ const ManagerDashboard = () => {
   const navigate = useNavigate();
   const { t } = useAppTranslation();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
 
   // States
+  const [dataLoading, setDataLoading] = useState(true);
   const [stats, setStats] = useState<ManagerDashboardStats | null>(null);
   const [pendingDoctors, setPendingDoctors] = useState<DoctorResponse[]>([]);
-  const [, setPendingReceptionists] = useState<ReceptionistForManager[]>([]);
+  const [pendingReceptionists, setPendingReceptionists] = useState<ReceptionistForManager[]>([]);
   const [todayAppointments, setTodayAppointments] = useState<AppointmentTodayResponse[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStatResponse[]>([]);
   const [topDoctors, setTopDoctors] = useState<TopDoctorResponse[]>([]);
@@ -45,7 +45,7 @@ const ManagerDashboard = () => {
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setDataLoading(true);
       try {
         const [
           statsData,
@@ -72,7 +72,7 @@ const ManagerDashboard = () => {
         console.error('Failed to fetch dashboard data:', error);
         toast.error(t('common.loadError'));
       } finally {
-        setLoading(false);
+        setDataLoading(false);
       }
     };
     fetchData();
@@ -87,6 +87,20 @@ const ManagerDashboard = () => {
       setPendingDoctors(prev => prev.filter(d => d.id !== doctorId));
     } catch (error) {
       toast.error(t('manager.approveDoctorError'));
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  // Approve receptionist
+  const handleApproveReceptionist = async (receptionistId: string) => {
+    setApprovingId(receptionistId);
+    try {
+      await managerApi.approveReceptionist(receptionistId);
+      toast.success(t('manager.approveReceptionistSuccess'));
+      setPendingReceptionists(prev => prev.filter(r => r.id !== receptionistId));
+    } catch (error) {
+      toast.error(t('manager.approveReceptionistError'));
     } finally {
       setApprovingId(null);
     }
@@ -124,23 +138,30 @@ const ManagerDashboard = () => {
   // Get max value for chart
   const maxWeeklyCount = Math.max(...weeklyStats.map(w => w.count), 0);
 
-  if (loading) {
-    return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-  }
+  // Helper để hiển thị nội dung chính - chỉ loading phần này
+  const renderMainContent = () => {
+    if (dataLoading) {
+      return (
+        <div className="flex justify-center py-20">
+          <LoadingSpinner size="lg" text={t('common.loading')} />
+        </div>
+      );
+    }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="relative z-10 container mx-auto px-4 py-6">
-        {/* Header */}
-        <DashboardHeader
-          icon="🏥"
-          title={t('manager.dashboard.title')}
-          subtitle={t('manager.dashboard.subtitle')}
-          showHospital={true}
-          hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
-        />
+    if (!stats) {
+      return (
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{t('common.error')}</p>
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            {t('common.retry')}
+          </Button>
+        </div>
+      );
+    }
 
-        {/* 4 Stat Cards - dùng grid đơn giản */}
+    return (
+      <>
+        {/* 4 Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
@@ -215,7 +236,6 @@ const ManagerDashboard = () => {
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">{doctor.fullName}</p>
                           <p className="text-sm text-gray-500">{doctor.specialtyName} - {doctor.departmentName}</p>
-                          {/* <p className="text-xs text-gray-400">📅 {formatDate(doctor.createdAt)}</p> */}
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -255,46 +275,55 @@ const ManagerDashboard = () => {
             </div>
           </div>
 
-          {/* Today Appointments */}
+          {/* Pending Receptionists */}
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                📋 {t('manager.todayAppointments')} ({todayAppointments.length})
+                ⏳ {t('manager.pendingReceptionists')} ({pendingReceptionists.length})
               </h3>
             </div>
             <div className="p-4 max-h-80 overflow-y-auto">
-              {todayAppointments.length === 0 ? (
-                <p className="text-center text-gray-500 py-4">{t('manager.noAppointmentsToday')}</p>
+              {pendingReceptionists.length === 0 ? (
+                <p className="text-center text-gray-500 py-4">{t('manager.noPendingReceptionists')}</p>
               ) : (
                 <div className="space-y-3">
-                  {todayAppointments.slice(0, 5).map(apt => (
-                    <div key={apt.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                  {pendingReceptionists.map(receptionist => (
+                    <div key={receptionist.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm font-medium text-gray-500">🕐 {apt.startTime} - {apt.endTime}</p>
-                          <p className="font-medium text-gray-900 dark:text-white">👨‍⚕️ {apt.doctorName}</p>
-                          <p className="text-sm text-gray-600">👤 {apt.patientName}</p>
-                          <p className="text-xs text-gray-400">{apt.symptoms}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{receptionist.fullName}</p>
+                          <p className="text-sm text-gray-500">📧 {receptionist.email}</p>
+                          <p className="text-xs text-gray-400">🏥 {receptionist.hospitalName}</p>
                         </div>
-                        <div className="text-right">
-                          <StatusBadge status={apt.status} size="sm" />
-                          {/* <p className={`text-xs mt-1 font-medium ${apt.isPaid ? 'text-green-600' : 'text-red-500'}`}>
-                            {apt.isPaid ? t('payment.paid') : t('payment.unpaid')}
-                          </p> */}
-                          <p className={`text-xs mt-1 font-medium ${apt.paid ? 'text-green-600' : 'text-red-500'}`}>
-                            {apt.paid ? t('payment.paid') : t('payment.unpaid')}
-                          </p>
-                          <p className="text-xs font-medium text-primary mt-1">{formatPrice(apt.price)}</p>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => handleApproveReceptionist(receptionist.id)}
+                            loading={approvingId === receptionist.id}
+                            className="px-3 py-1 text-sm"
+                          >
+                            ✅ {t('common.approve')}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleOpenRejectModal('receptionist', receptionist.id, receptionist.fullName)}
+                            loading={rejectingId === receptionist.id}
+                            className="px-3 py-1 text-sm"
+                          >
+                            ❌ {t('common.reject')}
+                          </Button>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-              {todayAppointments.length > 5 && (
+              {pendingReceptionists.length > 0 && (
                 <div className="mt-3 text-center">
                   <button
-                    onClick={() => navigate('/manager/appointments')}
+                    onClick={() => navigate('/manager/receptionists?status=VERIFIED')}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     {t('common.viewAll')} →
@@ -302,6 +331,52 @@ const ManagerDashboard = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Today Appointments - Full width */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              📋 {t('manager.todayAppointments')} ({todayAppointments.length})
+            </h3>
+          </div>
+          <div className="p-4 max-h-80 overflow-y-auto">
+            {todayAppointments.length === 0 ? (
+              <p className="text-center text-gray-500 py-4">{t('manager.noAppointmentsToday')}</p>
+            ) : (
+              <div className="space-y-3">
+                {todayAppointments.slice(0, 5).map(apt => (
+                  <div key={apt.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">🕐 {apt.startTime} - {apt.endTime}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">👨‍⚕️ {apt.doctorName}</p>
+                        <p className="text-sm text-gray-600">👤 {apt.patientName}</p>
+                        <p className="text-xs text-gray-400">{apt.symptoms}</p>
+                      </div>
+                      <div className="text-right">
+                        <StatusBadge status={apt.status} size="sm" />
+                        <p className={`text-xs mt-1 font-medium ${apt.paid ? 'text-green-600' : 'text-red-500'}`}>
+                          {apt.paid ? t('payment.paid') : t('payment.unpaid')}
+                        </p>
+                        <p className="text-xs font-medium text-primary mt-1">{formatPrice(apt.price)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {todayAppointments.length > 5 && (
+              <div className="mt-3 text-center">
+                <button
+                  onClick={() => navigate('/manager/appointments')}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  {t('common.viewAll')} →
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -363,6 +438,24 @@ const ManagerDashboard = () => {
             </div>
           </div>
         </div>
+      </>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="relative z-10 container mx-auto px-4 py-6">
+        {/* Header - LUÔN HIỂN THỊ */}
+        <DashboardHeader
+          icon="🏥"
+          title={t('manager.dashboard.title')}
+          subtitle={t('manager.dashboard.subtitle')}
+          showHospital={true}
+          hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
+        />
+
+        {/* Main Content - CHỈ PHẦN NÀY LOADING */}
+        {renderMainContent()}
       </div>
 
       {/* Reject Modal */}

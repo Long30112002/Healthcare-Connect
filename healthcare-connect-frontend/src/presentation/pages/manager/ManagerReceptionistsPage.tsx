@@ -10,12 +10,12 @@ import DashboardHeader from '../../components/medical-dashboard/DashboardHeader'
 import { managerApi } from '../../../infrastructure/api/managerApi';
 import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
 import toast from 'react-hot-toast';
-import { t } from 'i18next';
 import type { ReceptionistForManager } from '../../../core/types';
+import { formatDate } from '../../../shared/utils/dateUtils';
 
 type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
 
-const statusOptions: { value: StatusFilter; label: string; icon: string }[] = [
+const getStatusOptions = (t: (key: string) => string) => [
   { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
   { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
   { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
@@ -28,7 +28,8 @@ const ManagerReceptionistsPage = () => {
   const location = useLocation();
   const { t } = useAppTranslation();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  
+  const [tableLoading, setTableLoading] = useState(true);
   const [receptionists, setReceptionists] = useState<ReceptionistForManager[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   
@@ -46,9 +47,11 @@ const ManagerReceptionistsPage = () => {
   const [rejectReason, setRejectReason] = useState<RejectionReason>(RejectionReason.OTHER);
   const [rejectNote, setRejectNote] = useState('');
   
-  // Loading states
+  // Loading states for actions
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  const statusOptions = getStatusOptions(t);
 
   // Cập nhật URL
   const updateUrl = (status: string, page: number) => {
@@ -68,7 +71,7 @@ const ManagerReceptionistsPage = () => {
 
   // Fetch data
   const fetchReceptionists = async () => {
-    setLoading(true);
+    setTableLoading(true); 
     try {
       const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
       const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
@@ -78,7 +81,7 @@ const ManagerReceptionistsPage = () => {
       console.error('Failed to fetch receptionists:', error);
       toast.error(t('common.loadError'));
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -139,15 +142,101 @@ const ManagerReceptionistsPage = () => {
     }
   };
 
-  // Format date
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-  };
+  const renderTableContent = () => {
+    if (tableLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      );
+    }
 
-  if (loading && currentPage === 0) {
-    return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-  }
+    if (receptionists.length === 0) {
+      return (
+        <p className="text-center text-gray-500 py-8">{t('manager.receptionists.noReceptionists')}</p>
+      );
+    }
+
+    return (
+      <>
+        <div className="space-y-4">
+          {receptionists.map((receptionist) => (
+            <div key={receptionist.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+              <div className="flex justify-between items-start flex-wrap gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xl">👩‍💼</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {receptionist.fullName}
+                    </h3>
+                    {getStatusBadge(receptionist.status)}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {t('manager.receptionists.code')}: {receptionist.receptionistCode}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    📧 {receptionist.email} - 📞 {receptionist.phone}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    📅 {t('manager.receptionists.registeredDate')}: {formatDate(receptionist.createdAt)}
+                  </p>
+                  {receptionist.status === ReceptionistStatus.REJECTED && receptionist.rejectionReason && (
+                    <p className="text-sm text-red-600 mt-1">
+                      ❌ {t('common.reason')}: {receptionist.rejectionNote || receptionist.rejectionReason}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {receptionist.status === ReceptionistStatus.VERIFIED && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleApprove(receptionist.id)}
+                        loading={approvingId === receptionist.id}
+                      >
+                        ✅ {t('common.approve')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleOpenReject(receptionist.id, receptionist.fullName)}
+                        loading={rejectingId === receptionist.id}
+                      >
+                        ❌ {t('common.reject')}
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/manager/receptionists/${receptionist.id}`)}
+                  >
+                    🔍 {t('common.viewDetail')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        {totalElements > 10 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage + 1}
+              totalPages={Math.ceil(totalElements / 10)}
+              onPageChange={handlePageChange}
+              showJumpToPage={true}
+              showFirstLast={true}
+              showPrevNext={true}
+              size="md"
+            />
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -180,7 +269,7 @@ const ManagerReceptionistsPage = () => {
           </div>
         </div>
 
-        {/* Receptionists List */}
+        {/* Receptionists List Container */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <h2 className="font-semibold text-gray-900 dark:text-white">
@@ -189,85 +278,7 @@ const ManagerReceptionistsPage = () => {
           </div>
 
           <div className="p-4">
-            {receptionists.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">{t('manager.receptionists.noReceptionists')}</p>
-            ) : (
-              <div className="space-y-4">
-                {receptionists.map((receptionist) => (
-                  <div key={receptionist.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                    <div className="flex justify-between items-start flex-wrap gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xl">👩‍💼</span>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
-                            {receptionist.fullName}
-                          </h3>
-                          {getStatusBadge(receptionist.status)}
-                        </div>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {t('manager.receptionists.code')}: {receptionist.receptionistCode}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          📧 {receptionist.email} - 📞 {receptionist.phone}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          📅 {t('manager.receptionists.registeredDate')}: {formatDate(receptionist.createdAt)}
-                        </p>
-                        {receptionist.status === ReceptionistStatus.REJECTED && receptionist.rejectionReason && (
-                          <p className="text-sm text-red-600 mt-1">
-                            ❌ {t('common.reason')}: {receptionist.rejectionNote || receptionist.rejectionReason}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {receptionist.status === ReceptionistStatus.VERIFIED && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="primary"
-                              onClick={() => handleApprove(receptionist.id)}
-                              loading={approvingId === receptionist.id}
-                            >
-                              ✅ {t('common.approve')}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              onClick={() => handleOpenReject(receptionist.id, receptionist.fullName)}
-                              loading={rejectingId === receptionist.id}
-                            >
-                              ❌ {t('common.reject')}
-                            </Button>
-                          </>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/manager/receptionists/${receptionist.id}`)}
-                        >
-                          🔍 {t('common.viewDetail')}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {totalElements > 10 && (
-              <div className="mt-6">
-                <Pagination
-                  currentPage={currentPage + 1}
-                  totalPages={Math.ceil(totalElements / 10)}
-                  onPageChange={handlePageChange}
-                  showJumpToPage={true}
-                  showFirstLast={true}
-                  showPrevNext={true}
-                  size="md"
-                />
-              </div>
-            )}
+            {renderTableContent()}
           </div>
         </div>
       </div>

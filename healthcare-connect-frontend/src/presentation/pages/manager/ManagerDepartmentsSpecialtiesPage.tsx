@@ -1,535 +1,332 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import { useAuth } from '../../../application/context/AuthContext';
-import { useMinLoadingAction } from '../../../application/hooks/useMinLoadingAction';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import Button from '../../components/shared/Button';
 import Modal from '../../components/shared/Modal';
-import Input from '../../components/shared/Input';
+import Pagination from '../../components/shared/Pagination';
 import DashboardHeader from '../../components/medical-dashboard/DashboardHeader';
+import { managerApi } from '../../../infrastructure/api/managerApi';
+import { ReceptionistStatus, RejectionReason } from '../../../core/constants/enums';
 import toast from 'react-hot-toast';
-import type { Department, Specialty } from '../../../core/types';
-import { departmentSpecialtyApi } from '../../../infrastructure/api/departmentSpecialtyApi';
-import { MedicalCategory } from '../../../core/constants/enums';
-import { t } from 'i18next';
-import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
+import type { ReceptionistForManager } from '../../../core/types';
+import { formatDate } from '../../../shared/utils/dateUtils';
 
-// Category options for dropdown
-const getCategoryOptions = () => [
-    { value: MedicalCategory.INTERNAL_MEDICINE, label: t('medicalCategory.INTERNAL_MEDICINE') },
-    { value: MedicalCategory.SURGERY, label: t('medicalCategory.SURGERY') },
-    { value: MedicalCategory.PEDIATRICS, label: t('medicalCategory.PEDIATRICS') },
-    { value: MedicalCategory.ENT, label: t('medicalCategory.ENT') },
-    { value: MedicalCategory.DIAGNOSTIC_IMAGING, label: t('medicalCategory.DIAGNOSTIC_IMAGING') },
-    { value: MedicalCategory.GENERAL, label: t('medicalCategory.GENERAL') },
-    { value: MedicalCategory.DERMATOLOGY, label: t('medicalCategory.DERMATOLOGY') },
-    { value: MedicalCategory.OBSTETRICS, label: t('medicalCategory.OBSTETRICS') },
-    { value: MedicalCategory.LABORATORY, label: t('medicalCategory.LABORATORY') },
-    { value: MedicalCategory.OPHTHALMOLOGY, label: t('medicalCategory.OPHTHALMOLOGY') },
+type StatusFilter = 'ALL' | 'PENDING' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
+
+const getStatusOptions = (t: (key: string) => string) => [
+  { value: 'ALL', label: t('doctor.status.all'), icon: '📋' },
+  { value: 'PENDING', label: t('doctor.status.pending'), icon: '⏳' },
+  { value: 'VERIFIED', label: t('doctor.status.verified'), icon: '🟡' },
+  { value: 'APPROVED', label: t('doctor.status.approved'), icon: '✅' },
+  { value: 'REJECTED', label: t('doctor.status.rejected'), icon: '❌' },
 ];
-type TabType = 'departments' | 'specialties';
 
-const ManagerDepartmentsSpecialtiesPage = () => {
-    const { t } = useAppTranslation();
-    const { user } = useAuth();
+const ManagerReceptionistsPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useAppTranslation();
+  const { user } = useAuth();
+  
+  const [tableLoading, setTableLoading] = useState(true);
+  const [receptionists, setReceptionists] = useState<ReceptionistForManager[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  
+  // Lấy filter và page từ URL
+  const searchParams = new URLSearchParams(location.search);
+  const statusFilter = (searchParams.get('status') as StatusFilter) || 'ALL';
+  const currentPage = parseInt(searchParams.get('page') || '0');
+  
+  // Modal states
+  const [rejectModal, setRejectModal] = useState<{
+    open: boolean;
+    receptionistId: string;
+    receptionistName: string;
+  }>({ open: false, receptionistId: '', receptionistName: '' });
+  const [rejectReason, setRejectReason] = useState<RejectionReason>(RejectionReason.OTHER);
+  const [rejectNote, setRejectNote] = useState('');
+  
+  // Loading states for actions
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
-    const { activeTab, setActiveTab } = useTabWithUrl<TabType>({
-        paramName: 'tab',
-        validValues: ['departments', 'specialties'],
-        defaultValue: 'departments',
-        includePage: false,  // Không cần page parameter
-    });
-    const [loading, setLoading] = useState(true);
-    const categoryOptions = getCategoryOptions();
+  const statusOptions = getStatusOptions(t);
 
+  // Cập nhật URL
+  const updateUrl = (status: string, page: number) => {
+    const params = new URLSearchParams();
+    params.set('status', status);
+    params.set('page', page.toString());
+    navigate(`/manager/receptionists?${params.toString()}`, { replace: true });
+  };
 
-    // Departments
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [deptModalOpen, setDeptModalOpen] = useState(false);
-    const [editingDept, setEditingDept] = useState<Department | null>(null);
-    const [deptForm, setDeptForm] = useState<{
-        name: string;
-        code: string;
-        description: string;
-        category: MedicalCategory;
-    }>({
-        name: '',
-        code: '',
-        description: '',
-        category: MedicalCategory.INTERNAL_MEDICINE
-    });
+  const handleFilterChange = (status: string) => {
+    updateUrl(status, 0);
+  };
 
-    // Specialties
-    const [specialties, setSpecialties] = useState<Specialty[]>([]);
-    const [specModalOpen, setSpecModalOpen] = useState(false);
-    const [editingSpec, setEditingSpec] = useState<Specialty | null>(null);
-    const [specForm, setSpecForm] = useState<{
-        name: string;
-        description: string;
-        departmentId: string;
-        category: MedicalCategory;
-    }>({
-        name: '',
-        description: '',
-        departmentId: '',
-        category: MedicalCategory.INTERNAL_MEDICINE
-    });
-    const [departmentsForSelect, setDepartmentsForSelect] = useState<Department[]>([]);
+  const handlePageChange = (newPage: number) => {
+    updateUrl(statusFilter, newPage - 1);
+  };
 
-    // Delete modal
-    const [deleteModal, setDeleteModal] = useState({ open: false, id: '', name: '', type: 'departments' as TabType });
+  // Fetch data
+  const fetchReceptionists = async () => {
+    setTableLoading(true); 
+    try {
+      const statusParam = statusFilter === 'ALL' ? undefined : statusFilter;
+      const response = await managerApi.getReceptionistsByManager(currentPage, 10, statusParam);
+      setReceptionists(response.content);
+      setTotalElements(response.totalElements);
+    } catch (error) {
+      console.error('Failed to fetch receptionists:', error);
+      toast.error(t('common.loadError'));
+    } finally {
+      setTableLoading(false);
+    }
+  };
 
-    // Fetch departments
-    const fetchDepartments = async () => {
-        try {
-            const data = await departmentSpecialtyApi.getDepartments();
-            const mappedDepartments: Department[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                code: item.code,
-                description: item.description || '',
-                category: item.category
-            }));
-            setDepartments(mappedDepartments);
-            setDepartmentsForSelect(mappedDepartments);
-        } catch (error) {
-            toast.error(t('common.loadError'));
-        }
-    };
+  useEffect(() => {
+    fetchReceptionists();
+  }, [currentPage, statusFilter]);
 
-    // Fetch specialties
-    const fetchSpecialties = async () => {
-        try {
-            const data = await departmentSpecialtyApi.getSpecialties();
-            const mappedSpecialties: Specialty[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                code: item.code,
-                description: item.description || '',
-                departmentId: item.department?.id || '',
-                departmentName: item.department?.name || '',
-                department: item.department,
-                category: item.category || item.department?.category,
-            }));
-            setSpecialties(mappedSpecialties);
-        } catch (error) {
-            toast.error(t('common.loadError'));
-        }
-    };
+  // Approve receptionist
+  const handleApprove = async (receptionistId: string) => {
+    setApprovingId(receptionistId);
+    try {
+      await managerApi.approveReceptionist(receptionistId);
+      toast.success(t('manager.approveReceptionistSuccess'));
+      fetchReceptionists();
+    } catch (error) {
+      toast.error(t('manager.approveReceptionistError'));
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            await Promise.all([fetchDepartments(), fetchSpecialties()]);
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
+  // Open reject modal
+  const handleOpenReject = (receptionistId: string, receptionistName: string) => {
+    setRejectModal({ open: true, receptionistId, receptionistName });
+    setRejectReason(RejectionReason.OTHER);
+    setRejectNote('');
+  };
 
-    // Save Department
-    const { execute: saveDept, loading: savingDept } = useMinLoadingAction({
-        minLoadingTime: 500,
-        successMessage: editingDept ? t('department.updateSuccess') : t('department.createSuccess'),
-        errorMessage: t('department.saveError'),
-        onSuccess: () => {
-            setDeptModalOpen(false);
-            fetchDepartments();
-        }
-    });
+  // Confirm reject
+  const handleConfirmReject = async () => {
+    const { receptionistId } = rejectModal;
+    setRejectingId(receptionistId);
+    try {
+      await managerApi.rejectReceptionist(receptionistId, { reasonCode: rejectReason, note: rejectNote });
+      toast.success(t('manager.rejectReceptionistSuccess'));
+      setRejectModal({ open: false, receptionistId: '', receptionistName: '' });
+      fetchReceptionists();
+    } catch (error) {
+      toast.error(t('manager.rejectError'));
+    } finally {
+      setRejectingId(null);
+    }
+  };
 
-    const handleSaveDept = async () => {
-        console.log('deptForm.category before send:', deptForm.category);
+  // Get status badge
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case ReceptionistStatus.APPROVED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">✅ {t('receptionist.status.approved')}</span>;
+      case ReceptionistStatus.VERIFIED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">🟡 {t('receptionist.status.verified')}</span>;
+      case ReceptionistStatus.PENDING:
+        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">⏳ {t('receptionist.status.pending')}</span>;
+      case ReceptionistStatus.REJECTED:
+        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">❌ {t('receptionist.status.rejected')}</span>;
+      default:
+        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">{status}</span>;
+    }
+  };
 
-        if (!deptForm.name.trim()) {
-            toast.error(t('department.nameRequired'));
-            return;
-        }
-        if (!deptForm.code.trim()) {
-            toast.error(t('department.codeRequired'));
-            return;
-        }
+  const renderTableContent = () => {
+    if (tableLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" />
+        </div>
+      );
+    }
 
-        const codeRegex = /^[A-Z0-9_]+$/;
-        if (!codeRegex.test(deptForm.code)) {
-            toast.error(t('department.codeInvalidFormat'));
-            return;
-        }
-
-        console.log('Sending department data:', {
-            name: deptForm.name,
-            code: deptForm.code,
-            description: deptForm.description,
-            category: deptForm.category
-        });
-
-        const departmentData = {
-            name: deptForm.name,
-            code: deptForm.code,
-            description: deptForm.description,
-            category: deptForm.category
-        };
-
-        if (editingDept) {
-            await saveDept(() => departmentSpecialtyApi.updateDepartment(editingDept.id, departmentData));
-        } else {
-            await saveDept(() => departmentSpecialtyApi.createDepartment(departmentData));
-        }
-    };
-
-    // Save Specialty
-    const { execute: saveSpec, loading: savingSpec } = useMinLoadingAction({
-        minLoadingTime: 500,
-        successMessage: editingSpec ? t('specialty.updateSuccess') : t('specialty.createSuccess'),
-        errorMessage: t('specialty.saveError'),
-        onSuccess: () => {
-            setSpecModalOpen(false);
-            fetchSpecialties();
-        }
-    });
-
-    const handleSaveSpec = async () => {
-        console.log('specForm.category before send:', specForm.category);
-
-        if (!specForm.name.trim()) {
-            toast.error(t('specialty.nameRequired'));
-            return;
-        }
-        if (!specForm.departmentId) {
-            toast.error(t('specialty.departmentRequired'));
-            return;
-        }
-
-        const dataToSend = {
-            name: specForm.name,
-            description: specForm.description,
-            departmentId: specForm.departmentId,
-            category: specForm.category
-        };
-
-        console.log('Sending specialty data:', dataToSend);
-
-        if (editingSpec) {
-            await saveSpec(() => departmentSpecialtyApi.updateSpecialty(editingSpec.id, dataToSend));
-        } else {
-            await saveSpec(() => departmentSpecialtyApi.createSpecialty(dataToSend));
-        }
-    };
-
-    // Delete
-    const { execute: deleteItem, loading: deleting } = useMinLoadingAction({
-        minLoadingTime: 500,
-        successMessage: t('common.deleteSuccess'),
-        // errorMessage: t('common.deleteError'),
-        onSuccess: () => {
-            setDeleteModal({ open: false, id: '', name: '', type: 'departments' });
-            if (deleteModal.type === 'departments') {
-                fetchDepartments();
-            } else {
-                fetchSpecialties();
-            }
-        }
-    });
-
-    const handleDelete = () => {
-        if (deleteModal.type === 'departments') {
-            deleteItem(() => departmentSpecialtyApi.deleteDepartment(deleteModal.id));
-        } else {
-            deleteItem(() => departmentSpecialtyApi.deleteSpecialty(deleteModal.id));
-        }
-    };
-
-    if (loading) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
+    if (receptionists.length === 0) {
+      return (
+        <p className="text-center text-gray-500 py-8">{t('manager.receptionists.noReceptionists')}</p>
+      );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-            <div className="container mx-auto px-4 py-6">
-                <DashboardHeader
-                    icon="📋"
-                    title={t('departmentsSpecialties.title')}
-                    subtitle={t('departmentsSpecialties.subtitle')}
-                    showHospital={true}
-                    hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
-                />
-
-                {/* Tabs */}
-                <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-2 mb-6">
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setActiveTab('departments')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'departments'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                                }`}
-                        >
-                            🏛️ {t('departmentsSpecialties.departments')}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('specialties')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'specialties'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                                }`}
-                        >
-                            📚 {t('departmentsSpecialties.specialties')}
-                        </button>
-                    </div>
+      <>
+        <div className="space-y-4">
+          {receptionists.map((receptionist) => (
+            <div key={receptionist.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+              <div className="flex justify-between items-start flex-wrap gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xl">👩‍💼</span>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {receptionist.fullName}
+                    </h3>
+                    {getStatusBadge(receptionist.status)}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {t('manager.receptionists.code')}: {receptionist.receptionistCode}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    📧 {receptionist.email} - 📞 {receptionist.phone}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    📅 {t('manager.receptionists.registeredDate')}: {formatDate(receptionist.createdAt)}
+                  </p>
+                  {receptionist.status === ReceptionistStatus.REJECTED && receptionist.rejectionReason && (
+                    <p className="text-sm text-red-600 mt-1">
+                      ❌ {t('common.reason')}: {receptionist.rejectionNote || receptionist.rejectionReason}
+                    </p>
+                  )}
                 </div>
-
-                {/* Departments Tab */}
-                {activeTab === 'departments' && (
-                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h2 className="font-semibold text-gray-900 dark:text-white">
-                                📋 {t('departmentsSpecialties.departmentsList')} ({departments.length})
-                            </h2>
-                            <Button variant="primary" size="sm" onClick={() => {
-                                setEditingDept(null);
-                                setDeptForm({ name: '', code: '', description: '', category: MedicalCategory.INTERNAL_MEDICINE });
-                                setDeptModalOpen(true);
-                            }}>
-                                ➕ {t('common.add')}
-                            </Button>
-                        </div>
-                        <div className="p-4">
-                            {departments.length === 0 ? (
-                                <p className="text-center text-gray-500 py-8">{t('departmentsSpecialties.noDepartments')}</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {departments.map((dept) => (
-                                        <div key={dept.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-gray-900 dark:text-white">{dept.name}</h3>
-                                                        <span className="text-xs px-2 py-0.5 bg-gray-200 dark:bg-gray-600 rounded-full">
-                                                            {dept.code}
-                                                        </span>
-                                                    </div>
-                                                    {dept.description && (
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{dept.description}</p>
-                                                    )}
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button size="sm" variant="outline" onClick={() => {
-                                                        setEditingDept(dept);
-                                                        setDeptForm({
-                                                            name: dept.name,
-                                                            code: dept.code,
-                                                            description: dept.description || '',
-                                                            category: dept.category || MedicalCategory.INTERNAL_MEDICINE
-                                                        });
-                                                        setDeptModalOpen(true);
-                                                    }}>
-                                                        ✏️ {t('common.edit')}
-                                                    </Button>
-                                                    <Button size="sm" variant="danger" onClick={() => {
-                                                        setDeleteModal({ open: true, id: dept.id, name: dept.name, type: 'departments' });
-                                                    }}>
-                                                        🗑️ {t('common.delete')}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Specialties Tab */}
-                {activeTab === 'specialties' && (
-                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h2 className="font-semibold text-gray-900 dark:text-white">
-                                📋 {t('departmentsSpecialties.specialtiesList')} ({specialties.length})
-                            </h2>
-                            <Button variant="primary" size="sm" onClick={() => {
-                                setEditingSpec(null);
-                                setSpecForm({
-                                    name: '',
-                                    description: '',
-                                    departmentId: '',
-                                    category: MedicalCategory.INTERNAL_MEDICINE
-                                });
-                                setSpecModalOpen(true);
-                            }}>
-                                ➕ {t('common.add')}
-                            </Button>
-                        </div>
-                        <div className="p-4">
-                            {specialties.length === 0 ? (
-                                <p className="text-center text-gray-500 py-8">{t('departmentsSpecialties.noSpecialties')}</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {specialties.map((spec) => (
-                                        <div key={spec.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="font-semibold text-gray-900 dark:text-white">{spec.name}</h3>
-                                                        <span className="text-xs px-2 py-0.5 bg-gray-200 dark:bg-gray-600 rounded-full">
-                                                            {spec.code}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-sm text-gray-500 mt-1">{t('specialty.department')}: {spec.department?.name}</p>
-                                                    <p className="text-xs text-gray-400 mt-0.5">
-                                                        {/* {t('specialty.category')}: {categoryOptions.find(c => c.value === spec.category)?.label || spec.category || 'Chưa có'} */}
-                                                        {t('specialty.category')}: {categoryOptions.find(c => c.value === spec.department?.category)?.label || spec.department?.category || 'Chưa có'}
-                                                    </p>
-                                                    {spec.description && (
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{spec.description}</p>
-                                                    )}
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button size="sm" variant="outline" onClick={() => {
-                                                        setEditingSpec(spec);
-                                                        setSpecForm({
-                                                            name: spec.name,
-                                                            description: spec.description || '',
-                                                            departmentId: spec.departmentId,
-                                                            // category: spec.category as MedicalCategory || MedicalCategory.INTERNAL_MEDICINE,
-                                                            category: (spec.category || spec.department?.category) as MedicalCategory || MedicalCategory.INTERNAL_MEDICINE
-                                                        });
-                                                        setSpecModalOpen(true);
-                                                    }}>
-                                                        ✏️ {t('common.edit')}
-                                                    </Button>
-                                                    <Button size="sm" variant="danger" onClick={() => {
-                                                        setDeleteModal({ open: true, id: spec.id, name: spec.name, type: 'specialties' });
-                                                    }}>
-                                                        🗑️ {t('common.delete')}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Department Modal */}
-                <Modal
-                    isOpen={deptModalOpen}
-                    onClose={() => setDeptModalOpen(false)}
-                    onConfirm={handleSaveDept}
-                    title={editingDept ? t('department.editTitle') : t('department.createTitle')}
-                    confirmText={t('common.save')}
-                    cancelText={t('common.cancel')}
-                    loading={savingDept}
-                >
-                    <div className="space-y-4 mt-2">
-                        <Input
-                            label={t('department.name')}
-                            value={deptForm.name}
-                            onChange={(e) => setDeptForm({ ...deptForm, name: e.target.value })}
-                            required
-                        />
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                {t('department.category')} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                value={deptForm.category}
-                                onChange={(e) => setDeptForm({ ...deptForm, category: e.target.value as MedicalCategory })}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800"
-                            >
-                                {categoryOptions.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <Input
-                            label={t('department.code')}
-                            value={deptForm.code}
-                            onChange={(e) => setDeptForm({ ...deptForm, code: e.target.value.toUpperCase() })}
-                            placeholder="VD: KNOI"
-                            required
-                        />
-                        <Input
-                            label={t('department.description')}
-                            value={deptForm.description}
-                            onChange={(e) => setDeptForm({ ...deptForm, description: e.target.value })}
-                        />
-                    </div>
-                </Modal>
-
-                {/* Specialty Modal */}
-                <Modal
-                    isOpen={specModalOpen}
-                    onClose={() => setSpecModalOpen(false)}
-                    onConfirm={handleSaveSpec}
-                    title={editingSpec ? t('specialty.editTitle') : t('specialty.createTitle')}
-                    confirmText={t('common.save')}
-                    cancelText={t('common.cancel')}
-                    loading={savingSpec}
-                >
-                    <div className="space-y-4 mt-2">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                {t('specialty.department')} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                value={specForm.departmentId}
-                                onChange={(e) => {
-                                    const deptId = e.target.value;
-                                    const selectedDept = departmentsForSelect.find(dept => dept.id === deptId);
-                                    setSpecForm({
-                                        ...specForm,
-                                        departmentId: deptId,
-                                        category: (selectedDept?.category as MedicalCategory) || MedicalCategory.INTERNAL_MEDICINE
-                                    });
-                                }}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-800"
-                            >
-                                <option value="">{t('specialty.selectDepartment')}</option>
-                                {departmentsForSelect.map((dept) => (
-                                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        {/* Hiển thị category (chỉ đọc) */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                {t('specialty.category')} <span className="text-red-500">*</span>
-                            </label>
-                            <div className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                                {categoryOptions.find(c => c.value === specForm.category)?.label || 'Chưa có'}
-                            </div>
-                        </div>
-                        <Input
-                            label={t('specialty.name')}
-                            value={specForm.name}
-                            onChange={(e) => setSpecForm({ ...specForm, name: e.target.value })}
-                            required
-                        />
-                        <Input
-                            label={t('specialty.description')}
-                            value={specForm.description}
-                            onChange={(e) => setSpecForm({ ...specForm, description: e.target.value })}
-                        />
-                    </div>
-                </Modal>
-
-                {/* Delete Confirmation Modal */}
-                <Modal
-                    isOpen={deleteModal.open}
-                    onClose={() => setDeleteModal({ ...deleteModal, open: false })}
-                    onConfirm={handleDelete}
-                    title={t('common.deleteConfirm')}
-                    message={t('common.deleteConfirmMessage', { name: deleteModal.name })}
-                    variant="danger"
-                    confirmText={t('common.delete')}
-                    cancelText={t('common.cancel')}
-                    loading={deleting}
-                />
+                <div className="flex gap-2 flex-wrap">
+                  {receptionist.status === ReceptionistStatus.VERIFIED && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => handleApprove(receptionist.id)}
+                        loading={approvingId === receptionist.id}
+                      >
+                        ✅ {t('common.approve')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleOpenReject(receptionist.id, receptionist.fullName)}
+                        loading={rejectingId === receptionist.id}
+                      >
+                        ❌ {t('common.reject')}
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/manager/receptionists/${receptionist.id}`)}
+                  >
+                    🔍 {t('common.viewDetail')}
+                  </Button>
+                </div>
+              </div>
             </div>
+          ))}
         </div>
+
+        {/* Pagination */}
+        {totalElements > 10 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage + 1}
+              totalPages={Math.ceil(totalElements / 10)}
+              onPageChange={handlePageChange}
+              showJumpToPage={true}
+              showFirstLast={true}
+              showPrevNext={true}
+              size="md"
+            />
+          </div>
+        )}
+      </>
     );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header - LUÔN HIỂN THỊ */}
+        <DashboardHeader
+          icon="👩‍💼"
+          title={t('manager.receptionists.title')}
+          subtitle={t('manager.receptionists.subtitle')}
+          showHospital={true}
+          hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
+        />
+
+        {/* Filter Tabs - LUÔN HIỂN THỊ */}
+        <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-2 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {statusOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handleFilterChange(opt.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  statusFilter === opt.value
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                {opt.icon} {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Receptionists List Container - CHỈ PHẦN NÀY LOADING */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h2 className="font-semibold text-gray-900 dark:text-white">
+              📋 {t('manager.receptionists.list')} ({totalElements})
+            </h2>
+          </div>
+
+          <div className="p-4">
+            {renderTableContent()}
+          </div>
+        </div>
+      </div>
+
+      {/* Reject Modal */}
+      <Modal
+        isOpen={rejectModal.open}
+        onClose={() => setRejectModal({ open: false, receptionistId: '', receptionistName: '' })}
+        onConfirm={handleConfirmReject}
+        title={t('manager.rejectTitle', { name: rejectModal.receptionistName })}
+        variant="danger"
+        confirmText={t('common.confirm')}
+        cancelText={t('common.cancel')}
+        loading={rejectingId !== null}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('manager.rejectReason')} <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value as RejectionReason)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+            >
+              <option value={RejectionReason.INVALID_CERTIFICATE}>{t('rejectionReason.invalidCertificate')}</option>
+              <option value={RejectionReason.MISSING_DOCUMENTS}>{t('rejectionReason.missingDocuments')}</option>
+              <option value={RejectionReason.INSUFFICIENT_EXPERIENCE}>{t('rejectionReason.insufficientExperience')}</option>
+              <option value={RejectionReason.PROFILE_MISMATCH}>{t('rejectionReason.profileMismatch')}</option>
+              <option value={RejectionReason.OTHER}>{t('rejectionReason.other')}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('manager.rejectNote')}
+            </label>
+            <textarea
+              value={rejectNote}
+              onChange={(e) => setRejectNote(e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+              placeholder={t('manager.rejectNotePlaceholder')}
+            />
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
 };
 
-export default ManagerDepartmentsSpecialtiesPage;
+export default ManagerReceptionistsPage;

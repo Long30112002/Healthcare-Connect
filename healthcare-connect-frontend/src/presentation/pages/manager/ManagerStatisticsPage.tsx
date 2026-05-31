@@ -14,12 +14,6 @@ import type { TopDoctorResponse, WeeklyStatResponse } from '../../../core/types/
 
 type Period = 'week' | 'month' | 'year' | 'custom';
 
-// const periodOptions = [
-//     { value: 'week', label: t('statistics.period.week'), icon: '📆' },
-//     { value: 'month', label: t('statistics.period.month'), icon: '📊' },
-//     { value: 'year', label: t('statistics.period.year'), icon: '🎯' },
-// ];
-
 interface RevenueData {
     month: number;
     year: number;
@@ -40,7 +34,8 @@ interface TopMedicine {
 const ManagerStatisticsPage = () => {
     const { t } = useAppTranslation();
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
+    
+    const [contentLoading, setContentLoading] = useState(true);
 
     // States
     const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
@@ -58,7 +53,7 @@ const ManagerStatisticsPage = () => {
     });
 
     const fetchData = async () => {
-        setLoading(true);
+        setContentLoading(true); 
         try {
             const [
                 revenue,
@@ -85,7 +80,7 @@ const ManagerStatisticsPage = () => {
             console.error('Failed to fetch statistics:', error);
             toast.error(t('common.loadError'));
         } finally {
-            setLoading(false);
+            setContentLoading(false);
         }
     };
 
@@ -104,7 +99,7 @@ const ManagerStatisticsPage = () => {
             departments: departmentStats,
             topMedicines: topMedicines,
             topDoctors: topDoctorsByRevenue,
-            hospitalName: user?.fullName?.includes('Manager') ? 'Bệnh viện của bạn' : '',
+            hospitalName: user?.fullName?.includes('Manager') ? t('manager.yourHospital') : '',
             period: period,
         };
         exportManagerStatisticsExcel(reportData);
@@ -117,7 +112,7 @@ const ManagerStatisticsPage = () => {
             departments: departmentStats,
             topMedicines: topMedicines,
             topDoctors: topDoctorsByRevenue,
-            hospitalName: user?.fullName?.includes('Manager') ? 'Bệnh viện của bạn' : '',
+            hospitalName: user?.fullName?.includes('Manager') ? t('manager.yourHospital') : '',
             period: period,
         };
         exportManagerStatisticsPDF(reportData);
@@ -133,25 +128,17 @@ const ManagerStatisticsPage = () => {
     // Get max count for weekly chart
     const maxWeeklyCount = Math.max(...weeklyStats.map(w => w.count), 0);
 
-    if (loading) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-    }
-
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-            <div className="relative z-10 container mx-auto px-4 py-6">
-                {/* Header */}
-                <div className="relative z-10 container mx-auto">
-                    <DashboardHeader
-                        icon="📊"
-                        title={t('statistics.title')}
-                        subtitle={t('statistics.subtitle')}
-                        showHospital={true}
-                        hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
-                    />
+    const renderContent = () => {
+        if (contentLoading) {
+            return (
+                <div className="flex justify-center py-20">
+                    <LoadingSpinner size="lg" text={t('common.loading')} />
                 </div>
+            );
+        }
 
+        return (
+            <>
                 {/* Revenue Chart */}
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
@@ -205,11 +192,9 @@ const ManagerStatisticsPage = () => {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            {/* Doanh thu đã thu (tài chính) */}
                                             <p className="text-sm font-semibold text-primary">
                                                 {formatPrice(doctor.totalRevenueCollected)}
                                             </p>
-                                            {/* Doanh thu từ ca hoàn thành + Số BN đã khám */}
                                             <p className="text-xs text-gray-500">
                                                 {formatPrice(doctor.totalRevenueCompleted)} {t('statistics.from')} {doctor.totalPatientsCompleted} {t('statistics.patients')}
                                             </p>
@@ -326,7 +311,8 @@ const ManagerStatisticsPage = () => {
                                         <p className="text-xs text-gray-500 mt-2">{stat.day}</p>
                                         <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
                                             {stat.count} {t('statistics.patients')}
-                                        </p>                                    </div>
+                                        </p>
+                                    </div>
                                 );
                             })}
                         </div>
@@ -347,6 +333,26 @@ const ManagerStatisticsPage = () => {
                 <div className="text-center text-xs text-gray-400 dark:text-gray-500 py-4">
                     ⏱️ {t('statistics.reportGeneratedAt')}: {new Date().toLocaleString('vi-VN')}
                 </div>
+            </>
+        );
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+            <div className="relative z-10 container mx-auto px-4 py-6">
+                {/* Header - LUÔN HIỂN THỊ */}
+                <div className="relative z-10 container mx-auto">
+                    <DashboardHeader
+                        icon="📊"
+                        title={t('statistics.title')}
+                        subtitle={t('statistics.subtitle')}
+                        showHospital={true}
+                        hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
+                    />
+                </div>
+
+                {/* Content - CHỈ PHẦN NÀY LOADING */}
+                {renderContent()}
             </div>
         </div>
     );

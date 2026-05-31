@@ -39,7 +39,8 @@ interface MedicineFormData {
 const ManagerMedicinesPage = () => {
     const { t } = useAppTranslation();
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
+    
+    const [tableLoading, setTableLoading] = useState(true);
     const [medicines, setMedicines] = useState<MedicineResponse[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -80,7 +81,7 @@ const ManagerMedicinesPage = () => {
 
     // Fetch medicines
     const fetchMedicines = async () => {
-        setLoading(true);
+        setTableLoading(true); 
         try {
             const data = await medicineApi.getAll(0, 100);
             setMedicines(data.content);
@@ -88,7 +89,7 @@ const ManagerMedicinesPage = () => {
             console.error('Failed to fetch medicines:', error);
             toast.error(t('common.loadError'));
         } finally {
-            setLoading(false);
+            setTableLoading(false);
         }
     };
 
@@ -276,12 +277,6 @@ const ManagerMedicinesPage = () => {
         onSuccess: () => fetchMedicines(),
     });
 
-
-    // const categories = Object.values(MedicineCategory).map(cat => ({
-    //     value: cat,
-    //     label: t(`medicine.medicine.categoryList.${cat.toLowerCase()}`) || cat,
-    // }));
-
     const categoryOptions = Object.values(MedicineCategory).map(cat => ({
         value: cat,
         label: t(`medicine.medicine.categoryList.${cat.toLowerCase()}`) || cat,
@@ -297,14 +292,123 @@ const ManagerMedicinesPage = () => {
         label: t(`medicine.medicine.dosageFormList.${form.toLowerCase()}`) || form,
     }));
 
-    if (loading) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-    }
+    const renderTableContent = () => {
+        if (tableLoading) {
+            return (
+                <div className="flex justify-center py-12">
+                    <LoadingSpinner size="lg" />
+                </div>
+            );
+        }
+
+        if (filteredMedicines.length === 0) {
+            return (
+                <div className="text-center py-8 text-gray-500">
+                    {t('medicine.noMedicines')}
+                </div>
+            );
+        }
+
+        return (
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.code')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.name')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.category')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.unit')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.price')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.stock')}
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('medicine.expiryDate')}
+                            </th>
+                            <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {t('common.actions')}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {filteredMedicines.map((medicine) => {
+                            const expiryStatus = getExpiryStatus(medicine.expiryDate);
+                            const stockStatus = getStockStatus(medicine.stockQuantity, medicine.minStock);
+                            return (
+                                <tr key={medicine.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                                    <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white">
+                                        {medicine.code}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                        {medicine.name}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                        {t(`medicine.medicine.categoryList.${medicine.category.toLowerCase()}`)}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                        {t(`medicine.medicine.unitList.${medicine.unit.toLowerCase()}`)}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">
+                                        {formatPrice(medicine.price)}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm">
+                                        <span className={stockStatus.color}>
+                                            {medicine.stockQuantity} {medicine.unit} ({stockStatus.text})
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-sm">
+                                        <span className={expiryStatus.color}>
+                                            {formatDate(medicine.expiryDate)} ({expiryStatus.text})
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <div className="flex justify-center gap-2">
+                                            <button
+                                                onClick={() => handleEdit(medicine)}
+                                                className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
+                                                title={t('common.edit')}
+                                            >
+                                                ✏️
+                                            </button>
+                                            <button
+                                                onClick={() => handleOpenStockModal(medicine)}
+                                                className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition"
+                                                title={t('medicine.updateStock')}
+                                            >
+                                                📦
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(medicine.id, medicine.name)}
+                                                className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                                                title={t('common.delete')}
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="relative z-10 container mx-auto px-4 py-6">
-                {/* Header */}
+                {/* Header - LUÔN HIỂN THỊ */}
                 <DashboardHeader
                     icon="💊"
                     title={t('medicine.title')}
@@ -313,7 +417,7 @@ const ManagerMedicinesPage = () => {
                     hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
                 />
 
-                {/* Search and Filters */}
+                {/* Search and Filters - LUÔN HIỂN THỊ */}
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 mb-6">
                     <div className="flex flex-col sm:flex-row gap-3">
                         <div className="flex-1">
@@ -343,107 +447,15 @@ const ManagerMedicinesPage = () => {
                     </div>
                 </div>
 
-                {/* Medicines Table */}
+                {/* Medicines Table Container - CHỈ PHẦN NÀY LOADING */}
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 dark:bg-gray-700/50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.code')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.name')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.category')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.unit')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.price')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.stock')}
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('medicine.expiryDate')}
-                                    </th>
-                                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {t('common.actions')}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {filteredMedicines.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
-                                            {t('medicine.noMedicines')}
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredMedicines.map((medicine) => {
-                                        const expiryStatus = getExpiryStatus(medicine.expiryDate);
-                                        const stockStatus = getStockStatus(medicine.stockQuantity, medicine.minStock);
-                                        return (
-                                            <tr key={medicine.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                                                <td className="px-4 py-3 text-sm font-mono text-gray-900 dark:text-white">
-                                                    {medicine.code}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                                                    {medicine.name}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                                    {t(`medicine.medicine.categoryList.${medicine.category.toLowerCase()}`)}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                                    {t(`medicine.medicine.unitList.${medicine.unit.toLowerCase()}`)}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400">
-                                                    {formatPrice(medicine.price)}
-                                                </td>
-                                                <td className="px-4 py-3 text-sm">
-                                                    <span className={stockStatus.color}>
-                                                        {medicine.stockQuantity} {medicine.unit} ({stockStatus.text})
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-sm">
-                                                    <span className={expiryStatus.color}>
-                                                        {formatDate(medicine.expiryDate)} ({expiryStatus.text})
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    <div className="flex justify-center gap-2">
-                                                        <button
-                                                            onClick={() => handleEdit(medicine)}
-                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
-                                                            title={t('common.edit')}
-                                                        >
-                                                            ✏️
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleOpenStockModal(medicine)}
-                                                            className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition"
-                                                            title={t('medicine.updateStock')}
-                                                        >
-                                                            📦
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(medicine.id, medicine.name)}
-                                                            className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
-                                                            title={t('common.delete')}
-                                                        >
-                                                            🗑️
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                )}
-                            </tbody>
-                        </table>
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="font-semibold text-gray-900 dark:text-white">
+                            📋 {t('medicine.list')} ({filteredMedicines.length})
+                        </h2>
+                    </div>
+                    <div className="p-4">
+                        {renderTableContent()}
                     </div>
                 </div>
             </div>
@@ -459,6 +471,7 @@ const ManagerMedicinesPage = () => {
                 loading={saving}
                 size="lg"
             >
+                {/* ... giữ nguyên nội dung modal ... */}
                 <div className="space-y-4 mt-2 max-h-[70vh] overflow-y-auto px-1">
                     {/* Hàng 1: Mã thuốc + Tên thuốc */}
                     <div className="grid grid-cols-2 gap-4">

@@ -19,9 +19,10 @@ interface RoomFormData {
 }
 
 const ManagerRoomsPage = () => {
-    const { t } = useAppTranslation();
+    const { t } = useAppTranslation();  
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
+    
+    const [tableLoading, setTableLoading] = useState(true);
     const [rooms, setRooms] = useState<RoomResponse[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
@@ -45,9 +46,8 @@ const ManagerRoomsPage = () => {
         roomNumber: '',
     });
 
-    // Fetch data
     const fetchRooms = async () => {
-        setLoading(true);
+        setTableLoading(true);
         try {
             const data = await managerApi.getRooms();
             setRooms(data);
@@ -55,7 +55,7 @@ const ManagerRoomsPage = () => {
             console.error('Failed to fetch rooms:', error);
             toast.error(t('common.loadError'));
         } finally {
-            setLoading(false);
+            setTableLoading(false);
         }
     };
 
@@ -63,13 +63,11 @@ const ManagerRoomsPage = () => {
         fetchRooms();
     }, []);
 
-    // Filter rooms by search term
     const filteredRooms = rooms.filter(room =>
         room.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         room.building?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Get status badge
     const getStatusBadge = (status: string) => {
         switch (status) {
             case RoomStatus.AVAILABLE:
@@ -83,7 +81,6 @@ const ManagerRoomsPage = () => {
         }
     };
 
-    // Validate form
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
         if (!formData.roomNumber.trim()) {
@@ -96,7 +93,6 @@ const ManagerRoomsPage = () => {
         return Object.keys(errors).length === 0;
     };
 
-    // Open create modal
     const handleCreate = () => {
         setEditingRoom(null);
         setFormData({ roomNumber: '', floor: 0, building: '' });
@@ -104,7 +100,6 @@ const ManagerRoomsPage = () => {
         setModalOpen(true);
     };
 
-    // Open edit modal
     const handleEdit = (room: RoomResponse) => {
         setEditingRoom(room);
         setFormData({
@@ -116,7 +111,6 @@ const ManagerRoomsPage = () => {
         setModalOpen(true);
     };
 
-    // Save room (create or update)
     const { execute: saveRoom, loading: saving } = useMinLoadingAction({
         minLoadingTime: 500,
         successMessage: editingRoom ? t('room.updateSuccess') : t('room.createSuccess'),
@@ -137,7 +131,6 @@ const ManagerRoomsPage = () => {
         }
     };
 
-    // Delete room
     const { execute: deleteRoom, loading: deleting } = useMinLoadingAction({
         minLoadingTime: 500,
         successMessage: t('room.deleteSuccess'),
@@ -154,7 +147,6 @@ const ManagerRoomsPage = () => {
         });
     };
 
-    // Set maintenance
     const { execute: setMaintenance, loading: maintaining } = useMinLoadingAction({
         minLoadingTime: 500,
         successMessage: t('room.maintenanceSuccess'),
@@ -171,7 +163,6 @@ const ManagerRoomsPage = () => {
         });
     };
 
-    // Activate room
     const { execute: activateRoom, loading: activating } = useMinLoadingAction({
         minLoadingTime: 500,
         successMessage: t('room.activateSuccess'),
@@ -202,14 +193,70 @@ const ManagerRoomsPage = () => {
         setConfirmModal({ open: false, type: 'delete', roomId: '', roomNumber: '' });
     };
 
-    if (loading) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-    }
+    const renderTableContent = () => {
+        if (tableLoading) {
+            return (
+                <div className="flex justify-center py-12">
+                    <LoadingSpinner size="lg" />
+                </div>
+            );
+        }
+
+        if (filteredRooms.length === 0) {
+            return (
+                <p className="text-center text-gray-500 py-8">{t('room.noRooms')}</p>
+            );
+        }
+
+        return (
+            <div className="space-y-3">
+                {filteredRooms.map((room) => (
+                    <div key={room.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <div className="flex justify-between items-start flex-wrap gap-4">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <span className="text-2xl">🚪</span>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                        {t('room.roomNumber')}: {room.roomNumber}
+                                    </h3>
+                                    {getStatusBadge(room.status)}
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <span>🏢 {t('room.floor')}: {room.floor ?? '---'}</span>
+                                    <span>🏛️ {t('room.building')}: {room.building || '---'}</span>
+                                </div>
+                            </div>
+                            <div className="flex gap-2 flex-wrap">
+                                <Button size="sm" variant="outline" onClick={() => handleEdit(room)}>
+                                    ✏️ {t('common.edit')}
+                                </Button>
+
+                                {room.status === RoomStatus.AVAILABLE && (
+                                    <Button size="sm" variant="secondary" onClick={() => handleSetMaintenance(room.id, room.roomNumber)}>
+                                        🔧 {t('room.maintenance')}
+                                    </Button>
+                                )}
+
+                                {room.status === RoomStatus.MAINTENANCE && (
+                                    <Button size="sm" variant="primary" onClick={() => handleActivate(room.id, room.roomNumber)}>
+                                        ✅ {t('room.activate')}
+                                    </Button>
+                                )}
+
+                                <Button size="sm" variant="danger" onClick={() => handleDelete(room.id, room.roomNumber)}>
+                                    🗑️ {t('common.delete')}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="relative z-10 container mx-auto px-4 py-6">
-                {/* Header */}
                 <DashboardHeader
                     icon="🚪"
                     title={t('room.title')}
@@ -218,7 +265,6 @@ const ManagerRoomsPage = () => {
                     hospitalName={user?.fullName?.includes('Manager') ? t('manager.yourHospital') : ''}
                 />
 
-                {/* Search and Add Button */}
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 mb-6">
                     <div className="flex flex-col sm:flex-row gap-3">
                         <div className="flex-1">
@@ -236,7 +282,6 @@ const ManagerRoomsPage = () => {
                     </div>
                 </div>
 
-                {/* Rooms List */}
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                         <h2 className="font-semibold text-gray-900 dark:text-white">
@@ -245,57 +290,11 @@ const ManagerRoomsPage = () => {
                     </div>
 
                     <div className="p-4">
-                        {filteredRooms.length === 0 ? (
-                            <p className="text-center text-gray-500 py-8">{t('room.noRooms')}</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {filteredRooms.map((room) => (
-                                    <div key={room.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                                        <div className="flex justify-between items-start flex-wrap gap-4">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-3 flex-wrap">
-                                                    <span className="text-2xl">🚪</span>
-                                                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                                                        {t('room.roomNumber')}: {room.roomNumber}
-                                                    </h3>
-                                                    {getStatusBadge(room.status)}
-                                                </div>
-                                                <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
-                                                    <span>🏢 {t('room.floor')}: {room.floor ?? '---'}</span>
-                                                    <span>🏛️ {t('room.building')}: {room.building || '---'}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2 flex-wrap">
-                                                <Button size="sm" variant="outline" onClick={() => handleEdit(room)}>
-                                                    ✏️ {t('common.edit')}
-                                                </Button>
-
-                                                {room.status === RoomStatus.AVAILABLE && (
-                                                    <Button size="sm" variant="secondary" onClick={() => handleSetMaintenance(room.id, room.roomNumber)}>
-                                                        🔧 {t('room.maintenance')}
-                                                    </Button>
-                                                )}
-
-                                                {room.status === RoomStatus.MAINTENANCE && (
-                                                    <Button size="sm" variant="primary" onClick={() => handleActivate(room.id, room.roomNumber)}>
-                                                        ✅ {t('room.activate')}
-                                                    </Button>
-                                                )}
-
-                                                <Button size="sm" variant="danger" onClick={() => handleDelete(room.id, room.roomNumber)}>
-                                                    🗑️ {t('common.delete')}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        {renderTableContent()}
                     </div>
                 </div>
             </div>
 
-            {/* Create/Edit Modal */}
             <Modal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
@@ -333,7 +332,6 @@ const ManagerRoomsPage = () => {
                 </div>
             </Modal>
 
-            {/* Confirm Modal */}
             <Modal
                 isOpen={confirmModal.open}
                 onClose={() => setConfirmModal({ ...confirmModal, open: false })}

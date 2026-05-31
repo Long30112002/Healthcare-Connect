@@ -34,11 +34,11 @@ const TIME_OPTIONS = () => {
   return options;
 };
 
-
 const HospitalWorkingHoursPage = () => {
   const { t } = useAppTranslation();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  
+  const [tableLoading, setTableLoading] = useState(true);
   const [workingHours, setWorkingHours] = useState<WorkingHoursResponse[]>([]);
   const [selectedDay, setSelectedDay] = useState<typeof DAYS[0] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -58,14 +58,14 @@ const HospitalWorkingHoursPage = () => {
 
   // Lấy dữ liệu
   const fetchData = async () => {
-    setLoading(true);
+    setTableLoading(true);
     try {
       const data = await workingHoursApi.getAllForManager();
       setWorkingHours(data);
     } catch (error) {
       toast.error(t('common.loadError'));
     } finally {
-      setLoading(false);
+      setTableLoading(false);
     }
   };
 
@@ -96,14 +96,6 @@ const HospitalWorkingHoursPage = () => {
   // Mở modal chỉnh sửa
   const handleEdit = (day: typeof DAYS[0]) => {
     const config = getConfigByDay(day.value);
-
-    console.log('=== EDIT WORKING HOURS ===');
-    console.log('Day:', day.label);
-    console.log('Config from API:', config);
-    console.log('lunchStart:', config?.lunchStart);
-    console.log('lunchEnd:', config?.lunchEnd);
-    console.log('==========================');
-
     setSelectedDay(day);
 
     if (config) {
@@ -173,12 +165,6 @@ const HospitalWorkingHoursPage = () => {
       lunchStart: hasLunch ? formData.lunchStart : null,
       lunchEnd: hasLunch ? formData.lunchEnd : null,
     };
-    console.log('=== WORKING HOURS SUBMIT DATA ===');
-    console.log('hasLunch:', hasLunch);
-    console.log('formData.lunchStart:', formData.lunchStart);
-    console.log('formData.lunchEnd:', formData.lunchEnd);
-    console.log('submitData:', submitData);
-    console.log('================================');
 
     await saveConfig(() => workingHoursApi.save(submitData));
   };
@@ -205,14 +191,116 @@ const HospitalWorkingHoursPage = () => {
     onSuccess: () => fetchData(),
   });
 
-  if (loading) {
-    return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-  }
+  const renderTableContent = () => {
+    if (tableLoading) {
+      return (
+        <div className="flex justify-center py-20">
+          <LoadingSpinner size="lg" text={t('common.loading')} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700/50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('workingHours.day')}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('workingHours.startTime')}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('workingHours.endTime')}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('workingHours.lunchBreak')}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('workingHours.slotDuration')}
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('common.actions')}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {DAYS.map((day) => {
+                const config = getConfigByDay(day.value);
+                const hasConfig = !!config;
+
+                const startTime = config?.startTime
+                  ? formatTimeOnly(config.startTime as unknown as number[])
+                  : (day.value === 7 ? '08:00' : '07:30');
+
+                const endTime = config?.endTime
+                  ? formatTimeOnly(config.endTime as unknown as number[])
+                  : (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
+
+                const hasLunchBreak = config?.lunchStart && config?.lunchEnd;
+
+                const lunchDisplay = hasLunchBreak
+                  ? `${formatTimeOnly(config.lunchStart as unknown as number[])} - ${formatTimeOnly(config.lunchEnd as unknown as number[])}`
+                  : t('workingHours.noLunchBreak');
+
+                const slotDisplay = config
+                  ? `${config.minSlotMinutes} - ${config.maxSlotMinutes} ${t('workingHours.minutes')}`
+                  : `15 - 120 ${t('workingHours.minutes')}`;
+
+                return (
+                  <tr key={day.value} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
+                      {day.label}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {startTime}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {endTime}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {lunchDisplay}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      {slotDisplay}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(day)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
+                          title={t('common.edit')}
+                        >
+                          ✏️
+                        </button>
+                        {hasConfig && (
+                          <button
+                            onClick={() => handleDelete(day.value)}
+                            className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                            title={t('common.delete')}
+                            disabled={deleting}
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="relative z-10 container mx-auto px-4 py-6">
-        {/* Header */}
+        {/* Header - LUÔN HIỂN THỊ */}
         <DashboardHeader
           icon="⏰"
           title={t('workingHours.title')}
@@ -221,7 +309,7 @@ const HospitalWorkingHoursPage = () => {
           hospitalName={user?.fullName?.includes('Manager') ? 'Bệnh viện của bạn' : ''}
         />
 
-        {/* Note */}
+        {/* Note - LUÔN HIỂN THỊ */}
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-6 border border-blue-200 dark:border-blue-800">
           <p className="text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
             <span className="text-lg">💡</span>
@@ -229,105 +317,10 @@ const HospitalWorkingHoursPage = () => {
           </p>
         </div>
 
-        {/* Bảng giờ làm việc */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700/50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('workingHours.day')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('workingHours.startTime')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('workingHours.endTime')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('workingHours.lunchBreak')}
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('workingHours.slotDuration')}
-                  </th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {t('common.actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {DAYS.map((day) => {
-                  const config = getConfigByDay(day.value);
+        {/* Bảng giờ làm việc - CHỈ PHẦN NÀY LOADING */}
+        {renderTableContent()}
 
-                  const hasConfig = !!config;
-
-                  // const startTime = config?.startTime || (day.value === 7 ? '08:00' : '07:30');
-                  const startTime = config?.startTime
-                    ? formatTimeOnly(config.startTime as unknown as number[])
-                    : (day.value === 7 ? '08:00' : '07:30');
-
-                  // const endTime = config?.endTime || (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
-                  const endTime = config?.endTime
-                    ? formatTimeOnly(config.endTime as unknown as number[])
-                    : (day.value === 6 ? '12:00' : day.value === 7 ? '11:00' : '17:00');
-
-                  const hasLunchBreak = config?.lunchStart && config?.lunchEnd;
-
-                  const lunchDisplay = hasLunchBreak
-                    ? `${formatTimeOnly(config.lunchStart as unknown as number[])} - ${formatTimeOnly(config.lunchEnd as unknown as number[])}`
-                    : t('workingHours.noLunchBreak');
-
-                  const slotDisplay = config
-                    ? `${config.minSlotMinutes} - ${config.maxSlotMinutes} ${t('workingHours.minutes')}`
-                    : `15 - 120 ${t('workingHours.minutes')}`;
-
-                  return (
-                    <tr key={day.value} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
-                        {day.label}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {startTime}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {endTime}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {lunchDisplay}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                        {slotDisplay}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex justify-center gap-2">
-                          <button
-                            onClick={() => handleEdit(day)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
-                            title={t('common.edit')}
-                          >
-                            ✏️
-                          </button>
-                          {hasConfig && (
-                            <button
-                              onClick={() => handleDelete(day.value)}
-                              className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
-                              title={t('common.delete')}
-                              disabled={deleting}
-                            >
-                              🗑️
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Reset button */}
+        {/* Reset button - LUÔN HIỂN THỊ */}
         <div className="mt-6 flex justify-end">
           <Button
             variant="outline"
