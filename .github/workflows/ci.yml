@@ -3,48 +3,61 @@ name: CI - Build & Test Docker
 on:
   push:
     branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   test-docker:
-    runs-on: ubuntu-latest  # Đã đúng là Ubuntu rồi
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Nâng lên v4
+      uses: actions/checkout@v4
     
-    - name: Create .env file from example
+    - name: Create .env file
       run: |
-        cp .env.example .env
-        # Dùng sed với định dạng khác (thêm g để global)
-        sed -i 's/CHANGE_ME_STRONG_PASSWORD/test123/g' .env
-        sed -i 's/CHANGE_ME_JWT_SECRET_KEY_32_CHARS_PLUS/test123/g' .env
-        sed -i 's/your_cloud_name/test123/g' .env
-        sed -i 's/your_api_key/test123/g' .env
-        sed -i 's/your_api_secret/test123/g' .env
+        cat > .env << EOF
+        DB_HOST=postgres
+        DB_PORT=5432
+        DB_NAME=healthcare_db
+        DB_USERNAME=postgres
+        DB_PASSWORD=test123
+        RABBITMQ_HOST=rabbitmq
+        RABBITMQ_PORT=5672
+        RABBIT_USERNAME=guest
+        RABBIT_PASSWORD=guest
+        MINIO_ENDPOINT=http://minio:9000
+        MINIO_ACCESS_KEY=minioadmin
+        MINIO_SECRET_KEY=minioadmin
+        MINIO_BUCKET_NAME=doctor-cvs
+        JWT_SIGNER_KEY=test123456789012345678901234567890
+        CLOUD_NAME=test
+        CLOUD_API_KEY=test
+        CLOUD_API_SECRET=test
+        PARTNER_CODE=MOMO
+        ACCESS_KEY=test
+        SECRET_KEY=test
+        FRONTEND_URL=http://localhost
+        CORS_ALLOWED_ORIGINS=http://localhost
+        MAIL_USERNAME=
+        MAIL_PASSWORD=
+        EOF
         
-        # Debug: in ra nội dung .env để xem
         cat .env
     
     - name: Build Docker images
-      run: |
-        docker-compose build
+      run: docker compose build 
     
-    - name: Start all services
-      run: |
-        docker-compose up -d
+    - name: Start services
+      run: docker compose up -d 
     
-    - name: Wait for services to be ready
+    - name: Wait for services
       run: |
-        echo "Waiting for services to start..."
         sleep 30
-        docker-compose ps
+        docker compose ps 
     
     - name: Check backend health
       run: |
-        curl -f http://localhost:8080/actuator/health || docker-compose logs backend
+        curl -f http://localhost:8080/actuator/health || docker compose logs backend  # 👈 SỬA
     
     - name: Show logs if failed
       if: failure()
-      run: docker-compose logs
+      run: docker compose logs  
