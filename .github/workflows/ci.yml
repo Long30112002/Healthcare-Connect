@@ -1,0 +1,50 @@
+name: CI - Build & Test Docker
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-docker:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Create .env file from example
+      run: |
+        cp .env.example .env
+        # Thay thế các giá trị mẫu để test
+        sed -i 's/CHANGE_ME_STRONG_PASSWORD/test123/g' .env
+        sed -i 's/CHANGE_ME_JWT_SECRET_KEY_32_CHARS_PLUS/test_jwt_key_12345678901234567890/g' .env
+        sed -i 's/your_cloud_name/test_cloud/g' .env
+        sed -i 's/your_api_key/test_key/g' .env
+    
+    - name: Build Docker images
+      run: |
+        docker-compose build
+    
+    - name: Start all services
+      run: |
+        docker-compose up -d
+    
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+        docker-compose ps
+    
+    - name: Check backend health
+      run: |
+        curl -f http://localhost:8080/actuator/health || exit 1
+    
+    - name: Check PostgreSQL is running
+      run: |
+        docker exec healthcare_postgres pg_isready -U postgres || exit 1
+    
+    - name: Show logs if failed
+      if: failure()
+      run: docker-compose logs
