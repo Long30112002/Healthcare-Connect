@@ -3,7 +3,7 @@ import type { AdminUserListResponse, AdminUserDetailResponse, PageResponse, Admi
 import type { PendingDoctor } from "../../infrastructure/api/adminApi";
 import type { RevenueData } from "../../infrastructure/api/statisticsApi";
 
-export const USE_MOCK_ADMIN = true;
+export const USE_MOCK_ADMIN = false;
 
 export const mockDashboardStats: DashboardStats = {
   // 4 stat cards

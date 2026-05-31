@@ -4,7 +4,7 @@ import { adminApi } from '../../../../infrastructure/api/adminApi';
 import type { AdminUserDetailResponse } from '../../../../core/types/api.response';
 import Modal from '../../../components/shared/Modal';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import { formatDateTime } from '../../../../shared/utils/dateUtils';
+import { formatDateTime, formatPrice } from '../../../../shared/utils/dateUtils';
 
 interface UserDetailModalProps {
   isOpen: boolean;
@@ -75,14 +75,6 @@ const UserDetailModal = ({ isOpen, userId, onClose }: UserDetailModalProps) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDownloadCV = (cvUrl: string) => {
-    window.open(cvUrl, '_blank');
-  };
-
-  const formatPrice = (price: number): string => {
-    return price?.toLocaleString('vi-VN') + 'đ' || '0đ';
   };
 
   return (

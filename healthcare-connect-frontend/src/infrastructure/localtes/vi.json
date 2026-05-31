@@ -74,7 +74,8 @@
         "locked": "Đã khóa",
         "createdAt": "Ngày tạo",
         "keyword": "Từ khóa",
-        "optional": "Không bắt buộc"
+        "optional": "Không bắt buộc",
+        "notFound": "Không tìm thấy thông tin"
     },
     "prescriptions": {
         "title": "Đơn thuốc của tôi",
