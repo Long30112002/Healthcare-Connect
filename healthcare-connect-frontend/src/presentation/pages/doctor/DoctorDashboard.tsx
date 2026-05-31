@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { appointmentApi } from '../../../infrastructure/api/appointmentApi';
+import { doctorApi } from '../../../infrastructure/api/doctorApi';
 import toast from 'react-hot-toast';
 import type { Appointment } from '../../../core/types';
 import type { DoctorResponse, PageResponse } from '../../../core/types/api.response';
@@ -13,7 +13,6 @@ import Button from '../../../presentation/components/shared/Button';
 import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
 import EmptyState from '../../../presentation/components/shared/EmptyState';
 import useFetch from '../../../application/hooks/useFetch';
-import { doctorApi } from '../../../infrastructure/api/doctorApi';
 
 type TabKey = 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -23,13 +22,29 @@ const DoctorDashboard = () => {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [doctorInfo, setDoctorInfo] = useState<DoctorResponse | null>(null);
-    const [loadingInfo, setLoadingInfo] = useState(true);
+    const [, setLoadingInfo] = useState(true);
 
-    const { activeTab, setActiveTab, page = 0, setPage, apiPage = 0 } = useTabWithUrl({
-        paramName: 'tab',
-        validValues: ['confirmed', 'in_progress', 'completed', 'cancelled'],
-        defaultValue: 'confirmed'
-    });
+    const [activeTab, setActiveTab] = useState<TabKey>('confirmed');
+    const [currentPage, setCurrentPage] = useState(1);
+    const apiPage = currentPage - 1;
+
+    const updateUrl = (tab: TabKey, pageNum: number) => {
+        const newUrl = `${window.location.pathname}?tab=${tab}&page=${pageNum}`;
+        window.history.replaceState(null, '', newUrl);
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get('tab') as TabKey;
+        const pageParam = parseInt(params.get('page') || '1');
+
+        if (tabParam && ['confirmed', 'in_progress', 'completed', 'cancelled'].includes(tabParam)) {
+            setActiveTab(tabParam);
+        }
+        if (!isNaN(pageParam) && pageParam >= 1) {
+            setCurrentPage(pageParam);
+        }
+    }, []);
 
     const statusMap: Record<TabKey, string | undefined> = {
         confirmed: 'CONFIRMED',
@@ -49,8 +64,19 @@ const DoctorDashboard = () => {
         }
     );
 
-    useEffect(() => {
+    const handleTabChange = (tabKey: TabKey) => {
+        setActiveTab(tabKey);
+        setCurrentPage(1);
+        setSearchTerm('');
+        updateUrl(tabKey, 1);
+    };
 
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+        updateUrl(activeTab, newPage);
+    };
+
+    useEffect(() => {
         const fetchDoctorInfo = async () => {
             try {
                 const info = await doctorApi.getMyInfo();
@@ -67,10 +93,11 @@ const DoctorDashboard = () => {
     const appointments = data?.content ?? [];
     const totalPages = data?.totalPages ?? 0;
 
+    // Stats cards - dùng appointments hiện tại (không loading riêng)
     const stats = [
-        { value: appointments.length, label: t('doctor.stats.total'), color: 'blue' as const },
-        { value: appointments.filter(a => a.status === 'COMPLETED').length, label: t('doctor.stats.completed'), color: 'green' as const },
-        { value: appointments.filter(a => a.status === 'IN_PROGRESS').length, label: t('doctor.stats.inProgress'), color: 'yellow' as const },
+        { value: appointments.length, label: t('doctor.stats.total'), color: 'blue' as const, loading: false },
+        { value: appointments.filter(a => a.status === 'COMPLETED').length, label: t('doctor.stats.completed'), color: 'green' as const, loading: false },
+        { value: appointments.filter(a => a.status === 'IN_PROGRESS').length, label: t('doctor.stats.inProgress'), color: 'yellow' as const, loading: false },
     ];
 
     const tabOptions = [
@@ -99,24 +126,8 @@ const DoctorDashboard = () => {
         }
     };
 
-    const handleTabChange = (tabKey: TabKey) => {
-        setActiveTab(tabKey);
-        setSearchTerm('');
-    };
-
-    const handlePageChange = (newPage: number) => {
-        if (setPage) {
-            setPage(newPage);
-        }
-    };
-
-    if ((loading || loadingInfo) && page === 0) {
-        return <LoadingSpinner fullScreen size="lg" />;
-    }
-
     const renderActions = (apt: Appointment) => {
         const actions = [];
-
 
         if (apt.status === 'IN_PROGRESS') {
             actions.push(
@@ -179,7 +190,6 @@ const DoctorDashboard = () => {
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl shadow-sm mb-6">
                     <div className="p-2">
                         <div className="flex items-center gap-2">
-                            {/* Filter Tabs - scroll ngang */}
                             <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide py-1">
                                 <FilterTabs
                                     options={tabOptions}
@@ -204,69 +214,71 @@ const DoctorDashboard = () => {
                     </div>
                 </div>
 
-
-                {/* Stats Cards */}
+                {/* Stats Cards - Luôn hiển thị, không loading */}
                 <DashboardStats stats={stats} />
 
-                {/* Search */}
+                {/* Search - Luôn hiển thị */}
                 <DashboardSearch
                     searchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
                     searchPlaceholder={t('doctor.searchPlaceholder')}
                 />
 
-                {/* Appointments List */}
+                {/* Appointments List - Chỉ loading phần này */}
                 <div className="bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 font-semibold text-gray-900 dark:text-white">
                         {t('receptionist.appointments')} ({filteredAppointments.length})
                     </div>
 
                     <div className="p-4">
-                        {error && (
+                        {/* Chỉ loading ở đây */}
+                        {loading ? (
+                            <div className="py-12 flex justify-center">
+                                <LoadingSpinner size="lg" />
+                            </div>
+                        ) : error ? (
                             <div className="text-center py-8">
                                 <p className="text-red-500 dark:text-red-400">{error}</p>
                                 <button onClick={() => refetch()} className="mt-2 text-primary hover:underline">
                                     {t('common.retry')}
                                 </button>
                             </div>
-                        )}
-
-                        {!error && filteredAppointments.length === 0 && (
+                        ) : filteredAppointments.length === 0 ? (
                             <EmptyState
                                 title={t('doctor.noAppointments')}
                                 description={t('doctor.noAppointmentsDesc')}
                                 icon="📋"
                             />
-                        )}
+                        ) : (
+                            <>
+                                <div className="space-y-3">
+                                    {filteredAppointments.map((apt) => (
+                                        <AppointmentCard
+                                            key={apt.id}
+                                            appointment={apt}
+                                            warning={renderWarning(apt)}
+                                            actions={renderActions(apt)}
+                                        />
+                                    ))}
+                                </div>
 
-                        {filteredAppointments.length > 0 && (
-                            <div className="space-y-3">
-                                {filteredAppointments.map((apt) => (
-                                    <AppointmentCard
-                                        key={apt.id}
-                                        appointment={apt}
-                                        warning={renderWarning(apt)}
-                                        actions={renderActions(apt)}
-                                    />
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="mt-6">
-                                <Pagination
-                                    currentPage={page + 1}
-                                    totalPages={totalPages}
-                                    onPageChange={handlePageChange}
-                                    showJumpToPage={true}
-                                    showFirstLast={true}
-                                    showPrevNext={true}
-                                    showPageIndicator={true}
-                                    size="md"
-                                    variant="default"
-                                />
-                            </div>
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="mt-6">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={handlePageChange}
+                                            showJumpToPage={true}
+                                            showFirstLast={true}
+                                            showPrevNext={true}
+                                            showPageIndicator={true}
+                                            size="md"
+                                            variant="default"
+                                        />
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

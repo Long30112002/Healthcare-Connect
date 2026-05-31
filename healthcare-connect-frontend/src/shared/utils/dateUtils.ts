@@ -80,10 +80,34 @@ export const formatPrice = (price: number): string => {
 };
 
 // Format date
-export const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+export const formatDate = (dateValue: string | number[] | undefined): string => {
+  if (!dateValue) return '';
+  
+  // Nếu là mảng số [year, month, day, ...] từ API
+  if (Array.isArray(dateValue) && dateValue.length >= 3) {
+    const year = dateValue[0];
+    const month = dateValue[1];
+    const day = dateValue[2];
+    return `${day}/${month}/${year}`;
+  }
+  
+  // Nếu là string
+  if (typeof dateValue === 'string') {
+    const date = new Date(dateValue);
+    if (!isNaN(date.getTime())) {
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    }
+  }
+  
+  // Fallback: thử tạo Date từ giá trị
+  const date = new Date(dateValue as any);
+  if (!isNaN(date.getTime())) {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  }
+  
+  return '';
 };
+
 
 /**
  * Lấy thời gian từ nhiều kiểu dữ liệu

@@ -96,6 +96,8 @@
       "list": "Doctor List",
       "noDoctors": "No Doctors Found"
     },
+    "pendingReceptionists": "Pending Receptionists",
+    "noPendingReceptionists": "No receptionist pending verification",
     "pendingDoctors": "Pending Doctors",
     "noPendingDoctors": "No pending doctors",
     "todayAppointments": "Today's Appointments",

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
 import EmptyState from '../../../presentation/components/shared/EmptyState';
 import Pagination from '../../../presentation/components/shared/Pagination';
+import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
 import { formatDateTime } from '../../../shared/utils/dateUtils';
 import type { DoctorRatingResponse, DoctorReviewResponse, PageResponse } from '../../../core/types/api.response';
 import useFetch from '../../../application/hooks/useFetch';
@@ -12,6 +12,8 @@ const DoctorReviewsPage = () => {
     const { t } = useAppTranslation();
     const [currentPage, setCurrentPage] = useState(1);
     const [rating, setRating] = useState<DoctorRatingResponse | null>(null);
+    const [ratingLoading, setRatingLoading] = useState(true);
+    const [hasData, setHasData] = useState(false);
     const pageSize = 10;
 
     // Lấy danh sách đánh giá
@@ -25,14 +27,23 @@ const DoctorReviewsPage = () => {
         }
     );
 
+    useEffect(() => {
+        if (data && !loading) {
+            setHasData(true);
+        }
+    }, [data, loading]);
+
     // Lấy rating tổng hợp
     useEffect(() => {
         const fetchRating = async () => {
+            setRatingLoading(true);
             try {
                 const ratingData = await reviewApi.getMyRating();
                 setRating(ratingData);
             } catch (err) {
                 console.error('Failed to fetch rating:', err);
+            } finally {
+                setRatingLoading(false);
             }
         };
         fetchRating();
@@ -65,6 +76,16 @@ const DoctorReviewsPage = () => {
 
     // Hiển thị rating trung bình dạng số
     const renderAverageRating = () => {
+        if (ratingLoading) {
+            return (
+                <div className="text-center">
+                    <div className="flex justify-center">
+                        <LoadingSpinner size="md" />
+                    </div>
+                </div>
+            );
+        }
+
         if (!rating || rating.totalReviews === 0) {
             return (
                 <div className="text-center">
@@ -89,10 +110,18 @@ const DoctorReviewsPage = () => {
 
     // Hiển thị phân bố số sao
     const renderRatingDistribution = () => {
+        if (ratingLoading) {
+            return (
+                <div className="flex justify-center py-8">
+                    <LoadingSpinner size="md" />
+                </div>
+            );
+        }
+
         if (!rating || rating.totalReviews === 0) return null;
 
         const maxCount = Math.max(rating.rating5Count, rating.rating4Count, rating.rating3Count, rating.rating2Count, rating.rating1Count);
-        
+
         const bars = [
             { stars: 5, count: rating.rating5Count, label: '5 ★' },
             { stars: 4, count: rating.rating4Count, label: '4 ★' },
@@ -119,10 +148,6 @@ const DoctorReviewsPage = () => {
         );
     };
 
-    if (loading && currentPage === 1) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <div className="container mx-auto px-4 py-6">
@@ -143,7 +168,6 @@ const DoctorReviewsPage = () => {
 
                 {/* Rating Summary */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    {/* Average Rating Card */}
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm p-6">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                             {t('doctorReviews.averageRating')}
@@ -151,7 +175,6 @@ const DoctorReviewsPage = () => {
                         {renderAverageRating()}
                     </div>
 
-                    {/* Rating Distribution Card */}
                     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-sm p-6">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                             {t('doctorReviews.ratingDistribution')}
@@ -167,69 +190,70 @@ const DoctorReviewsPage = () => {
                     </div>
 
                     <div className="p-4">
-                        {error && (
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <LoadingSpinner size="lg" />
+                            </div>
+                        ) : error ? (
                             <div className="text-center py-8">
                                 <p className="text-red-500 dark:text-red-400">{error}</p>
                                 <button onClick={() => refetch()} className="mt-2 text-primary hover:underline">
                                     {t('common.retry')}
                                 </button>
                             </div>
-                        )}
-
-                        {!error && reviews.length === 0 && (
+                        ) : reviews.length === 0 && hasData ? (
                             <EmptyState
                                 title={t('doctorReviews.noReviews')}
                                 description={t('doctorReviews.noReviewsDesc')}
                                 icon="⭐"
                             />
-                        )}
-
-                        {reviews.length > 0 && (
-                            <div className="space-y-4">
-                                {reviews.map((review) => (
-                                    <div key={review.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-                                        <div className="flex justify-between items-start flex-wrap gap-2">
-                                            <div>
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                                        {review.patientName}
-                                                    </span>
-                                                    {renderStars(review.rating)}
+                        ) : reviews.length === 0 && !hasData ? null : ( 
+                            <>
+                                <div className="space-y-4">
+                                    {reviews.map((review) => (
+                                        <div key={review.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                            <div className="flex justify-between items-start flex-wrap gap-2">
+                                                <div>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="font-semibold text-gray-900 dark:text-white">
+                                                            {review.patientName}
+                                                        </span>
+                                                        {renderStars(review.rating)}
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                        📅 {formatDateTime(review.createdAt, 'dd/mm/yyyy HH:MM')}
+                                                    </p>
                                                 </div>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                    📅 {formatDateTime(review.createdAt, 'dd/mm/yyyy HH:MM')}
-                                                </p>
+                                                <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                                    📋 {t('doctorReviews.appointment')}: {review.appointmentId.substring(0, 8)}
+                                                </span>
                                             </div>
-                                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                📋 {t('doctorReviews.appointment')}: {review.appointmentId.substring(0, 8)}
-                                            </span>
+
+                                            {review.comment && (
+                                                <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                                    <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                                                        "{review.comment}"
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
+                                    ))}
+                                </div>
 
-                                        {review.comment && (
-                                            <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
-                                                <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-                                                    "{review.comment}"
-                                                </p>
-                                            </div>
-                                        )}
+                                {totalPages > 1 && (
+                                    <div className="mt-6">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={setCurrentPage}
+                                            showJumpToPage={true}
+                                            showFirstLast={true}
+                                            showPrevNext={true}
+                                            size="md"
+                                        />
                                     </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="mt-6">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={setCurrentPage}
-                                    showJumpToPage={true}
-                                    showFirstLast={true}
-                                    showPrevNext={true}
-                                    size="md"
-                                />
-                            </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

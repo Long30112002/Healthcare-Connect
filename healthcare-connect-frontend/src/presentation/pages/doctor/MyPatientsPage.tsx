@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
 import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import Button from '../../../presentation/components/shared/Button';
-import LoadingSpinner from '../../../presentation/components/shared/LoadingSpinner';
 import EmptyState from '../../../presentation/components/shared/EmptyState';
 import Pagination from '../../../presentation/components/shared/Pagination';
 import Input from '../../../presentation/components/shared/Input';
@@ -31,7 +30,7 @@ const MyPatientsPage = () => {
     const { t, currentLanguage } = useAppTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [patients, setPatients] = useState<PatientSummaryWithUI[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
     const [totalElements, setTotalElements] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
@@ -218,10 +217,6 @@ const MyPatientsPage = () => {
         { key: 'recent' as const, label: t('myPatients.filterRecent'), icon: '🕐' },
         { key: 'oldest' as const, label: t('myPatients.filterOldest'), icon: '📅' },
     ];
-
-    if (loading) {
-        return <LoadingSpinner fullScreen variant="dots" text={t('common.loading')} />;
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">

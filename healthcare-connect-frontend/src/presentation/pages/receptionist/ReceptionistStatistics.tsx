@@ -24,12 +24,32 @@ const periodOptions = [
 
 const ReceptionistStatistics = () => {
     const { t } = useAppTranslation();
+    
     const [period, setPeriod] = useState<Period>('month');
     const [summary, setSummary] = useState<StatisticsResponse | null>(null);
     const [hourlyStats, setHourlyStats] = useState<HourlyStatistic[]>([]);
     const [doctorStats, setDoctorStats] = useState<DoctorStatistic[]>([]);
     const [dailyStats, setDailyStats] = useState<DailyStatistic[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const updateUrl = (periodValue: Period) => {
+        const newUrl = `${window.location.pathname}?period=${periodValue}`;
+        window.history.replaceState(null, '', newUrl);
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const periodParam = params.get('period') as Period;
+        
+        if (periodParam && ['today', 'week', 'month', 'quarter', 'halfyear', 'year'].includes(periodParam)) {
+            setPeriod(periodParam);
+        }
+    }, []);
+
+    const handlePeriodChange = (newPeriod: Period) => {
+        setPeriod(newPeriod);
+        updateUrl(newPeriod);  // ← Cập nhật URL, không reload
+    };
 
     const fetchStatistics = async () => {
         setLoading(true);
@@ -52,10 +72,10 @@ const ReceptionistStatistics = () => {
                 receptionistApi.getDoctorStatistics(),
                 receptionistApi.getDailyStatistics(),
             ]);
-            console.log('Summary response:', summaryData);   // 👈 LOG
-            console.log('Hourly response:', hourlyData);     // 👈 LOG
-            console.log('Doctor response:', doctorData);     // 👈 LOG
-            console.log('Daily response:', dailyData);       // 👈 LOG
+            console.log('Summary response:', summaryData);
+            console.log('Hourly response:', hourlyData);
+            console.log('Doctor response:', doctorData);
+            console.log('Daily response:', dailyData);
             setSummary(summaryData);
             setHourlyStats(Array.isArray(hourlyData) ? hourlyData : []);
             setDoctorStats(Array.isArray(doctorData) ? doctorData : []);
@@ -93,7 +113,7 @@ const ReceptionistStatistics = () => {
                         <FilterTabs
                             options={periodOptions}
                             activeKey={period}
-                            onSelect={(key) => setPeriod(key as Period)}
+                            onSelect={(key) => handlePeriodChange(key as Period)}
                             variant="default"
                             size="sm"
                             className="py-1"

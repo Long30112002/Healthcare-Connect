@@ -1801,6 +1801,8 @@
             "list": "Danh sách bác sĩ",
             "noDoctors": "Không có bác sĩ nào"
         },
+        "pendingReceptionists": "Lễ tân chờ duyệt",
+        "noPendingReceptionists": "Không có lễ tân chờ duyệt",
         "pendingDoctors": "Bác sĩ chờ duyệt",
         "noPendingDoctors": "Không có bác sĩ nào chờ duyệt",
         "todayAppointments": "Lịch hẹn hôm nay",

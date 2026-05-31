@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAppTranslation } from '../../../application/hooks/useAppTranslation';
-import { useTabWithUrl } from '../../../application/hooks/useTabWithUrl';
 import { receptionistApi } from '../../../infrastructure/api/receptionistApi';
 import { formatDateTime } from '../../../shared/utils/dateUtils';
 import toast from 'react-hot-toast';
@@ -24,17 +23,14 @@ const PAGE_SIZE = 5;
 const ReceptionistDashboard = () => {
     const { t } = useAppTranslation();
 
-    const { activeTab: activeFilter, setActiveTab: setActiveFilter, page, setPage, apiPage } = useTabWithUrl({
-        paramName: 'filter',
-        validValues: ['today', 'tomorrow', 'week', 'all'],
-        defaultValue: 'today',
-        includePage: true,
-        pageZeroBased: false
-    });
+    // ==================== STATE ====================
+    const [activeFilter, setActiveFilter] = useState<FilterKey>('today');
+    const [currentPage, setCurrentPage] = useState(1);
+    const apiPage = currentPage - 1;
 
     // State cơ bản
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [appointmentsLoading, setAppointmentsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [checkingId, setCheckingId] = useState<string | null>(null);
     const [totalPages, setTotalPages] = useState(0);
@@ -77,6 +73,36 @@ const ReceptionistDashboard = () => {
         { key: 'all' as FilterKey, label: t('receptionist.filterAll'), icon: '📋' },
     ];
 
+    const updateUrl = (filter: FilterKey, page: number) => {
+        const newUrl = `${window.location.pathname}?filter=${filter}&page=${page}`;
+        window.history.replaceState(null, '', newUrl);
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const filterParam = params.get('filter') as FilterKey;
+        const pageParam = parseInt(params.get('page') || '1');
+
+        if (filterParam && ['today', 'tomorrow', 'week', 'all'].includes(filterParam)) {
+            setActiveFilter(filterParam);
+        }
+        if (!isNaN(pageParam) && pageParam >= 1) {
+            setCurrentPage(pageParam);
+        }
+    }, []);
+
+    const handleFilterChange = (filter: FilterKey) => {
+        setActiveFilter(filter);
+        setCurrentPage(1);
+        setSearchTerm('');
+        updateUrl(filter, 1);  
+    };
+
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+        updateUrl(activeFilter, newPage);
+    };
+
     const getStatsData = () => {
         if (activeFilter !== 'tomorrow' && activeFilter !== 'all') {
             return [
@@ -102,7 +128,6 @@ const ReceptionistDashboard = () => {
         }
     };
 
-    // Fetch functions
     const fetchStatistics = useCallback(async () => {
         setStatsLoading(true);
         try {
@@ -125,20 +150,19 @@ const ReceptionistDashboard = () => {
     };
 
     const fetchAppointments = useCallback(async () => {
-        setLoading(true);
+        setAppointmentsLoading(true);
         try {
-            const response = await receptionistApi.getAppointments(activeFilter, apiPage ?? 0, PAGE_SIZE);
+            const response = await receptionistApi.getAppointments(activeFilter, apiPage, PAGE_SIZE);
             setAppointments(response.content || []);
             setTotalPages(response.totalPages);
             setTotalElements(response.totalElements);
         } catch {
             toast.error(t('receptionist.loadError'));
         } finally {
-            setLoading(false);
+            setAppointmentsLoading(false);
         }
     }, [activeFilter, apiPage, t]);
 
-    // Effects
     useEffect(() => {
         fetchHospitalInfo();
     }, []);
@@ -147,12 +171,6 @@ const ReceptionistDashboard = () => {
         fetchStatistics();
         fetchAppointments();
     }, [activeFilter, apiPage, fetchStatistics, fetchAppointments]);
-
-    // Handlers
-    const handleFilterChange = (filter: FilterKey) => {
-        setActiveFilter(filter);
-        setSearchTerm('');
-    };
 
     const handleCheckIn = async (appointmentId: string) => {
         setCheckingId(appointmentId);
@@ -193,13 +211,7 @@ const ReceptionistDashboard = () => {
         }
     };
 
-    const handlePageChange = (newPage: number) => {
-        if (setPage) {
-            setPage(newPage);
-        }
-    };
-
-    // Filter appointments by search term
+    // ==================== FILTER & CHECK-IN HELPERS ====================
     const getFilteredAppointments = () => {
         if (!searchTerm) return appointments;
         return appointments.filter(apt =>
@@ -208,7 +220,6 @@ const ReceptionistDashboard = () => {
         );
     };
 
-    // Check if can check-in
     const canCheckIn = (appointment: Appointment): boolean => {
         if (appointment.status !== 'CONFIRMED') return false;
         const appointmentDate = new Date(
@@ -223,40 +234,29 @@ const ReceptionistDashboard = () => {
 
     const filteredAppointments = getFilteredAppointments();
 
+    const isExpired = (appointment: Appointment): boolean => {
+        if (appointment.status === 'NO_SHOW') return true;
+        if (appointment.status === 'COMPLETED') return true;
+        if (appointment.status === 'IN_PROGRESS') return true;
+
+        const appointmentDateTime = new Date(
+            appointment.startTime[0],
+            appointment.startTime[1] - 1,
+            appointment.startTime[2],
+            appointment.startTime[3] || 0,
+            appointment.startTime[4] || 0
+        );
+        const now = new Date();
+        const expiredTime = new Date(appointmentDateTime.getTime() + 30 * 60000);
+        if (now > expiredTime && appointment.status !== 'CANCELLED') {
+            return true;
+        }
+        return false;
+    };
+
     const renderActions = (apt: Appointment) => {
         const actions = [];
 
-        // Kiểm tra xem lịch có hết hạn không
-        const isExpired = (appointment: Appointment): boolean => {
-            // Đã NO_SHOW
-            if (appointment.status === 'NO_SHOW') return true;
-
-            // Đã hoàn thành
-            if (appointment.status === 'COMPLETED') return true;
-
-            // Đã check-in hoặc đang khám
-            if (appointment.status === 'IN_PROGRESS') return true;
-
-            // Kiểm tra thời gian: nếu đã quá giờ khám
-            const appointmentDateTime = new Date(
-                appointment.startTime[0],
-                appointment.startTime[1] - 1,
-                appointment.startTime[2],
-                appointment.startTime[3] || 0,
-                appointment.startTime[4] || 0
-            );
-            const now = new Date();
-
-            // Nếu đã qua 30 phút sau giờ khám
-            const expiredTime = new Date(appointmentDateTime.getTime() + 30 * 60000);
-            if (now > expiredTime && appointment.status !== 'CANCELLED') {
-                return true;
-            }
-
-            return false;
-        };
-
-        // Nút mở QR cho AWAITING_PAYMENT
         if (apt.status === 'AWAITING_PAYMENT') {
             actions.push(
                 <Button key="qr" size="sm" variant="outline" onClick={() => handleOpenQR(apt.id)}>
@@ -265,16 +265,13 @@ const ReceptionistDashboard = () => {
             );
         }
 
-        // Kiểm tra lịch đã hết hạn chưa
         if (isExpired(apt)) {
             actions.push(
                 <span key="expired" className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm">
                     ⏰ {t('receptionist.scheduleExpired')}
                 </span>
             );
-        }
-        // Nút hủy lịch (chỉ hiển thị nếu chưa hủy và chưa hết hạn)
-        else if (apt.status !== 'CANCELLED') {
+        } else if (apt.status !== 'CANCELLED') {
             actions.push(
                 <Button
                     key="cancel"
@@ -294,7 +291,6 @@ const ReceptionistDashboard = () => {
             );
         }
 
-        // Nút check-in cho CONFIRMED (nếu đúng ngày)
         if (apt.status === 'CONFIRMED') {
             if (canCheckIn(apt)) {
                 actions.push(
@@ -312,10 +308,6 @@ const ReceptionistDashboard = () => {
         }
         return <div className="flex justify-end gap-2 flex-wrap">{actions}</div>;
     };
-
-    if (loading && page === 1) {
-        return <LoadingSpinner fullScreen size="lg" />;
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -383,7 +375,7 @@ const ReceptionistDashboard = () => {
                     </div>
 
                     <div className="p-4">
-                        {loading ? (
+                        {appointmentsLoading ? (
                             <div className="py-12 flex justify-center">
                                 <LoadingSpinner size="lg" />
                             </div>
@@ -420,7 +412,7 @@ const ReceptionistDashboard = () => {
                                 {totalPages > 1 && (
                                     <div className="mt-6">
                                         <Pagination
-                                            currentPage={page ?? 1}
+                                            currentPage={currentPage}
                                             totalPages={totalPages}
                                             onPageChange={handlePageChange}
                                             showJumpToPage={true}
