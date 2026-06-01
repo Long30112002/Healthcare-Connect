@@ -10,5 +10,13 @@ RUN mvn clean package -DskipTests
 FROM amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+
+# Cài đặt postgresql-client
+RUN apk add --no-cache postgresql16-client
+
+# Copy startup script
+COPY startup.sh /startup.sh
+RUN chmod +x /startup.sh
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "app.jar"]
+ENTRYPOINT ["/startup.sh"]
