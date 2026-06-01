@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { getErrorMessage } from '../localtes';
-console.log("API URL:", import.meta.env.VITE_API_URL);
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+console.log("API URL:", API_BASE_URL);
 
 const axiosClient = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
