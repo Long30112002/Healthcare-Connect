@@ -40,10 +40,10 @@ public class AuthController {
         // Tạo HttpOnly Cookie cho Access Token
         ResponseCookie cookie = ResponseCookie.from("accessToken", result.getAccessToken())
                 .httpOnly(true)               // Bảo mật XSS
-                .secure(false)                // Để false khi chạy localhost (đổi thành true khi lên HTTPS)
+                .secure(true)                // Để false khi chạy localhost (đổi thành true khi lên HTTPS)
                 .path("/")                    // Có hiệu lực cho toàn bộ domain
                 .maxAge(3600)   // Thời gian sống (giây) - khớp với JWT
-                .sameSite("Lax")              // Chống CSRF cơ bản Lax
+                .sameSite("None")              // Chống CSRF cơ bản Lax
                 .build();
 
         // Thêm cookie vào header Set-Cookie
