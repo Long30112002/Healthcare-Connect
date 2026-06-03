@@ -10,8 +10,8 @@ services:
       DB_HOST: postgres
       DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME:-healthcare_db}
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD}  # Lấy từ env file
+      #DB_USERNAME: ${DB_USERNAME:-postgres}
+      #DB_PASSWORD: ${DB_PASSWORD}  # Lấy từ env file
       JWT_SIGNER_KEY: ${JWT_SIGNER_KEY}
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
