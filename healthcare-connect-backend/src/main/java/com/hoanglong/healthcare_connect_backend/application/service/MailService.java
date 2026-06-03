@@ -30,14 +30,17 @@ public class MailService {
     private final RabbitTemplate rabbitTemplate;
     private final SpringTemplateEngine templateEngine;
 
-    @Value("${app.frontend.url}")
-    private String frontendUrl;
+//    @Value("${app.frontend.url}")
+//    private String frontendUrl;
 
-    @Value("${BREVO_API_KEY:}")
-    private String brevoApiKey;
+//    @Value("${BREVO_API_KEY:}")
+//    private String brevoApiKey;
 
     @Value("${app.frontend.public-url:${app.frontend.url}}")
     private String publicFrontendUrl;
+
+    @Value("${RESEND_API_KEY:}")
+    private String resendApiKey;
 
 //    @Value("${spring.mail.username}")
 //    private String mailFrom;
@@ -378,22 +381,21 @@ public class MailService {
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
 
-            // Tạo JSON body cho Brevo API
+            // Tạo JSON body cho Resend API
             String jsonBody = String.format(
-                    "{\"sender\":{\"email\":\"%s\",\"name\":\"Healthcare Connect\"}," +
-                            "\"to\":[{\"email\":\"%s\"}]," +
-                            "\"subject\":\"%s\"," +
-                            "\"htmlContent\":\"%s\"}",
-                    "noreply@healthcareconnect.com", to, escapeJson(subject), escapeJson(htmlContent)
+                    "{\"from\":\"onboarding@resend.dev\", " +
+                            "\"to\":[\"%s\"], " +
+                            "\"subject\":\"%s\", " +
+                            "\"html\":\"%s\"}",
+                    to, escapeJson(subject), escapeJson(htmlContent)
             );
 
             OkHttpClient client = new OkHttpClient();
             Request request = new Request.Builder()
-                    .url("https://api.brevo.com/v3/smtp/email")
+                    .url("https://api.resend.com/emails")  // Thay đổi URL
                     .post(RequestBody.create(jsonBody, MediaType.parse("application/json")))
-                    .addHeader("accept", "application/json")
-                    .addHeader("api-key", brevoApiKey)
-                    .addHeader("content-type", "application/json")
+                    .addHeader("Authorization", "Bearer " + resendApiKey)  // Thay header
+                    .addHeader("Content-Type", "application/json")
                     .build();
 
             try (Response response = client.newCall(request).execute()) {
