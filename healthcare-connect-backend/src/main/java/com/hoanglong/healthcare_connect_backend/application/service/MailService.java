@@ -17,6 +17,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -375,6 +376,12 @@ public class MailService {
     @PostConstruct
     public void checkConfig() {
         log.info("==> [CONFIG] Mail Service khởi tạo thành công với email: {}", mailFrom);
+        try {
+            InetAddress address = InetAddress.getByName("smtp.gmail.com");
+            log.info("==> [DNS] smtp.gmail.com = {}", address.getHostAddress());
+        } catch (Exception e) {
+            log.error("==> [DNS ERROR] {}", e.getMessage(), e);
+        }
     }
 
     private String formatDate(LocalDate date) {
