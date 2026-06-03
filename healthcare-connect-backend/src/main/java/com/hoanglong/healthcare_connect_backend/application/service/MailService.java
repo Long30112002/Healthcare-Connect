@@ -41,8 +41,8 @@ public class MailService {
     @Value("${app.frontend.public-url:${app.frontend.url}}")
     private String publicFrontendUrl;
 
-    @Value("${spring.mail.username}")
-    private String mailFrom;
+//    @Value("${spring.mail.username}")
+//    private String mailFrom;
 
     // --- ĐẨY VÀO RABBITMQ ---
     private void pushToQueue(String to, String subject, String template, Map<String, Object> vars) {
@@ -386,7 +386,7 @@ public class MailService {
                             "\"to\":[{\"email\":\"%s\"}]," +
                             "\"subject\":\"%s\"," +
                             "\"htmlContent\":\"%s\"}",
-                    mailFrom, to, escapeJson(subject), escapeJson(htmlContent)
+                    "noreply@healthcareconnect.com", to, escapeJson(subject), escapeJson(htmlContent)
             );
 
             OkHttpClient client = new OkHttpClient();
@@ -421,13 +421,13 @@ public class MailService {
 
     @PostConstruct
     public void checkConfig() {
-        log.info("==> [CONFIG] Mail Service khởi tạo thành công với email: {}", mailFrom);
-        try {
-            InetAddress address = InetAddress.getByName("smtp.gmail.com");
-            log.info("==> [DNS] smtp.gmail.com = {}", address.getHostAddress());
-        } catch (Exception e) {
-            log.error("==> [DNS ERROR] {}", e.getMessage(), e);
-        }
+        log.info("==> [CONFIG] Mail Service khởi tạo thành công với Brevo API");
+//        try {
+//            InetAddress address = InetAddress.getByName("smtp.gmail.com");
+//            log.info("==> [DNS] smtp.gmail.com = {}", address.getHostAddress());
+//        } catch (Exception e) {
+//            log.error("==> [DNS ERROR] {}", e.getMessage(), e);
+//        }
     }
 
     private String formatDate(LocalDate date) {
