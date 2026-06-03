@@ -5,13 +5,12 @@ import com.hoanglong.healthcare_connect_backend.core.constant.UserRole;
 import com.hoanglong.healthcare_connect_backend.core.entity.*;
 import com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config.RabbitMQConfig;
 import jakarta.annotation.PostConstruct;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -37,6 +36,9 @@ public class MailService {
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
+
+    @Value("${BREVO_API_KEY:}")
+    private String brevoApiKey;
 
     @Value("${app.frontend.public-url:${app.frontend.url}}")
     private String publicFrontendUrl;
@@ -352,25 +354,71 @@ public class MailService {
     }
 
     // --- HÀM GỬI MAIL VẬT LÝ ---
+//    public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
+//        try {
+//            Context context = new Context();
+//            context.setVariables(variables);
+//            String htmlContent = templateEngine.process(templateName, context);
+//
+//            MimeMessage message = mailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+//            helper.setTo(to);
+//            helper.setSubject(subject);
+//            helper.setText(htmlContent, true);
+//            helper.setFrom(mailFrom);
+//
+//            mailSender.send(message);
+//            log.info("==> [SUCCESS] Email gửi tới {} thành công!", to);
+//        } catch (Exception e) {
+//            log.error("==> [ERROR] Lỗi gửi mail vật lý: {}", e.getMessage());
+//            throw new RuntimeException("Gửi mail thất bại", e);
+//        }
+//    }
+
+    // --- HÀM GỬI MAIL VẬT LÝ BẰNG BREVO API ---
     public void sendEmailPhysical(String to, String subject, String templateName, Map<String, Object> variables) {
         try {
             Context context = new Context();
             context.setVariables(variables);
             String htmlContent = templateEngine.process(templateName, context);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            helper.setFrom(mailFrom);
+            // Tạo JSON body cho Brevo API
+            String jsonBody = String.format(
+                    "{\"sender\":{\"email\":\"%s\",\"name\":\"Healthcare Connect\"}," +
+                            "\"to\":[{\"email\":\"%s\"}]," +
+                            "\"subject\":\"%s\"," +
+                            "\"htmlContent\":\"%s\"}",
+                    mailFrom, to, escapeJson(subject), escapeJson(htmlContent)
+            );
 
-            mailSender.send(message);
-            log.info("==> [SUCCESS] Email gửi tới {} thành công!", to);
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url("https://api.brevo.com/v3/smtp/email")
+                    .post(RequestBody.create(jsonBody, MediaType.parse("application/json")))
+                    .addHeader("accept", "application/json")
+                    .addHeader("api-key", brevoApiKey)
+                    .addHeader("content-type", "application/json")
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    log.info("==> [SUCCESS] Email gửi tới {} thành công qua Brevo API!", to);
+                } else {
+                    log.error("==> [ERROR] Brevo API trả về lỗi: {} - {}", response.code(), response.body().string());
+                    throw new RuntimeException("Gửi mail thất bại qua Brevo API");
+                }
+            }
         } catch (Exception e) {
             log.error("==> [ERROR] Lỗi gửi mail vật lý: {}", e.getMessage());
             throw new RuntimeException("Gửi mail thất bại", e);
         }
+    }
+
+    private String escapeJson(String s) {
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 
     @PostConstruct
