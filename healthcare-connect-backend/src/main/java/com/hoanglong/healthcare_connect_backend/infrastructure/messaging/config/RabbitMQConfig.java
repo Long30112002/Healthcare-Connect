@@ -2,6 +2,7 @@ package com.hoanglong.healthcare_connect_backend.infrastructure.messaging.config
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -108,5 +109,13 @@ public class RabbitMQConfig {
         });
 
         return rabbitTemplate;
+    }
+
+    @PostConstruct
+    public void testRabbitConfig() {
+        log.info("HOST={}", System.getenv("RABBITMQ_HOST"));
+        log.info("PORT={}", System.getenv("RABBITMQ_PORT"));
+        log.info("VHOST={}", System.getenv("SPRING_RABBITMQ_VIRTUAL_HOST"));
+        log.info("USER={}", System.getenv("RABBITMQ_USERNAME"));
     }
 }
