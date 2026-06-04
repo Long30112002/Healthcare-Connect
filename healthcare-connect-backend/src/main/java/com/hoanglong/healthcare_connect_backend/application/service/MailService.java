@@ -47,19 +47,21 @@ public class MailService {
 
     // --- ĐẨY VÀO RABBITMQ ---
     private void pushToQueue(String to, String subject, String template, Map<String, Object> vars) {
-        if (to == null || to.isEmpty()) {
-            log.error("==> [QUEUE] Bỏ qua đẩy vào hàng chờ vì email người nhận bị NULL!");
-            return;
-        }
-        NotificationMessage message = NotificationMessage.builder()
-                .recipientEmail(to)
-                .subject(subject)
-                .templateName(template)
-                .variables(vars)
-                .build();
-
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, message);
-        log.info("==> [QUEUE] Đã đẩy mail '{}' tới {} vào hàng chờ", subject, to);
+//        if (to == null || to.isEmpty()) {
+//            log.error("==> [QUEUE] Bỏ qua đẩy vào hàng chờ vì email người nhận bị NULL!");
+//            return;
+//        }
+//        NotificationMessage message = NotificationMessage.builder()
+//                .recipientEmail(to)
+//                .subject(subject)
+//                .templateName(template)
+//                .variables(vars)
+//                .build();
+//
+//        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, message);
+//        log.info("==> [QUEUE] Đã đẩy mail '{}' tới {} vào hàng chờ", subject, to);
+        log.info("==> [DIRECT] Gửi email trực tiếp tới: {}", to);
+        sendEmailPhysical(to, subject, template, vars);
     }
 
     // NGHIỆP VỤ XÁC THỰC
