@@ -15,9 +15,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme') as Theme | null;
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        // const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+        const initialTheme = savedTheme || 'light'; 
         document.documentElement.classList.toggle('dark', initialTheme === 'dark');
         setTheme(initialTheme);
     }, []);

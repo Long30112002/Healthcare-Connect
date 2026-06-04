@@ -9,7 +9,6 @@ import LanguageToggle from '../components/shared/LanguageToggle';
 import toast from 'react-hot-toast';
 import { useMinLoadingAction } from '../../application/hooks/useMinLoadingAction';
 import type { LoginResponse } from '../../core/types/api.response';
-// import { useSystemConfig } from '../../application/hooks/useSystemConfig';
 import Logo from '../components/shared/Logo';
 
 const LoginPage = () => {
@@ -20,6 +19,23 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const { t, getError } = useAppTranslation();
     const [searchParams] = useSearchParams();
+    const [isDemoExpanded, setIsDemoExpanded] = useState(false);
+    const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+
+    const handleCopy = (email: string, password: string) => {
+        navigator.clipboard.writeText(`${email}\n${password}`);
+        setCopiedEmail(email);
+        setTimeout(() => setCopiedEmail(null), 2000);
+        toast.success('Đã copy thông tin đăng nhập!');
+    };
+
+    const demoAccounts = [
+        { role: '👑 ADMIN', email: 'admin@healthcare.com', password: 'password123', color: 'purple' },
+        { role: '🏥 HOSPITAL_MANAGER', email: 'manager.xuyena@hospital.com', password: 'password123', color: 'blue' },
+        { role: '👨‍⚕️ DOCTOR', email: 'doctor_1_3484@hospital.com', password: 'password123', color: 'green' },
+        { role: '📋 RECEPTIONIST', email: 'reception.xuyena1@hospital.com', password: 'password123', color: 'orange' },
+        { role: '👤 PATIENT', email: 'patient1@demo.com', password: 'password123', color: 'teal' },
+    ];
 
     useEffect(() => {
         const verified = searchParams.get('verified');
@@ -42,7 +58,6 @@ const LoginPage = () => {
     }, [searchParams, t]);
 
     const { execute: handleLogin, loading } = useMinLoadingAction<LoginResponse>({
-
         minLoadingTime: 1000,
         errorMessage: (error) => {
             const errorKey = error.response?.data?.errorKey;
@@ -75,7 +90,6 @@ const LoginPage = () => {
         await handleLogin(() => authApi.login({ email, password }));
     };
 
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500 p-4 relative">
             <div className="absolute top-4 right-4 z-20">
@@ -107,6 +121,124 @@ const LoginPage = () => {
                 <div className="absolute top-40 right-1/3 text-white opacity-65 text-6xl animate-bounce-slow">❤️</div>
             </div>
 
+            {/* Sticky Note - Desktop (right side) */}
+            <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-30 hidden md:block">
+                <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/30 dark:to-amber-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl shadow-2xl backdrop-blur-md w-72 overflow-hidden transition-all duration-300">
+                    <div
+                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-yellow-100/50 dark:hover:bg-yellow-800/30"
+                        onClick={() => setIsDemoExpanded(!isDemoExpanded)}
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="text-lg">📋</span>
+                            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">Tài khoản Demo</h4>
+                            {!isDemoExpanded && (
+                                <span className="text-xs bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded-full">
+                                    {demoAccounts.length}
+                                </span>
+                            )}
+                        </div>
+                        <svg className={`w-4 h-4 transition-transform duration-300 text-gray-600 dark:text-gray-300 ${isDemoExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+
+                    {isDemoExpanded && (
+                        <div className="p-3 pt-0 border-t border-yellow-200 dark:border-yellow-800">
+                            <div className="grid grid-cols-1 gap-2 mt-2 max-h-96 overflow-y-auto">
+                                {demoAccounts.map((acc, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => handleCopy(acc.email, acc.password)}
+                                        className={`bg-white/70 dark:bg-gray-800/70 rounded-lg p-2 cursor-pointer transition-all hover:scale-102 hover:shadow-md border-l-4 border-${acc.color}-500`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-xs font-bold text-${acc.color}-600 dark:text-${acc.color}-400`}>
+                                                {acc.role}
+                                            </span>
+                                            {copiedEmail === acc.email && (
+                                                <span className="text-[10px] text-green-600">✓ Copied!</span>
+                                            )}
+                                        </div>
+                                        <div className="text-xs font-mono text-gray-700 dark:text-gray-300 truncate">
+                                            {acc.email}
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {acc.password}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2 text-center">
+                                💡 Click vào ô để copy
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Floating button - Mobile (bottom right) */}
+            <div className="fixed bottom-20 right-4 z-30 md:hidden">
+                {isDemoExpanded ? (
+                    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/30 dark:to-amber-900/30 border border-yellow-200 dark:border-yellow-800 rounded-xl shadow-2xl backdrop-blur-md w-80 mb-2">
+                        <div className="flex justify-between items-center p-3 border-b border-yellow-200 dark:border-yellow-800">
+                            <div className="flex items-center gap-2">
+                                <span className="text-lg">📋</span>
+                                <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">Tài khoản Demo</h4>
+                            </div>
+                            <button
+                                onClick={() => setIsDemoExpanded(false)}
+                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="p-3 max-h-80 overflow-y-auto">
+                            <div className="grid grid-cols-1 gap-2">
+                                {demoAccounts.map((acc, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => handleCopy(acc.email, acc.password)}
+                                        className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-2 cursor-pointer hover:bg-white/90 dark:hover:bg-gray-800/90 transition border-l-4"
+                                        style={{ borderLeftColor: `var(--color-${acc.color})` }}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold" style={{ color: `var(--color-${acc.color})` }}>
+                                                {acc.role}
+                                            </span>
+                                            {copiedEmail === acc.email && (
+                                                <span className="text-[10px] text-green-600">✓</span>
+                                            )}
+                                        </div>
+                                        <div className="text-xs font-mono text-gray-700 dark:text-gray-300 truncate">
+                                            {acc.email}
+                                        </div>
+                                        <div className="text-[10px] text-gray-500 dark:text-gray-400">
+                                            {acc.password}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2 text-center">
+                                💡 Mật khẩu: password123
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => setIsDemoExpanded(true)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white rounded-full p-3 shadow-lg transition-all hover:scale-105 active:scale-95"
+                        title="Tài khoản demo"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                        </svg>
+                    </button>
+                )}
+            </div>
+
+            {/* Main Form Container */}
             <div className="relative z-10 w-full max-w-md">
                 <div className="text-center mb-8">
                     <Link
@@ -131,7 +263,6 @@ const LoginPage = () => {
                             placeholder="your@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            // required
                             size="lg"
                             rounded="lg"
                             icon={
@@ -147,7 +278,6 @@ const LoginPage = () => {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            // required
                             size="lg"
                             rounded="lg"
                             icon={
@@ -243,11 +373,6 @@ const LoginPage = () => {
                     from { opacity: 0; transform: scale(0.9); }
                     to { opacity: 1; transform: scale(1); }
                 }
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    25% { transform: translateX(-5px); }
-                    75% { transform: translateX(5px); }
-                }
                 .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
                 .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
                 .animate-float-delay { animation: float-delay 8s ease-in-out infinite; }
@@ -256,7 +381,7 @@ const LoginPage = () => {
                 .animate-spin-slow { animation: spin-slow 12s linear infinite; }
                 .animate-slide-up { animation: slide-up 0.6s ease-out; }
                 .animate-fade-in { animation: fade-in 0.5s ease-out; }
-                .animate-shake { animation: shake 0.3s ease-in-out; }
+                .hover\:scale-102:hover { transform: scale(1.02); transition: transform 0.2s ease; }
             `}</style>
         </div>
     );
