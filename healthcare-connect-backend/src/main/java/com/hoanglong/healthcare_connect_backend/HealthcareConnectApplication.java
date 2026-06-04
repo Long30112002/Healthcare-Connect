@@ -12,7 +12,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class HealthcareConnectApplication
 {
 	public static void main(String[] args) {
-		SpringApplication.run(HealthcareConnectApplication.class, args);
+//		SpringApplication.run(HealthcareConnectApplication.class, args);
 //		System.out.println(new BCryptPasswordEncoder().encode("password123"));
+		System.setProperty("java.awt.headless", "true");
+
+		SpringApplication app = new SpringApplication(HealthcareConnectApplication.class);
+		app.setLazyInitialization(true);
+		app.run(args);
 	}
 }
